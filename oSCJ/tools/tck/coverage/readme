@@ -1,0 +1,13 @@
+Steps to get a coverage statistic:
+
+1. instrumenting the Java classes
+
+   make instr
+
+2. run the instrumented programs
+
+   ./instrtckrun.sh
+
+3. get report
+
+   make report

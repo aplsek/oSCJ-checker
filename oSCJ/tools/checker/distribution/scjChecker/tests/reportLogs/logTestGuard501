@@ -1,0 +1,4 @@
+tests/scjAllowed/TestGuard501.java:25: Illegal method call of an SCJ method.
+            FakeSCJ.level1Call();
+                              ^
+1 error

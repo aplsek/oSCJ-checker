@@ -1,0 +1,46 @@
+#!/bin/sh
+# find-and-exclude <dirlist> <excludelist> <pattern>
+# Search each directory in <dirlist> for files matching the glob
+# pattern <pattern>, but none of the ant patterns in <excludelist>.
+#
+# <dirlist> is `:'
+# <excludelist> is seperated by spaces and/or commas
+
+dirs=`echo "$1" | sed 's/:/\\
+/g' | sed 's,/*$,,' | sort -u `
+
+#echo dirs=$dirs
+shift
+
+excludes=`echo "$1" | sed -e 's/\*\*/*/g' -e 's/ *, */\\
+/g'`
+
+#echo excludes=$excludes
+shift
+
+# The quoting generated here is clearly wrong.  
+# echo "`exclude_paths $d`" looks good, but `exclude_paths $d` cannot
+# be parsed.
+exclude_paths() {
+  echo "$excludes" | awk "
+       { printf(\"! -path '$1/%s' \", \$0) }
+       /\\*/ { printf(\"! -path '$1%s' \", substr(\$0, 2)) }
+  "
+} 
+
+# In BSD, -H and -L both follow links, but gnu find supports neither
+if find -H $0 > /dev/null 2>&1; then
+  H=-H
+  follow=""
+else
+  H=""
+  follow=-follow
+fi
+
+for d in $dirs
+do
+ex="`exclude_paths $d`"
+#echo "in $d: ($ex)"
+eval `echo find $H $d $follow $ex -name "'$1'"`
+done
+

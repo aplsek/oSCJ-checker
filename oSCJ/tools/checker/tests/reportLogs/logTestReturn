@@ -1,0 +1,4 @@
+tests/scope/TestReturn.java:4: Method return types must have a @Scope annotation.
+    public Object foo() {
+           ^
+1 error

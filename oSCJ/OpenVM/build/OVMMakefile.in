@@ -1,0 +1,52 @@
+# Generate a Makefile in the VM build directory.  This file is very
+# similar to the Makefile.in's used by configure, but 
+srcdir=${native-dir}/${engine}
+DRIVER_GENERATED=OVMMakefile 			\
+		 structs.h 			\
+		 cstructs.h			\
+		 native_calls.gen		\
+		 img				\
+		 gen-ovm.c			
+VPATH=$(srcdir)
+include_path=${include-path}
+lib_path=${lib-path}
+include ${Vars.mk}
+
+# Full preemption is not supported yet, so we always go with plain C
+# definitions of CAS32() and CAS64().
+CFLAGS+= -DSAFE_POINTS -DUNIPROCESSOR
+CFLAGS+= -DOVM_APP_ARG0=\"${arg0}\" -DOVM_APP_ARG1=\"${arg1}\" -DOVM_APP_ARG2=\"${arg2}\"  -DOVM_APP_ARG3=\"${arg3}\"
+
+
+
+BOOTBASE=${BOOTBASE}
+HEAPBASE=${HEAPBASE}
+HEAPSIZE=${HEAPSIZE}
+INITFS=${initfs}
+ARRAYLETS_ARG=${arraylets-with-size}
+
+ifeq "$(ARRAYLETS_ARG)" ""
+ # no arraylets
+else
+ CFLAGS += -DARRAYLETS -DARRAYLET_SIZE=$(ARRAYLETS_ARG)
+endif
+
+ifeq "$(INITFS)" ""
+ # no filesystem initialization
+ EXTRA_OVM_OBJS = 
+
+else
+ CFLAGS += -DLOAD_FS_IMAGE
+ EXTRA_OVM_OBJS = FilesystemImage.o
+endif
+
+
+all: ovm
+
+# build/*-image.mk may introduce more dependencies through the 
+# IMAGE_LINK_MAGIC_FILE variable.  This variable must be set before we 
+# encounter ovm's link rule.  *-image.mk may also define new targets, so 
+# all: must be defined before we include it.
+include ${rules-dir}/$(LINK_IMAGE)-image.mk
+include $(srcdir)/Compile.mk
+include ${Rules.mk}

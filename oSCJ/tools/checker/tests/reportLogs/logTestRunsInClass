@@ -1,0 +1,4 @@
+tests/scope/TestRunsInClass.java:9: @RunsIn annotations must be a sub-scope of @Scope annotations.
+public class TestRunsInClass {
+       ^
+1 error

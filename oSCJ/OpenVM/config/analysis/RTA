@@ -1,0 +1,5 @@
+## -analysis=RTA Uses an implemenation of Rapid Type Analsyis (a 
+## 	simple whole program analysis that is more accurate than 
+## 	CHA) to link the application.
+s3.services.bootimage.Analysis$Factory \
+		s3.services.bootimage.RapidTypeAnalysis$Factory

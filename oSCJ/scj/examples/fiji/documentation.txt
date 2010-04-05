@@ -1,0 +1,182 @@
+PLDI Paper Guides & Info
+========================
+
+ALWAYS DO WRITE MANUALS WHAT WHEN & HOW I DID. IT SAVES TIME ON AT LARGE!
+
+I. New Fiji Installation (x86_64 target)
+
+    !!! Fiji must be in path without any spaces !!! 
+
+    - download it from repository:
+   
+      > hg clone ssh://pmaj@zed.cs.purdue.edu//p/sss/fivmhg/fivm
+
+    - set PATH to point to Sun's java:
+   
+      > export PATH=/opt/jdk1.6.0_16/bin:$PATH
+
+    - run:
+   
+      > autoreconf -i
+      > ./configure
+     
+    - build it with:
+   
+      > make
+     
+      If it throws an error here, check that fivm is on path without any spaces
+
+II. Old Fiji Installation (x86_64 target)
+
+    - screw old Fiji, just don't use -G hf
+
+III. New Fragger and JNI
+
+    - javah generates the header file
+    - be sure to allocate & deallocate your own copies of the java objects, code example is on wikipedia
+    - native code from java is easy (public native)
+    - this is how you compile the shared library for Java (x86_64)
+
+      > cc -shared -o libfragger.so Main.c -I/jdk/include -Ijdk/include/linux -O2 -fno-strict-aliasing -fPIC
+
+      for some reason fiji requires 32bit version of the shared library, so you must do the following:
+
+      > cc -m32 -shared -o libfragger.so Main.c -Ijdk/include -Ijdk/include/linux -O2 -fno-strict-aliasing
+
+      where in both cases the jdk points to the JDK installation, in my case it is /opt/jdk1... for x86_64 and      /opt/jdk32 for 32bit.
+
+    - now just run the Java thing and it works ok...
+
+IV. Augment RTEMS so that I can output the task IDs for the rapita box benchmarking.
+
+    - this turned out to be very easy, just follow the user extensions documentation in the RTEMS C programmer     manual. A simple example is in the ctxsw project.
+
+V. Update FIVM and build it for RTEMS on LEON3.
+
+    - in Fiji directory do the hg update:
+
+    > hg pull
+    > hg up
+
+    - configure for RTEMS using:
+
+    ./configure --target=sparc-rtems4.9 --with-rtems=/opt/rtems-4.9 --with-rtems-bsp=leon3
+
+    - it is better to enable both RTEMS and x86_64 by invoking:
+
+    ./configure --with-targets="x64_64-unknown-linux-gnu sparc-rtems4.9" --with-rtems=/opt/rtems-4.9 --with-rtems-bsp=leon3
+
+    (for me it was not working, it complained about ecj not containing Java. rm -r fivm and hg clone solved the problem).
+
+    !! it appears that Fiji won't compile for RTEMScd. Filip told me that I should compile with --no-sigquit-debug parameter. It works now.
+
+VI. Filip's Fiji Instrumentation
+
+    - this is actually quite easy, see the file gcslowtiming.h in the same directory. Once you finish the header file you must compile your code with --internal-inst instrumentation.h, where instrumentation.h is the name of your header file.
+
+VII. Rapita measurements
+
+    I am getting best results if I measure with sample rate 50Mhz and oversample 2. It also seems to me that 20Mhz and 4x oversample should work (possibly even better) for the 40Mhz sparc.
+
+    There seems to be no way of setting other sampling rates than the predefined ones. Even in windows.
+
+VIII. How to set up a cvs repo:
+
+    Go to zed and /p/sss/cvs and mkdir new directory.
+
+    Then you have to checkout it and set up the CVSROOT and checkout what you need:
+    
+    > export CVS_RSH=ssh
+    > export CVSROOT=:ext:pmaj@zed.cs.purdue.edu:/p/sss/cvs
+    > cvs checkout xyz
+    > cd xyz
+
+    Then make changes. Once done, you have to add the files with the "cvs add" command. Then it's
+
+    > cvs update
+    > cvs commit
+
+    To commit to the repo. If you are not happy with the default editor, change the EDITOR env variable to for instance "mc -e".
+
+IX. Fiji RuntimeJ instrumentations:
+
+    They are usually located in runtimej/src/com/fiji/fivm/...
+
+    If you want to build with them, use the following when compiling java:
+
+    > /opt/jdk32/bin/javac heap/Main.java -classpath "./:../fivm/runtimej/build"
+
+    e.g. set the classpath appropriately.
+
+
+
+
+
+
+
+
+   
+SCJ requirements on Fiji
+----------------------------------------------------------------------
+
+- Fiji should start direclty the main in Immortal 
+      - should do setImmortal 
+
+- SCJ main method should run in Immortal memory
+then we can run directly: 
+
+
+
+safelet.setup();
+MissionSequencer sequencer = safelet.getSequencer();
+sequencer.start();
+
+but ERROR:
+   constructor of the Safelet 
+      - assumes also that we are in the RealtimeThread
+
+
+
+
+--------------------------------
+
+
+
+
+Appendix A: Useful FIJI commands
+
+    --max-threads=10
+    --g-def-max-mem=10M
+    --no-opt (never use this, only affects inlining of methods)
+    --more-opt (the same, only affects inlining of methods)
+    -G none (turns off the GC)
+    -G hf (new compacting garbage collector)
+    --noisy-method "Ljavanotation" (enables very verbose output when the particular method is compiled, uses the Java L notation)
+
+Appendix B: Mercurial
+
+    -update:
+    
+    > hg pull
+    > hg up
+
+    
+
+Appendix C: Other useful hints
+
+    FIVMR_LOG_GC=true <fiji program to run> (enables GC output messages, quite cool actually)
+    FIVMR_GC_MAX_MEM=300m <fiji executable> (sets the max heap so that you don't have to recompile)
+
+
+
+
+NOTES:
+
+    Jan says about abstract: No references, no abbreviations and no obfuscated product names. KISS
+    
+
+
+
+
+
+-- 

@@ -1,0 +1,4 @@
+tests/scjAllowed/TestNoSCJAllowed.java:10: Illegal method call of an SCJ method.
+        NoAllowed.foo();
+                     ^
+1 error

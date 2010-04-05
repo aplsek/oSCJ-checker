@@ -1,0 +1,10 @@
+cdx.Level1Safelet
+gnu.java.net.protocol.file.Handler
+gnu.java.net.protocol.jar.Handler
+java.lang.VMThread
+javax.realtime.OpaqueToIntIdentityHashtable
+javax.realtime.OpaqueToIntIdentityHashtable$Iterator
+javax.realtime.ScopeFinalizerThread
+javax.realtime.ScopeStack
+[Ljava.lang.String;
+org.ovmj.java.io.BufferingPrintStream

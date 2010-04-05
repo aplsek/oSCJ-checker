@@ -1,0 +1,37 @@
+SCJ-Annotation Project@Purdue
+
+TODO list
+-------------------------------------------------------------------------------------------------------------------------
+
+@SCJAllowed
+ - guards expressions
+   
+
+Error messages and Warnings
+   - we need to have a list of errors, warnings and their descriptions
+
+
+Remaining annotations:
+    @MemoryAreaEncloses
+    @MEmoryAreaSame
+    @Allocate( { Area.THIS })
+   - what to do with them?
+
+Annotation Definitions
+  - implementations of annotations are now both in the src/ and scj-src/ directories, we should unify this
+  
+
+
+
+
+  
+  
+  
+Test cases
+-----------
+
+
+Tests - BlockFree tests
+ - add the BlockFree test
+
+- create test cases for every annotation

@@ -1,0 +1,76 @@
+  
+@SCJProtected
+----------------------------------------
+
+- can be used only in javax. ... packages
+- can not be used both @SCJProtected and @SCJAllowed
+
+- an element with @SCJProtected can be accessed only from scj packages
+
+- if inside @SCJProtected element
+	 - you can access other elements in SCJ
+	 		e.g. if inside SCJProtected method, you can call any other methods in SCJ packages. (TODO:verify this)
+
+
+@SCJAllowed
+----------------------------------------
+
+
+0) General Rules
+- can not access element that has a lower level
+ 
+ 
+1) Enclosing Elements
+- enclosing element must have the same or lower level than the element itself
+
+
+
+2) Classes
+    - classes that have no @SCJAllowed (and are not encapsulated by a class having one) are not checked
+    - if members=true => un-annotated elements of the class inherit the level of the class
+                                            
+                       
+3) Class inheritance
+
+Table: Class Inheritance, possible @SCJAllowed level combinations
+-----------------------
+          method   class
+
+parent     1  2     1  2
+           ^  ^     ^  ^
+           x  |     |  x
+child      2  1     2  1
+
+-----------------------
+
+- a class can extend only those classes that have the same or lower level 
+  
+    
+3) Constructors
+    - default constructor has the same level as its class
+    - no presumption is made upon the non-default constructors
+    - super() is handled (can call super constructors that has the same or higher level) 
+    
+    
+
+4) Methods
+- method must have the same or higher level than its class
+- a general case of this rule - enclosing element must have the same or lower level than the element itself
+ 
+ 
+ 
+5) Method Overriding
+
+Table: Method Overriding
+-----------------------
+          method   
+
+parent     1  2     
+           ^  ^     
+           x  |     
+child      2  1     
+
+-----------------------
+- Method must have the same or lower SCJ-level than all overridden methods.
+
+ 

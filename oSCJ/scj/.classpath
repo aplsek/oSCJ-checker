@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="ri/spec/fiji/src"/>
+	<classpathentry kind="src" path="ri/s3/fiji/src"/>
+	<classpathentry kind="src" path="ri/spec/common/src"/>
+	<classpathentry kind="src" path="ri/s3/common/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/rt2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

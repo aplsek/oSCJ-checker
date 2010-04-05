@@ -1,0 +1,4 @@
+tests/scope/TestAllocation.java:13: Object allocation in a context other than its designated scope.
+        new C();
+        ^
+1 error

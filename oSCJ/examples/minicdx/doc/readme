@@ -1,0 +1,138 @@
+miniCDx readme 
+----------------------------------------------------------------------------
+author: Ales Plsek, aplsek@purdue.edu
+
+
+
+
+
+
+GENERATION OF Frames:
+--------------------------------------
+- now its done at runtime in the FrameBuffer
+- only 1 workload is used, number of aircraft can vary
+
+
+
+
+
+
+RUNNING ON BOARD:
+--------------------------------------
+
+period : on board is 120ms, on x86 its only 50ms
+- runs approx 10mins on board
+
+
+
+
+RAPITA BENCHMARKING
+--------------------------------------
+
+- methods Benchmarked.set/done are used to annotate manually the code,
+- TODO : support of these methods must be included in OVM, it should work for Fiji.
+
+
+
+Downloading results from the BOARD
+--------------------------------------
+
+- with minicom
+sequence of commands : Ctrl+A , Z, L
+
+
+
+Output statistics
+--------------------------------------
+
+Release stats:
+ - [1. number] - when should be the release time
+   [2. number] - what was the actual release time
+ 
+ 
+ 
+Processing the results 
+--------------------------
+
+splitCapture script in Python
+-->> then it can be processed in gnuplot, Mathematica, "R"  
+ 
+ 
+ 
+
+
+
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+HERE IS starting A CHANGE LOG - documenting merging the changes from the new CDx with miniCDx
+-----------------------------------------------------------------------------
+
+
+KEY DIFFERENCES:
+
+in CDx there is : (PersistentDetectorscopeEntry)
+Benchmarker.set(13);
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+boolean missed=!RealtimeThread.waitForNextPeriod();
+//System.out.println("Done.");
+//boolean missed=false;
+Benchmarker.done(13);
+				
+We dont have this in SCJ.
+
+------------------------------------------------------------
+
+
+
+Classes OK
+------------
+Aircraft
+CallSign
+
+Compare
+	- toSTring method
+		- its using ASCIIConverter (miniCDx)
+		- but the CDx is not using it
+
+
+Constants	
+	- priorities changed
+	- TODO: change MAX-FRAMES
+
+Collision
+
+CollisionCollector
+ 	- just one line changed...
+ 	
+FrameBuffer
+Motion
+NoiseGenerator
+NanoClock
+RawFrame
+TransientDetectorScopeEntry
+Reducer
+StateTable
+Vector2d
+Vector3d
+VectorConstants
+VectorMath
+ZeroVerctorException
+
+
+
+
+
+Other Classes  - miniCDx
+---------------------
+
+ASCIIConvertor - IIRC, ASCIIConverter was used to get rid of some assignment errors
+that were caused by the way Sun RTS handled strings with thread
+locals
+
+
+
+EXTRA CDX
+------------
+
+FrameSynchronizer
+SpinningFrameSynchronizer

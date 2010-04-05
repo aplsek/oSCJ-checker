@@ -1,0 +1,4 @@
+tests/scjAllowed/TestSCJAllowed101.java:23: Illegal method call of an SCJ method.
+        FakeSCJ.level1Call();
+                          ^
+1 error

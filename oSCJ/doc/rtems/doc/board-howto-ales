@@ -1,0 +1,91 @@
+LEON board with RTEMS
+------------------------
+
+RCC-  - RTEMS C (cross) Compiler  - Links an application with RTEMS operating system modules needed for the application
+  
+  
+  
+Linux Configuration  
+------------------------
+
+for the user using the board:
+
+sudo usermod -a -G dialout user
+groups user  
+
+sudo chown root /opt/grmon-eval/linux/grmon-eval && sudo chmod +s /opt/grmon-eval/linux/grmon-eval 
+  
+  
+Starting grmon
+--------------
+
+grmon-eval -eth -ip 192.168.0.55
+
+
+
+
+HelloWorld Example
+----------------------
+
+@ peleton
+
+/home/ales/board/
+  - here are some examples of programs for the Board
+  
+The Helloworld LEON3+RTEMS example is:
+/home/ales/board/samples/bin/leon3/v8fp/rtems-hello
+
+To run the example on board:
+
+start grmon
+
+execute:
+
+glib> load .../rtems-hello
+glib> run
+
+To see output from the BOARD:
+--------------------------------
+
+ - you must start minicom in a different console window
+ execute:
+ $ minicom
+
+
+
+
+
+Flash programming
+------------------
+  (in grmon) (you dont need this, for a simple use just the "load" command is ok. Ales)
+
+  flash unlock all
+  flash erase all
+  flash load filename.exe
+  flash lock all
+
+  the .exe file must be created with mkprom
+
+  mkprom -freq 40 -baud 38400 -rmw -romsize 65536 -nosram -sdram 64 \
+	-sdrambanks 1 -o filename.prom filename.exe
+
+
+
+
+
+Compilation for RTEMS/LEON
+--------------------------
+
+  sparc-rtems-gcc -g -mcpu=v8 -O2 -o rtems-hello rtems-hello.c -lm
+     (this is with the hardware FPU)
+
+
+Bare-C compilation for LEON
+---------------------------
+
+  sparc-elf-gcc -g -mcpu=v8 -O2 -o hello.bcc hello.c
+  
+  
+ 
+ 
+ 
