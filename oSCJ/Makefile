@@ -1,39 +1,43 @@
 #
 # INSTALLATION:
-
-#     1. distribution directory structure 
-#			- this is outdated, see the webpage or the readme file
-#         scj-ovm/   
-#             |-- OpenVM/    - check out OVM from : svn checkout  svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/ovm/branches/SCJ/OpenVM
-#             |   |-- Makefile  - put the makefile from /scj/examples/ovm      
-#             |-- scj/       - check out from: svn checkout svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/scj-project/scj
-#             |   |--   ...
-#             |   |-- examples/    
-#             |   |   |-- hello/
-#             |   |   |   |-- build/       - contains .class files of the HelloWorld
-#             |   |   |   |-- src/         - helloworld example sources in Java 4!
-#             |   |   |   |-- ovm-config/  - contains configuration file for ovm, so far contains list of classes called by ovm reflectively
-#             |   |   |-- ovm/                 
-#             |   |   |   |-- Makefile     - this is the makefile that you need to copy into the root of scj-ovm/ project
-#             |   |   |-- rtems
-#             |   |   |-- minicdx/    
-#             |   |   |   |-- Makefile
-#             |-- miniCDx-J4 - check out: svn checkout svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/scj-project/minicdx-j4
+# 1. distribution directory structure 
+#			
+#  oSCJ/  
+#    * OpenVM/ -- contains distribution of our SCJ-compliant VM
+#    * build/ -- the SCJ-OVM configured for will be installed into this directory
+#          o x86/ -- oSCJ compiled for x86
+#          o leon3/ -- oSCJ compiled for leon3 
+#    * doc/ -- documentation directory
+#    * examples/ -- examples of SCJ applications
+#          o HelloWorld/ -- hello world application
+#          o minicdj -- the miniCDj benchmark distribution 
+#    * scj/
+#          o ri/ -- SCJ library implementation
+#          o ri_rtsj/ -- SCJ library implementation based on RTSJ 
+#    * tools/
+#          o checker/ -- Static Checker distribution
+#          o tck/ TCK for SCJ 
+#    * readme
+#    * LGPL-License.txt 
 #
 #      svn checkout  svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/scj-project/cdc
 #      
-#      2. set up JAVA5 variable (or install JAVA5 if you dont have it)
+# 2. set up JAVA5 variable (or install JAVA5 if you dont have it)
 #				-add JAva 5 to your PATH
-#      3. move this Makefile to the root direcotory scj-ovm/
 #
-#	   4. make, make cdx, make board, etc.
-# 
+# 3. move this Makefile to the root direcotory scj-ovm/
+#
+# 4. make, make cdx, make board, etc.
+# 	 	- type make
+#		
+#		
 #
 # Targets:
-# - run: compile ovm, helloworld, and run it
-# - hello: compile helloworld
-# - ovm: compile just the ovm
-# - clean: clean all
+# - make: compile ovm, helloworld, and run it
+# - make cdx: compile and run miniCDj
+# - make board: compile ovm, scj and helloworld for leon 3 board
+# - make board_cdx :  compile ovm, scj and miniCDj for leon 3 board
+# - clean
 #
 #
 HOME=$(CURDIR)
@@ -171,7 +175,7 @@ board_hello: clean_board_hw prepare_board_hello
 			    -scope-size=$(SCOPE) \
 			    -heap-size=$(HEAP) \
 			    -main=$(MAIN) \
-			    -opt=$(OPT) \CDx_LAUNCHER
+			    -opt=$(OPT) \
 			    -linker-options=-Ttext=0x40000000 \
 			    -classpath=./:./cdx/:./collision/:./statetable:./javacp/ \
 			-bootclasspath=$(BOARD_BOOT_CLASSPATH) 
