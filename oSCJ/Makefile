@@ -33,11 +33,12 @@
 #		
 #
 # Targets:
-# - make: compile ovm, helloworld, and run it
-# - make cdx: compile and run miniCDj
-# - make board: compile ovm, scj and helloworld for leon 3 board
-# - make board_cdx :  compile ovm, scj and miniCDj for leon 3 board
-# - clean
+# - make: compile ovm, helloworld, and run it - [x86]
+#		- make hello = compiles helloworld for x86
+#		- make run   = runs helloworld on x86
+# - make cdx: compile and run miniCDj [x86]
+# - make board: compile ovm, scj and helloworld  [leon 3 board]
+# - make board_cdx :  compile ovm, scj and miniCDj [leon 3 board]
 #
 #
 HOME=$(CURDIR)
