@@ -63,13 +63,14 @@ JAVA5=/usr/lib/jvm/jdk1.5.0_22/bin
 
 ENGINE=j2c
 OPT=run  
-MODEL=SCJManager-B_Mf_F_H
+#MODEL=SCJManager-B_Mf_F_H
+MODEL=SCJManager-B_M
 THREADS=SCJJVM
 IOCONF=SIGIOSockets_PollingOther
 
 # intentionally high
-HEAP=10m #2
-SCOPE=24m  #14
+HEAP=4m #2
+SCOPE=14m  #14
 PAD=8m
 
 MAIN=MyHelloWorld
