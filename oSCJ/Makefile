@@ -10,7 +10,11 @@
 #    * doc/ -- documentation directory
 #    * examples/ -- examples of SCJ applications
 #          o HelloWorld/ -- hello world application
+#				o leon3/ -- compiled hello world application for leon3
+#				o build/ -- compiled hello world application for x86
 #          o minicdj -- the miniCDj benchmark distribution 
+#				o leon3/ -- compiled cdx for leon3
+#				o build/ -- compiled cdx for x86
 #    * scj/
 #          o ri/ -- SCJ library implementation
 #          o ri_rtsj/ -- SCJ library implementation based on RTSJ 
@@ -20,7 +24,7 @@
 #    * readme
 #    * LGPL-License.txt 
 #
-#      svn checkout  svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/scj-project/cdc
+#   
 #      
 # 2. set up JAVA5 variable (or install JAVA5 if you dont have it)
 #				-add JAva 5 to your PATH
@@ -51,16 +55,26 @@ BOOT_CLASSPATH=$(OVM_BUILD)/src/syslib/user/ovm_scj/ovm_rt_user_scj.jar:$(OVM_BU
 
 SCJ_SRC=./scj/ri
 
-# just a temporary dir, will be deleted
+# just a temporary dirs, will be deleted after the compilation
 SCJ_NEW=./riJ4
 TEMP=$(shell basename $(SCJ_SRC))
 
 
+#
+# ! MAke sure you have Java 5 installed and that it is in you $PATH! !
+#
+#
 JAVA5=/usr/lib/jvm/jdk1.5.0_22/bin
 
 
 
-
+#
+# Special OVM parameters
+#
+# MODEL - specifies the memory and object model used by oSCJ
+#		- we have a specific SCJManager memory model
+#		- for object model we use B_M, the B_Mf_F_H is also possible
+#
 ENGINE=j2c
 OPT=run  
 #MODEL=SCJManager-B_Mf_F_H
@@ -68,13 +82,32 @@ MODEL=SCJManager-B_M
 THREADS=SCJJVM
 IOCONF=SIGIOSockets_PollingOther
 
-# intentionally high
-HEAP=4m #2
+
+#
+#
+#  MEMORY PARAMETERS for SCJMemory Manager
+#
+#	- in oSCJ is no GC, therefore 
+#				HEAP memory == IMMORTAL memory
+#					- when you see HEAP, it means immortal
+#
+#	- scope = total space for allocation of private/mission memory areas
+#	- pad - this is just a technical parameter, it must be bigger than the ovm image
+#
+IMMORTAL=4m #2
 SCOPE=14m  #14
 PAD=8m
 
+#
+# this is the name of the Main method of the application running on top of oSCJ
+#
 MAIN=MyHelloWorld
 
+
+#
+# HOME directories of example applications provided in the distribution
+#
+#
 CDX=$(HOME)/examples/minicdx
 HELLOWORLD=$(HOME)/examples/helloworld
 
@@ -139,7 +172,7 @@ board_cdx_gen: clean_board_cdx prepare_board_cdx
 			    -io=$(IOCONF) \
 			    -pad-image-size=$(PAD) \
 			    -scope-size=$(SCOPE) \
-			    -heap-size=$(HEAP) \
+			    -heap-size=$(IMMORTAL) \
 			    -main=$(CDX_LAUNCHER) \
 			    -opt=$(OPT) \
 			    -linker-options=-Ttext=0x40000000 \
@@ -175,7 +208,7 @@ board_hello: clean_board_hw prepare_board_hello
 			    -io=$(IOCONF) \
 			    -pad-image-size=$(PAD) \
 			    -scope-size=$(SCOPE) \
-			    -heap-size=$(HEAP) \
+			    -heap-size=$(IMMORTAL) \
 			    -main=$(MAIN) \
 			    -opt=$(OPT) \
 			    -linker-options=-Ttext=0x40000000 \
@@ -225,7 +258,7 @@ $(HELLOWORLD)/build/ovm:
 		-pad-image-size=$(PAD) \
 		-main=$(LAUNCHER) -classpath=./ \
 		-bootclasspath=$(BOOT_CLASSPATH) \
-		-heap-size=$(HEAP) \
+		-heap-size=$(IMMORTAL) \
 		-scope-size=$(SCOPE) \
 		#-reflective-class-trace="rclasses" \
 		#-reflective-method-trace="rmethods" \
@@ -270,7 +303,7 @@ gen_CDx: compile_CDx
 		-io=$(IOCONF) \
 		-main=$(CDX_LAUNCHER) -classpath=./simulator/:./utils/:./cdx/:./ \
 		-bootclasspath=$(CDX_BOOT_CLASSPATH) \
-		-heap-size=$(HEAP) \
+		-heap-size=$(IMMORTAL) \
 		-scope-size=$(SCOPE)
 		#-reflective-class-trace="rclasses" \
 		#-reflective-method-trace="rmethods" \
@@ -326,7 +359,7 @@ gen_app: compile_app
 		-io=$(IOCONF) \
 		-main=$(APP_MAIN) -classpath=$(APP_SRC)/src:./simulator/:./utils/:./cdx/:./ \
 		-bootclasspath=$(APP_BOOT_CLASSPATH) \
-		-heap-size=$(HEAP) \
+		-heap-size=$(IMMORTAL) \
 		-scope-size=$(SCOPE)
 		#-reflective-class-trace="rclasses" \
 		#-reflective-method-trace="rmethods" \
