@@ -655,40 +655,44 @@ public final class RuntimeExports extends BaseRuntimeExports implements UnsafeAc
 
     // unsafe hook for scope memory termination protocol
     public void monitorEnter(Oop obj){// throws PragmaAtomic { //PARBEGIN PAREND
-        csa.monitorEnter(obj);
+       // csa.monitorEnter(obj);
     }
 
     // unsafe hook for scope memory termination protocol
     public void monitorExit(Oop obj) {// throws PragmaAtomic { //PARBEGIN PAREND
-        csa.monitorExit(obj);
+       // csa.monitorExit(obj);
     }
 
     // hook for NHRT to scope finalizer thread handoff
     public void monitorTransfer(Oop obj, Oop newOwner) {
-        csa.monitorTransfer(obj, (JavaOVMThread)newOwner);
+       // csa.monitorTransfer(obj, (JavaOVMThread)newOwner);
     }
 
     // used for Thread.holdsLock
     public boolean currentThreadOwnsMonitor(Oop obj) {
-	return csa.currentThreadOwnsMonitor(obj);
+	//return csa.currentThreadOwnsMonitor(obj);
+    	return false;
     }
 
 
     public void monitorNotify(Oop obj) {// throws PragmaAtomic { //PARBEGIN PAREND
-	csa.monitorSignal(obj);
+	//csa.monitorSignal(obj);
     }
 
     public void monitorNotifyAll(Oop obj) {// throws PragmaAtomic { //PARBEGIN PAREND
-	csa.monitorSignalAll(obj);
+	//csa.monitorSignalAll(obj);
     }
 
     public boolean monitorWait(Oop obj)  {//throws PragmaAtomic { //PARBEGIN PAREND
-	return csa.monitorWaitAbortable(obj);
+	//return csa.monitorWaitAbortable(obj);
+    	return false;
     }
 
     public boolean monitorTimedWait(Oop obj, long millis, int nanos) 
     throws PragmaAtomic { //PARBEGIN PAREND
-        int rc = csa.monitorWaitTimedAbortable(
+       
+    	/*
+    	int rc = csa.monitorWaitTimedAbortable(
             obj, 
             millis * TimeConversion.NANOS_PER_MILLI + nanos
             );
@@ -697,19 +701,23 @@ public final class RuntimeExports extends BaseRuntimeExports implements UnsafeAc
         }
         else {
             return true;
-        }
+        }*/
+    	return false;
     }
 
     // only for RealtimeJavaMonitors
     public boolean monitorAbsoluteTimedWait(Oop obj, long deadline) 
     throws PragmaAtomic { //PARBEGIN PAREND
-        int rc = csa.monitorWaitAbsoluteTimedAbortable(obj, deadline);
+       /*
+    	int rc = csa.monitorWaitAbsoluteTimedAbortable(obj, deadline);
         if ( rc == TimedAbortableConditionQueue.ABORTED) {
             return false;
         }
         else {
             return true;
         }
+        */
+    	return true;
     }
 
 

@@ -686,10 +686,15 @@ public class S3JavaUserDomain extends S3Domain implements JavaUserDomain {
 	pln("csa booted");
         Transaction.the().boot();
 	pln("transactions booted");
-        // sync is off by default when constructed, but for the UD we can
+    
+	
+	// sync is off by default when constructed, but for the UD we can
         // enable it straight away
-        myCSA.enableSynchronization();
-	pln("sync enabled");
+    //FOR SCJ    
+	// myCSA.enableSynchronization();
+	//pln("sync enabled   <------------");
+	pln("[SCJ] synchronization support is NOT enabled   <------- [SCJ]-----");
+	
     }
 
     public void run(final String[] arguments) {
@@ -1043,3 +1048,4 @@ public class S3JavaUserDomain extends S3Domain implements JavaUserDomain {
 				    "interrupted");
 
 }
+

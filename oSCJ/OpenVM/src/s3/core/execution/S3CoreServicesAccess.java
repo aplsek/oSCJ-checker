@@ -1259,6 +1259,7 @@ public class S3CoreServicesAccess extends CoreServicesAccess
     protected boolean SYNCHRONIZATION_ENABLED = false;
 
     public void enableSynchronization() {
+    	Native.print_string("[DBG] enabling Synchronization \n");
         SYNCHRONIZATION_ENABLED = true;
     }
 
@@ -1274,7 +1275,9 @@ public class S3CoreServicesAccess extends CoreServicesAccess
      **/
 
     public Monitor ensureMonitor(Oop o) throws PragmaAtomic {
-	MonitorMapper mm = (MonitorMapper) o.asAnyOop();
+    /*	Native.print_string("[DBG] ensure monitor \n");
+    	
+    	MonitorMapper mm = (MonitorMapper) o.asAnyOop();
 	Monitor mon = mm.getMonitor();
 	if (mon == null) {
 	    Object r = MemoryPolicy.the().enterAreaForMonitor(o);
@@ -1294,11 +1297,15 @@ public class S3CoreServicesAccess extends CoreServicesAccess
 //             BasicIO.out.println("ensureMonitor: found existing monitor "+mon);
         }
         
-	return mon;
+	return mon;*/
+    	return null;
+    	
     }
 
     public void createInterruptHandlerMonitor(Oop o, int interruptIndex) throws PragmaAtomic {
 
+//    	Native.print_string("[DBG] interrupt handler monitor creating.... \n");
+    	/*
 	MonitorMapper mm = (MonitorMapper) o.asAnyOop();
 	Monitor mon = mm.getMonitor();
 	
@@ -1313,7 +1320,7 @@ public class S3CoreServicesAccess extends CoreServicesAccess
           MemoryPolicy.the().leave(r); 
         }
 	    
-        mm.setMonitor(mon);
+        mm.setMonitor(mon);*/
     }
 
     // ### WARNING WARNING WARNING ###
@@ -1330,7 +1337,7 @@ public class S3CoreServicesAccess extends CoreServicesAccess
     // - allocation because GC/allocator locks might be required
     // - exception throwing because of most of the above
 
-    static final boolean DEBUG_MONITOR = false;
+    static final boolean DEBUG_MONITOR = true;
 
     /** 
      * The monitor recursion check ensures that code that uses synchronized
@@ -1348,133 +1355,9 @@ public class S3CoreServicesAccess extends CoreServicesAccess
     static final boolean CHECK_MONITOR_RECURSION = false;
 
     public void monitorEnter(Oop o) throws PragmaNoPollcheck {
-        // monitorEnter may be called not only before
-        // threading is bootstrapped, but before the allocator
-        // is initialized, due to sync in the repository
-        if (!SYNCHRONIZATION_ENABLED)
-            return;
-
-        if (DEBUG_MONITOR) {
-            if (o == null) Native.print_string("DEBUG: null object\n");
-        }
-	assert (domain.isExecutive() ? true : o != null): 
-	    "null object for monitorEnter";
-        Monitor mon = ((MonitorMapper) o.asAnyOop()).getMonitor();
-        if (mon == null) {
-//            Native.print_string("monitorEnter: calling ensureMonitor\n");
-            mon = ensureMonitor(o);
-        }
-
-        if (DEBUG_MONITOR) {
-            if (mon == null) Native.print_string("DEBUG: null monitor!!!!!!!\n");
-            else {
-              Native.print_string("DEBUG: retrieved monitor:");
-              Native.print_ptr( VM_Address.fromObjectNB(mon));
-              Native.print_string("\n");
-            }
-        }
-/*
-        Native.print_string("monitorEnter object:");
-        Native.print_ptr(VM_Address.fromObject(o));
-        Native.print_string(" objectNB:");
-        Native.print_ptr(VM_Address.fromObject(o));        
-        Native.print_string(" monitor: ");
-        Native.print_ptr(VM_Address.fromObject(mon));
-        Native.print_string(" monitorNB: ");
-        Native.print_ptr(VM_Address.fromObjectNB(mon));
-        Native.print_string("\n");
-*/
-	assert mon != null: "CSA.monitorEnter: Mapper returned null monitor";
-
-        if (CHECK_MONITOR_RECURSION) {
-            // enable recursion protection
-            Context ctx = Context.getCurrentContext();
-            ctx.beforeMonitorUse();
-            try {
-                mon.enter();
-            } finally {
-                ctx.afterMonitorUse();
-            }
-        }
-        else {
-            mon.enter();
-        }
     }
 
     public void monitorExit(Oop o) throws PragmaNoPollcheck {
-        // monitorExit may be called not only before
-        // threading is bootstrapped, but before the allocator
-        // is initialized due to sync in the repository
-        if (!SYNCHRONIZATION_ENABLED)
-            return;
-        if (DEBUG_MONITOR) {
-            Native.print_string("DEBUG: entered monitorExit\n");
-            if (o == null) Native.print_string("DEBUG: null object\n");
-        }
-
-/*
-        Native.print_string("monitorExit object:");
-        Native.print_ptr(VM_Address.fromObject(o));
-        Native.print_string(" objectNB:");
-        Native.print_ptr(VM_Address.fromObject(o));
-        Native.print_string("\n");        
-*/
-        assert (domain.isExecutive() ? true : o != null): 
-	    "null object for monitorExit";
-        Monitor mon = ((MonitorMapper) o.asAnyOop()).getMonitor();
-/*
-        Native.print_string("monitorExit object:");
-        Native.print_ptr(VM_Address.fromObject(o));
-        Native.print_string(" objectNB:");
-        Native.print_ptr(VM_Address.fromObject(o));        
-        Native.print_string(" monitor: ");
-        Native.print_ptr(VM_Address.fromObject(mon));
-        Native.print_string(" is null: ");
-        Native.print_string( (mon == null) ? "yes" : "no" );
-        Native.print_string(" monitorNB: ");
-        Native.print_ptr(VM_Address.fromObjectNB(mon));
-        Native.print_string("\n");
-*/
-        // If mon is null then we have unbalanced synchronization which should
-        // not be possible and so indicates a VM error.
-        // If this assert fails we will go into an infinite loop due to the
-        // way javac compiles sync blocks
-	assert mon != null: "CSA.monitorExit: Mapper returned null monitor";
-
-        if (CHECK_MONITOR_RECURSION) {
-            // enable recursion protection        
-            Context ctx = Context.getCurrentContext();
-            ctx.beforeMonitorUse();
-            
-            try {
-                mon.exit();
-            }
-            catch (IllegalMonitorStateException ex) {
-                // FIXME: add to translateThrowable set?
-                if (domain.isExecutive()) {
-                    throw ex;
-                }
-                else {
-                    this.generateThrowable(Throwables.ILLEGAL_MONITOR_STATE_EXCEPTION, 0);
-                }
-            } finally {
-                ctx.afterMonitorUse();
-            }
-        }
-        else {
-            try {
-                mon.exit();
-            }
-            catch (IllegalMonitorStateException ex) {
-                // FIXME: add to translateThrowable set?
-                if (domain.isExecutive()) {
-                    throw ex;
-                }
-                else {
-                    this.generateThrowable(Throwables.ILLEGAL_MONITOR_STATE_EXCEPTION, 0);
-                }
-            }
-        }
     }
 
 
@@ -1499,99 +1382,32 @@ public class S3CoreServicesAccess extends CoreServicesAccess
 
 
     public void monitorTransfer(Oop o, OVMThread newOwner) {
-        Monitor mon = ((MonitorMapper) o.asAnyOop()).getMonitor();
-        if (mon == null) 
-            mon = ensureMonitor(o);
-        TransferableMonitor tmon = (TransferableMonitor) mon;
-        tmon.transfer(newOwner);
-        // any exception are internal errors as this isn't part of any
-        // application API. So those errors will cause an abort
+    	//Native.print_string("DEBUG:monitor transfer\n");
+    	
     }
   
     public void monitorSignal(Oop o) {
-        try {
-            ((JavaMonitor)ensureMonitor(o)).signal();
-        }
-        catch (IllegalMonitorStateException ex) {
-            // FIXME: add to translateThrowable set?
-            if (domain.isExecutive()) {
-                throw ex;
-            }
-            else {
-                this.generateThrowable(Throwables.ILLEGAL_MONITOR_STATE_EXCEPTION, 0);
-            }
-        }
+    	//Native.print_string("monitor signal alls\n");
     }
 
     public void monitorSignalAll(Oop o) {
-        // if it's not a Java monitor it means this isn't a JVM config
-        // so wait/notify don't apply. Really we should have an alternative
-        // initializeBlueprint for that case. Note that wait will not be called
-        // in such a config unless the executive domain is multi-threaded
-        Monitor mon = ensureMonitor(o);
-        if (mon instanceof JavaMonitor) {
-            try {
-                ((JavaMonitor)mon).signalAll();
-            }
-            catch (IllegalMonitorStateException ex) {
-                // FIXME: add to translateThrowable set?
-                if (domain.isExecutive()) {
-                    throw ex;
-                }
-                else {
-                    this.generateThrowable(Throwables.ILLEGAL_MONITOR_STATE_EXCEPTION, 0);
-                }
-            }
-        }
+    	//Native.print_string("monitor signal alls\n");
+    	
+    	
     }
 
     public boolean monitorWaitAbortable(Oop o) {
-        try {
-            return ((JavaMonitor)ensureMonitor(o)).waitAbortable(null);
-        }
-        catch (IllegalMonitorStateException ex) {
-            // FIXME: add to translateThrowable set?
-            if (domain.isExecutive()) {
-                throw ex;
-            }
-            else {
-                this.generateThrowable(Throwables.ILLEGAL_MONITOR_STATE_EXCEPTION, 0);
-            }
-            return false; // NOT REACHED
-        }
+    	//Native.print_string("DEBUG: monitor wait called\n"); 
+    	return false;
     }
 
     public int monitorWaitTimedAbortable(Oop o, long timeout) {
-        try {
-            return ((JavaMonitor)ensureMonitor(o)).waitTimedAbortable(null, timeout);
-        }
-        catch (IllegalMonitorStateException ex) {
-            // FIXME: add to translateThrowable set?
-            if (domain.isExecutive()) {
-                throw ex;
-            }
-            else {
-                this.generateThrowable(Throwables.ILLEGAL_MONITOR_STATE_EXCEPTION, 0);
-            }
-            return -1; // NOT REACHED
-        }
+        return 0;
     }
 
 
     public int monitorWaitAbsoluteTimedAbortable(Oop o, long timeout) {
-        try {
-            return ((RealtimeJavaMonitor)ensureMonitor(o)).waitAbsoluteTimedAbortable(null, timeout);
-        }
-        catch (IllegalMonitorStateException ex) {
-            // FIXME: add to translateThrowable set?
-            if (domain.isExecutive()) {
-                throw ex;
-            }
-            else {
-                this.generateThrowable(Throwables.ILLEGAL_MONITOR_STATE_EXCEPTION, 0);
-            }
-            return -1; // NOT REACHED
-        }
+        return 0;
     }
 
     public Oop getPrimitiveClass(char tag) {
@@ -1611,3 +1427,4 @@ public class S3CoreServicesAccess extends CoreServicesAccess
         }
     }
 } // End of S3CoreServicesAccess
+

@@ -1,6 +1,9 @@
 package s3.services.memory.scj;
 
 
+// YES version, with zeroing, no debug
+
+
 //FIXME: possible speedups: use PragmaAssertNoExceptions and PragmaAssertNoSafePoints (precise gc) for 
 //performance critical code
 //FIXME: rewrite image store barrier so that it does not use array access with a bounds check
@@ -51,7 +54,6 @@ import ovm.core.domain.Domain;
 import java.io.IOException;
 
 import s3.services.bootimage.Driver;
-import s3.services.memory.mostlyCopying.SplitRegionManager.ScopedArea;
 import ovm.core.domain.DomainDirectory;
 import ovm.core.domain.LinkageException;
 import ovm.core.domain.RealtimeJavaDomain;
@@ -76,7 +78,6 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 
 	final static boolean DEBUG_INIT = true;
 	final static boolean DEBUG_BOOT = true;
-	static final boolean DEBUG_FREELIST = false;
 	
 
 	/**
@@ -170,12 +171,16 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 		
 	}
 
+	final int scratchPadSize;
 
 	public SCJManager(String heapSize_, String scopeSize_, String disableChecks_) {
 
 		heapSize = CommandLine.parseSize(heapSize_);
 		scopeSize = CommandLine.parseSize(scopeSize_);
 		
+		scratchPadSize = CommandLine.parseSize("4m");
+		int pad = CommandLine.parseSize("1m");
+
 		int _blockShift = -1;
 		for (int i = 7; i < 20; i++)
 			if (pageSize == 1 << i) {
@@ -185,7 +190,7 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 		if (_blockShift == -1)
 			throw new OVMError("bad block size " + pageSize);
 		blockShift = _blockShift;
-		bsSize = scopeSize/2;
+		bsSize = scopeSize-(scratchPadSize + pad);
 		int rbsSize = (bsSize + pageSize - 1) & ~(pageSize - 1);
 		bsUpperIndex = (rbsSize >> blockShift);
 		bsBumpIndex=0;
@@ -295,6 +300,14 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 
 			Native.print_string("# SCJManager :     bsUpperIndex is ");
 			Native.print_int(bsUpperIndex);
+			Native.print_string("\n");
+
+			Native.print_string("# SCJManager :     rscopeSize is at ");
+			Native.print_int(rscopeSize);
+			Native.print_string("\n");	
+
+			Native.print_string("# SCJManager :     bsUpperIndex is at ");
+			Native.print_int(rscopeSize);
 			Native.print_string("\n");
 
 			Native.print_string("# SCJManager : Boot Finished\n");
@@ -440,44 +453,6 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 		return ret;
 	}
 
-
-	private void debug () { 
-		StackTraceElement[] stack = new Throwable().getStackTrace();
-		for (int i = 0; i < stack.length; i++) {
-			Native.print_string(stack[i].toString());
-			Native.print_string("\n");
-		}
-	}
-
-	void debugHeapCheck(Oop src) {
-		VM_Area current = getCurrentArea();
-		setCurrentArea(getImmortalArea());
-		try {
-			Native.print_string(" - Heap:");
-			Native.print_string(src.getBlueprint().getType().
-					getUnrefinedName().toString());
-			Native.print_string(" at ");
-			Native.print_ptr(VM_Address.fromObject(src));
-			Native.print_string(" with heap at ");
-			Native.print_ptr(heapBase);
-			Native.print_string("...");
-			Native.print_ptr(heapBase.add(heapSize));
-			Native.print_string(" and image at ");
-			Native.print_ptr(Native.getImageBaseAddress());
-			Native.print_string("...");
-			Native.print_ptr(Native.getImageEndAddress());
-			Native.print_string("\n");
-			if (false) {
-				StackTraceElement[] stack = new Throwable().getStackTrace();
-				for (int i = 0; i < stack.length; i++) {
-					Native.print_string(stack[i].toString());
-					Native.print_string("\n");
-				}
-			}
-		} finally {
-			setCurrentArea(current);
-		}
-	}
 
 
 
@@ -649,6 +624,8 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 						try {
 							BasicIO.out.print(this + ": transient area exhausted "
 									+"("+offset+" of "+rsize+" used) ");
+							BasicIO.out.print(" size is: "
+									+size);
 							Oop mirror = getMirror();
 							int mnum = (mirror == null ? 0 : mirror.getHash());
 							BasicIO.out.println("mirror @" +
@@ -732,17 +709,6 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 		 * previous if possible.
 		 */ 
 		FreeArea(int size) throws PragmaNoBarriers {
-			if (DEBUG_FREELIST) {
-				Native.print_string("\nFreeing area - base: ");
-				Native.print_hex_int(base().asInt());
-				Native.print_string(" to: ");
-				Native.print_hex_int(base().add(size).asInt());
-				Native.print_string(" (");
-				Native.print_hex_int(size);
-				Native.print_string(")\n");
-				Native.print_string("FreeArea (size) >>>\n");
-				//dump();
-			}
 
 			FreeArea prev = null;
 			FreeArea next = firstFree;
@@ -750,21 +716,11 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 				prev = next;
 				next = next.next;
 			}
-			if (DEBUG_FREELIST) {
-				Native.print_string("Slotting in before: ");
-				if (next == null)
-					Native.print_string("\b\b\b\b\b\b\b\b new freehead");
-				else
-					Native.print_hex_int(next.base().asInt());
-				Native.print_string("\n");
-			}
 
 			if (prev != null && prev.base().add(prev.rsize) == base()) {
 				// Coalesce this with prev, then try to coalesce prev
 				// with next;
 				prev.rsize += size;
-				if (DEBUG_FREELIST)
-					Native.print_string("coalesced with prev\n");
 			} else {
 				// set prev pointer of this, and try to coalesce this
 				// with next
@@ -782,8 +738,6 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 			}
 
 			if (next != null && prev.base().add(prev.rsize) == next.base()) {
-				if (DEBUG_FREELIST)
-					Native.print_string("coalescing with next\n");
 				prev.rsize += next.rsize;
 				prev.next = next.next;
 				if (prev.next != null)
@@ -794,12 +748,6 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 					next.prev = prev;
 			}
 			prev.setLast();
-
-			if (DEBUG_FREELIST) {
-				Native.print_string("FreeArea (size) <<<\n");
-				//dump();
-			}
-
 		}
 
 		/**
@@ -807,11 +755,7 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 		 * larger FreeArea (oldStart).
 		 */
 		FreeArea(FreeArea oldStart, int sizeDelta) throws PragmaNoBarriers {
-			if (DEBUG_FREELIST) {
-				Native.print_string("FreeArea (old, deta) >>>\n");
-				//dump();
-			}
-
+			
 			unchecked = false;
 			setRange(Short.MAX_VALUE, (short) 0);
 			prev = oldStart.prev;
@@ -826,10 +770,6 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 			if (prev == null)
 				firstFree = this;
 
-			if (DEBUG_FREELIST) {
-				Native.print_string("FreeArea (old, deta) <<<\n");
-				//dump();
-			}
 		}
 
 	}
@@ -862,7 +802,7 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 	 */
 	public class ScopedArea extends TransientArea implements FinalizableArea {
 
-		//int zero =0;
+		int zero =0;
 		
 		public void destroy() throws PragmaAtomic {
 			//Native.print_string("---------------\n");
@@ -882,7 +822,15 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 			super(size);
 			this.mirror = mirror;
 			this.unchecked = false; 
-		
+			
+			reset();
+			
+			
+			//Native.print_string("concstructor zeroing: ");
+			//Native.print_int(rsize);
+			///Native.print_string("\n");
+			Mem.the().zero(base().add(baseOffset).add(ALIGN),  rsize);
+			//Native.print_string("zeroing ok!\n");
 		}
 
 		public boolean isScope() { return true; }
@@ -911,8 +859,6 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 
 
 		public VM_Address getMem(int size) throws PragmaAtomic {
-			//Native.print_string("[SCJ MM] getMem in Transient Area\n");
-
 			if (offset + size > rsize) {
 				try {
 					if (dumpOOM) {
@@ -920,7 +866,7 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 
 						VM_Area r = setCurrentArea(heapArea);
 						try {
-							BasicIO.out.print(this + ": transient area exhausted "
+							BasicIO.out.print(this + ": scoped area exhausted "
 									+"("+offset+" of "+rsize+" used) ");
 							Oop mirror = getMirror();
 							int mnum = (mirror == null ? 0 : mirror.getHash());
@@ -962,40 +908,41 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 				//Mem.the().zero(ret.add(ALIGN),  size);
 				zero += size;
 			}
-*/				
+	*/			
 			return ret;
 
 		}
 
 		
 		public void reset() {
-			//Native.print_string("[SCJ MM] ScopeArea reset ----------------\n");
-			//Native.print_string("offset:");
+			/*
+			Native.print_string("[SCJ MM] ScopeArea reset ----------------\n");
+			Native.print_string("offset:");
 			
-			//Native.print_int(offset);
-			//Native.print_string("\n");
+			Native.print_int(offset);
+			Native.print_string("\n");
 			
-			//Native.print_string("base offset:");
-			//Native.print_int(baseOffset);
-			//Native.print_string("\n");
+			Native.print_string("base offset:");
+			Native.print_int(baseOffset);
+			Native.print_string("\n");
 			
-			//Native.print_string("zero is:");
-			//Native.print_int(zero);
-			//Native.print_string("\n");
+			Native.print_string("zero is:");
+			Native.print_int(zero);
+			Native.print_string("\n");
 			
-			//Native.print_string("would zero here:");
-			//Native.print_int(offset-baseOffset);
-			//Native.print_string("\n");
+			Native.print_string("would zero here:");
+			Native.print_int(offset-baseOffset);
+			Native.print_string("\n");
 			
-			//Native.print_string("actually zeroing:");
-			//Native.print_int(base().add(baseOffset).add(ALIGN).asInt()-zero);
-			//Native.print_string("\n");
+			Native.print_string("actually zeroing:");
+			Native.print_int(base().add(baseOffset).add(ALIGN).asInt()-zero);
+			Native.print_string("\n");
 			
-			//Native.print_string("area starting from:");
-			//Native.print_int(base().add(baseOffset).asInt());
-			//Native.print_string("\n");
+			Native.print_string("area starting from:");
+			Native.print_int(base().add(baseOffset).asInt());
+			Native.print_string("\n");
 			
-			
+			*/
 			
 			Mem.the().zero(base().add(baseOffset).add(ALIGN),  offset-baseOffset);
 			
@@ -1004,8 +951,8 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 			
 			
 			
-		//	zero = 0;
-			
+			//zero = 0;
+			//Native.print_string("reset ok!\n");
 		}
 	}
 
@@ -1023,14 +970,6 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 	 * base pointer.
 	 */
 	private VM_Address firstFit(int size) throws PragmaNoBarriers {
-		if (DEBUG_FREELIST) {
-			Native.print_string("firstfit(");
-			Native.print_hex_int(size);
-			Native.print_string(") start\n");
-			Native.print_string("firstfree = ");
-			Native.print_hex_int(firstFree != null ? firstFree.base().asInt() : 0);
-			Native.print_string("\n");
-		}
 		FreeArea fr = firstFree;
 		while (fr != null && fr.rsize < size)
 			fr = fr.next;
@@ -1038,8 +977,6 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 			throwOOM();
 		VM_Address ret = fr.base();
 		if (fr.rsize > size) {
-			if (DEBUG_FREELIST)
-				Native.print_string("splitting free area\n");
 			VM_Address newStart = ret.add(size);
 			VM_Area r = setCurrentArea(placeNew.at(newStart));
 			try {
@@ -1048,11 +985,8 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 				setCurrentArea(r);
 			}
 		} else {
-			if (DEBUG_FREELIST)
-				Native.print_string("Not splitting free area\n");
+			
 			if (fr.prev == null) {
-				if (DEBUG_FREELIST)
-					Native.print_string("prev was null - setting firstFree\n");
 				firstFree = fr.next;
 			}
 			else {
@@ -1061,20 +995,7 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 			if (fr.next != null) {
 				fr.next.prev = fr.prev;
 			}
-		}
-
-		if (DEBUG_FREELIST) {
-			Native.print_string("firstfree = ");
-			Native.print_hex_int(firstFree != null ? firstFree.base().asInt() : 0);
-			Native.print_string("\n");
-			Native.print_string("firstfit(");
-			Native.print_hex_int(size);
-			Native.print_string(") returning ");
-			Native.print_hex_int(ret.asInt());
-			Native.print_string(" to ");
-			Native.print_hex_int(ret.add(size).asInt());
-			Native.print_string("\n");
-		}
+		}		
 		return ret;
 	}
 
@@ -1114,7 +1035,7 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 		if (scopeBase == null)
 			return null;
 
-		int rsize = (size + transientSize + blockMask) & ~blockMask;
+		int rsize = (size + transientSize + 2* pageSize + blockMask) & ~blockMask;
 		//int rsize = size ;
 
 		//Native.print_string("[DBG] Make Explicit Area, size: \n");
@@ -1159,27 +1080,33 @@ implements NativeConstants, ImageAllocator.Implementation,Component {
 
 //		Native.print_string("\nAllocating scopeArea\n");
 
-		//int rsize = size ;
+		
+		
+		/*
+		Native.print_string("[DBG] Make Scoped Area, size: \n");
+		Native.print_int(size);
+		Native.print_string("\n");
+		Native.print_string("raw size: \n");
+		Native.print_int(rsize);
+		Native.print_string("\n");
+		Native.print_string("blocks: \n");
+		Native.print_int(blocks);
+		Native.print_string("\n");
+		*/
+		//VM_Address raw = scopeBase.add(bsBumpIndex * pageSize);
+		/*
+		Native.print_string("scope addr: \n");
+		Native.print_ptr(raw);
+		Native.print_string("\n");
+		Native.print_string("bsBumpIndex: \n");
+		Native.print_int(bsBumpIndex);
+		Native.print_string("\n");
+		*/
+		
+		
 		int rsize = (size + scopedSize + blockMask) & ~blockMask;
 		int blocks = rsize >> blockShift;
-		//Native.print_string("[DBG] Make Scoped Area, size: \n");
-		//Native.print_int(size);
-		//Native.print_string("\n");
-		//Native.print_string("raw size: \n");
-		//Native.print_int(rsize);
-		//Native.print_string("\n");
-		//Native.print_string("blocks: \n");
-		//Native.print_int(blocks);
-		//Native.print_string("\n");
-		
 		VM_Address raw = scopeBase.add(bsBumpIndex * pageSize);
-		
-		///Native.print_string("scope addr: \n");
-		//Native.print_ptr(raw);
-		//Native.print_string("\n");
-		//Native.print_string("bsBumpIndex: \n");
-		//Native.print_int(bsBumpIndex);
-		//Native.print_string("\n");
 		
 		if(bsBumpIndex+blocks>= bsUpperIndex){
 			Native.print_string("Cannot make scope area; run out of backing store");

@@ -311,7 +311,6 @@ public abstract class Mode extends RepositorySymbol implements JVMConstants {
          **/
         final public boolean isSynchronized() {
             return (mode_ & ACC_SYNCHRONIZED) != 0;
-	//	return false;
         }
 
         /** 

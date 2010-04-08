@@ -1044,7 +1044,7 @@ public abstract class Instruction extends OVMBase
     public abstract static class StackManipulation extends Instruction {
 	public StackManipulation(int opcode) { super(opcode); }
     }
-
+
     /**
      * Template for instructions that load data from the constant
      * pool and store the index (char) immediately after the opcode.
@@ -8001,8 +8001,8 @@ this is now handled in SpecInstantiation.java
 	public void visit(INVOKESPECIAL i)     { visit((Invocation) i); }
 	public void visit(INVOKEVIRTUAL i)     { visit((Invocation) i); }
 	public void visit(INVOKESTATIC i)      { visit((Invocation) i); }
-	public void visit(MONITORENTER i)      { visit((Synchronization) i); }
-	public void visit(MONITOREXIT i)       { visit((Synchronization) i); }
+	public void visit(MONITORENTER i)      { /*visit((Synchronization) i); */}
+	public void visit(MONITOREXIT i)       { /*visit((Synchronization) i); */}
 	public void visit(ATHROW i)            {
 	    visit((FlowEnd) i);
 	    visit((ExceptionThrower) i);
@@ -8113,3 +8113,4 @@ this is now handled in SpecInstantiation.java
     }
 
 } // End of Instruction
+

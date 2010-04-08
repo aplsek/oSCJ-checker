@@ -62,7 +62,7 @@ public class CodeGen extends Runabout {
     
     // insert translating barriers on monitors
     // this is most likely (?) not needed, but it's good for debugging
-    static final boolean BARRIERS_ON_MONITORS = false;
+    //static final boolean BARRIERS_ON_MONITORS = false;
     
     // Generate code to test live variable analysis by setting all
     // non-live pointer variables to -1.
@@ -558,15 +558,7 @@ public class CodeGen extends Runabout {
 	    terminateAndIndent("ubprintf(\":%s\\n\",__func__);");
 	}
 
-	if (m.getMode().isSynchronized()) {
-	    // FIXME: If local 0 is mutable, we need to save it
-	    // somewhere.  On the other hand, if we make synch
-	    // explicit in the bytecode, we don't need to handle it
-	    // here.
-	    synchVar = thisVar;
-	    if (synchVar == null)
-		throw new Error("this not found!");
-	}
+	
 
 	// declare local variable slots and initialize parameter slots
 	// declare phi stack variables
@@ -736,16 +728,13 @@ public class CodeGen extends Runabout {
 	}
 
 	if (ctx.safePointMacros
-	    && (synchVar != null || outerTranslate
+	    && (outerTranslate
 		|| cf.getExceptionHandlers().length > 0)
 	    && !ctx.noCppExceptions && !ctx.cExceptions)
 	    terminateAndIndent("CATCHPREPARE();");
 
-	if (synchVar != null) {
-	    terminateAndIndent("int monitorEntered=0;");
-	}
-
-	if ((synchVar != null || outerTranslate) && !ctx.noCppExceptions && !ctx.cExceptions)
+	
+	if (( outerTranslate) && !ctx.noCppExceptions && !ctx.cExceptions)
 	    terminateAndIndent("try {");
 
 	if (thisVar != null && !argLocals.get(thisVar.number)) {
@@ -753,14 +742,7 @@ public class CodeGen extends Runabout {
 	    terminateAndIndent(" = _self;");
 	    liveRefs.set(thisVar.number);
 	}
-	if (synchVar != null && synchVar != thisVar) {
-	    liveRefs.set(synchVar.number);
-	    visit(synchVar);
-	    if (synchVar.getBlueprint(ctx.domain) == ctx.OopBP)
-		terminateAndIndent(" = (e_ovm_core_domain_Oop *) _self;");
-	    else
-		terminateAndIndent(" = _self;");
-	}
+	
 	for (int i = 0, index = 1; i < meth.getArgumentCount(); i++) {
 	    try {
 		Type t = meth.getArgumentType(i);
@@ -817,62 +799,7 @@ public class CodeGen extends Runabout {
 	    terminateAndIndent(" = 0 /* FALSE LIVE*/;");
 	}
 
-	if (m.getMode().isSynchronized()) {
-	    if (!(outerTranslate || dom.isExecutive())
-		&& !ctx.noCppExceptions && !ctx.cExceptions)
-		w.print("try { ");
-	    startCall(true, null, ctx.monitorEnter);
-	    if (ctx.safePointMacros) {
-		usedAbruptEndOfMethod = true;
-		w.print("PACKCALL(");
-	    }
-	    w.print(J2cFormat.format(ctx.monitorEnter));
-	    if (ctx.safePointMacros)
-		w.print(",2,");
-	    else
-		w.print("(");
-	    visitAppropriate(ctx.CSAvalue);
-	    w.print(", ");
-	    
-	    if (BARRIERS_ON_MONITORS) {
-	      readBarrierStart();
-            }
-	    compileWithType(synchVar, ctx.OopBP);
-	    if (BARRIERS_ON_MONITORS) {
-	      readBarrierEnd();
-            }
-	    
-	    w.print(")");
-
-	    endCall();
-
-	    w.print("; monitorEntered=1; ");
-	    if (DEBUG) {
-		terminateAndIndent("ubprintf(\"Entered monitor (implicitly) at %s:%d\\n\",__FILE__,__LINE__);");				
-	    }
-
-	    if (outerTranslate || dom.isExecutive() || ctx.noCppExceptions || ctx.cExceptions )
-		terminateAndIndent("");
-	    else {
-		terminateAndIndent(" }");
-		w.print(finallyReplacement("e", "e", true));
-		startCatch(0 , "");
-		w.print("j2c_throw(");
-		startCall(true, ctx.OopBP, ctx.translateThrowable);
-		if (ctx.safePointMacros)
-		    w.print("PACKCALL(");
-		w.print(J2cFormat.format(ctx.translateThrowable));
-		if (ctx.safePointMacros) 
-		    w.print(",2,");
-		else
-		    w.print("(");
-		visitAppropriate(ctx.CSAvalue);
-		w.print(", e)");
-		endCall();
-		terminateAndIndent("); }");
-	    }
-			
-	}
+	
 
 	terminate("");
 	// emit code for basic blocks.  Wrap try blocks in try/catch.
@@ -953,7 +880,7 @@ public class CodeGen extends Runabout {
 		// exceptions if we are in UD and there was a chance for an ED
 		// exception.  once that is done we just set the exception bit
 		// again and return.
-		if (synchVar!=null || outerTranslate) {
+		if ( outerTranslate) {
 		    w.println("outerTranslate:");
 		    // need to save the exception-related global stuff since
 		    // it might get clobbered inside of monitorExit()
@@ -974,23 +901,7 @@ public class CodeGen extends Runabout {
 			    throw e.unchecked();
 			}
 		    }
-		    if (synchVar!=null) {
-			w.println("    accurate::counterClearException();");
-			w.print("    if (monitorEntered) { CALL(PACKCALL(");
-			w.print(J2cFormat.format(ctx.monitorExit));
-			w.print(",2,");
-			visitAppropriate(ctx.CSAvalue);
-			w.print(", ");
-			//compileWithType(synchVar, ctx.OopBP);
-			if (BARRIERS_ON_MONITORS) {
-			  readBarrierStart();
-                        }
-			visitAppropriate(synchVar);
-			if (BARRIERS_ON_MONITORS) {
-			  readBarrierEnd();
-                        }
-			w.print("),\t1,myExc); }");
-		    }
+		   
 		    if (!dom.isExecutive()) {
 			w.println("outerTranslate2:");
 			w.println("    if (myExcDom==0) {");
@@ -1021,63 +932,14 @@ public class CodeGen extends Runabout {
 		    }
 		}
 	    } else {
-		if (outerTranslate || synchVar != null)
+		if (outerTranslate )
 		    terminateAndIndent("}");
 		if (outerTranslate) {
 		    terminateAndIndent(finallyReplacement("e", "e", false));
-		    if (synchVar != null)
-			startCatch(1, ", "+synchVar.getName());
-		    else
+		    
 			startCatch(0, "");
-		    if (synchVar != null) {
-			// FIXME: convert to use counter exceptions.  this try is
-			// for translate throwable
-			w.print("if (monitorEntered) { try { monitorEntered=0; ");
-			// montitorExit must keep `e' alive
-			if (ctx.safePointMacros)
-			    w.print("CALL(PACKCALL(");
-			w.print(J2cFormat.format(ctx.monitorExit));
-			if (ctx.safePointMacros) 
-			    w.print(",2,");
-			else
-			    w.print("(");
-			visitAppropriate(ctx.CSAvalue);
-			w.print(", ");
-			//compileWithType(synchVar, ctx.OopBP);
-			
-			if (BARRIERS_ON_MONITORS) {
-			  readBarrierStart();
-                        }
-			visitAppropriate(synchVar);
-			if (BARRIERS_ON_MONITORS) {
-			  readBarrierEnd();
-                        }
-			
-			w.print(")");
-			if (ctx.safePointMacros)
-			    w.print(",\t1, e)");
-			w.print(";");
-			if (DEBUG) {
-			    terminateAndIndent("ubprintf(\"Exited monitor (implicitly) at %s:%d \\n\",__FILE__,__LINE__);");
-			}					
-			terminateAndIndent(" }");
-			w.print(finallyReplacement("e", "e", true));
-			startCatch(0, "");
-			w.print("j2c_throw(");
-			// translateThrowable keeps nothing alive
-			startCall(false, ctx.OopBP, ctx.translateThrowable);
-			if (ctx.safePointMacros)
-			    w.print("PACKCALL(");
-			w.print(J2cFormat.format(ctx.translateThrowable));
-			if (ctx.safePointMacros) 
-			    w.print(",2,");
-			else
-			    w.print("(");
-			visitAppropriate(ctx.CSAvalue);
-			w.print(", e)");
-			endCall();
-			terminateAndIndent("); } }");
-		    }
+		   
+		    
 		    w.print("j2c_throw(");
 		    // translateThrowable keeps nothing alive
 		    startCall(false, ctx.OopBP, ctx.translateThrowable);
@@ -1094,66 +956,7 @@ public class CodeGen extends Runabout {
 		    terminateAndIndent(");");
 		    terminateAndIndent("}");
 		}
-		if (synchVar != null) {
-		    // w.print("catch (");
-		    // w.print(J2cFormat.format(ctx.throwableBP));
-		    // terminateAndIndent(" *ex) { ");
-		    terminateAndIndent(this.finallyReplacement("ex", null, false));
-		    startCatch(1, ", "+synchVar.getName());
-		    // FIXME: convert to use counter exceptions.  this try is
-		    // for translate throwable
-		    if (!dom.isExecutive())
-			w.print("try { ");
-		    w.print("if (monitorEntered) { monitorEntered=0; ");
-		    if (ctx.safePointMacros)
-			w.print("CALL(PACKCALL(");
-		    w.print(J2cFormat.format(ctx.monitorExit));
-		    if (ctx.safePointMacros)
-			w.print(",2,");
-		    else
-			w.print("(");
-		    visitAppropriate(ctx.CSAvalue);
-		    w.print(", ");
-		    // compileWithType(synchVar, ctx.OopBP);
-		    if (BARRIERS_ON_MONITORS) {
-		      readBarrierStart();
-                    }
-		    visitAppropriate(synchVar);
-		    if (BARRIERS_ON_MONITORS) {
-		      readBarrierEnd();
-                    }
-		    w.print(")");
-		    if (ctx.safePointMacros)
-			w.print(",\t1, ex)");
-		    w.print(";");
-		    if (DEBUG) {
-			terminateAndIndent("ubprintf(\"Exited monitor (implicitly-1) at %s:%d \\n\",__FILE__,__LINE__);");
-		    }				
-		    if (dom.isExecutive())
-			terminateAndIndent(" }");
-		    else {
-			terminateAndIndent(" } }");
-			w.print(finallyReplacement("e", "e", true));
-			startCatch(0, "");
-			w.print("j2c_throw(");
-			// translateThrowable keeps nothing alive
-			startCall(false, ctx.OopBP, ctx.translateThrowable);
-			if (ctx.safePointMacros)
-			    w.print("PACKCALL(");
-			w.print(J2cFormat.format(ctx.translateThrowable));
-			if (ctx.safePointMacros) 
-			    w.print(",2,");
-			else
-			    w.print("(");
-			visitAppropriate(ctx.CSAvalue);
-			w.print(", e)");
-			endCall();
-			terminateAndIndent("); }");
-		    }
-		    w.print("j2c_throw(");
-		    terminateAndIndent("ex);");
-		    terminateAndIndent("}");
-		}
+		
 	    }
 
 	// flush code generated for the end of the method
@@ -1242,44 +1045,7 @@ public class CodeGen extends Runabout {
 		    terminateAndIndent("assert(cur_exc!=(HEADER *)&accurate::GCException_singleton);");
 		}
 				
-		if (synchVar!=null) {
-					
-		    // must exit the monitor if it was entered
-					
-		    terminateAndIndent("if (monitorEntered) {");
-		    if (DEBUG) {
-			terminateAndIndent("\tubprintf(\"Releasing monitor at this method..\\n\");");
-		    }
-		    terminateAndIndent("\tHEADER *current_exc = (HEADER *)cur_exc;");
-		    terminateAndIndent("\tint current_exc_dom = cur_exc_dom;");
-		    terminateAndIndent("\tcur_exc = 0;");
-		    if (ctx.safePointMacros && ctx.catchPointsUsed) {
-			terminateAndIndent("accurate::counterClearException();");
-		    }
-		    w.print("\t");
-		    w.print(J2cFormat.format(ctx.monitorExit));
-		    w.print("(");
-		    visitAppropriate(ctx.CSAvalue);
-		    w.print(", ");
-		    // compileWithType(synchVar, ctx.OopBP);
-		    visitAppropriate(synchVar);
-		    terminateAndIndent(");");	
-					
-		    if (DEBUG) {
-			terminateAndIndent("\tubprintf(\"Exited monitor (implicitly-2) at %s:%d \\n\",__FILE__,__LINE__);");
-		    }
-					
-		    if (ctx.safePointMacros) {
-			terminateAndIndent("\tCEXCEPTION_PRECISE_GCE_CHECK;");
-		    }
-					
-		    terminateAndIndent("\tcur_exc = current_exc;");
-		    terminateAndIndent("\tcur_exc_dom = current_exc_dom;");
-		    if (ctx.safePointMacros && ctx.catchPointsUsed) {
-			terminateAndIndent("accurate::counterSetException();");					
-		    }
-		    terminateAndIndent("}");
-		}
+		
 	    }
 				
 	    try {
@@ -3170,53 +2936,10 @@ public class CodeGen extends Runabout {
 	try {
 	    bp = ctx.blueprintFor(m.getReturnType());
 	} catch (LinkageException e) { throw e.unchecked(); }
-	if (m.getMode().isSynchronized()) {
-	    // FIXME: where is the saveRetVal behaviour with gcFrames?
-	    // This is a *major* bug.
-	    boolean saveRetVal =
-		(ctx.safePointMacros
-		 && !inputs[0].isConcrete()
-		 && allocator.bpFlavor(bp) == LocalAllocator.REF_VAR);
-
-	    if (ctx.cExceptions && ctx.safePointMacros && !ctx.catchPointsUsed) {
-		terminateAndIndent("assert(cur_exc!=(HEADER *)&accurate::GCException_singleton);");
-	    }
-
-	    w.print("monitorEntered=0; ");						
-
-	    if (saveRetVal)
-		w.print("CALL(");
-	    else
-		startCall(false, null, ctx.monitorExit);
-	    if (saveRetVal || ctx.safePointMacros) {
-		usedAbruptEndOfMethod = true;
-		w.print("PACKCALL(");
-	    }
-	    w.print(J2cFormat.format(ctx.monitorExit));
-	    if (saveRetVal || ctx.safePointMacros) 
-		w.print(",2,");
-	    else
-		w.print("(");
-	    visitAppropriate(ctx.CSAvalue);
-	    //w.print(", (e_ovm_core_domain_Oop *)");
-	    w.print(", ");
-	    if (BARRIERS_ON_MONITORS) {
-	      readBarrierStart();
-            }
-	    visitAppropriate(synchVar);
-	    if (BARRIERS_ON_MONITORS) {
-	      readBarrierEnd();
-            }
-	    w.print(")");
-	    if (saveRetVal)
-		w.print(",\t1, " + inputs[0].getName() + ")");
-	    else
-		endCall();
-	    terminateAndIndent(";");
-	    if (DEBUG) {
-		terminateAndIndent("ubprintf(\"Exited monitor (implicitly-3) at %s:%d \\n\",__FILE__,__LINE__);");
-	    }			
-	}
+	
+	
+	
+	
 	if (hasGcFrame) {
 	    if (ctx.frameLists)
 		terminateAndIndent("currentContext->gcTop = ((GCFrame *)frame)->next;");	    
@@ -3230,42 +2953,7 @@ public class CodeGen extends Runabout {
 	compileWithType(inputs[0], bp);
     }
     public void visit(Instruction.RETURN _) {
-	if (m.getMode().isSynchronized()) {
-	    // FIXME: Duplicate code
-
-	    if (ctx.cExceptions && ctx.safePointMacros && !ctx.catchPointsUsed) {
-		terminateAndIndent("assert(cur_exc!=(HEADER *)&accurate::GCException_singleton);");
-	    }
-			
-	    w.print("monitorEntered=0; ");
-
-	    startCall(false, null, ctx.monitorExit);
-	    if (ctx.safePointMacros) {
-		usedAbruptEndOfMethod = true;
-		w.print("PACKCALL(");
-	    }
-	    w.print(J2cFormat.format(ctx.monitorExit));
-	    if (ctx.safePointMacros) 
-		w.print(",2,");
-	    else
-		w.print("(");
-	    visitAppropriate(ctx.CSAvalue);
-	    //w.print(", (e_ovm_core_domain_Oop *) ");
-	    w.print(", ");
-	    if (BARRIERS_ON_MONITORS) {
-	      readBarrierStart();
-            }
-	    visitAppropriate(synchVar);
-	    if (BARRIERS_ON_MONITORS) {
-	      readBarrierEnd();
-            }
-	    w.print(")");
-	    endCall();
-	    terminateAndIndent(";");
-	    if (DEBUG) {
-		terminateAndIndent("ubprintf(\"Exited monitor (implicitly-4) at %s:%d \\n\",__FILE__,__LINE__);");
-	    }			
-	}
+	
 	if (hasGcFrame) {
 	    if (ctx.frameLists)
 //		terminateAndIndent("currentContext->gcTop = frame.next;");

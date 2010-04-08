@@ -46,8 +46,8 @@ public abstract class S3Blueprint extends S3Base
     protected byte[] dbg_string;
 
     protected void set_dbg_string() {
-//          dbg_string = toString().getBytes(); 
-          dbg_string = null; 
+          dbg_string = toString().getBytes(); 
+//          dbg_string = null; 
     }
     
     public byte[] get_dbg_string() { return dbg_string; }

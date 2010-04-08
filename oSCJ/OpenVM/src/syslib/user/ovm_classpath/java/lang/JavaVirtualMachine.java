@@ -221,7 +221,7 @@ public class JavaVirtualMachine {
 		// SystemProperties.getProperty("file.encoding");
 		
 		//LibraryImports
-        //.printString("\n\n[OVM] initializing SCJ VM...\n");
+        //.printString("\n\n[DBG] init SCJ VM.. system in...sOK\n");
 		
 		
 		// Now force System to initialize first

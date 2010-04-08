@@ -144,9 +144,11 @@ public class DispatcherImpl extends ServiceInstanceImpl
         Monitor.Factory factory = msf.getMonitorFactory();
         factory.initialize();
 
+        d("[Threading Initialization] Done. Synchronization support is NOT enabled. - SCJ.");
+        
         // tell the CSA to process MONITORENTER/EXIT bytecodes
-        DomainDirectory.getExecutiveDomain().
-            getCoreServicesAccess().enableSynchronization();
+        //DomainDirectory.getExecutiveDomain().
+        //    getCoreServicesAccess().enableSynchronization();
 
         threadingInitialized = true;
     }
