@@ -100,7 +100,14 @@ final class Vector2d {
     }
 
     public int hashCode() {
-        return (int) ((x + y) * y + (x - y) * x);
+        long rawBytes = ((long) Float.floatToIntBits(y) << 32) | Float.floatToIntBits(x);
+        int hash = 0xAAAAAAAA;
+        for (int i = 0; i < 8; i++, rawBytes >>= 8) {
+            byte curByte = (byte) (rawBytes & 0xFF);
+            hash ^= ((i & 1) == 0) ? ((hash << 7) ^ curByte * (hash >>> 3)) :
+                (~((hash << 11) + curByte ^ (hash >>> 5)));
+        }
+        return hash;
     }
 
     public String toString() {
