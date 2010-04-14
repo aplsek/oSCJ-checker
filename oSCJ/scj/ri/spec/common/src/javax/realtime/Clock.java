@@ -86,26 +86,48 @@ public abstract class Clock {
             return time;
         }
 
+
+        /**
+         * Spec 0.73 says: the relative time of the offset of the epoch of this clock from the Epoch. 
+         * 			For the real-time clock it will return a RelativeTime value equal to 0. 
+         * 			A newly allocated RelativeTime object in the current execution context with the offset 
+         * 			past the Epoch for this clock. 
+         * 
+         * 	The returned object is associated with this clock. - epoch.setClock(this);
+         * 
+         * @return  For the real-time clock it will return a RelativeTime value equal to 0.
+         * 
+         */
         RelativeTime getEpochOffset() {
-            // TODO: revise
-            return new RelativeTime(0, 0);
+        	RelativeTime epoch = new RelativeTime(0, 0);
+        	epoch.setClock(this);
+            return epoch;
         }
 
+        /**
+         * At Level 0, we do not trigger the eecution of events. Therefore, this clock is not able to trigger anything.
+         * 		--> we can say that this clock is "read-only".
+         * 
+         * @return true if and only if this Clock is able to trigger the execution of time-driven activities. (Spec 0.73)
+         * 
+         */
         @Override
+        @SCJAllowed
         protected boolean drivesEvents() {
-            // TODO: implement this
             return false;
         }
 
         @Override
+        @SCJAllowed(Level.LEVEL_1)
         protected void registerCallBack(AbsoluteTime time,
                 ClockCallBack clockEvent) {
-            // TODO: implement this
+            //this should not be called at Level 0
         }
 
         @Override
+        @SCJAllowed(Level.LEVEL_1)
         protected boolean resetTargetTime(AbsoluteTime time) {
-            // TODO: implement this
+        	//this should not be called at Level 0
             return false;
         }
     }

@@ -34,9 +34,8 @@ public class MissionManager extends PortalExtender {
 
 	private Mission _mission;
 	
+	//TODO: collection should not be used!
 	Collection _peHandlers = new ArrayList(); // PeriodicEventHandler
-
-	
 
 	public MissionManager() {
 	}

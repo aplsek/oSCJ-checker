@@ -23,6 +23,7 @@ package javax.realtime;
 
 import java.lang.reflect.Array;
 
+import javax.realtime.AllocationContext;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
 
@@ -31,7 +32,7 @@ import edu.purdue.scj.VMSupport;
 import edu.purdue.scj.utils.Utils;
 
 @SCJAllowed
-public abstract class MemoryArea {
+public abstract class MemoryArea implements AllocationContext {
 	/**
 	 * space for temporary region when making a temporary scope stack. Normally
 	 * it just needs to hold the actual ScopeStack object, but assertions and

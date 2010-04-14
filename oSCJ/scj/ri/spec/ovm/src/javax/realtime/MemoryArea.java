@@ -23,6 +23,7 @@ package javax.realtime;
 
 import java.lang.reflect.Array;
 
+import javax.safetycritical.annotate.BlockFree;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
 
@@ -31,7 +32,7 @@ import org.ovmj.java.Opaque;
 import edu.purdue.scj.VMSupport;
 
 @SCJAllowed
-public abstract class MemoryArea {
+public abstract class MemoryArea implements AllocationContext {
     /**
      * space for temporary region when making a temporary scope stack. Normally
      * it just needs to hold the actual ScopeStack object, but assertions and
@@ -86,6 +87,7 @@ public abstract class MemoryArea {
         return newInstanceImpl(thread, clazz);
     }
 
+    @BlockFree
     @SCJAllowed
     public Object newArray(Class clazz, int number)
             throws IllegalAccessException {

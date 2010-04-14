@@ -182,5 +182,10 @@ public class LibraryImports {
     static native int getGCTimerMutatorCounts();
 
     static native int getGCTimerCollectorCounts();
+    
+    
+    // for Rapita
+    
+    public static native void RPT_Ipoint(int i);
 
 }

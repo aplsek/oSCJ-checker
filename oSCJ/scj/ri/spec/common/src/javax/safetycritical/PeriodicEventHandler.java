@@ -32,14 +32,14 @@ public abstract class PeriodicEventHandler extends ManagedEventHandler {
 
     @SCJAllowed(Level.LEVEL_1)
     public PeriodicEventHandler(PriorityParameters priority,
-            PeriodicParameters period, StorageConfigurationParameters storage,
+            PeriodicParameters period, StorageParameters storage,
             long size) {
         this(priority, period, storage, size, null);
     }
 
     @SCJAllowed(Level.LEVEL_1)
     public PeriodicEventHandler(PriorityParameters priority,
-            PeriodicParameters period, StorageConfigurationParameters storage,
+            PeriodicParameters period, StorageParameters storage,
             long size, String name) {
         super(priority, period, storage, size, name);
     }

@@ -57,8 +57,9 @@ class MissionMemory extends LTMemory implements ManagedMemory {
 		super.enter(logic);
 	}
 
-	void resize(long sizeInByte) {
+	public void resize(long sizeInByte) {
 		setSize(sizeInByte);
+		// TODO : how the resize is implemented?
 	}
 
 	@SCJAllowed

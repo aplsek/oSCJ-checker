@@ -28,5 +28,5 @@ import javax.safetycritical.annotate.SCJAllowed;
 public interface Schedulable extends Runnable {
 
     @SCJAllowed(Level.LEVEL_2)
-    public StorageConfigurationParameters getThreadConfigurationParameters();
+    public StorageParameters getThreadConfigurationParameters();
 }

@@ -52,7 +52,7 @@ public abstract class MissionSequencer extends BoundAsyncEventHandler {
 	// TODO: do something to the storage parameter
 	@SCJAllowed
 	public MissionSequencer(PriorityParameters priority,
-			StorageConfigurationParameters storage) {
+			StorageParameters storage) {
 		super(priority, null, null, null, null, true, null);
 		MemoryArea mem = RealtimeThread.getCurrentMemoryArea();
 	}

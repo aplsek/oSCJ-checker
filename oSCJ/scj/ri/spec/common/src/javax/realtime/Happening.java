@@ -24,7 +24,10 @@ package javax.realtime;
 import javax.safetycritical.annotate.SCJAllowed;
 
 /**
- * TODO: implement it when necessary
+ * 
+ * Happenings:
+ * 		----> in SCJ Specificaiton, happenings are still in flux due to dependencies on JSR-282.
+ * 
  */
 @SCJAllowed
 public abstract class Happening {

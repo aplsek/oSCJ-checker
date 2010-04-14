@@ -21,11 +21,12 @@
 
 package javax.realtime;
 
+import javax.realtime.ScopedAllocationContext;
 import javax.safetycritical.annotate.SCJProtected;
 
 import edu.purdue.scj.utils.Utils;
 
-public abstract class ScopedMemory extends MemoryArea {
+public abstract class ScopedMemory extends MemoryArea implements ScopedAllocationContext {
 
 	/**
 	 * The primordial scope acts as the parent for any scope for which no scoped
@@ -34,6 +35,11 @@ public abstract class ScopedMemory extends MemoryArea {
 	static final ScopedMemory _primordialScope = new ScopedMemory(0) {
 		public String toString() {
 			return "PrimordialScope";
+		}
+		
+		@Override
+		public void resize(long size) throws IllegalStateException {
+			// TODO: resizing Scoped Memory, should we implement this?
 		}
 	};
 

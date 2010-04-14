@@ -26,7 +26,6 @@ import java.util.Iterator;
 import javax.realtime.AbsoluteTime;
 import javax.realtime.Clock;
 import javax.realtime.HighResolutionTime;
-import javax.realtime.RealtimeThread;
 import javax.safetycritical.annotate.SCJAllowed;
 
 import edu.purdue.scj.VMSupport;
@@ -39,7 +38,7 @@ public abstract class CyclicExecutive extends Mission implements Safelet {
     private static final int NANOS_PER_MILLI = 1000 * 1000;
 
     @SCJAllowed
-    public CyclicExecutive(StorageConfigurationParameters storage) {
+    public CyclicExecutive(StorageParameters storage) {
         _sequencer = new SingleMissionSequencer(null, storage, this);
     }
 
@@ -54,6 +53,8 @@ public abstract class CyclicExecutive extends Mission implements Safelet {
     /** Do the Cyclic Execution. */
     protected final void exec(MissionManager manager) {
 
+    	
+    	// TODO: why we are copying the arrays?
         PeriodicEventHandler[] handlers = new PeriodicEventHandler[manager._peHandlers
                 .size()];
 

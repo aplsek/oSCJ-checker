@@ -30,7 +30,10 @@ import edu.purdue.scj.VMSupport;
  * particular, we need to be able to reserve memory for backing store. Perhaps
  * this belongs in a javax.safetycritical variant of SizeEstimator.
  * 
- * TODO: can we let VM decide the size of monitor for us?
+ * SIZE OF THE MONITOR issue:
+ *  Lei: can we let VM decide the size of monitor for us?
+ *  	Ales: VM will decide this for us. XXX-tag
+ *  
  */
 @SCJAllowed
 public final class SizeEstimator {
@@ -56,7 +59,6 @@ public final class SizeEstimator {
 
     @SCJAllowed
     public void reserve(Class clazz, int num) {
-        // TODO: + a monitor size
         if (clazz != null)
             size += num * VMSupport.sizeOf(clazz);
     }
@@ -79,7 +81,6 @@ public final class SizeEstimator {
         if (length < 0)
             throw new IllegalArgumentException("negative length");
         else
-            // TODO: + a monitor size
             size += VMSupport.sizeOfReferenceArray(length);
     }
 
@@ -90,7 +91,6 @@ public final class SizeEstimator {
         else if (clazz == null || !clazz.isPrimitive())
             throw new IllegalArgumentException("type is not a primitive type");
         else
-            // TODO: + a monitor size
             size += VMSupport.sizeOfPrimitiveArray(length, clazz);
     }
 }

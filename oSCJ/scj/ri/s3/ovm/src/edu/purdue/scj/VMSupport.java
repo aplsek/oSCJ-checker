@@ -209,4 +209,8 @@ public class VMSupport {
     }
     /*------ Debug -------*/
     // TBA
+    
+    public static void RPT_Ipoint(int i) {
+    	LibraryImports.RPT_Ipoint(i);
+    }
 }

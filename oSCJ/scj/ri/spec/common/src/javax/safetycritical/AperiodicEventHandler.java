@@ -32,14 +32,14 @@ public abstract class AperiodicEventHandler extends ManagedEventHandler {
 	@SCJAllowed(Level.LEVEL_1)
 	public AperiodicEventHandler(PriorityParameters priority,
 			AperiodicParameters release,
-			StorageConfigurationParameters storage, long psize) {
+			StorageParameters storage, long psize) {
 		this(priority, release, storage, psize, null);
 	}
 
 	@SCJAllowed(Level.LEVEL_1)
 	public AperiodicEventHandler(PriorityParameters priority,
 			AperiodicParameters release,
-			StorageConfigurationParameters storage, long psize, String name) {
+			StorageParameters storage, long psize, String name) {
 		super(priority, release, storage, psize, name);
 	}
 }

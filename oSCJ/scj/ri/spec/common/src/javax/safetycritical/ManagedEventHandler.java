@@ -32,7 +32,7 @@ public abstract class ManagedEventHandler extends BoundAsyncEventHandler {
     private String _name;
 
     public ManagedEventHandler(PriorityParameters priority,
-            ReleaseParameters release, StorageConfigurationParameters storage,
+            ReleaseParameters release, StorageParameters storage,
             long psize, String name) {
         super(priority, release, null, new PrivateMemory(psize), null, true,
                 null);
