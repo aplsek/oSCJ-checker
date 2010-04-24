@@ -23,8 +23,10 @@ import javax.realtime.RealtimeThread;
 import javax.realtime.RelativeTime;
 import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
+import javax.safetycritical.MissionManager;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.Safelet;
+import javax.safetycritical.StorageParameters;
 import javax.safetycritical.Terminal;
 
 import edu.purdue.scj.utils.Utils;
@@ -46,9 +48,13 @@ public class MyHelloWorld extends CyclicExecutive {
         // Utils.debugPrint("[OK] Class is a subclass of Safelet");
 
         Safelet safelet = new MyHelloWorld();
+       // Utils.debugPrint("[OK] Class is a subclass of Safelet");
+
+        
         safelet.setup();
         // starting at LEvel 0, no thread is created.
         safelet.getSequencer().start();
+        
         safelet.teardown();
 
         // try {
@@ -78,7 +84,7 @@ public class MyHelloWorld extends CyclicExecutive {
         Utils.debugPrint("[SCJ]" + " MyHelloWorld.initialize() - start ");
         Utils.debugPrint("[SCJ] Mission Mem consumed:"
                 + RealtimeThread.getCurrentMemoryArea().memoryConsumed());
-
+        
         new WordHandler(2000, "Hello ", -1);
         new WordHandler(2000, "World\n", 10);
     }
@@ -124,5 +130,23 @@ public class MyHelloWorld extends CyclicExecutive {
             if (count_-- == 0)
                 getCurrentMission().requestSequenceTermination();
         }
+
+		@Override
+		public void cleanUp() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void register() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public StorageParameters getThreadConfigurationParameters() {
+			// TODO Auto-generated method stub
+			return null;
+		}
     }
 }
