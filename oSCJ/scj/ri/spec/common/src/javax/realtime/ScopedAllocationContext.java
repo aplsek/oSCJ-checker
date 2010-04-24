@@ -82,6 +82,8 @@ public interface ScopedAllocationContext extends AllocationContext
    *
    * @throws IllegalStateException when the area is not empty.
    */
-  public void resize(long size)
-    throws IllegalStateException;
+  //public void resize(long size)
+   // throws IllegalStateException;
+  
+  
 }

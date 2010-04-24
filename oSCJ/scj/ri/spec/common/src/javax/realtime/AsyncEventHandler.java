@@ -26,11 +26,22 @@ import javax.safetycritical.annotate.SCJProtected;
 
 import edu.purdue.scj.utils.Utils;
 
-/*
- * TODO: AEH here has a dedicated real-time thread, which does not follow the spec. 
- * We do this for simplicity, but it is expected that bounding should be done dynamically. 
+/**
+ * In SCJ, all asynchronous events must have their handlers bound when they are
+ * cre- ated (during the initialization phase). The binding is permanent. Thus,
+ * the AsyncEvent- Handler constructors are hidden from public view in the SCJ
+ * specification.
+ * 
+ * 
+ * TODO: AEH here has a dedicated real-time thread, which does not follow the
+ * spec. We do this for simplicity, but it is expected that bounding should be
+ * done dynamically.
+ * 
+ * LEVEL: is defined at LEVEL 0 just because of the class structure
+ * (PeriodicEventHandler and MissionSequencer extend this ) - other than this
+ * class-hierarchy, AsynchEvents are used at LEVEL 1
  */
-@SCJAllowed(Level.LEVEL_0)
+@SCJAllowed
 public class AsyncEventHandler implements Schedulable {
 
 	private final MemoryArea _initMemory;
@@ -67,7 +78,7 @@ public class AsyncEventHandler implements Schedulable {
 	Runnable handlerLogic = new Runnable() {
 		public void run() {
 			while (!Thread.interrupted()) {
-					
+
 				// we don't need or want to hold the lock while processing
 				AsyncEventHandler.this.run();
 			}
@@ -100,6 +111,9 @@ public class AsyncEventHandler implements Schedulable {
 		return _handler.getSchedulingParameters();
 	}
 
+	/**
+	 * Spec says: This is overridden by the application to provide the handling code.
+	 */
 	public void handleAsyncEvent() {
 		if (_logic != null)
 			_logic.run();
@@ -129,9 +143,9 @@ public class AsyncEventHandler implements Schedulable {
 			_threadStarted = true;
 			_handler.start();
 		}
-			if (getAndIncrementPendingFireCount() == 0) {
-				_noWork = false;
-			}
+		if (getAndIncrementPendingFireCount() == 0) {
+			_noWork = false;
+		}
 	}
 
 	// for javax.safetycritical use
@@ -148,13 +162,13 @@ public class AsyncEventHandler implements Schedulable {
 	}
 
 	protected int getAndIncrementPendingFireCount() {
-			return _fireCount++;
+		return _fireCount++;
 	}
 
 	protected int getAndDecrementPendingFireCount() {
-			int temp = _fireCount;
-			if (_fireCount > 0)
-				_fireCount--;
-			return temp;
+		int temp = _fireCount;
+		if (_fireCount > 0)
+			_fireCount--;
+		return temp;
 	}
 }

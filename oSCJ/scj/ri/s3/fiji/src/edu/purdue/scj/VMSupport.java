@@ -163,4 +163,134 @@ public class VMSupport {
     // static native boolean startMonitoringInterrupt(int interruptIndex);
     /*------ Debug -------*/
     // TBA
+    
+    
+    
+   
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////
+    ////////////////////////
+    
+    /* Rapita Support */
+    
+    
+    public static native void RPT_Init ();
+    
+    
+    public static native void RPT_Ipoint(int i);
+    
+    public static native void RPT_Output_Trace();
+    
+    
+    
+    
+    
+     
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////
+    ////////////////////////
+    
+    /* RawMemory Access */
+    
+    
+    /**
+	 * Get the byte at the given address with an atomic load.
+	 *
+	 * @param	address	address of the byte to read
+	 * @return	The byte at the given address
+	 */
+    public static native byte getByteAtomic(long address);
+
+	/**
+	 * Set the byte at the given address with an atomic store.
+	 *
+	 * @param	address	address of the byte to write
+	 * @param	value	Value to write.
+	 */
+    public static native void setByteAtomic(long address, long value);
+
+	/**
+	 * Get the short at the given address with an atomic load.
+	 *
+	 * @param	address	address of the short to read
+	 * @return	The short at the given address
+	 */
+    public static native short getShortAtomic(long address);
+
+	/**
+	 * Set the short at the given address with an atomic store.
+	 *
+	 * @param	address	address of the short to write
+	 * @param	value	Value to write.
+	 */
+    public static native void setShortAtomic(long address, short value) ;
+
+	/**
+	 * Get the int at the given address with an atomic load.
+	 *
+	 * @param	address	address of the int to read
+	 * @return	The int at the given address
+	 */
+    public static native int getIntAtomic(long address);
+
+	/**
+	 * Set the int at the given address with an atomic store.
+	 *
+	 * @param	address	address of the int to write
+	 * @param	value	Value to write.
+	 */
+    public static native void setIntAtomic(long address, int value) ;
+
+	/**
+	 * Get the long at the given address
+	 *
+	 * @param	address	address of the long to read
+	 * @return	The long at the given address
+	 */
+    public static native long getLong(long address);
+
+	/**
+	 * Set the long at the given address
+	 *
+	 * @param	address	address of the long to write
+	 * @param	value	Value to write.
+	 */
+    public static native void setLong(long address, long value) ;
+
+	/**
+	 * Get the Float at the given address with an atomic load.
+	 *
+	 * @param	address	address of the Float to read
+	 * @return	The Float at the given address
+	 */
+    public static native float getFloatAtomic(long address) ;
+
+	/**
+	 * Set the Float at the given address with an atomic store.
+	 *
+	 * @param	address	address of the Float to write
+	 * @param	value	Value to write.
+	 */
+    public static native void setFloatAtomic(long address, float value) ;
+
+	/**
+	 * Get the Double at the given address
+	 *
+	 * @param	address	address of the Double to read
+	 * @return	The Double at the given address
+	 */
+    public static native double getDouble(long address) ;
+
+	/**
+	 * Set the Double at the given address
+	 *
+	 * @param	address	address of the Double to write
+	 * @param	value	Value to write.
+	 */
+    public static native void setDouble(long address, double value) ;
+    
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+    
 }

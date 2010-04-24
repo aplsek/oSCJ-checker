@@ -25,6 +25,26 @@ import javax.safetycritical.annotate.SCJAllowed;
 @SCJAllowed
 public interface ManagedMemory {
 
+	//TODO: this is not defined by SCJ
 	@SCJAllowed
 	public MissionManager getManager();
+	
+	/**
+	 * @Returns the current managed memory. 
+	 * 
+	 * @Throws IllegaleStateException when called from immortal.
+	 */
+	@SCJAllowed 
+	public ManagedMemory getCurrentManageMemory() throws IllegalStateException;
+	
+	
+	@SCJAllowed 
+	public void enterPrivateMemory(int size, Runnable logic);
+	
+	/**
+	 * 
+	 * @return Returns the ManagedSchedulable that owns this managed memory.
+	 */
+	@SCJAllowed 
+	public ManagedSchedulable getOwner();
 }

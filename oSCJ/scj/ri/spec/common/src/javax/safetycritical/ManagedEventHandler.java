@@ -26,50 +26,76 @@ import javax.realtime.ReleaseParameters;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
 
-@SCJAllowed(Level.LEVEL_0)
-public abstract class ManagedEventHandler extends BoundAsyncEventHandler {
+/**
+ * 
+ * In SCJ, all handlers must be known by the mission manager, hence applications
+ * use classes that are based on the ManagedEventHandler class hierarchy. This
+ * class hierarchy allows a mission to keep track of all the handlers that are
+ * created during the initialization phase. 15 April 2010 Version 0.74 47
+ * Confidentiality: Public Distribution Safety Critical Specification for Java
+ * Note that the values in parameters classes passed to the constructors are
+ * those that will be used by the infrastructure. Changing these values after
+ * construction will have no impact on the created event handler.
+ * 
+ * @author plsek
+ * 
+ */
+@SCJAllowed
+public abstract class ManagedEventHandler extends BoundAsyncEventHandler
+		implements ManagedSchedulable {
 
-    private String _name;
+	private String _name;
 
-    public ManagedEventHandler(PriorityParameters priority,
-            ReleaseParameters release, StorageParameters storage,
-            long psize, String name) {
-        super(priority, release, null, new PrivateMemory(psize), null, true,
-                null);
-        _name = name;
-        MissionManager.getCurrentMissionManager().addEventHandler(this);
-    }
+	private ManagedEventHandler _next = null;
+	
+	@SCJAllowed 
+	public ManagedEventHandler(PriorityParameters priority,
+			ReleaseParameters release, StorageParameters storage, long psize,
+			String name) {
+		super(priority, release, null, new PrivateMemory(psize), null, true,
+				null);
+		_name = name;
+		MissionManager.getCurrentMissionManager().addEventHandler(this);
+	}
 
-    /**
-     * Application developers override this method with code to be executed
-     * whenever the event(s) to which this event handler is bound is fired.
-     */
-    @SCJAllowed(Level.LEVEL_0)
-    public abstract void handleEvent();
+	/**
+	 * Application developers override this method with code to be executed
+	 * whenever the event(s) to which this event handler is bound is fired.
+	 */
+	@SCJAllowed
+	public abstract void handleEvent();
 
-    /**
-     * This is overridden to ensure entry into the local scope for each release.
-     * This may change for RTSJ 1.1, where a provided scope is automatically
-     * entered at each release.
-     */
-    @Override
-    @SCJAllowed(Level.LEVEL_0)
-    public final void handleAsyncEvent() {
-        handleEvent();
-    }
+	/**
+	 * This is overridden to ensure entry into the local scope for each release.
+	 * This may change for RTSJ 1.1, where a provided scope is automatically
+	 * entered at each release.
+	 */
+	@Override
+	@SCJAllowed(Level.LEVEL_0)
+	public final void handleAsyncEvent() {
+		handleEvent();
+	}
 
-    @SCJAllowed(Level.LEVEL_0)
-    public void cleanup() {
-    }
+	@SCJAllowed
+	public void cleanup() {
+	}
 
-    public String getName() {
-        return _name;
-    }
+	public String getName() {
+		return _name;
+	}
 
-    PrivateMemory getInitArea() {
-        return (PrivateMemory) getInitMemoryArea();
-    }
+	PrivateMemory getInitArea() {
+		return (PrivateMemory) getInitMemoryArea();
+	}
 
-    void join() {
-    }
+	void join() {
+	}
+
+	public ManagedEventHandler getNext() {
+		return _next;
+	}
+
+	public void setNext(ManagedEventHandler next) {
+		_next = next;
+	}
 }

@@ -27,6 +27,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Level;
 
 @SCJAllowed(Level.LEVEL_1)
+
 public abstract class AperiodicEventHandler extends ManagedEventHandler {
 
 	@SCJAllowed(Level.LEVEL_1)

@@ -23,6 +23,23 @@ package javax.safetycritical;
 
 import javax.safetycritical.annotate.SCJAllowed;
 
+/**
+ * 
+ * Each schedulable object has several associated types of storage. As well as
+ * its Java run-time execution stack, there is also a native method stack (if
+ * this memory is dis- tinct from the run-time stack). In addition, each
+ * schedulable object has: a backing store that is used for any scoped memory
+ * areas it may create and a number of bytes dedicated to the message associated
+ * with this Schedulable object’s ThrowBoundary- Error exception plus all the
+ * method names/identifiers in the stack backtrace.
+ * 
+ * This class allows the programmer to set the sizes of these memory stores only
+ * at construction time (the objects are immutable). It is assumed that these
+ * sizes are obtained from vendor-specific tools.
+ * 
+ * @author plsek
+ * 
+ */
 @SCJAllowed
 public class StorageParameters {
 

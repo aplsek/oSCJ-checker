@@ -59,7 +59,6 @@ class MissionMemory extends LTMemory implements ManagedMemory {
 
 	public void resize(long sizeInByte) {
 		setSize(sizeInByte);
-		// TODO : how the resize is implemented?
 	}
 
 	@SCJAllowed
@@ -70,6 +69,24 @@ class MissionMemory extends LTMemory implements ManagedMemory {
 
 	void setManager(MissionManager manager) {
 		setPortal(manager);
+	}
+
+	@Override
+	public void enterPrivateMemory(int size, Runnable logic) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ManagedMemory getCurrentManageMemory() throws IllegalStateException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ManagedSchedulable getOwner() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	

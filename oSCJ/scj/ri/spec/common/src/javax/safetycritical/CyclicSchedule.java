@@ -24,40 +24,48 @@ package javax.safetycritical;
 import javax.realtime.RelativeTime;
 import javax.safetycritical.annotate.SCJAllowed;
 
+/**
+ * At Level 0, a cyclic schedule is represented by this class. There is one
+ * schedule for each processor in the system. The current class assumes a single
+ * processor.
+ * 
+ * @author plsek
+ * 
+ */
 @SCJAllowed
 public class CyclicSchedule {
 
-    private Frame[] _frames;
+	private Frame[] _frames;
 
-    @SCJAllowed
-    public CyclicSchedule(Frame[] frames) {
-        _frames = frames;
-    }
+	@SCJAllowed
+	public CyclicSchedule(Frame[] frames) {
+		_frames = frames;
+	}
 
-    Frame[] getFrames() {
-        return _frames;
-    }
+	Frame[] getFrames() {
+		return _frames;
+	}
 
-    @SCJAllowed
-    final public static class Frame {
+	@SCJAllowed
+	final public static class Frame {
 
-        private RelativeTime _duration;
-        private PeriodicEventHandler[] _handlers;
+		private RelativeTime _duration;
+		private PeriodicEventHandler[] _handlers;
 
-        @SCJAllowed
-        public Frame(RelativeTime duration, PeriodicEventHandler[] handlers) {
-            _duration = duration;
-            _handlers = handlers;
-        }
+		@SCJAllowed
+		public Frame(RelativeTime duration, PeriodicEventHandler[] handlers) {
+			_duration = duration;
+			_handlers = handlers;
+		}
 
-        @SCJAllowed
-        public PeriodicEventHandler[] getHandlers() {
-            return _handlers;
-        }
+		@SCJAllowed
+		public PeriodicEventHandler[] getHandlers() {
+			return _handlers;
+		}
 
-        @SCJAllowed
-        public RelativeTime getDuration() {
-            return _duration;
-        }
-    }
+		@SCJAllowed
+		public RelativeTime getDuration() {
+			return _duration;
+		}
+	}
 }

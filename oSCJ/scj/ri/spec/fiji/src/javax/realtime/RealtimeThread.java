@@ -128,6 +128,17 @@ public class RealtimeThread extends Thread implements Schedulable {
 
 	@SCJProtected
 	/** Used in primordial RTThread construction */
+	public RealtimeThread() {
+		initArea = ImmortalMemory.instance();
+		_scopeStack = new ScopeStack(this);
+		_initAreaIndex = 0;
+		//VMSupport.setTotalBackingStore(this, bssize);
+	}
+	
+	
+	
+	@SCJProtected
+	/** Used in primordial RTThread construction */
 	public RealtimeThread(long bssize) {
 		initArea = ImmortalMemory.instance();
 		_scopeStack = new ScopeStack(this);

@@ -23,7 +23,11 @@ package javax.realtime;
 import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Level.LEVEL_0;
 
+/**
+ * RawMemoryName is a tagging interface for objects that identify raw memory types.
+ * @author plsek
+ *
+ */
 @SCJAllowed(LEVEL_0)
 public interface RawMemoryName {
-
 }

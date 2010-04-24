@@ -37,7 +37,7 @@ public class LTMemory extends ScopedMemory {
         super(estimator);
     }
 
-	@Override
+	//@Override
 	public void resize(long size) throws IllegalStateException {
 		// TODO: resizing Scoped Memory, should we implement this?		
 	}

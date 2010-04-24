@@ -110,6 +110,21 @@ public abstract class HighResolutionTime implements Comparable {
         return _nanoseconds;
     }
 
+    @SCJAllowed
+    public void set(HighResolutionTime time) {
+    	//TODO:
+    }
+    
+    @SCJAllowed
+    public void set(long millis) {
+    	//TODO:
+    }
+    
+    @SCJAllowed 
+    public void set(long millis, int nanos) {
+    	//TODO:
+    }
+    
     /**
      * Behaves exactly like <code>target.wait()</code> but with the enhancement
      * that it waits with a precision of <code>HighResolutionTime</code>.
@@ -258,4 +273,6 @@ public abstract class HighResolutionTime implements Comparable {
 
         return sum;
     }
+    
+    
 }

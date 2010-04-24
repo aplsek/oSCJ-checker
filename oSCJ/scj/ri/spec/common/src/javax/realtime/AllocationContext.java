@@ -209,5 +209,21 @@ public interface AllocationContext
   public Object visitScopedChildren(ChildScopeVisitor visitor)
     throws IllegalArgumentException, RuntimeException;
     */
+  
+  /**
+   * Execute logic with this memory area as the current allocation context.
+   */
+  public void executeInArea(Runnable logic) ;
+  
+  /**
+   * Create an object of class type in this memory area.
+   * @param type
+   * @return
+ * @throws InstantiationException 
+ * @throws IllegalAccessException 
+   */
+  public Object newInstance(Class type) throws IllegalAccessException, InstantiationException;
+  
+  
 }
 

@@ -36,12 +36,13 @@ public abstract class ScopedMemory extends MemoryArea implements ScopedAllocatio
             return "PrimordialScope";
         }
 
-		@Override
+		//@Override
 		public void resize(long size) throws IllegalStateException {
 			// TODO: resizing Scoped Memory, should we implement this?
 		}
     };
 
+   
     
     ScopedMemory _parent;
     private Object _portal;

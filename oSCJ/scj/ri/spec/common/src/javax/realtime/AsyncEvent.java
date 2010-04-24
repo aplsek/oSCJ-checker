@@ -80,6 +80,7 @@ public class AsyncEvent {
 	}
 
 	// TODO: throws MITViolationException, ArrivalTimeQueueOverflowException
+	@SCJAllowed(Level.LEVEL_1)
 	public void fire() {
 			for (Iterator i = handlers.iterator(); i.hasNext();) {
 				((AsyncEventHandler) i.next()).releaseHandler();

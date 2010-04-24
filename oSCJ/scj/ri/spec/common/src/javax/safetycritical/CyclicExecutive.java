@@ -31,100 +31,118 @@ import javax.safetycritical.annotate.SCJAllowed;
 import edu.purdue.scj.VMSupport;
 import edu.purdue.scj.utils.Utils;
 
+/**
+ * 
+ * Level 0 applications are assumed to be scheduled by a cyclic executive where
+ * the schedule is created by static analysis tools offline.
+ * 
+ * @author plsek
+ * 
+ */
 @SCJAllowed
 public abstract class CyclicExecutive extends Mission implements Safelet {
 
-    private MissionSequencer _sequencer;
-    private static final int NANOS_PER_MILLI = 1000 * 1000;
+	private MissionSequencer _sequencer;
+	private static final int NANOS_PER_MILLI = 1000 * 1000;
 
-    @SCJAllowed
-    public CyclicExecutive(StorageParameters storage) {
-        _sequencer = new SingleMissionSequencer(null, storage, this);
-    }
+	@SCJAllowed
+	public CyclicExecutive(StorageParameters storage) {
+		_sequencer = new SingleMissionSequencer(null, storage, this);
+	}
 
-    @SCJAllowed
-    public MissionSequencer getSequencer() {
-        return _sequencer;
-    }
+	@SCJAllowed
+	public MissionSequencer getSequencer() {
+		return _sequencer;
+	}
 
-    @SCJAllowed
-    public abstract CyclicSchedule getSchedule(PeriodicEventHandler[] peh);
+	@SCJAllowed
+	public abstract CyclicSchedule getSchedule(PeriodicEventHandler[] peh);
 
-    /** Do the Cyclic Execution. */
-    protected final void exec(MissionManager manager) {
+	/** Do the Cyclic Execution. */
+	protected final void exec(MissionManager manager) {
 
-    	
-    	// TODO: why we are copying the arrays?
-        PeriodicEventHandler[] handlers = new PeriodicEventHandler[manager._peHandlers
-                .size()];
+		if (manager.getHandlers() == 0)
+			return;
 
-        int counter = 0;
-        for (Iterator i = manager._peHandlers.iterator(); i.hasNext();) {
-            handlers[counter] = (PeriodicEventHandler) i.next();
-            counter++;
-        }
-        CyclicSchedule schedule = getSchedule(handlers);
-        CyclicSchedule.Frame[] frames = schedule.getFrames();
-        Wrapper wrapper = new Wrapper();
-        AbsoluteTime targetTime = Clock.getRealtimeClock().getTime();
+		PeriodicEventHandler[] handlers = new PeriodicEventHandler[manager
+				.getHandlers()];
+		PeriodicEventHandler handler = (PeriodicEventHandler) manager
+				.getFirstHandler();
+		int iter = 0;
+		while (handler != null) {
+			handlers[iter] = handler;
+			handler = (PeriodicEventHandler) handler.getNext();
+			iter++;
+		}
 
-        while (_phase == Mission.Phase.EXECUTE) {
-            for (int i = 0; i < frames.length; i++) {
-                targetTime.add(frames[i].getDuration(), targetTime);
-                PeriodicEventHandler[] frameHandlers = frames[i].getHandlers();
-                for (int j = 0; j < frameHandlers.length; j++) {
-                    wrapper._handler = frameHandlers[j];
-                    wrapper.runInItsInitArea();
-                }
-                if (_phase != Mission.Phase.EXECUTE)
-                    break;
-                else
-                    waitForNextFrame(targetTime);
-            }
-        }
-    }
+		CyclicSchedule schedule = getSchedule(handlers);
+		CyclicSchedule.Frame[] frames = schedule.getFrames();
 
-    private static void waitForNextFrame(AbsoluteTime targetTime) {
-        int result;
-        while (true) {
-            result = VMSupport.delayCurrentThreadAbsolute(toNanos(targetTime));
-            if (result == -1) {
-                break;
-            } else if (result == 0)
-                break;
-            // here, result == 1, the sleep is interrupted, try to sleep
-            // again.
-        }
-    }
+		Wrapper wrapper = new Wrapper();
+		AbsoluteTime targetTime = Clock.getRealtimeClock().getTime();
 
-    static long toNanos(HighResolutionTime time) {
-        long nanos = time.getMilliseconds() * NANOS_PER_MILLI
-                + time.getNanoseconds();
-        if (nanos < 0)
-            nanos = Long.MAX_VALUE;
+		while (_phase == Mission.Phase.EXECUTE) {
+			for (int i = 0; i < frames.length; i++) {
+				targetTime.add(frames[i].getDuration(), targetTime);
+				PeriodicEventHandler[] frameHandlers = frames[i].getHandlers();
+				for (int j = 0; j < frameHandlers.length; j++) {
+					if (frameHandlers[j] != null) { // we check that handler is
+													// not null,
+						wrapper._handler = frameHandlers[j];
+						wrapper.runInItsInitArea();
+					}
+				}
+				if (_phase != Mission.Phase.EXECUTE)
+					break;
+				else
+					waitForNextFrame(targetTime);
+			}
+		}
+	}
 
-        return nanos;
-    }
+	private static void waitForNextFrame(AbsoluteTime targetTime) {
+		int result;
+		while (true) {
+			result = VMSupport.delayCurrentThreadAbsolute(toNanos(targetTime));
+			if (result == -1) {
+				break;
+			} else if (result == 0)
+				break;
+			// here, result == 1, the sleep is interrupted, try to sleep
+			// again.
+		}
+	}
 
-    /** For making every handler run in its own PrivateMemory */
-    class Wrapper implements Runnable {
+	static long toNanos(HighResolutionTime time) {
+		long nanos = time.getMilliseconds() * NANOS_PER_MILLI
+				+ time.getNanoseconds();
+		if (nanos < 0)
+			nanos = Long.MAX_VALUE;
 
-        PeriodicEventHandler _handler = null;
+		return nanos;
+	}
 
-        void runInItsInitArea() {
-            if (_handler != null)
-                _handler.getInitArea().enter(this);
-            else
-                Utils.panic("handler is null");
-        }
+	/** For making every handler run in its own PrivateMemory */
+	class Wrapper implements Runnable {
 
-        public void run() {
-            try {
-                _handler.handleEvent();
-            } catch (Throwable t) {
-                Utils.debugPrint(t.toString());
-                t.printStackTrace();
-            }
-        }
-    }
+		PeriodicEventHandler _handler = null;
+
+		void runInItsInitArea() {
+			if (_handler != null) // TODO: if we will use the "maxHandlers"
+									// fiels in MissionManager, we dont need
+									// this.
+				_handler.getInitArea().enter(this);
+			else
+				Utils.panic("handler is null");
+		}
+
+		public void run() {
+			try {
+				_handler.handleEvent();
+			} catch (Throwable t) {
+				Utils.debugPrint(t.toString());
+				t.printStackTrace();
+			}
+		}
+	}
 }

@@ -23,14 +23,22 @@ package javax.realtime;
 
 import javax.safetycritical.annotate.SCJAllowed;
 
-//TODO: Compared to AEH, this guy should be really made bounding to a thread
+/**
+ * 
+ * The BoundAsyncEventHandler class is not used directly by the application.
+ * Hence none of its methods or constructors are publicly available.
+ * 
+ * @author plsek
+ * 
+ */
+// TODO: Compared to AEH, this guy should be really made bounding to a thread
 @SCJAllowed
 public class BoundAsyncEventHandler extends AsyncEventHandler {
 
-    public BoundAsyncEventHandler(SchedulingParameters scheduling,
-            ReleaseParameters release, MemoryParameters memory,
-            MemoryArea area, ProcessingGroupParameters group, boolean nonheap,
-            Runnable logic) {
-        super(scheduling, release, memory, area, group, nonheap, logic);
-    }
+	public BoundAsyncEventHandler(SchedulingParameters scheduling,
+			ReleaseParameters release, MemoryParameters memory,
+			MemoryArea area, ProcessingGroupParameters group, boolean nonheap,
+			Runnable logic) {
+		super(scheduling, release, memory, area, group, nonheap, logic);
+	}
 }

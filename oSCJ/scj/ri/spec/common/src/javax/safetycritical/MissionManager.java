@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.realtime.RealtimeThread;
+import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
 
 import edu.purdue.scj.utils.Utils;
@@ -34,9 +35,10 @@ public class MissionManager extends PortalExtender {
 
 	private Mission _mission;
 	
-	//TODO: collection should not be used!
-	Collection _peHandlers = new ArrayList(); // PeriodicEventHandler
-
+	ManagedEventHandler _first = null;
+	ManagedEventHandler _curr = null;
+	int _handlers = 0;
+	
 	public MissionManager() {
 	}
 
@@ -55,17 +57,31 @@ public class MissionManager extends PortalExtender {
 	void cleanAll() {
 		
 	}
-
 	
-
 	void addEventHandler(ManagedEventHandler handler) {
-		if (handler instanceof PeriodicEventHandler)
-			_peHandlers.add((PeriodicEventHandler) handler);
+		if (handler instanceof PeriodicEventHandler)  {
+			if (_first == null) 
+				_first = _curr = handler;
+			else {
+				_curr.setNext(handler);
+				_curr = handler;
+			}
+			_handlers++;	
+		}
 	}
 
 
-	static MissionManager getCurrentMissionManager() {
+	public static MissionManager getCurrentMissionManager() {
 		return ((ManagedMemory) RealtimeThread.getCurrentMemoryArea())
 				.getManager();
 	}
+	
+	public int getHandlers() {
+		return _handlers;
+	}
+	
+	public ManagedEventHandler getFirstHandler() {
+		return _first;
+	}
 }
+

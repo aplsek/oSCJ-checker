@@ -21,6 +21,7 @@
 package javax.realtime;
 
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.Level;
 
 /**
  * The ClockEvent interface may be used by subclasses of Clock to indicate to
@@ -30,7 +31,7 @@ import javax.safetycritical.annotate.SCJAllowed;
  * TODO: implement it when necessary
  * 
  */
-@SCJAllowed
+@SCJAllowed(Level.LEVEL_1)
 public interface ClockCallBack {
 	//
 	// /**
@@ -39,8 +40,12 @@ public interface ClockCallBack {
 	// * @param clock
 	// */
 	//    
-	// @SCJAllowed(LEVEL_1)
-	// void atTime(Clock clock);
+	//
+	//@SCJAllowed(Level.LEVEL_1)
+	//void atTime(Clock clock) {
+	//	
+	//}
+	//
 	//
 	// /**
 	// * clock experienced a time discontinuity.
@@ -49,6 +54,6 @@ public interface ClockCallBack {
 	// * @param updatedTime
 	// */
 	//    
-	// @SCJAllowed(LEVEL_1)
+	// @SCJAllowed(Level.LEVEL_1)
 	// void discontinuity(Clock clock, javax.realtime.AbsoluteTime updatedTime);
 }

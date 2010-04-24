@@ -79,6 +79,8 @@ import s3.services.transactions.PragmaPARSafe;
 import ovm.core.services.events.EventManager;
 import s3.services.java.realtime.RealtimeJavaThreadImpl;
 
+import s3.rpt.RPT;
+
 public final class RuntimeExports extends BaseRuntimeExports implements UnsafeAccess {
 
     // Java dispatcher
@@ -2576,4 +2578,18 @@ static    byte[] oneByte=new byte[]{(byte)1};
     public void getrusageSelf(Oop array) {
 	RUsage.fromSystemToAnyArray(array);
     }
+    
+    public void RPT_Ipoint(int ipoint) {
+    	RPT.RPT_Ipoint(ipoint);
+    }
+    
+    public void RPT_Init() {
+    	RPT.RPT_Init();
+    }
+    
+    public void RPT_Output_Trace() {
+    	RPT.RPT_Output_Trace();
+    }
+    
+   
 }

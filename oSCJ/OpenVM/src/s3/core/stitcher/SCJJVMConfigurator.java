@@ -114,18 +114,18 @@ public class SCJJVMConfigurator extends JVMConfigurator {
     protected void initFactories() {
         if (factories.get(MonitorServicesFactory.name) == null) 
             factories.put(MonitorServicesFactory.name, 
-                          new RealtimeJVMConfigurator.MonitorServicesFactory());
+                          new SCJJVMConfigurator.MonitorServicesFactory());
         
         if (factories.get(ThreadServicesFactory.name) == null)         
             factories.put(ThreadServicesFactory.name, 
-                          new RealtimeJVMConfigurator.ThreadServicesFactory());
+                          new SCJJVMConfigurator.ThreadServicesFactory());
         
         if (factories.get(ThreadDispatchServicesFactory.name) == null)
             factories.put(ThreadDispatchServicesFactory.name,
-                          new RealtimeJVMConfigurator.ThreadDispatchServicesFactory());
+                          new SCJJVMConfigurator.ThreadDispatchServicesFactory());
         if (factories.get(JavaServicesFactory.name) == null) 
             factories.put(JavaServicesFactory.name, 
-                          new RealtimeJVMConfigurator.JavaServicesFactory());
+                          new SCJJVMConfigurator.JavaServicesFactory());
 
         super.initFactories();
     }

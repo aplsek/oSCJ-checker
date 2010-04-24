@@ -26,6 +26,7 @@ import java.lang.reflect.Array;
 import javax.safetycritical.annotate.BlockFree;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJProhibited;
 
 import org.ovmj.java.Opaque;
 
@@ -64,7 +65,7 @@ public abstract class MemoryArea implements AllocationContext {
         return getMemoryAreaObject(VMSupport.areaOf(object));
     }
 
-    @SCJAllowed
+    @SCJProhibited
     public void enter(Runnable logic) {
         if (logic == null)
             throw new IllegalArgumentException("null logic not permitted");

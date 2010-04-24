@@ -210,7 +210,162 @@ public class VMSupport {
     /*------ Debug -------*/
     // TBA
     
+    
+    
+    
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////
+    ////////////////////////
+    
+    /* Rapita Support */
+    
+    
+    public static void RPT_Init () {
+    	LibraryImports.RPT_Init();
+    }
+    
+    
     public static void RPT_Ipoint(int i) {
     	LibraryImports.RPT_Ipoint(i);
     }
+    
+    public static void RPT_Output_Trace(){
+    	LibraryImports.RPT_Output_Trace();
+    }
+    
+    
+    
+    
+    
+     
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////
+    ////////////////////////
+    
+    /* RawMemory Access */
+    
+    
+    /**
+	 * Get the byte at the given address with an atomic load.
+	 *
+	 * @param	address	address of the byte to read
+	 * @return	The byte at the given address
+	 */
+	public static byte getByteAtomic(long address) {
+		return LibraryImports.getByteAtomic(address);
+	}
+
+	/**
+	 * Set the byte at the given address with an atomic store.
+	 *
+	 * @param	address	address of the byte to write
+	 * @param	value	Value to write.
+	 */
+	public static void setByteAtomic(long address, long value) {
+		LibraryImports.setByteAtomic(address,value);
+	}
+
+	/**
+	 * Get the short at the given address with an atomic load.
+	 *
+	 * @param	address	address of the short to read
+	 * @return	The short at the given address
+	 */
+	public static short getShortAtomic(long address) {
+		return LibraryImports.getShortAtomic(address);
+	}
+
+	/**
+	 * Set the short at the given address with an atomic store.
+	 *
+	 * @param	address	address of the short to write
+	 * @param	value	Value to write.
+	 */
+	public static void setShortAtomic(long address, short value) {
+		LibraryImports.setShortAtomic(address,value);
+	}
+
+	/**
+	 * Get the int at the given address with an atomic load.
+	 *
+	 * @param	address	address of the int to read
+	 * @return	The int at the given address
+	 */
+	public static int getIntAtomic(long address) {
+		return LibraryImports.getIntAtomic(address);
+	}
+
+	/**
+	 * Set the int at the given address with an atomic store.
+	 *
+	 * @param	address	address of the int to write
+	 * @param	value	Value to write.
+	 */
+	public static void setIntAtomic(long address, int value) {
+		LibraryImports.setIntAtomic(address,value);
+	}
+
+	/**
+	 * Get the long at the given address
+	 *
+	 * @param	address	address of the long to read
+	 * @return	The long at the given address
+	 */
+	public static long getLong(long address) {
+		return LibraryImports.getLong(address);
+	}
+
+	/**
+	 * Set the long at the given address
+	 *
+	 * @param	address	address of the long to write
+	 * @param	value	Value to write.
+	 */
+	public static void setLong(long address, long value) {
+		LibraryImports.setLong(address,value);
+	}
+
+	/**
+	 * Get the Float at the given address with an atomic load.
+	 *
+	 * @param	address	address of the Float to read
+	 * @return	The Float at the given address
+	 */
+	public static float getFloatAtomic(long address) {
+		return LibraryImports.getFloatAtomic(address);
+	}
+
+	/**
+	 * Set the Float at the given address with an atomic store.
+	 *
+	 * @param	address	address of the Float to write
+	 * @param	value	Value to write.
+	 */
+	public static void setFloatAtomic(long address, float value) {
+		LibraryImports.setFloatAtomic(address,value);
+	}
+
+	/**
+	 * Get the Double at the given address
+	 *
+	 * @param	address	address of the Double to read
+	 * @return	The Double at the given address
+	 */
+	public static double getDouble(long address) {
+		return LibraryImports.getDouble(address);
+	}
+
+	/**
+	 * Set the Double at the given address
+	 *
+	 * @param	address	address of the Double to write
+	 * @param	value	Value to write.
+	 */
+	public static void setDouble(long address, double value) {
+		LibraryImports.setDouble(address,value);
+	}
+    
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 }

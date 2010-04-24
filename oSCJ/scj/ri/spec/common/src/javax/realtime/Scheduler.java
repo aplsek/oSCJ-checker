@@ -26,13 +26,22 @@ import javax.safetycritical.annotate.SCJAllowed;
 @SCJAllowed
 public abstract class Scheduler {
 
-    static PriorityScheduler getDefaultScheduler() {
-        return PriorityScheduler.instance();
-    }
+	static PriorityScheduler getDefaultScheduler() {
+		return PriorityScheduler.instance();
+	}
 
-    // TODO: what is the default release parameter in SCJ?
-    ReleaseParameters getDefaultReleaseParameters() {
-        // not determined yet. Doesn't matter for level 0
-        return null;
-    }
+	// TODO: what is the default release parameter in SCJ?
+	ReleaseParameters getDefaultReleaseParameters() {
+		// not determined yet. Doesn't matter for level 0
+		return null;
+	}
+
+	/**
+	 * 
+	 * @return the current asynchronous event handler or real-time thread of the
+	 *         caller.
+	 */
+	public static Schedulable getCurrentSo() {
+		return null;
+	}
 }

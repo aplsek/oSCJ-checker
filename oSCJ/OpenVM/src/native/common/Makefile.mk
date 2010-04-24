@@ -28,7 +28,8 @@ SRCS=	clock.c \
         waitmanager.c\
         nanosleep_timer.c\
 	smp_timer.c\
-	rtems_support.c
+	rtems_support.c\
+	rpt.c
 
 OBJS=signalmapper.o $(SRCS:.c=.o) 
 

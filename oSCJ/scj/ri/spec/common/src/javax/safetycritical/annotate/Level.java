@@ -46,6 +46,22 @@ public enum Level {
 		public int value() {
 			return 2;
 		}
+	},
+	
+	@SCJAllowed
+	INFRASTRUCTURE {
+		@Override
+		public int value() {
+			return 3;
+		}
+	},
+	
+	@SCJAllowed
+	HIDDEN {
+		@Override
+		public int value() {
+			return 4;
+		}
 	};
 
 	public abstract int value();

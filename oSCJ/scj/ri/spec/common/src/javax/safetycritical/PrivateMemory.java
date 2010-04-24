@@ -83,4 +83,22 @@ public class PrivateMemory extends LTMemory implements ManagedMemory {
         }
         super.enter(logic);
     }
+
+	@Override
+	public void enterPrivateMemory(int size, Runnable logic) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ManagedMemory getCurrentManageMemory() throws IllegalStateException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ManagedSchedulable getOwner() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

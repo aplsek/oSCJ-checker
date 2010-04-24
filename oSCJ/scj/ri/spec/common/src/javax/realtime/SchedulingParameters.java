@@ -22,7 +22,15 @@ package javax.realtime;
 
 import javax.safetycritical.annotate.SCJAllowed;
 
-//TODO: anything needs to do here?
+/**
+ * The RTSJ potentially allows different schedulers to be supported and defines
+ * this class as the root class for all scheduling parameters. In SCJ this class
+ * is empty. There is no ImportanceParameters subclass in SCJ.
+ * 
+ * 
+ * @author plsek
+ * 
+ */
 @SCJAllowed
 public abstract class SchedulingParameters {
 }
