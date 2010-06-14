@@ -1,15 +1,20 @@
+//allocfree/MethodCallsAbstract.java:28: Illegal allocation in a method marked ALLOCATE_FREE
+//        new Object();
+//        ^
+//1 error
+
 package allocfree;
 
-import javax.safetycritical.annotate.AllocFree;
-
+import javax.safetycritical.annotate.Restrict;
+import javax.safetycritical.annotate.SCJRestricted;
 
 public abstract class MethodCallsAbstract {
-	@AllocFree
+    @SCJRestricted({Restrict.ALLOCATE_FREE})
 	public void foo() {
 		foo2();
 	}
 	
-	@AllocFree
+    @SCJRestricted({Restrict.ALLOCATE_FREE})
 	public abstract void foo2();
 }
 

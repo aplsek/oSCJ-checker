@@ -1,8 +1,11 @@
+
 package javax.safetycritical;
 
+
+
+import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
-import javax.safetycritical.annotate.SCJProtected;
 
 /**
  * 
@@ -23,8 +26,7 @@ public class FakeSCJMembers {
         scjProtected();
     }
 
-    @SCJAllowed
-    @SCJProtected
+    @SCJAllowed(INFRASTRUCTURE)
     public static void scjProtected() {
     }
 }

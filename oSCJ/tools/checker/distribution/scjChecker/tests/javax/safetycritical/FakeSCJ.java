@@ -1,9 +1,11 @@
 package javax.safetycritical;
 
+import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
+
 import javax.safetycritical.annotate.*;
 
 /**
- * ERRORS: - the class is not annotated
+ * ERRORS: 
  * 
  * tests/javax/safetycritical/FakeSCJ.java:28: warning: Illegal visibility increase of an enclosing element.
     public static int variable;
@@ -22,6 +24,7 @@ tests/javax/safetycritical/FakeSCJ.java:45: warning: Illegal visibility increase
  * @author plsek
  *
  */
+@SCJAllowed(Level.LEVEL_2)
 public class FakeSCJ {
 	
     @SCJAllowed(Level.LEVEL_1)
@@ -32,8 +35,7 @@ public class FakeSCJ {
 		scjProtected();
 	}
 
-    @SCJAllowed
-    @SCJProtected
+    @SCJAllowed(INFRASTRUCTURE)
     public static void scjProtected() {
     }
     

@@ -1,10 +1,16 @@
-# SCJ-Checker, v.0.1
-#          
-# readme author: Ales Plsek, aplsek@purdue.edu
-# date: 11-08-2009
-#  
-# Project Homepage: http://www.cs.purdue.edu/homes/plsek/soft/scj/checker/checker.html      
-# Submit bug reports, comments and feedback: http://www.cs.purdue.edu/homes/plsek/soft/scj/authors/authors.html
+SCJ-Checker, v.1.0
+          
+readme author: Ales Plsek, aplsek@purdue.edu
+date: 06-15-2010
+  
+Project Homepage: http://www.ovmj.net/oscj/      
+Submit bug reports, comments and feedback: 
+   bug-report : http://code.google.com/p/scj-jsr302/issues/list
+   feed-back : http://sss.cs.purdue.edu/projects/oscj/authors/authors.html
+
+
+
+
 
 1. Installation
 ----------------------------------------
@@ -13,10 +19,13 @@ This section describes how to install the binary release of the SCJ-Checker.
 
 Requirement: You must have JDK 6 or later installed. You can get JDK 6 from Sun or elsewhere.
 
+
 1.2.1  Unix/Linux/MacOS installation
 -----------------------------------------
 
 These instructions assume that you use the bash or sh shell. If you use a different shell, you may need to slightly adjust the commands.
+
+
 
 1. From JSR302 CVS:
 --------------------------
@@ -40,29 +49,18 @@ Download the latest Checker Framework distribution and unzip it. You can put it 
 0. Testing your distribution
 --------------------------
 
-Launch the ./testCheck.sh script. This script will check the source files from the /tests directory and will verify the output. You should see:
+Launch the *runtests.py* script. This script will check the source files from the /tests directory and will verify the output. You should see:
 
-$./testCheck. sh
----------------------------------------------------
-@SCJAllowed Test:
-tests/scjAllowed/TestSCJAllowed101.java testcase OK.
-tests/scjAllowed/TestSCJAllowed102.java testcase OK.
-tests/scjAllowed/TestSCJAllowed103.java testcase OK.
-tests/scjAllowed/TestSCJMembers201.java testcase OK.
-tests/scjAllowed/TestSCJMembers202.java testcase OK.
-tests/scjAllowed/TestSuppress301.java testcase OK.
-tests/scjAllowed/TestSuppress302.java testcase OK.
-tests/scjAllowed/TestOverride401.java testcase OK.
-tests/scjAllowed/TestOverride402.java testcase OK.
-tests/scjAllowed/TestGuard501.java testcase OK.
-tests/scjAllowed/TestNestedClass601.java testcase OK.
-tests/javax/safetycritical/FakeMemory.java testcase OK.
-tests/javax/safetycritical/SCJFakeNestedClasses.java testcase OK.
-tests/javax/safetycritical/FakeSCJMembers.java testcase OK.
-tests/javax/safetycritical/FakeSCJ.java testcase OK.
-tests/javax/safetycritical/ManagedEventHandler.java testcase OK.
-tests/javax/safetycritical/Safelet.java testcase OK.
-*** Test Successfull No errors were found ***
+NOTE: you must provide a patch to:
+    - test sources
+    - binaries of SCJ specification to compile the source examples (oSCJ implementation can be used as well)
+
+python runtests.py  --scj-path ./build/src/:/Users/plsek/_work/workspace_RT/scj-current/bin
+.................................................................................................
+97 tests total, 0 failed, 97 succeeded.
+
+
+
 
 1. Running the Checker
 -----------------------
@@ -73,9 +71,13 @@ Example:
 where:
   ../scj/specsrc/ - directory where to find source-files to check
   
+  
+  
 2. Understanding the output
 -----------------------
 The checker should not print anything. Any output is sign of a badly annotated program. Currently there are about 80+ errors in the spec and RI. We should discuss who will fix those errors. Basically, we need more annotationsin the SPEC/RI dirs.        
+      
+      
         
 2.1   Compilation
 -----------------------
@@ -83,6 +85,8 @@ The checker is in fact a javac compiler that will be shipped with Java 7. Before
 
 Note: No @SCJ-Annotation checking is done if there are any compilation errors in the source code. 
         
+     
+     
         
 2.2 SCJ Checking
 -----------------------
@@ -90,17 +94,39 @@ See the oSCJ home page for explanations of different SCJ-Annotation errors.
 Note: SCJ-Annotation errors are reported as warnings (-Awarns) to detect all the annotation errors. Without the  -Awarns param, only 1 annotation-error at a time is reported. This behavior is in compliance with the Java7 Checker Framework.             
         
         
+        
+        
 3. Checking the Spec and RI
 -----------------------
   for the spec:
      ./specCheck.sh 
   for RI:
-   ./riCheck.sh        
-4. @SuppressAnnotation
--------------------------
-The annotation @SupressSCJ tells the checker to ignore errorsoccurring while checking some of the RI methods. This is an internal annotationfor use by infrastructure implementors when they know they are breaking the rules of SCJ. It should not occur in user code. [Should be checked.]
+   ./riCheck.sh
+   
+   
+   
+4. Case-Study checking
+=-------------------------
 
-You can use @SuppressSCJ to suppress checking over the class/method/element annotated with it.
+Checking miniCDj:
+run
+$ ./miniCDx.sh $miniCDX_HOME
 
-We have some default classes that are treated as SCJAllowed even if there arenot annotated (Object, Error, Throwable, Exception along with their constructorsand methods).
-        
+For example:  $./miniCDx.sh /Users/plsek/workspace/miniCDx-J4
+
+NOTE: you need to specify the path leading to the home of miniCDx distribution
+
+
+
+5. Using Checker in general
+=-------------------------
+
+We provide the *check.sh* script, you just need to provide a path to the directory where the source-files you want to check are places.
+
+Then execute::
+
+$ ./miniCDx.sh $SRC_INPUT
+
+For example:  
+$./check.sh /Users/plsek/workspace/miniCDx-J4
+   

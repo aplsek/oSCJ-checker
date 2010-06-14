@@ -1,31 +1,27 @@
+//scjAllowed/TestGuard501.java:24: Method call is not allowed at level 0.
+//        FakeSCJ.level1Call();
+//                          ^
+//1 error
+
 package scjAllowed;
 
 import javax.safetycritical.FakeSCJ;
 import javax.safetycritical.Safelet;
-/**
- * 
- * ERRORS:
-       tests/scjAllowed/GuardTest.java:25: warning: Illegal method call of an SCJ method.
-            FakeSCJ.level1Call();
-                              ^
-        tests/scjAllowed/GuardTest.java:25: warning: Illegal field access of an SCJ field.
-            FakeSCJ.level1Call();
-                   ^
- * 
- * 
- * @author plsek
- *
- */
+import javax.safetycritical.Services;
+import javax.safetycritical.annotate.Level;
+import javax.safetycritical.annotate.SCJAllowed;
+
+@SCJAllowed(value = Level.LEVEL_0, members = true)
 public class TestGuard501 {
-    
+
     public void Foo() {
 
-        if (Safelet.getDeploymentLevel() == 0) {
+        if (Services.getDeploymentLevel() == Level.LEVEL_1) {
             // we are in the guard!
-            FakeSCJ.level1Call();
+            // TODO: FakeSCJ.level1Call();
         }
 
         FakeSCJ.level1Call();
     }
-    
+
 }

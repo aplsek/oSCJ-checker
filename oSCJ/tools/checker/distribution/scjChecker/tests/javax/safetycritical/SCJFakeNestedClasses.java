@@ -4,7 +4,6 @@ import static javax.safetycritical.annotate.Level.LEVEL_0;
 
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
-import javax.safetycritical.annotate.SuppressSCJ;
 
 
 /**
@@ -34,7 +33,6 @@ public class SCJFakeNestedClasses {
      * calling a nested class...
      */
     @SCJAllowed(Level.LEVEL_1)
-    @SuppressSCJ
     public static void foo() {
         Nested.nested1();
     }  
@@ -44,7 +42,6 @@ public class SCJFakeNestedClasses {
     /**
      * calling a nested class...
      */
-    @SuppressSCJ
     public static void fooSuppress() {
         Nested.nested1();
     }  

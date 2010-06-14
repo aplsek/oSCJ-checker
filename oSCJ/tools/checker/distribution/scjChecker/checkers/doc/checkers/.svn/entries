@@ -1,0 +1,84 @@
+10
+
+dir
+13782
+svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/scj-project/scj-annotations/distribution/scjChecker/checkers/doc/checkers
+svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn
+
+
+
+2009-12-08T19:44:50.807775Z
+12631
+plsek
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+cfc9b378-9421-0410-8964-846f8f5da6ff
+
+
+
+
+
+
+0
+empty
+
+basetype
+dir
+
+basic
+dir
+
+flow
+dir
+
+i18n
+dir
+
+igj
+dir
+
+interning
+dir
+
+javari
+dir
+
+linear
+dir
+
+lock
+dir
+
+nullness
+dir
+
+quals
+dir
+
+regex
+dir
+
+source
+dir
+
+tainting
+dir
+
+types
+dir
+
+util
+dir
+

@@ -1,0 +1,34 @@
+10
+
+dir
+13742
+svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/scj-project/scj-annotations/tests/javax
+svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn
+
+
+
+2010-05-24T06:21:08.982762Z
+13740
+dytang
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+cfc9b378-9421-0410-8964-846f8f5da6ff
+
+realtime
+dir
+
+safetycritical
+dir
+

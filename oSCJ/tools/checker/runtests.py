@@ -1,10 +1,21 @@
 #!/usr/bin/env python
+#
+#
+#
+# To run the script, execute: 
+#	 python runtests.py  --scj-path ./build/src/:./build/spec/
+#	 python runtests.py  --scj-path ./build/src/:/Users/plsek/_work/workspace_RT/Spec-SRC/bin
+#
+#   python runtests.py  --scj-path ./build/src/:/Users/plsek/_work/workspace_RT/scj-current/bin
+
 
 import re
 import sys
 
+JAVAC='./distribution/scjChecker/checkers/binary/javac'
+
 TEST_DIR = 'tests'
-RUN_CMD = 'javac -proc:only -cp build/tests:%s -processor checkers.SCJChecker %s'
+RUN_CMD = JAVAC + ' -proc:only -cp build/tests:%s -processor checkers.SCJChecker %s'
 
 def get_java_files(test_dir):
     import os
@@ -42,6 +53,7 @@ def run_tests(test_dir):
 
         expected_errors = clean_output(header)
         cmd = RUN_CMD % test
+        #print "%s" % cmd
         errors = clean_output(commands.getoutput(cmd).split('\n'))
         if expected_errors != errors:
             all_errors.append([test, expected_errors, errors])
@@ -57,8 +69,10 @@ def run_tests(test_dir):
         pprint.pprint(error[1])
         print 'Actual errors:'
         pprint.pprint(error[2])
-    if failure:
-        print '%d tests total, %d failed, %d succeeded.' % (success + failure,
+        print '\n'
+    
+    
+    print '%d tests total, %d failed, %d succeeded.' % (success + failure,
                                                             failure, success)
 
 if __name__ == '__main__':

@@ -1,0 +1,98 @@
+SCJ-Spec Patch Description: 
+	Errors before patching: ~34
+	Errors after applying the patch: 0
+Date: 1/1/2010
+
+How to apply the patch:
+1. store the patch in teh /jsr302 dir
+2. $cd the /jsr302 directory3. $patch -p0 < ./patch.diff
+
+----------------------
+
+package java.lang.IncompatibleClassChangeError
+
+@SCJAllowed(LEVEL_2)
+public class IncompatibleClassChangeError
+
+++@SCJAllowed(LEVEL_2)
+  public IncompatibleClassChangeError() {
+  }
+  
+-->> constructor must have the same level as its class
+
+
+--------------------------------------------------------------
+
+javax.realtime.LTMemory
+
+-->> method "enter"
+   - changed from @SCJAllowed(LEVEL_1) to @SCJProtected 
+   - as proposed by Jan : "we should disallow all operations on LTMemory in user code."
+
+--------------------------------------------------------------
+
+javax.realtime.RealtimeThread
+
+-->> method start() was invisible (without @SCJAllowed annotation), now is Level 2
+
+  @SCJAllowed(LEVEL_2) 
+  public void start() {}
+
+
+--------------------------------------------------------------
+
+javax.safetycritical.annotate.SuppressSCJ
+
+-->> A new annotation added: @SuppressSCJ
+ classes annotated with @SuppressSCJ will not be verified by the Annotation Checker
+
+
+--------------------------------------------------------------
+
+javax.safetycritical.Terminal
+
+-->> constructor annotated as SCJProtected
+
+
+--------------------------------------------------------------
+javax.safetycritical.PrivateMemory
+
+-->> constructor annotated as @SCJProtected 
+  @SCJProtected
+  public PrivateMemory(long size)
+
+--------------------------------------------------------------
+
+javax.safetycritical.MissionMemory 
+
+-->> class was not annotated as SCJAllowed (its elements however were)
+
+-->> constructor annotated as @SCJProtected instead of @SCJAllowed(Level_1)
+  @SCJProtected
+  public MissionMemory(SizeEstimator size) { super(size); }
+
+
+-->> enter() method annotated as @SCJProtected (should be considered for the Spec)
+
+---------------------------------------------------------------
+
+"Happenings" classes generate 8 errors:
+
+
+javax.safetycritical.InterruptHappening
+ 
+Errrors: InterruptHappening (Level 0) extends a class that is of a higher level (class Happening, level 1)
+
+Suggestions: 
+    - @SCJAllowed annotations for these classes (InterruptHappening and EventHappening) should be re-considered and unified.
+    - InterruptHappening should be LEVEL_1, as it is defined in Specification, page 98
+
+---------------------------------------------
+
+javax.realtime.ControlledHappening
+
+error:  ControlledHappening.attach() method overrides a method that has a lower level (which is not legal)
+            attach() level 2 overrides EventHappening.attach level 1
+
+Suggestions: 
+       - defining EventHappening.attach as LEVEL 2 

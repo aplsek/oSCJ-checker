@@ -1,24 +1,28 @@
+///Users/plsek/_work/workspace_RT/scj-annotations/tests/scjAllowed/TestSCJMembers201.java:22: Hidden code can not invoke an SCJAllowed code.
+//        FakeSCJMembers.level1Call();
+//                                 ^
+///Users/plsek/_work/workspace_RT/scj-annotations/tests/scjAllowed/TestSCJMembers201.java:26: Methods outside of javax.realtime or javax.safetycritical packages cannot be annotated with @SCJAllowed(INFRASTRUCTURE).
+//    public void badInfrastructure () {
+//                ^
+//2 errors
+
 package scjAllowed;
 
 import javax.safetycritical.FakeSCJMembers;
+import javax.safetycritical.annotate.SCJAllowed;
+import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
 
-/**
- * ERRORS:
- * ./tests/scjAllowed/SCJMembersTest.java:31: Illegal method call of an SCJ method.
-        FakeSCJMembers.level1Call();
-                                 ^
-    ./tests/scjAllowed/SCJMembersTest.java:31: Illegal field access of an SCJ field.
-        FakeSCJMembers.level1Call();
-                      ^
-    2 errors
-    
- * @author plsek
- */
+
+@SCJAllowed
 public class TestSCJMembers201 {
     /**
      * calling a non-annotated method, but FakeSCJMembers has members=true
      */
     public void foo() {
         FakeSCJMembers.level1Call();
+    }
+    
+    @SCJAllowed(INFRASTRUCTURE)
+    public void badInfrastructure () {
     }
 }
