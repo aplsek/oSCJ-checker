@@ -16,6 +16,7 @@ import ovm.core.domain.Oop;
 import ovm.core.domain.ReflectiveArray;
 import ovm.core.domain.ReflectiveConstructor;
 import ovm.core.domain.ReflectiveField;
+import ovm.core.domain.ReflectiveMethod;
 import ovm.core.domain.Type;
 import ovm.core.execution.Activation;
 import ovm.core.execution.Context;
@@ -37,6 +38,8 @@ import ovm.core.services.format.JavaFormat;
 import ovm.core.services.io.BasicIO;
 import ovm.core.services.memory.MemoryManager;
 import ovm.core.services.memory.MemoryPolicy;
+import ovm.core.services.memory.ScopedMemoryContext;
+import ovm.core.services.memory.ScopedMemoryPolicy;
 import ovm.core.services.memory.VM_Address;
 import ovm.core.services.memory.VM_Area;
 import ovm.util.ArrayList;
@@ -569,12 +572,41 @@ public abstract class S3Domain extends OVMBase
     private final ReflectiveConstructor makeStackTraceElement;
     private final ReflectiveArray stackTraceElementArr;
 
+    // SCJ
+	final static boolean DEBUG_SCJ = false;
+	private final ReflectiveMethod throwableFillInStackTrace;
 
     // Warning: this is called as part of exception processing. Any
     // exceptions here will trigger a recursive exception panic.
     public void fillInStackTrace(Oop throwable, Context ctx) {
+    	
+    	Object o = null;
 	
-	int stackSize = 0; // the depth of the stack trace
+    	if(ctx instanceof ScopedMemoryContext) {
+    		ScopedMemoryContext sctx = (ScopedMemoryContext) ctx;
+    		sctx.setMostRecentThrowable(throwable);
+
+    		if(DEBUG_SCJ){
+    			Native.print_string("[SCJ DB] S3Domain.fillInStackTrace() - set current exception at: ");
+    			Native.print_ptr(VM_Address.fromObject(throwable));
+    			Native.print_string("\n");
+    		}	
+    	
+    		// allocate stack trace in thread local area, 
+    		o = ((ScopedMemoryPolicy)MemoryPolicy.the()).enterStackTraceBufArea();
+    		VM_Area ssbuf = MemoryManager.the().getCurrentArea();
+    		if(DEBUG_SCJ){
+    			Native.print_string("[SCJ DB] S3Domain.fillInStackTrace() - enter ");
+    			Native.print_string(ssbuf.toString());
+    			Native.print_string(" bytes used: ");
+    			Native.print_int(ssbuf.memoryConsumed());        
+    			Native.print_string("\n");
+    		}
+    		ssbuf.reset();
+    	}
+        //------------ thread local buffer entered --------------
+
+        int stackSize = 0; // the depth of the stack trace
         int startIndex = -1; // the frame at which we start populating
 
         // if we're in the call-chain from generateThrowable then chop off
@@ -621,8 +653,7 @@ public abstract class S3Domain extends OVMBase
 	throwableCode.set(throwable, asOop(code));
 	int[] pc = new int[stackSize];
 	throwablePC.set(throwable, asOop(pc));
-
-
+	
         Activation act = null;
         // skip to the starting frame
         int j = 0;
@@ -640,6 +671,16 @@ public abstract class S3Domain extends OVMBase
             act = act.caller(act);
             i++;
 	} while (act != null);
+        
+        //------------ thread local buffer exited --------------
+    	if(ctx instanceof ScopedMemoryContext) {
+    		MemoryPolicy.the().leave(o);
+    		if(DEBUG_SCJ){
+    			Native.print_string("[SCJ DB] S3Domain.fillInStackTrace() - leave to ");
+    			Native.print_string(MemoryManager.the().getCurrentArea().toString());
+    			Native.print_string("\n");
+    		}
+    	}
     }
 
 
@@ -647,6 +688,25 @@ public abstract class S3Domain extends OVMBase
     // get the stack trace of an exception that has already been created, 
     // perhaps one that has been caught.
     public Oop getStackTrace(Oop throwable) {
+    	Context ctx = Context.getCurrentContext();
+    	if(ctx instanceof ScopedMemoryContext) {
+    		ScopedMemoryContext sctx = (ScopedMemoryContext)ctx;
+    		if(DEBUG_SCJ){
+    			Native.print_string("[SCJ DB] S3Domain.getStackTrace() - \n current exception at: ");
+    			Native.print_ptr(VM_Address.fromObject(sctx.getMostRecentThrowable()));
+    			Native.print_string("\n other exception at: ");
+    			Native.print_ptr(VM_Address.fromObject(throwable));
+    			Native.print_string("\n");
+    		}
+    		if(sctx.getMostRecentThrowable() != throwable){
+    			// if not the one associated with the buffered stack trace, return null
+    			if(DEBUG_SCJ){
+    				Native.print_string("[SCJ DB] S3Domain.getStackTrace() - not expected throwable, return null\n");
+    			}
+    			return stackTraceElementArr.make(0);
+    		}
+    	}
+    	
 	Code[] code = (Code[]) (Object) throwableCode.get(throwable);
 	int[] pc = (int[]) (Object) throwablePC.get(throwable);
 	Oop ret = stackTraceElementArr.make(code.length);
@@ -808,7 +868,16 @@ public abstract class S3Domain extends OVMBase
 					  JavaNames.arr_byte,
 				      });
 	byteArray = new ReflectiveArray(this, TypeName.BYTE);
-
+	
+	//SCJ
+	throwableFillInStackTrace = new ReflectiveMethod(this, 
+			Selector.Method.make(JavaNames.THROWABLE_FILLINSTACKTRACE, 
+					JavaNames.java_lang_Throwable));
+    }
+    
+    // SCJ
+    public void callFillInStackTraceBeforeThrowPreallocatedThrowable(Oop recv){
+    	throwableFillInStackTrace.call(recv);
     }
 
     protected CoreServicesAccess myCSA;

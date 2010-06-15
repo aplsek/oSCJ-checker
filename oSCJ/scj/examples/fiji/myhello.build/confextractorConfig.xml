@@ -1,0 +1,13 @@
+<fivmConfig><hasMain>true</hasMain>
+<output>confextractor</output>
+<main>com/fiji/fivm/SCJMain</main>
+<verbosity>1</verbosity>
+<osFlavor>POSIX</osFlavor>
+<logPageSize>12</logPageSize>
+<fileList><file>/home/plsek/oSCJ/scj/examples/fiji/hello.build/MyHelloWorld$1.class</file>
+<file>/home/plsek/oSCJ/scj/examples/fiji/hello.build/MyHelloWorld$WordHandler.class</file>
+<file>/home/plsek/oSCJ/scj/examples/fiji/hello.build/MyHelloWorld.class</file>
+<file>/home/plsek/oSCJ/scj/examples/fiji/hello.build/MyRunnable.class</file>
+<file>jbuild.jar</file>
+</fileList>
+</fivmConfig>

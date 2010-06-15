@@ -1,0 +1,11 @@
+$stderr.puts '>> Setting app-specific options...' if $verbosity>=1
+$maxThreads = 1024 unless $maxThreads
+$saSize = 65536 unless $saSize
+$gcScopedMemory = false unless $gcScopedMemory
+$gc = "CMR" unless $gc
+$gcThreadPriority = 5 unless $gcThreadPriority
+$gcDefTrigger = 104857600 unless $gcDefTrigger
+$gcDefMaxMem = 209715200 unless $gcDefMaxMem
+$gcDefTrigger = 104857600 unless $gcDefTrigger
+$gcDefMaxMem = 209715200 unless $gcDefMaxMem
+$jobs = 8 unless $jobs

@@ -21,9 +21,14 @@
 
 package javax.safetycritical;
 
+import javax.realtime.AffinitySet;
 import javax.realtime.HighResolutionTime;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
+
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.LEVEL_1;
+		
 
 /**
  * This class provides a collection of static helper methods.
@@ -36,7 +41,7 @@ public class Services {
 	 * @return Returns the default ceiling priority.
 	 *  The default ceiling priority is the PrioritySched- uler.getMaxPriority.4
 	 */
-	/*@SCJAllowed(LEVEL_1)*/ 
+	@SCJAllowed(LEVEL_1)
 	public static int getDefaultCeiling() {
 		return 0;
 	}
@@ -48,7 +53,7 @@ public class Services {
 	 * @param o
 	 * @param pri
 	 */
-	/*@SCJAllowed(LEVEL_1)*/ 
+	@SCJAllowed(LEVEL_1)
 	public static void setCeiling(Object o, int pri) {}
 	
 	/**
@@ -86,7 +91,7 @@ public class Services {
 	 *  @Throws	 IllegalArgumentException if unsupported InterruptId
 	 * 
 	 */
-	/*@SCJAllowed(Level.LEVEL_1)*/ 
+	@SCJAllowed(LEVEL_1)
 	public static int getInterruptPriority(int InterruptId) {
 		return 0;
 	}
@@ -104,7 +109,7 @@ public class Services {
 	 * the number of millisec- onds and nanoseconds to suspend. 
 	 * If it is an AbsoluteTime type then delay is the absolute time at which the delay finishes. If delay is time in the past, the method returns immediately.
 	 */
-	/*@SCJAllowed(LEVEL_2)*/
+	@SCJAllowed(LEVEL_2)
 	// TODO: @SCJMayBlock\issue{check} 
 	public static void delay(HighResolutionTime delay) {}
 	
@@ -114,7 +119,7 @@ public class Services {
 	 * Parameter if delay is the the number of nanoseconds to suspend.
 	 * @param delay
 	 */
-	/*@SCJAllowed(Level.LEVEL_2)*/ 
+	@SCJAllowed(LEVEL_2) 
 	public static void delay(int delay) {}
 	
 	/**
@@ -125,11 +130,30 @@ public class Services {
 	 * @param delay
 	 */
 	// TODO: @ICS
-	/*@SCJAllowed(Level.LEVEL_1) */
+	@SCJAllowed(LEVEL_1)
 	public static void spin(HighResolutionTime delay) {}
 	
 	
-	/*@SCJAllowed(Level.LEVEL_1) */
+	@SCJAllowed(LEVEL_1) 
 	public static void spin(int nanos) {}
 	
+	 @SCJAllowed
+	public static AffinitySet createSchedulingDomain(java.util.BitSet bitSet) {
+		return null;
+	}
+
+	 @SCJAllowed(LEVEL_1)
+	public static void registerInterruptHandler(int i, InterruptHandler ihandler) {
+		
+	}
+
+	@SCJAllowed
+	public static int getDeploymentLevel() {
+		return 4;
+	}
+
+	@SCJAllowed(LEVEL_1)
+	public static void nanoSpin(int i) {
+		
+	}
 }

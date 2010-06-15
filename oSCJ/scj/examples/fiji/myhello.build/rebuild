@@ -1,0 +1,3 @@
+#!/bin/sh
+set -e
+/home/plsek/fiji/fivm-May14/bin/fivmc -o myhello -v 1 --scj --scj-scope-backing 15m --g-def-immortal-mem 1m --scj-safelet MyHelloWorld "hello.build/MyHelloWorld\$1.class" "hello.build/MyHelloWorld\$WordHandler.class" hello.build/MyHelloWorld.class hello.build/MyRunnable.class "$@"

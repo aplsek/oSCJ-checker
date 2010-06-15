@@ -1,0 +1,4 @@
+srcdir=@srcdir@
+include @ABS_TOP_BUILDDIR@/build/Vars.mk
+include @srcdir@/Makefile.mk
+include @top_srcdir@/build/Rules.mk

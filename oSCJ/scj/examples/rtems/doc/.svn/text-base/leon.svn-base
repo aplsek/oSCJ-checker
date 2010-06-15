@@ -1,0 +1,690 @@
+
+Sharpay - vmware fedora installation
+  - root: spaceovm
+  - 172.16.26.128
+
+  - the VM needs manual starting of networking and ssh after boot
+    (I am too lazy to fix it)
+
+------------------
+
+SPARTAN-3 XC3S1500
+
+1. get grmon evaluation version (supports linux, windows)
+   ftp://gaisler.com/gaisler.com/grmon/grmon-eval-1.1.35b.tar.gz
+   http://www.gaisler.com/doc/grmon.pdf
+
+   grsim-eval -grlib -jtag
+    ? -i 
+
+   <complains about JTAG cable... maybe because the board is not programmed?>
+
+2. download xilinx webpack (free)
+  tk293456
+  Abshd381
+
+  the software is huge...
+  try ./xsetup
+  select Standalone programming tools
+  !!! I learned later that I should have installed the Cable Drivers
+
+  the process takes long
+
+3. try xilinx
+
+  .  /opt/Xilinx/11.1/settings32.sh
+  /opt/Xilinx/11.1/ProgrammingTools/bin/lin/impact
+
+  Xilinx complains that "Module windrvr6 is not loaded. Please reinstall the
+  cable drivers. See Answer Record 22648". However, during installation,
+  Xilinx said that the drivers were only needed for USB connection. 
+
+  It seems that the board has to be configured to be programmable via JTAG
+  cable, JP9 should have 1-2 and 5-6 connected. Maybe this is the true cause
+  of the problem. Unfortunatelly, I do not have the jumpers...
+
+  No, the jumpers are in the anti-static bag. Setting them does not help - I
+  should have installed the Cable Drivers. 
+
+4. installing only the cable drivers
+
+  installation misteriously fails "Driver installation failed"	
+
+  this is simmilar:
+    http://www.xilinx.com/support/answers/22648.htm
+
+  but not the same - kernel version does not seem to be the problem
+
+  is the problem that I don't have the "fxload" tool ?
+  (apt-get install fxload)
+
+  that does not help
+
+  http://www.xilinx.com/support/documentation/configuration_hardware.htm
+  download "install_drivers.tar.gz"
+
+  ok, also need "arch" utility, which is missing in ubuntu (deprecated)
+    -> created wrapper that does "uname -m"
+
+  the configure script ./linux_drivers/windriver32/windrvr/configure
+    uses "/bin/sh" instead of "/bin/bash"
+
+  now there is a compilation issue with the drivers - some kernel header
+    files are not found (those included by other header files). Maybe
+    need restart after kernel upgrade ?
+
+In file included from /lib/modules/2.6.28-14-generic/build/include/linux/types.h:11,
+                 from /lib/modules/2.6.28-14-generic/build/include/linux/mod_devicetable.h:11,
+                 from /lib/modules/2.6.28-14-generic/build/include/linux/pci.h:43,
+                 from linux_wrappers.c:19:
+/lib/modules/2.6.28-14-generic/build/include/linux/posix_types.h:47:29: error: asm/posix_types.h: No such file or directory
+
+   why ? do I need to install kernel headers package ?
+   seems the files is already in
+     /usr/src/linux-headers-2.6.28-14-generic/include/linux/posix_types.h
+
+   does not help... 
+   looks like the cable drivers are not supported by newer kernels ?
+
+   http://www.rmdir.de/~michael/xilinx/
+   http://simplyrisc.blogspot.com/2008/10/how-to-install-xilinx-cable-drivers-on.html
+
+   let's try the LibUSB hack... (the second link)
+    - yes, it works ! impact can now connect to the board
+
+ 5. now, the displayed devices in the chain are
+
+   xfc04s - 4Mbit Platform Flash Prom (according to manual)
+   xfc04s - the same again
+   xc3s15000 - Spartan-3 XC3S1500 FPGA device
+
+   seems like the proms can be used to store the FPGA configuration, so that
+   it can be read after power-on and booted ; in order for that to work, the
+   board has to be configured into Master Serial Mode (no jumpers in JP2) ;
+   the reconfiguration switch S4 can then be used to force re-load of the
+   configuration from the prom ("RESET" button) .. hmm, but JP2 seems like
+   cannot be set on my board at all.
+
+   there is also S5 ("FPGA CONFIG") - which apparently has to force
+   reconfiguration ; what's the difference between the two ?
+
+   where to get up-to-date design files ?
+     - Gaisler web - http://www.gaisler.com/cms/index.php?option=com_content&task=view&id=187&Itemid=118
+
+     ftp://gaisler.com/gaisler.com/boards/gr-xc3s1500/bitfiles-leon3-gr-xc3s1500.zip
+
+   it has the two .mcs files for the two proms, and one bit file for the
+     FPGA
+
+   I choose "Program" in sequence on the 2 proms and the fpga ; I did not
+     select any special program options for the fpga
+
+   the "DONE" led is now illuminated
+
+   so what now ? grmon ? first quit impact...
+
+6. grmon-eval -jtag ... still complains 
+    "couldn't connect to JTAG cable on /dev/parport0"
+
+   so what about ethernet ?
+    "ethernet startup.......sequence number initialization failed"
+
+   "rmmod lp" did the trick....
+
+root@jaya:/home/tomas/leon/grmon/grmon-eval/linux# ./grmon-eval -jtag 
+
+ GRMON LEON debug monitor v1.1.35b evaluation version
+
+ Copyright (C) 2004-2008 Aeroflex Gaisler - all rights reserved.
+ For latest updates, go to http://www.gaisler.com/
+ Comments or bug-reports to support@gaisler.com
+
+ This evaluation version will expire on 16/12/2009
+
+ using JTAG cable on parallel port
+ JTAG chain: xc3s1500 xcf04s xcf04s 
+
+ GRLIB build version: 1920
+
+ initialising ................
+ detected frequency:  40 MHz
+
+ Component                            Vendor
+ LEON3 SPARC V8 Processor             Gaisler Research
+ AHB Debug UART                       Gaisler Research
+ AHB Debug JTAG TAP                   Gaisler Research
+ SVGA frame buffer                    Gaisler Research
+ GR Ethernet MAC                      Gaisler Research
+ USB Debug Comm. Link                 Gaisler Research
+ LEON2 Memory Controller              European Space Agency
+ AHB/APB Bridge                       Gaisler Research
+ LEON3 Debug Support Unit             Gaisler Research
+ Generic APB UART                     Gaisler Research
+ Multi-processor Interrupt Ctrl       Gaisler Research
+ Modular Timer Unit                   Gaisler Research
+ PS/2 interface                       Gaisler Research
+ PS/2 interface                       Gaisler Research
+ General purpose I/O port             Gaisler Research
+ AHB status register                  Gaisler Research
+
+ Use command 'info sys' to print a detailed report of attached cores
+
+ grlib> info sys
+00.01:003   Gaisler Research  LEON3 SPARC V8 Processor (ver 0x0)
+             ahb master 0
+01.01:007   Gaisler Research  AHB Debug UART (ver 0x0)
+             ahb master 1
+             apb: 80000700 - 80000800
+             baud rate 115200, ahb frequency 40.00
+02.01:01c   Gaisler Research  AHB Debug JTAG TAP (ver 0x0)
+             ahb master 2
+03.01:063   Gaisler Research  SVGA frame buffer (ver 0x0)
+             ahb master 3
+             apb: 80000600 - 80000700
+             clk0: 25.00 MHz  clk1: 50.00 MHz  clk2: 65.00 MHz  
+04.01:01d   Gaisler Research  GR Ethernet MAC (ver 0x0)
+             ahb master 4, irq 12
+             apb: 80000b00 - 80000c00
+             edcl ip 192.168.0.55, buffer 2 kbyte
+05.01:022   Gaisler Research  USB Debug Comm. Link (ver 0x0)
+             ahb master 5
+00.04:00f   European Space Agency  LEON2 Memory Controller (ver 0x1)
+             ahb: 00000000 - 20000000
+             ahb: 20000000 - 40000000
+             ahb: 40000000 - 80000000
+             apb: 80000000 - 80000100
+             8-bit prom @ 0x00000000
+             32-bit sdram: 1 * 64 Mbyte @ 0x40000000, col 9, cas 2, ref 7.8 us
+01.01:006   Gaisler Research  AHB/APB Bridge (ver 0x0)
+             ahb: 80000000 - 80100000
+02.01:004   Gaisler Research  LEON3 Debug Support Unit (ver 0x1)
+             ahb: 90000000 - a0000000
+             AHB trace 128 lines, stack pointer 0x43fffff0
+             CPU#0 win 8, hwbp 2, itrace 128, V8 mul/div, srmmu, lddel 1, GRFPU-lite
+                   icache 1 * 4 kbyte, 32 byte/line 
+                   dcache 1 * 4 kbyte, 32 byte/line 
+01.01:00c   Gaisler Research  Generic APB UART (ver 0x1)
+             irq 2
+             apb: 80000100 - 80000200
+             baud rate 38461
+02.01:00d   Gaisler Research  Multi-processor Interrupt Ctrl (ver 0x3)
+             apb: 80000200 - 80000300
+03.01:011   Gaisler Research  Modular Timer Unit (ver 0x0)
+             irq 8
+             apb: 80000300 - 80000400
+             8-bit scaler, 2 * 32-bit timers, divisor 40
+04.01:060   Gaisler Research  PS/2 interface (ver 0x1)
+             irq 4
+             apb: 80000400 - 80000500
+05.01:060   Gaisler Research  PS/2 interface (ver 0x1)
+             irq 5
+             apb: 80000500 - 80000600
+08.01:01a   Gaisler Research  General purpose I/O port (ver 0x0)
+             apb: 80000800 - 80000900
+0f.01:052   Gaisler Research  AHB status register (ver 0x0)
+             irq 7
+             apb: 80000f00 - 80001000
+grlib> 
+   
+7. try some examples ?
+
+http://www.rtems.com/ftp/pub/rtems/4.9.2/ticker-executables/sparc-leon3-multilib-ticker.ralf.bz2
+http://www.rtems.com/ftp/pub/rtems/4.9.2/ticker-executables/sparc-leon3-ticker.ralf.bz2
+
+grlib> load /home/tomas/leon/ticker/sparc-leon3-ticker.ralf
+section: .text at 0x40000000, size 86752 bytes
+section: .data at 0x400152e0, size 2592 bytes
+section: .jcr at 0x40015d00, size 4 bytes
+total size: 89348 bytes (200.0 kbit/s)
+read 661 symbols
+entry point: 0x40000000
+grlib> run
+
+.. nothing  ... does it work ? does it output to serial console ?
+
+Program exited normally.
+grlib>
+
+   
+--------------------------
+8. ok, go to peleton, which has a serial port
+
+ rmmod lp
+ copy grmon, test executables
+
+ after powering up, the board's "done" led does not illuminate
+ 
+ grmon does not work
+
+using JTAG cable on parallel port
+ JTAG chain: xc3s1500 xcf04s xcf04s 
+
+ AMBA plug&play not found!
+
+ so did the board forget the config ?
+  - pressing FPGA config does not help
+  - pressing reset does not help
+
+ grlib> load /home/tomas/leon/ticker/sparc-leon3-ticker.ralf
+section: .text at 0x40000000, size 86752 bytes
+section: .data at 0x400152e0, size 2592 bytes
+section: .jcr at 0x40015d00, size 4 bytes
+total size: 89348 bytes (198.7 kbit/s)
+read 661 symbols
+entry point: 0x40000000
+grlib> run
+Cannot continue, processor not in debug mode
+Cannot continue, processor not in debug mode
+Cannot continue, processor not in debug mode
+
+ ????
+ 
+According to xilinx, everything is loaded ?
+
+ - verify of 1st prom succeeds
+ - verify of 2nd prom succeeds
+ - verify of fpga fails
+ 
+should I disable again the JTAG mode ? (remove the two jumpers) ?
+the manual somehow suggests that the manual is wrong and these jumpers
+have to be removed for the Master serial mode to work
+
+or, maybe, do I have to program the fpga again and only then disable the JTAG 
+mode ? let's try this...
+
+now the FPGA is programmed and "DONE" is illuminated and verify succeeds for 
+the fpga
+ (and D2 is NOT illuminated)
+
+grmon is still failing with "AMBA plug&play not found!"
+
+can we now connect from peleton, by grmon, through serial line ?
+
+no 
+
+using port /dev/ttyS0 @ 115200 baud
+..........
+Failed to connect
+
+
+ok, now I powered the board off, removed the two jumpers, powered in on
+now - D1 illuminates, DONE illuminates
+  .. GRMON now connected sucessfully over serial line
+
+but still there is no output
+
+----
+
+ok, now after another power cycle, grmon works from peleton over jtag
+
+still no output
+
+seems like our board has only 1 serial interface
+look at config file config.vhd
+
+can this serial interface be used both for console and DSU ? Or should I disable the DSU over serial line ?
+Can it be disabled without re-building the design ?
+
+D2 means ... DSU is active switch 7 disables DSU ? does not work - as I
+connect to DSU either over serial or JTAG, D2 illuminates and DSU works
+
+----
+
+ok, it seems that I can use GRMON to store a program into the FPGA's FLASH
+(aside from the board FLASH) ; then, the program will start at boot ; so I could
+then start without DSU ?
+
+to put a program into the FLASH, I have to use mkprom utility, which is part of BCC
+ftp://gaisler.com/gaisler.com/bcc/bin/linux/sparc-elf-3.4.4-1.0.31b.tar.bz2
+http://www.gaisler.com/doc/mkprom/mkprom.html
+
+the manual for the board says
+
+mkprom -freq 50 -baud 38400 -rmw -romsize 65536 -nosram -sdram 64
+     -sdrambanks 1 -o filename.exe filename
+
+(the bcc has to be install in /opt)
+
+I flashed the app, but it does not seem to work... Let's create my own app
+and make sure it writes everywhere.... Or maybe communicates somehow...
+
+note the program can be interrupted and traced - it means it is actually running
+
+
+( btw, linux images for the board
+ftp://gaisler.com/gaisler.com/boards/gr-xc3s1500/linux26-images.tar.bz2
+)
+
+looks like I was confused by the board manual... the sequence for writing to
+flash by grmon should be
+
+flash unlock all 
+flash erase all 
+flash load file.exe 
+flash lock all 
+
+(from grmon manual)
+
+-----
+
+recompile the designs ?
+ - download from http://www.gaisler.com/cms/index.php?option=com_content&task=view&id=156&Itemid=104
+
+   http://www.gaisler.com/products/grlib/grlib-gpl-1.0.20-b3403.tar.gz
+   http://www.gaisler.com/products/grlib/grlib.pdf
+
+ for that I need more from the Xilinx WebPack      
+
+ won't fit/run on my notebook
+
+ crashes on peleton (FPU) - would need update (probably QT issue), but I don't
+   want to update peleton now, as there may be some re-running of benchmarks
+   for submitted papers
+
+ on sharpay, there is some issue with the Xilinx installer - does not work on 
+   64 bit linux/ubuntu
+
+----------
+there is a yahoo group 
+  sparc_leon ... waiting for approval  
+
+------
+
+  so Xilinx WebPAck installs on virtualbox on my laptop
+  it refuses to update (says my license will not work with somethink)
+
+  "make ise" generally works in grlib, but leon3mp did not compile correctlu
+  ERROR:Xst:1817 - Invalid target speed '-4'.
+
+  maybe I was building something wrong ; lets follow grlib manual, which
+  seems to be for the same board
+
+  http://www.gaisler.com/cms/index.php?option=com_content&task=view&id=156&Itemid=104
+
+  the configuration (vhdl) is editted via "make xconfig"
+    - I disabled DSU over serial line, but who knows if it will help..
+    - I also disabled keyboard and VGA
+
+  the compilation takes _very_ long ... running on a better machine would be
+    nice
+
+------
+
+doing it with notebooks:
+
+  - USB to serial 
+
+    http://www.usbgear.com/USB-Serial.html
+    google: "linux usb-serial extension" 
+       sewelldirect.com/usbtoserial.asp
+       - they claim this works with linux - that kernels support it
+         by default
+
+  - to parallel - it is probably harder (most extensions would only work
+    with printers ; maybe we do not need it, anyway)
+
+------
+  so the compilation took almost 2,5 hours on my laptop in Virtual Box 
+  a lot of warnings, no errors... no it's probably time to program the board
+  using the other notebook ; this means I will have to build the proms on
+  the other notebook, hopefully, it will be supported by the version of
+  impact... or maybe I could build manually the prom images on the apple
+  notebook... 
+  
+  http://www.pender.ch/docs/GR-XC3S-1500_user_manual.pdf
+
+------------
+
+  so I was reading the wrong documentation
+
+Re: [leon_sparc] No output from LEON3 on XC3S1500
+
+Hallo Tomas,
+
+You wrote:
+
+> The board I have has only one serial port, although all documentation
+> I saw even the photo on the box has a similar board with 2 serial
+> ports.
+
+You have a revision 2.0 version of the board.
+
+The original revision 1.0 of the board has two RS232 Serial ports each
+with a 'standard' D9 Female connector.
+
+Since many laptops and computers no longer have a RS232 serial connector
+a change was made to the design of the GR-XC3S-1500 board to instead
+replace the second D9 connector with an on board UART to USB circuit
+(FT232RL).
+
+You should have received the new version of the documentation for the
+board on the CD, although admittedly the picture on the box has not
+changed. The User Manual can be downloaded here:
+
+http://www.pender.ch/docs/GR-XC3S-1500_user_manual_rev2-0.pdf
+
+from the web page for the board here:
+
+http://www.pender.ch/products_xc3s.shtml
+
+
+You do not have to make any changes to the Leon design to use this
+second UART-over-USB interface.
+
+The 'standard' bit files provided with the board map the Serial-DSU to
+the D9 connector J2 and the 'Console' serial output (i.e. text output)
+to the Serial-to-USB interface (connector J6)
+
+You connect a USB port on your computer to the MiniUSB connector J6,
+with the cable provided, and if necessary install the Virtual com port
+driver on your PC:
+
+http://www.ftdichip.com/FTDrivers.htm
+
+A short explanation of the Serial UART over USB interface is given in
+section 3.2.6 of the User Manual.
+
+
+> Can the console be on a port that has DSU support ? Or do I have to
+> build my own bitfiles with DSU support only on JTAG ?
+
+You can of course do this to exchange the pin definitions of UART1 and
+UART2 if you prefer to have the Serial Console output of the Leon
+processor on the standard D9 serial connector.
+
+
+Does this information help?
+
+
+Richard Pender
+PENDER ELECTRONIC DESIGN.
+
+----
+  USB serial in linux - FTDI driver, seems to be in Ubuntu
+   ... /dev/ttyUSB0
+
+  the magic config on my linux notebook was 38400 8N1 no flow control for
+    the linux image
+
+  and the linux there works
+
+  I can also run some leon examples over grmon
+
+  note the output from grmon
+             edcl ip 192.168.0.55, buffer 2 kbyte
+
+  thus, I can connect over ethernet via grmon
+    grmon -eth -ip 192.168.0.55
+
+  I should set up networking on the host computer, though
+
+    ifconfig eth0 up 192.168.0.1
+    route add 192.168.0.1 dev eth0
+  
+----
+
+  minicom works nicely even from within VirtualBox over the USB serial 
+    line ; the same config as before applies
+
+  and the dsu over ethernet also works from the linux machine, nice...
+
+  
+----
+
+  flashing to prom seems to work... looks like this when the system boots
+
+
+  MkProm LEON boot loader v2.0
+  Copyright Gaisler Research - all right reserved
+
+  system clock   : 40.0 MHz
+  baud rate      : 38461 baud
+  prom           : 65536 K, (2/2) ws (r/w)
+  sdram          : 65536 M, 1 bank(s), 9-bit column
+  sdram          : cas: 2, trp: 50 ns, trfc: 75 ns, refresh 7.8 us
+
+  decompressing .text to 0x40000000
+  decompressing .data to 0x4001a190
+  decompressing .jcr to 0x4001a810
+
+  starting rtems-hello
+
+Hello World
+
+  ---
+  created with 
+	sparc-elf-mkprom -freq 40 -baud 38400 -rmw -romsize 65536
+		-nosram -sdram 64 -sdrambanks 1 -o rtems-hello.prom rtems-hello
+
+         I don't fully understand all the parameters, but it seems to
+work...
+
+  ----
+   looks like that my design does not have FPU
+
+Hello World
+Unexpected trap (0x 4) at address 0x40001214
+fp disabled
+
+   or is it that FPU is not supported by default by RTEMS ?
+     (which I vaguely remember to be the case - that tasks need to specify
+      they need it, as saving FPU state is expensive)
+
+   hmm, no, it seems an RTEMS issue, because this works with the non-RTEMS
+     compiler...
+
+#include <stdio.h>
+#include <math.h>
+
+main() {
+  printf("Hello\n");
+
+  double d;
+  int i;
+  
+  printf( "Hello World\n" );
+
+  d=1.115;
+  
+  for(i=0;i<100;i++) {
+    d = sin(d);
+  }
+
+
+}
+
+sparc-elf-gcc  -g -O3 -DDP -mcpu=v8  -o hello.exe hello.c -lm
+
+----
+
+  no, it has a CPU ; RTEMS tasks which use FPU have to declare it as an
+    attribute, i.e. 
+
+#define CONFIGURE_INIT_TASK_ATTRIBUTES (RTEMS_LOCAL|RTEMS_FLOATING_POINT)
+
+   
+----------------
+----------------
+
+The new boards we received were preprogrammed with a different version of
+the GRLIB
+
+ GRMON LEON debug monitor v1.1.35b evaluation version
+
+ Copyright (C) 2004-2008 Aeroflex Gaisler - all rights reserved.
+ For latest updates, go to http://www.gaisler.com/
+ Comments or bug-reports to support@gaisler.com
+
+ This evaluation version will expire on 16/12/2009
+
+ using JTAG cable on parallel port
+ JTAG chain: xc3s1500 xcf04s xcf04s 
+
+ GRLIB build version: 3188
+
+ initialising ............
+ detected frequency:  40 MHz
+
+ Component                            Vendor
+ LEON3 SPARC V8 Processor             Gaisler Research
+ AHB Debug UART                       Gaisler Research
+ AHB Debug JTAG TAP                   Gaisler Research
+ GR Ethernet MAC                      Gaisler Research
+ USB Debug Comm. Link                 Gaisler Research
+ LEON2 Memory Controller              European Space Agency
+ AHB/APB Bridge                       Gaisler Research
+ LEON3 Debug Support Unit             Gaisler Research
+ Generic APB UART                     Gaisler Research
+ Multi-processor Interrupt Ctrl       Gaisler Research
+ Modular Timer Unit                   Gaisler Research
+ General purpose I/O port             Gaisler Research
+
+ Use command 'info sys' to print a detailed report of attached cores
+
+grlib> 
+
+grlib> info sys
+00.01:003   Gaisler Research  LEON3 SPARC V8 Processor (ver 0x0)
+             ahb master 0
+01.01:007   Gaisler Research  AHB Debug UART (ver 0x0)
+             ahb master 1
+             apb: 80000700 - 80000800
+             baud rate 115200, ahb frequency 40.00
+02.01:01c   Gaisler Research  AHB Debug JTAG TAP (ver 0x0)
+             ahb master 2
+03.01:01d   Gaisler Research  GR Ethernet MAC (ver 0x0)
+             ahb master 3, irq 13
+             apb: 80000d00 - 80000e00
+             edcl ip 192.168.1.51, buffer 2 kbyte
+04.01:022   Gaisler Research  USB Debug Comm. Link (ver 0x0)
+             ahb master 4
+00.04:00f   European Space Agency  LEON2 Memory Controller (ver 0x1)
+             ahb: 00000000 - 20000000
+             ahb: 20000000 - 40000000
+             ahb: 40000000 - 80000000
+             apb: 80000000 - 80000100
+             8-bit prom @ 0x00000000
+             32-bit sdram: 1 * 64 Mbyte @ 0x40000000, col 9, cas 2, ref 7.8
+             us
+01.01:006   Gaisler Research  AHB/APB Bridge (ver 0x0)
+             ahb: 80000000 - 80100000
+02.01:004   Gaisler Research  LEON3 Debug Support Unit (ver 0x1)
+             ahb: 90000000 - a0000000
+             AHB trace 128 lines, stack pointer 0x43fffff0
+             CPU#0 win 8, hwbp 2, itrace 128, V8 mul/div, srmmu, lddel 1
+                   icache 2 * 4 kbyte, 32 byte/line lru
+                   dcache 1 * 4 kbyte, 16 byte/line 
+01.01:00c   Gaisler Research  Generic APB UART (ver 0x1)
+             irq 2
+             apb: 80000100 - 80000200
+             baud rate 38461
+02.01:00d   Gaisler Research  Multi-processor Interrupt Ctrl (ver 0x3)
+             apb: 80000200 - 80000300
+03.01:011   Gaisler Research  Modular Timer Unit (ver 0x0)
+             irq 8
+             apb: 80000300 - 80000400
+             8-bit scaler, 2 * 32-bit timers, divisor 40
+08.01:01a   Gaisler Research  General purpose I/O port (ver 0x0)
+             apb: 80000800 - 80000900
+grlib>
+

@@ -1,3 +1,24 @@
+/**
+ *  This file is part of oSCJ.
+ *
+ *   oSCJ is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU Lesser General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   oSCJ is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU Lesser General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Lesser General Public License
+ *   along with oSCJ.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ *   Copyright 2009, 2010 
+ *   @authors  Lei Zhao, Ales Plsek
+ */
+
 package ovm.core.execution;
 
 import ovm.services.rusage.RUsage;
@@ -79,6 +100,7 @@ import s3.services.transactions.PragmaPARSafe;
 import ovm.core.services.events.EventManager;
 import s3.services.java.realtime.RealtimeJavaThreadImpl;
 
+import s3.rawMemory.RawMemoryAccess;
 import s3.rpt.RPT;
 
 public final class RuntimeExports extends BaseRuntimeExports implements UnsafeAccess {
@@ -2371,6 +2393,8 @@ static    byte[] oneByte=new byte[]{(byte)1};
 	return asOop(MemoryManager.the().getImmortalArea());
     }
     public Oop makeArea(Oop mirror, int size)  throws PragmaAtomic { //PARBEGIN PAREND
+    	//Native.print_string("############## make area...");
+        //Native.print_string("\n");
 	return asOop(MemoryManager.the().makeScopedArea(mirror, size));
     }
     public Oop makeExplicitArea(int size)  throws PragmaAtomic { //PARBEGIN PAREND
@@ -2396,7 +2420,10 @@ static    byte[] oneByte=new byte[]{(byte)1};
 	((VM_Area) area).reset();
     }
     public void destroyArea(Oop area)  throws PragmaAtomic { //PARBEGIN PAREND
-	((VM_Area) area).destroy();
+	
+    	//Native.print_string("############## destroy area...");
+        //Native.print_string("\n");
+    	((VM_Area) area).destroy();
     }
     public boolean reallySupportNHRTT() {
 	return MemoryManager.the().reallySupportNHRTT();
@@ -2579,6 +2606,12 @@ static    byte[] oneByte=new byte[]{(byte)1};
 	RUsage.fromSystemToAnyArray(array);
     }
     
+    
+    
+    
+    
+    
+    
     public void RPT_Ipoint(int ipoint) {
     	RPT.RPT_Ipoint(ipoint);
     }
@@ -2590,6 +2623,131 @@ static    byte[] oneByte=new byte[]{(byte)1};
     public void RPT_Output_Trace() {
     	RPT.RPT_Output_Trace();
     }
+    
+    
+    
+    
+    
+    
+    /**
+	 * Get the byte at the given address with an atomic load.
+	 *
+	 * @param	address	address of the byte to read
+	 * @return	The byte at the given address
+	 */
+	public byte getByteAtomic(long address) {
+		return RawMemoryAccess.getByteAtomic(address);
+	}
+
+	/**
+	 * Set the byte at the given address with an atomic store.
+	 *
+	 * @param	address	address of the byte to write
+	 * @param	value	Value to write.
+	 */
+	public void setByteAtomic(long address, long value) {
+		RawMemoryAccess.setByteAtomic(address,value);
+	}
+
+	/**
+	 * Get the short at the given address with an atomic load.
+	 *
+	 * @param	address	address of the short to read
+	 * @return	The short at the given address
+	 */
+	public short getShortAtomic(long address) {
+		return RawMemoryAccess.getShortAtomic(address);
+	}
+
+	/**
+	 * Set the short at the given address with an atomic store.
+	 *
+	 * @param	address	address of the short to write
+	 * @param	value	Value to write.
+	 */
+	public void setShortAtomic(long address, short value) {
+		RawMemoryAccess.setShortAtomic(address,value);
+	}
+
+	/**
+	 * Get the int at the given address with an atomic load.
+	 *
+	 * @param	address	address of the int to read
+	 * @return	The int at the given address
+	 */
+	public int getIntAtomic(long address) {
+		return RawMemoryAccess.getIntAtomic(address);
+	}
+
+	/**
+	 * Set the int at the given address with an atomic store.
+	 *
+	 * @param	address	address of the int to write
+	 * @param	value	Value to write.
+	 */
+	public void setIntAtomic(long address, int value) { 
+		 RawMemoryAccess.setIntAtomic(address,value);
+	}
+
+	/**
+	 * Get the long at the given address
+	 *
+	 * @param	address	address of the long to read
+	 * @return	The long at the given address
+	 */
+	public long getLong(long address) {
+		return RawMemoryAccess.getLong(address);
+	}
+
+	/**
+	 * Set the long at the given address
+	 *
+	 * @param	address	address of the long to write
+	 * @param	value	Value to write.
+	 */
+	public void setLong(long address, long value){ 
+		RawMemoryAccess.setLong(address,value);
+	}
+
+	/**
+	 * Get the Float at the given address with an atomic load.
+	 *
+	 * @param	address	address of the Float to read
+	 * @return	The Float at the given address
+	 */
+	public float getFloatAtomic(long address){
+		return RawMemoryAccess.getFloatAtomic(address);
+	}
+
+	/**
+	 * Set the Float at the given address with an atomic store.
+	 *
+	 * @param	address	address of the Float to write
+	 * @param	value	Value to write.
+	 */
+	public void setFloatAtomic(long address, float value) {
+		RawMemoryAccess.setFloatAtomic(address,value);
+	}
+
+	/**
+	 * Get the Double at the given address
+	 *
+	 * @param	address	address of the Double to read
+	 * @return	The Double at the given address
+	 */
+	public double getDouble(long address) {
+		return RawMemoryAccess.getDouble(address);
+	}
+
+	/**
+	 * Set the Double at the given address
+	 *
+	 * @param	address	address of the Double to write
+	 * @param	value	Value to write.
+	 */
+	public void setDouble(long address, double value) {
+		 RawMemoryAccess.setDouble(address,value);
+	}
     
    
 }

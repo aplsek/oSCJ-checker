@@ -2,6 +2,8 @@ package ovm.core.services.memory;
 
 import ovm.core.domain.Domain;
 import ovm.core.domain.Oop;
+import ovm.core.domain.Type;
+import ovm.core.execution.Native;
 import ovm.util.CommandLine;
 
 /**
@@ -15,7 +17,7 @@ import ovm.util.CommandLine;
 public class ScopedMemoryPolicy extends DefaultMemoryPolicy {
     final int SCRATCH_PAD_SIZE;
 
-    protected static abstract class Cleanup {
+    protected abstract static class Cleanup {
 	private VM_Area outer;
 
 	public Cleanup(VM_Area outer) throws PragmaNoBarriers { this.outer = outer; }
@@ -27,9 +29,15 @@ public class ScopedMemoryPolicy extends DefaultMemoryPolicy {
 
     public ScopedMemoryPolicy(String scSize) {
 	SCRATCH_PAD_SIZE = CommandLine.parseSize(scSize);
+	//TODO: pass through command line
     }
 
     public VM_Area makeScratchPadArea() {
+    	if(_DEBUG_SCJ){
+    		Native.print_string("[SCJ DB] ScopedMemoryPolicy.makeScratchPadArea() - size ");
+    		Native.print_int(SCRATCH_PAD_SIZE);
+    		Native.print_string("\n");
+    	}
 	return MemoryManager.the().makeExplicitArea(SCRATCH_PAD_SIZE);
     }
 
@@ -82,5 +90,36 @@ public class ScopedMemoryPolicy extends DefaultMemoryPolicy {
 	// throws PragmaRefineSingleton FIXME: see bug #546
     {
 	return (ScopedMemoryPolicy) MemoryPolicy.the();
+    }
+
+    public static int _DEFAULT_STACKTRACE_BUF_SIZE = 8*1024;//5*1024*1024;
+    private boolean _DEBUG_SCJ = true;
+
+    /**
+     * For SCJ
+     */
+	public Object enterStackTraceBufArea() {
+		VM_Area ssbuf = ScopedMemoryContext.getStackTraceBufArea();
+		return MemoryManager.the().setCurrentArea(ssbuf);
+	}
+	
+    public VM_Area makeStackTraceBufArea(int size) {
+        if(size <= 0)
+        	size = _DEFAULT_STACKTRACE_BUF_SIZE;        
+    	if(_DEBUG_SCJ){
+    		Native.print_string("[SCJ DB] ScopedMemoryPolicy.makeStackTraceBufArea() - size ");
+    		Native.print_int(size);
+    		Native.print_string("\n");
+    	}
+        return MemoryManager.the().makeExplicitArea(size);
+    }
+    
+    /**
+     * All pre-allocated VM exceptions are allocated in MetaData area. 
+     * See S3CoreServicesAccess.boot(). Therefore, make sure that area
+     * is just immortal area.
+     */
+    public Object enterMetaDataArea(Type.Context ctx) {
+    	return enterImmortal();
     }
 }

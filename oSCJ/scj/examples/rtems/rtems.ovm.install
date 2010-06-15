@@ -1,0 +1,502 @@
+Title: This is readme file for installing RTEMS and running oSCJ on LEON3 board
+Author: Ales Plsek, aplsek@purdue.edu
+Date : 03/31/2010
+Version: 1.0
+-----------------
+
+0. Prerequisities
+- Linux: linux version supporting RTEMS is needed. Try Fedora or SUSE.
+- oSCJ were tested with Fedora 10, 12, and SUSE 11.2
+
+   0.1 Java installation
+    - download java 1.5 .bin, chmod 775,
+	$ sudo ./jdk....
+	- modify $PATH to include Java 1.5 so OVM can find it.
+ 
+  RTEMS OS
+  	- oSCJ support RTEMS OS 4.9
+  	- RTEMS 4.10 is not supported till its stable version is released.
+
+
+
+
+
+1. Install rtems prebuilt tools.
+
+- Browse http://www.rtems.org/ftp/pub/rtems/linux/4.9/suse/11.2/i586/
+- Download and istall the following packages
+
+rtems-4.9-autoconf-2.62-4.suse11.2.noarch.rpm       
+rtems-4.9-automake-1.10.3-1.suse11.2.noarch.rpm     
+rtems-4.9-binutils-common-2.19-3.suse11.2.i586.rpm  
+rtems-4.9-gcc-common-4.3.2-24.suse11.2.i586.rpm     
+rtems-4.9-gdb-common-6.8-11.suse11.2.noarch.rpm
+rtems-4.9-newlib-common-1.16.0-24.suse11.2.i586.rpm
+rtems-4.9-sparc-rtems4.9-binutils-2.19-3.suse11.2.i586.rpm
+rtems-4.9-sparc-rtems4.9-gcc-4.3.2-24.suse11.2.i586.rpm
+rtems-4.9-sparc-rtems4.9-gcc-c++-4.3.2-24.suse11.2.i586.rpm
+rtems-4.9-sparc-rtems4.9-gdb-6.8-11.suse11.2.i586.rpm
+rtems-4.9-sparc-rtems4.9-newlib-1.16.0-24.suse11.2.i586.rpm
+
+Notes:
+- All the packages will be installed in /opt/rtems-4.9/ by default.
+- During installation you can get some warnings about keys. Don't worry about them.
+- During installation you can get some dependency errors. Find the required packages from suse repositories and install them.
+
+
+2. Build rtems with leon3 support
+
+- Become root
+- Browse http://www.rtems.org/ftp/pub/rtems/4.9.3/
+- Download rtems-4.9.3.tar.bz2
+- Extract archive in the /opt/ directory. This will create /opt/rtems-4.9.3/
+
+cd /opt/rtems-4.9.3/
+export PATH=/opt/rtems-4.9/bin:$PATH
+./bootstrap
+mkdir bsis
+cd bsis
+../configure --target=sparc-rtems4.9 --enable-rtemsbsp=leon3 --enable-posix
+make
+make install
+
+
+
+
+
+
+
+3. Get GRMON
+
+- Browse http://www.gaisler.com/cms/index.php?option=com_content&task=view&id=190&Itemid=124
+- Download grmon-eval-1.1.39.tar.gz
+- Extract archive
+
+
+4. Get minicom and configure
+
+- Run the following command
+
+sudo zypper install minicom
+
+- Open /etc/minirc.dfl (or create it)
+- Make sure you have the same lines as below
+- Make sure you don't have a blank line at the end of the file
+
+# Machine-generated file - use "minicom -s" to change parameters.
+pu port             /dev/ttyUSB0
+pu baudrate     38400
+pu bits         8
+pu parity       N
+pu stopbits     1
+pu minit
+pu mreset
+pu rtscts       No
+
+
+4.1 verify minicom
+"dmesg"
+You should see:
+usb 2-1: FTDI USB Serial Device converter now attached to ttyUSB0
+--> is your minicom cable mapped as USB0? 
+
+------------------------------------------------------------------------------------------------------
+					OVM Compilation and HelloWorld Compilation
+------------------------------------------------------------------------------------------------------
+
+
+
+8.TSIM simulator
+Go to : http://www.gaisler.com/cms/index.php?option=com_content&task=view&id=38&Itemid=56
+- install the TSIM simulator
+ 
+$ export PATH=/opt/tsim-eval:$PATH
+
+- check that your TSIM simulator has enough memory - 16Mb is unfortunately not enough.
+
+9.
+scripts from OpenVM/bin
+copy to /opt/rtems-4.9.3./bin
+
+
+
+
+10. Build OVM with RTEMS support
+
+---> you do not need to do this, just use our MAkefile
+
+just type 
+1.  "make"
+2. "make board"
+
+#export PATH=/opt/rtems-4.9/
+#cd ovms/leon3
+#env CFLAGS="-mcpu=v8 -mno-fpu" ../../OpenVM/configure --host=sparc-rtems4.9  --with-image-location=0x40001224 RTEMS=/opt/#rtems-4.9.3/bsis 
+
+make 
+--> compiled ovm will be in oSCJ/bould/leon3
+When you compile "helloworld" for RTEMS, you will find it in oSCJ/examples/helloworld/leon3 and for miniCDj in oSCJ/examples/miniCDj/leon3
+
+
+
+
+
+
+11. Build a sample Hello.java with OVM
+
+- this is also done in our makefile, it will be done with "make board" or "make cdx"
+
+cd hw/leon3
+
+- Write and compile a Hello.java program.
+- Run the following command
+
+gen_ovm.sh script should be:
+
+#!/bin/bash
+
+PATH=$PATH:/home/plsek/scj/ovms/leon3/bin
+
+echo -e "PATH is ok\t\t = " $PATH "\n"
+
+rt=`ovm-config -threads=RealtimeJVM get-string bootclasspath`
+
+echo -e "rt variable is ok\t = " $rt "\n"
+
+#javac -source 1.4 -target 1.4 -bootclasspath $rt Hello.java
+#echo -e "javac is ok!\n"
+gen-ovm -threads=RealtimeJVM -model=TriPizloPtrStack-FakeScopesWithAreaOf-Bg_Mf_F_H_S -ioconfigurator=SelectSockets_PollingOther -pad-image-size=10m -heap-size=15m -main=Hello -classpath=./
+
+
+
+
+------------------------------------------------------------------------------------------------------
+-------------------------------------------- RUN ON BOARD ----------------------------------------------------------
+
+
+
+11. Upload Hello and run it
+
+- Make sure the board is connected to the computer and powered on
+- Open a new terminal
+- Run the following command
+
+sudo minicom
+
+- Return to previous terminal
+- Go to the Hello directory
+- Run the following commands
+
+
+GRMON_HOME/linux/grmon-eval -usb (for peleton: /opt/grmon-eval)
+load Hello
+run
+
+- You should see the output in minicom interface
+
+
+
+12. Connecting to the board from MAC OS X:
+
+GRMON with ETHERNET:
+
+$ ifconfig eth0 down
+$ ifconfig eth0 up 192.168.1.1
+$ route add 192.168.1.1 dev eth0
+$ ./grmon-eval -eth -ip 192.168.1.51
+
+On Fedora/SUSE linux runned as virtual image on MAC OS:
+set MAC OS network settings to 
+ IP: 192.168.1.1
+ Mask: 255.255.255.0
+ router: 192.168.1.1
+ 
+ and in linux do just : 
+$ ./grmon-eval -eth -ip 192.168.1.51
+
+
+
+------------------------------------------------------------------------------------------------------
+-------------------------------------------- RUN ON SIMULATOR ----------------------------------------------------------
+
+12. TSIM simulator
+
+run TSIM with these parameters:	
+./tsim -nosram -gdb
+
+- connect to the tsim with GDB
+- only the the "go" or "cont" commands should be used, Veysel knows which one
+- DO NOT USE THE "run" command!!
+
+
+- standard output should be seen in the windon with the TSIM, its possible that there is a special input parameter for this.
+
+
+
+INPUT PARAMETERS
+
+You will need to put a wrapper around your application or hard-code the 
+arguments directly in the application. You can not give arguments when 
+loading or doing 'run'.
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------
+-------------------------------------------- Email from Tomas ----------------------------------------------------------
+---- email describes how to compile OVM with RTEMS.... - only some technical details are mentioned
+----
+----
+----
+
+Hi Veysel,
+
+"target" and "host" options have the default meaning as in autoconfig / GNU conventions (i.e. see autoconfig manual). Using "target" and "host" is however not enough. The process is pretty complex, this is why I suggested first to look at regular RTEMS programs.
+
+You should run configure as follows for LEON (see a disclaimer at the bottom for the image location):
+
+env CFLAGS="-mcpu=v8 -mno-fpu" ../OpenVM/configure --host=sparc-rtems4.8 --with-image-location=0x60001210 >configure.out 2>&1
+
+If you want to run on RTEMS/x86, which I would suggest to do first, you should run as:
+
+env CFLAGS="-mtune=pentium" ../OpenVM/configure --host=i386-rtems4.8 --with-image-location=0x100188 >configure.out 2>&1
+
+note that the "--with-image-location" parameter depends on the board and the memory configuration and memory size ; I am not 100% sure that the constant here (for LEON) is also for the board, it may have been for the simulator only
+
+The "no-fpu" option is for software based FPU implementation. I am not sure if you have reflashed your boards for real FPU or not. If you have real (hardware) FPU, you will not need the option. The debug interface of the board will tell you. Indeed, replace "rtems4.8" by your version of rtems. It is a prefix for commands such as "sparc-rtems4.8-gcc"
+
+The configure script needs to run tests, as usual. The problem is that the tests are binaries for the target platform, that is RTEMS/LEON/x86, so it has to run on RTEMS/LEON/x86. The configure script uses the simulator, as opposed to the real board, to run these tests, because it is faster. So you need a script to run these tests. Configure assumes existence of scripts "*-run", that is i386-rtems4.8-run and sparc-rtems4.8-run. These scripts are parts of Ovm distribution. You should make them work before running configure
+
+Note that these scripts assume that the program prints "----PROGRAM-STARTS-HERE----" on start and "----PROGRAM-ENDS-HERE----" on finish, to make the parsing of output easier. Don't forget to put these into your test.
+
+To make the runner work on i386, you need a simulator/emulator of x86. This is the file "/root/x86runner/run.sh" referenced in the script. I have used bochs, which the wrapper script is also written for. You will find the bochs configuration files and scripts I wrote attached as x86runner.tgz
+
+To make the runner work on sparc (leon), you need to have tsim. The runner script uses directly tsim as you can see in its source.
+
+Once the runners are working, you can run configure as suggested above. Then run "make > make.out 2>&1"
+
+Once this is done, you need to build the VM for a particular application. You indeed need special options for gen-ovm. One of the reasons is that you cannot easily pass "command line arguments" to a booting virtual machine. You have two options. The First one is to specify (harcoded) command line arguments for the virtual machine via gen-ovm. These are arguments "-arg0","-arg1", .... Note that if you want to pass arguments directly to the VM (and not the application), you need to use "-npassmain". See jrt.c source code for details and the Java sources of gen-ovm.
+
+However, building a new VM for every possible combination of parameters for CDx is indeed not feasible. I have thus implemented parameter passing over standard input (serial line in case of the board). So, you can give gen-ovm "-npassmain -arg0=-stdin-cmdline", which means that the VM expects the command line parameters passed over the standard input. There is a special protocol for this, see jrt.c. I wrote a script to pass the command line arguments to a starting vm (cd_runner.pl - attached). Note that this script also parses outputs of the collision detector and saves them into files. This is indeed needed to get measurements back. If you don't need/want measurements, indeed adapt the script accordingly. If you need them, adapt you version of CDx accordingly to generate the markers for the output that you see in the script. The cd_runner.pl can be connected to the starting ovm by "socat" tool. You will have to experiment with communication line options to find the right combination for your system. For me, this worked with vmware
+
+ARGS="heap.Main ./quad_oscillator2 DETECTOR_STATS STDOUT DETECTOR_RELEASE_STATS STDOUT SIMULATOR_STATS STDOUT"
+socat -v EXEC:"./cd_runner.pl $ARGS" /tmp/rtems_serial_socket
+
+(the serial port of vmware was connected to filesystem socket in /tmp/rtems_serial_socket)
+
+A testing run from the same host can be done as
+
+socat -v EXEC:"./cd_runner.pl $ARGS" EXEC:"./ovm -stdin-cmdline",stderr,pty,ctty
+
+This worked with the board, but it indeed depends on you board and host serial line configuration
+
+socat -v EXEC:"./cd_runner.pl $ARGS" /dev/ttyUSB0,b38400,icanon=1,echo=0
+
+Back to "gen-ovm". If you need any input files for your applications (both leon and i386), you pass
+"-initfs=/root/SPECjvm98", where you substitute /root/SPECjvm98 with the directory that contains files (and subdirectories) that should be available on the RTEMS system. The scripts will create a ramdisk image for you, zip it, add it to the binary, and unzip it at mount it at run-time.
+
+For x86, you also need to pass "-linker-options=-Ttext=0x100000". Then you need to pass "-pad-image-size=30m", where you substitute the 30m by a tight upper bound of the image size. I think there is a check, if you don't give itenough, the build or execution will crash (as far as I remember).
+
+Once you are done with gen-ovm, if you want to run on x86, do this (strip the binary)
+
+cp ovm ovm.nxe
+i386-rtems4.8-objcopy -O elf32-i386 --remove-section=.rodata --remove-section=.comment --remove-section=.note --strip-unneeded ovm.nxe ovm.exe
+
+For LEON, I don't know exactly about the gen-ovm options. I never run on the board, only on the simulator, as we had done the port with Filip one year before we got the boards. For the simulator, we used
+"-linker-options=-Ttext=0x60000000" and we passed "-stack 0x60fffff0" to tsim and "--with-image-location=0x60001228" (for some particular hello world programme). The simulator had SDRAM at 0x600000000. The stack had to be relocated manually according to relocation of code (the rtems linker script did not do it for us). You will have to customize these parameters for the LEON board. The RTEMS linker script is in the source code of RTEMS, not Ovm.
+
+All of the hassle with image location and padding size is because Ovm needs to have the ovm image at a fixed address. So you have to set a memory address for it. Look into the code and build scripts for details, use text search for the names of the options mentioned above. There are some runtime checks in Ovm code that can detect some inconfigurations. Such as if the code is too large, and thus the image starts at a wrong address, the VM will tell you this at start-up.
+
+Good luck!
+
+Tomas
+
+
+
+
+
+
+
+
+
+On 2/9/2010 4:59 PM, Veysel Harun Sahin wrote:
+> Hi Tomas,
+>
+> We have successfully compiled a sample program with fiji and rtems4.9.3, loaded it to Leon3 board, and run it. Now we have a working system which we can compile apps with rtems for leon3 board.
+>
+> Now I am looking at how to compile a program with ovm and rtems. As far as I see there are two configuration options named target and host in ovm. Is it enough to use those options? And also we don't know the name of the parameters to use with that options. I think it will be like sparc-rtems4.9.
+>
+> On the other hand when reading configure file I have met several values named sparc-rtems4.8. I think we will also need to change those value to rtems4.9.
+>
+> Can you give us some clue about this procedure?
+>
+> Thanks,
+> Veysel
+
+
+
+#! /usr/bin/perl
+
+package main;
+use strict;
+use FileHandle;
+
+my $NL = "\r";
+
+open(LOG,">logfile") || die "Cannot create log file.";
+LOG->autoflush(1);
+STDOUT->autoflush(1);
+
+sub plog {
+  print LOG scalar localtime();
+  print LOG " " . $_[0] . "\n";
+}
+
+plog ("Logfile created.");
+
+sub commit {
+  select(undef, undef, undef, 0.25);
+}
+
+# synchronize with OVM
+plog("Synchronizing with Ovm");
+
+WAIT_FOR_OVM:while() {
+
+  my $rin;
+  my $win;
+  my $ein;
+  
+  $rin = $win = $ein = '';
+  vec($rin,fileno(STDIN),1) = 1;
+  $ein = $rin | $win;
+  
+  my $nfound;
+  $nfound = select($rin, $win, $ein, 1);
+  plog("Select returned ".$nfound);
+
+  if ($nfound == 0) {
+    plog("Sending handshake.");
+    print "HANDSHAKE" . $NL;
+    next WAIT_FOR_OVM;
+
+  } else {
+    my $response = <STDIN>;
+    plog("Received response: X".$response."X");
+
+    if ( $response =~ /OVM-WAITING-FOR-CMDLINE/) {
+      last WAIT_FOR_OVM; 
+    }
+  }
+}
+
+# send command line arguments
+plog("Sending CMDLINE-FOLLOWS");
+
+print "CMDLINE-FOLLOWS".$NL;
+commit();
+my $response = <STDIN>;
+plog("Reponse for CMDLINE-FOLLOWS was ".$response);
+
+plog("Sending arguments");
+ 
+print "" . ($#ARGV + 1) . $NL;
+commit();
+$response = <STDIN>;
+plog("Reponse for argument count was ".$response);
+
+foreach my $arg (@ARGV) {
+  plog("Sending argument: X".$arg."X");
+  print $arg . $NL;
+  plog("Sent argument, waiting for confirmation... ".$arg);  
+  commit();
+  my $response = <STDIN>;
+  plog("Reponse for argument ".$arg." was ".$response);
+}
+
+# get and parse outputs
+plog("Waiting for outputs");
+
+open (OUT,">outfile") || die "Cannot open out file";
+OUT->autoflush(1);
+
+my $savingDetector = 0;
+my $savingDetectorRelease = 0;
+my $savingSimulator = 0;
+
+PARSING:while (<STDIN>) {
+  print OUT;
+  
+  
+  if (m!=====DETECTOR-STATS-START-BELOW====!) {
+    open (DETECTOR, ">detector.rin") || die "Cannot open detector stats file";
+    DETECTOR->autoflush(1);
+    $savingDetector = 1;
+    plog("Detector starts start");
+    next PARSING;
+  }
+
+  if (m!=====SIMULATOR-STATS-START-BELOW====!) {
+    open (SIMULATOR, ">simulator.rin") || die "Cannot open simulator stats file";
+    SIMULATOR->autoflush(1);
+    $savingSimulator = 1;
+    plog("Simulator starts start");    
+    next PARSING;
+  }  
+
+
+  if (m!=====DETECTOR-RELEASE-STATS-START-BELOW====!) {
+    open (DETECTOR_RELEASE, ">release.rin") || die "Cannot open detector release stats file";
+    DETECTOR_RELEASE->autoflush(1);
+    $savingDetectorRelease = 1;
+    plog("Detector release stats start");    
+    next PARSING;
+  }
+
+  if (m!=====DETECTOR-STATS-END-ABOVE====!) {
+    close (DETECTOR) || die "Cannot close detector stats file";
+    $savingDetector = 0;
+    plog("Detector stats end");    
+    next PARSING;
+  }
+
+  if (m!=====SIMULATOR-STATS-END-ABOVE====!) {
+    close (SIMULATOR) || die "Cannot close simulator stats file";
+    $savingSimulator = 0;
+    plog("Simulator stats end");    
+    next PARSING;
+  }
+
+
+  if (m!=====DETECTOR-RELEASE-STATS-END-ABOVE====!) {
+    close (DETECTOR_RELEASE) || die "Cannot close detector release stats file";
+    $savingDetectorRelease = 0;
+    plog("Detector release stats end");    
+    next PARSING;
+  }
+
+  if ($savingSimulator) {
+    print SIMULATOR;
+    next PARSING;
+  }
+  
+  if ($savingDetector) {
+    print DETECTOR;
+    next PARSING;
+  }
+  
+  if ($savingDetectorRelease) {
+    print DETECTOR_RELEASE;
+    next PARSING;
+  }
+
+}
+
+close(OUT);
+close(LOG)
+
+# done
+

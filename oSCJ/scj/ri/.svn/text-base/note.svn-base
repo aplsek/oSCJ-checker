@@ -1,0 +1,104 @@
+LOG:
+
+
+
+
+OVM hacking:
+
+- While a real-time thread starts, where is the place that the initArea is set to be current?
+  Look at VMXXX
+  
+- A Bug: the semantics of scope's parent is wrong. See ScopedMemory.setParent(MemoryArea newParent). 
+  If newParent is not of type of ScopedMemory, the parent of current scope will be set to "primordialScope".
+  newParent gets its value in ScopedMemory.upRefForEnter(RealtimeThread t), in which newParent will be assigned
+  with the top area of the scope stack. So, consider a realtime thread with following scope stack:
+  
+  --> B
+  Immortal (top)
+  A
+  
+  If it is going to enter scope B from Immortal, according to RTSJ, A should be B's parent. But in OVM, the parent
+  would be "primordialScope". The bug will occur whenever a realtime thread is about to enter a scoped memory from
+  non scoped memory (heap/immortal).
+  
+  
+SCJ Issues:
+
+There are two kinds of stacks: call-stack and scope-stack. The call-stack gets a frame pushed on it at a method call,
+while the scope-stack at a thread calling enter. Several frames can share a scope.
+
+CalS     ScpS
+ ----     ----     
+|----|   |    |
+|----|   |----|
+|----|   |----|
+|----|   |----|
+
+
+Scope relations:
+1. allocIn(A,B) - A allocated in B
+2. enterFrom(A,B) - A enters from B
+3. parentOf(A,B) - A is the parent scope of B; the relation is defined in RTSJ
+
+If it is not allowed to enter from PrivateMemory to ImmortalMemory, the two relations are equivalent. 
+And except the first item on the relation chain (Immortal for 1/2, Primordial for 3), all relations are the same.
+
+Relation Maintenance
+1. VM has the concerning information
+2. scope stack represents the enterFrom relation.
+3. Each scope holds a parent pointer for maintaining parentOf relation
+
+
+L0    L1    L2    T0    T1    T2    T3    
+I     M0    M1    P     P     P     P
+                  P     P           P
+                  P                 P
+
+Scope Stack
+-----------
+Each thread has a dedicated stack-style memory space called ScopeStack space,
+which is for storing the ScopeStacks. 
+
+The ScopeStack space is allocated while the instance of associated thread is 
+created and freed while the thread instance no longer exists. So we probably
+need to keep track of the liveness of thread instances?
+
+  
+                  
+Process:
+
+thread creating
+---------------
+
+
+
+
+thread start
+------------
+
+private memory entering
+
+mission memory entering
+
+scoped memory entering
+
+immortal memory entering
+
+TODO:
+-----
+* check what exceptions SCJ actually have, don't throw those do not exist
+* make exceptions pre-allocated. What are those exceptions?
+* check Thread.preRun/postRun, what is the case in fiji?
+* we want to make sure push/pop pair will always act on the same scope!! IMPORTANT
+
+Memory
+------
+
+Thread
+------
+What is RealtimeThread.VMThread for?
+What is RealtimeJavaDispatcher for?
+
+Time
+----
+                  

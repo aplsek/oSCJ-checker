@@ -1,0 +1,67 @@
+10
+
+dir
+13495
+svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/ovm/branches/SCJ/OpenVM/gnu-classpath/java
+svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn
+
+
+
+2010-02-23T05:05:11.803256Z
+13241
+zhao54
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cfc9b378-9421-0410-8964-846f8f5da6ff
+
+sql
+dir
+
+lang
+dir
+
+text
+dir
+
+applet
+dir
+
+nio
+dir
+
+net
+dir
+
+io
+dir
+
+rmi
+dir
+
+security
+dir
+
+beans
+dir
+
+math
+dir
+
+awt
+dir
+
+util
+dir
+

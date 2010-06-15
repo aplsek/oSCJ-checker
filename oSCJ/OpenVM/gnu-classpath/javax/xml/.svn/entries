@@ -1,0 +1,83 @@
+10
+
+dir
+13495
+svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/ovm/branches/SCJ/OpenVM/gnu-classpath/javax/xml
+svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn
+
+
+
+2009-12-22T22:05:09.227995Z
+12913
+tkaliber
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cfc9b378-9421-0410-8964-846f8f5da6ff
+
+parsers
+dir
+
+xpath
+dir
+
+validation
+dir
+
+datatype
+dir
+
+stream
+dir
+
+transform
+dir
+
+namespace
+dir
+
+XMLConstants.java
+file
+
+
+
+
+2010-03-29T21:09:09.000000Z
+317878af8ec83946d9aded3ed3633708
+2009-12-22T22:05:09.227995Z
+12913
+tkaliber
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+4174
+

@@ -1,0 +1,294 @@
+We have RTBx-1210 box from RapiTime.
+
+- the "control center" application only runs on windows
+ it is needed to configure the IP address of the box
+ what else is it needed for ? if this means the box does not support DHCP,
+ we are kind of screwed... 
+
+ the white paper on the web says that data can be downloaded also using
+  _Linux_ GUI...
+
+should be able to sample at 100 MHz (16 bits)
+ "at sustained rate of 20 millions samples per second"
+ (the 100MHz cannot be all the time, the device would probably not make it
+ to save the samples on time)
+
+40-pin Hirose FX2 connector
+ - for 16 bits, each of them grounded, to be connected to the board as
+   flying leads
+ - + ground (female) to be connected to the ground of the board
+
+
+  ? Does RTBx-1210 support the external clock source ? 
+  the documentation seems to be conficting
+
+---------
+
+OK, so the RTBx software installs easily on Win XP ; I can turn on the box
+(takes some time to boot, when booted, displays its IP address on the small
+LCD panel on the front of the box)
+
+the default is 192.168.35.151, netmask 255.255.255.0, gateway 192.168.35.1
+
+The XP machine has to be configured manually to be on the same IP network -
+I made it 192.168.35.1
+
+I connected the box via the cross-over (pink) cable. The control center
+finds the box without problems, connects to it, allows to change the IP, and
+allows to see the input signals (the Hirose connector). Also, there is a
+function to start/stop the tracing.
+
+-----------
+
+there is a general I/O port on the board (GENIO), i.e. J13 ; the flying
+leads (with removed heads) fit there ...
+
+according to "info sys", it seems the port should be mapped to this range...
+let's try it:
+
+08.01:01a   Gaisler Research  General purpose I/O port (ver 0x0)
+             apb: 80000800 - 80000900
+
+I tried to connect to GENIO0-GENIO15 .. how do these map to the address
+space ?
+
+Petr says it looks ok and the GENIO should be pretty fast. He also says that
+decoding the debug interface will probably be very complex. His best guess
+is that we could get the clock the board runs on from TCK of the JTAG. 
+He also says that the I/O ports should remember the value written to them
+(hold it until rewritten)
+
+Hmm, so Petr now found out that the TCK on JTAG is input, not output.
+
+---------------
+
+there is however no visible output when writing to the addresses
+
+is this the "GPIO" port / GRGPIO with GRLIB ?
+ - in the config, we have the port enabled (in VHDL)
+ - bi-directional
+ - "buffer with programmable output enable"? - what it means ?
+ registers
+  +0x0  (32 bit) - port input value (upper 16 bits zero)
+  +0x4           - port output value (upper 16 bits zero)
+  +0x8           - direction (0=output disabled, 1=output enabled)
+  +0xc           - interrupt mask register (0=all disabled)
+  ...
+  +0x18          - bypass register (0=normal output, 1=alternate output)
+
+hmm... still does not work... and there is also an rtems-gpio example, which
+uses a special library instead of writing directly to memory ; I tried to
+hack it, but still no visible output
+
+----------------
+
+Petr has verified that the clock output is only available on the memory
+interface, which cannot be connected to by our flying lead cables. 
+
+---------------
+
+OK, there is some activity seen by the rapita box when I connect to parallel
+port of my IBM notebook and do "print test page" in windows ; or copy con
+lpt1. For the connection, I used straight male-male parallel cable I bought
+earlier. The activity is seen by "RTBx Input State"
+
+---
+(it seems that the Rapita software is in / runs using Java... however, why
+the Exe file ?)
+
+---
+ 16#00F0# is a hexadecimal notation, 0x00F0 (240)
+
+  constant CFG_GRGPIO_ENABLE : integer := 1;
+    Enable generic GPIO port 
+
+  constant CFG_GRGPIO_IMASK : integer := 16#00F0#;
+    GPIO interrupt mask
+ 
+  constant CFG_GRGPIO_WIDTH : integer := (18);
+    GPIO width 
+
+------
+
+so it seems that the port with registers at 0x80000800 (base) is connected
+to connector J1 ; the direction register (0x80000808) is a bitmask which
+includes 1 for bits of output that should be sent ; after the mask is set,
+data can be sent via output register (0x80000804)
+
+(tested with grmon)
+
+-----
+
+so "Collect Sample" - showing a few samples - seems to work
+
+my config: Sample Rate 80Mhz, Oversample 2, other is defaults
+  (high impedance, RTBx clock, 0xffff data mask, strobe mask/value 0/0)
+
+I used a simple example that sends increasing numbers in a loop
+
+-----
+
+Real tracing... - the trace can be downloaded as RPZ file. Probably can be
+uncompressed by traceparser from RapiTime software
+
+#include <stdio.h>
+
+#define uint32_t unsigned int
+
+#define ITERATIONS 50000000
+
+int main(void) {
+  unsigned long base = 0x80000800;
+  
+  uint32_t *output = (uint32_t *) (base+0x4);
+  uint32_t *outputMask = (uint32_t *) (base+0x8);
+  uint32_t *interruptMask = (uint32_t *) (base+0xc);
+  
+  unsigned u;
+  
+  printf("Initializing output port...\n");
+  *outputMask = 0x0;
+  *outputMask = 0xffff;
+  *interruptMask = 0;
+  *output = 0;
+    
+  printf("Writing to output port...\n");
+  
+  for(u=0;u<ITERATIONS;u++) {
+    *output = u & 0xffff ;
+  }
+
+  *output = 0;
+  *outputMask = 0;
+
+  printf("Done.\n");
+
+  exit(0);
+}
+
+--------------
+
+Rapitime for Linux was not on the CD, but we can download it from
+
+You can download the latest version of RapiTime from
+http://www.rapitasystems.com/download.html
+
+Please use the following download codes:
+rt707317 for RapiTime for C on Windows
+rt707315 for RapiTime for C on Linux
+
+there is no control center for Linux
+
+-------------
+
+The USB key for RapiTime can be installed on Ubuntu (peleton) using the
+readme file provided (modification of /etc/fstab is needed)
+
+Ref #10108: In the event that locally connected HASP SRM protection keys are
+not detected on a machine running Ubuntu 8.04 x86, do the following:
+
+In /etc/fstab, enter none /proc/bus/usb usbfs defaults 0 0.
+Mount /proc/bus/usb. The file /proc/bus/usb/devices is displayed.
+Stop the daemon and the HASP License Manager using /etc/init.d/aksusbd stop.
+Restart the daemon and the HASP License Manager using /etc/init.d/aksusbd
+start.
+
+It seems that the SW should work also on x86_64 (sharpay...)
+--------------
+
+I should set up a fast way to get the traces out of the rapita box... but
+how ? samba directly to the box and adding rapita box to the local network ?
+
+-------------
+
+The trace can be converted with traceutils command
+
+traceutils -o trace.txt trace.rpz
+(the required file format is detected by the file extension)
+
+it seems that the example I ran really was able to capture all lpoints
+
+--------------
+
+The Control Center installer works in Wine on Ubuntu
+ 1. apt-get install wine
+ 2. download Sun JRE 6 for windows
+ 3. install it (wine executable)
+ 4. run control center installer (wine executable)
+ 5. run control center (wine "C:\\RTBx\\auxd\\RTBx\\rtbx.exe"
+
+This worked for me
+ - connecting to the box
+ - creating and starting a job, downloading trace results
+
+This did NOT work
+ - watching input state - the icons do not change, always show alternating
+   bits... 
+ - viewing few samples while configuring the new job - the screen froze and
+   no samples were shown
+
+However, the traced data was the same as expected. These are probably only
+issues with the GUI in wine. Most likely a newer version of Wine (or some
+commercial/half-commercial variant of it might fix this)
+
+Also, it seems that most of it is actually running with Java. Maybe an older
+version of Java for Windows will work better in Wine.
+
+(this was Wine 1.0.1 - the latest stable version to date)
+
+let's try the latest - http://www.winehq.org/download/deb
+  ... the installation of java and rtbxcc works fine
+  ... but the control center does not start, complaining there is no network
+      interface in the system, although there seems to be a working one ;
+      however, often for random reasons the network in the VirtualBox dies -
+      what only helps is to restart the host computer (virtual box freezes
+      when restarted) ; so, it can be as well caused by the virtualbox
+
+for Ian, Rapita support
+
+  Regarding the two missing dialogs, you get the same behaviour if you run
+  the program in Windows on VmWare on Linux (yes, I use Linux on my machine)
+  using NAT networking instead of a separate IP address.
+
+------------------
+
+nice, but when connected via CS network, the CC cannot even connect to the
+RTBx... probably some ports are not allowed which should be
+
+let's try with wireshark to see which ports are used
+
+I have however already changed the ip and gw of the box, so I had to do this
+on my notebook
+  ifconfig eth0 down
+  ifconfig eth0 128.10.130.250 up
+  route add default gw 128.10.130.250
+
+ however, I still cannot connect to rapita box
+ 
+ potential problems as reported by wireshark
+  cc tries to connect to port 2707 (emcsymapiport), which is unreachable on the box
+  
+ do I have to reboot the box after changing its ip ?
+ [ YES! ] - even the autodiscovery worked from wine
+
+ when I am connected to 10.0.2.x network (wireless) with ntbk, I can
+   - connect to RTBx
+   - autodiscovery does not work
+   - input state does not work
+   - collect few samples does not work
+   - tracing - when started - works
+   
+ when connected to 128.10.160.x with ntbk
+   - autodiscovery does not work
+   - input state works
+   - collect few samples works
+   - connect using hostname ("rtbx") works as well
+
+------------------
+  I can also connect to "rtbx" via samba from Ubuntu
+   I can see the job files and configuration there
+   I didn't try to download them, yet
+
+
+  
+ so lets try to connect to the CS network after reboot

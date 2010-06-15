@@ -1,0 +1,3 @@
+GLauncher; main:([Ljava/lang/String;)V
+Lgnu/java/net/protocol/file/Handler; <init>:()V
+Lgnu/java/net/protocol/jar/Handler; <init>:()V
