@@ -1,37 +1,0 @@
-10
-
-dir
-13785
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/scj-project/scj/examples/helloworld
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn
-
-
-
-2010-06-09T01:04:01.686721Z
-13767
-plsek
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-cfc9b378-9421-0410-8964-846f8f5da6ff
-
-bin
-dir
-
-ovm-config
-dir
-
-src
-dir
-
