@@ -26,6 +26,8 @@ import javax.realtime.PriorityParameters;
 import javax.realtime.RealtimeThread;
 import javax.safetycritical.annotate.SCJAllowed;
 
+//import edu.purdue.scj.utils.Utils;
+
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 
@@ -74,16 +76,20 @@ public abstract class MissionSequencer extends BoundAsyncEventHandler {
 
 	@SCJAllowed
 	public final void handleAsyncEvent() {
-		_mission = getInitialMission();
-
+	    ////Utils.debugIndentIncrement("###[SCJ] MissionSequencer.handleAsyncEvent");
+	    
+	    _mission = getInitialMission();
 		while (_mission != null) {
-			_wrapper.setMission(_mission);
+		    ////Utils.debugPrintln("Mission enter, size:" + _mission.missionMemorySize());
+		    
+		    _wrapper.setMission(_mission);
 			_mem.resize(_mission.missionMemorySize());
 			_mem.enter(_wrapper);
 			if (_mission._terminateAll)
 				break;
 			_mission = getNextMission();
 		}
+		////Utils.decreaseIndent();
 	}
 
 	@SCJAllowed(LEVEL_2)

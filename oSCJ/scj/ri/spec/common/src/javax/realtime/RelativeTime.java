@@ -23,7 +23,7 @@ package javax.realtime;
 
 import javax.safetycritical.annotate.SCJAllowed;
 
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 import javax.safetycritical.annotate.SCJRestricted;
 
 /**
@@ -56,14 +56,14 @@ public class RelativeTime extends HighResolutionTime {
 	}
 
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public RelativeTime add(long millis, int nanos) {
 		return (RelativeTime) super.add(millis, nanos, new RelativeTime(0, 0,
 				_clock));
 	}
 
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public RelativeTime add(RelativeTime time) {
 		if (time == null || time._clock != _clock)
 			throw new IllegalArgumentException("null arg or different clock");
@@ -80,7 +80,7 @@ public class RelativeTime extends HighResolutionTime {
 	}
 
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public RelativeTime subtract(RelativeTime time) {
 		if (time == null || time._clock != _clock)
 			throw new IllegalArgumentException("null arg or different clock");

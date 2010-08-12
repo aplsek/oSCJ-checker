@@ -50,11 +50,11 @@ public final class RealtimeLauncher {
      * 
      */
     static void main(String[] notUsed) {
-        Utils.debugPrint("[SCJ] RealtimeLauncher.main() started");
+        Utils.debugPrintln("[SCJ] RealtimeLauncher.main() started");
        
-        Utils.debugPrint("[SCJ] Setting allocation context to immportal");
+        Utils.debugPrintln("[SCJ] Setting allocation context to immportal");
         VMSupport.setCurrentArea(VMSupport.getImmortalArea());        
-        Utils.debugPrint("[SCJ] immportal... ok.");
+        Utils.debugPrintln("[SCJ] immportal... ok.");
         
         
         boolean runTests = false;

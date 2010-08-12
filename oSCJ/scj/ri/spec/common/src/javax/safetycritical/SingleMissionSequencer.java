@@ -24,7 +24,7 @@ package javax.safetycritical;
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.annotate.SCJAllowed;
 
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 import javax.safetycritical.annotate.SCJRestricted;
 
 
@@ -48,7 +48,7 @@ public class SingleMissionSequencer extends MissionSequencer {
 
     @SCJAllowed
     @Override
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     protected Mission getNextMission() {
         return _mission;
     }

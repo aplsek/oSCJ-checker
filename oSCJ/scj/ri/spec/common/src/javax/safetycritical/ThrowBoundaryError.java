@@ -22,7 +22,7 @@
 package javax.safetycritical;
 
 import javax.safetycritical.annotate.SCJAllowed;		
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 import javax.safetycritical.annotate.SCJRestricted;
 
 @SCJAllowed
@@ -33,25 +33,25 @@ public class ThrowBoundaryError extends javax.realtime.ThrowBoundaryError {
 	}
 
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public String getPropagatedMessage() {
 		return null;
 	}
 
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public StackTraceElement[] getPropagatedStackTrace() {
 		return null;
 	}
 
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public int getPropagatedStackTraceDepth() {
 		return 0;
 	}
 
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public Class getPropagatedExceptionClass() {
 		return null;
 	}

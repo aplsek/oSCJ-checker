@@ -2,7 +2,7 @@ package javax.safetycritical;
 
 import javax.safetycritical.annotate.SCJAllowed;
 
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 import javax.safetycritical.annotate.SCJRestricted;
 	
 
@@ -15,7 +15,7 @@ public class PriorityScheduler extends javax.realtime.PriorityScheduler {
 	 * @return Returns the maximum hardware real-time priority supported by this virtual machine. @SCJAllowed
 	 */
 	@SCJAllowed 
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public int getMaxHardwarePriority() {
 		//TODO:
 		return 0;
@@ -26,7 +26,7 @@ public class PriorityScheduler extends javax.realtime.PriorityScheduler {
 	 * Returns the minimum hardware real-time priority supported by this virtual machine.
 	 */
 	@SCJAllowed 
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public int getMinHardwarePriority() {
 		//TODO:
 		return 0;

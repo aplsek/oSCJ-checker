@@ -28,7 +28,7 @@ import javax.safetycritical.annotate.Level;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 
-import edu.purdue.scj.utils.Utils;
+//import edu.purdue.scj.utils.Utils;
 
 @SCJAllowed
 public abstract class Mission {
@@ -72,22 +72,32 @@ public abstract class Mission {
 
 	@SCJAllowed(INFRASTRUCTURE)
 	final void run() {
-
+	    ////Utils.debugIndentIncrement("###[SCJ] Mission.run : ");
+	    
 		_terminateAll = false;
 		MemoryArea mem = RealtimeThread.getCurrentMemoryArea();
-		if (!(mem instanceof MissionMemory))
-			Utils.panic("Mission not run in mission memory");
+		if (!(mem instanceof MissionMemory)) { 
+		    ////Utils.panic("Mission not run in mission memory"); 
+		}
 
 		MissionManager mngr = new MissionManager(this);
 		((MissionMemory) mem).setManager(mngr);
 
+		////Utils.debugPrintln("###[SCJ] Mission.run : INIT");
 		_phase = Phase.INITIAL;
 		initialize();
+		
+		////Utils.debugPrintln("###[SCJ] Mission.run : EXECUTE");
 		_phase = Phase.EXECUTE;
 		exec(mngr);
+		
+		////Utils.debugPrintln("###[SCJ] Mission.run : CLEAN-UP");
 		_phase = Phase.CLEANUP;
 		cleanUp();
 		_phase = Phase.INACTIVE;
+		
+		////Utils.debugPrintln("###[SCJ] Mission.run : Mission INACTIVE");
+		////Utils.decreaseIndent();
 	}
 
 	protected void exec(MissionManager manager) {

@@ -24,7 +24,7 @@ package javax.realtime;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.SCJAllowed;
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 
 
 @SCJAllowed
@@ -58,7 +58,7 @@ public abstract class HighResolutionTime implements Comparable {
     }
 
     
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     @SCJAllowed
     public int compareTo(HighResolutionTime time) {
         if (time == null)
@@ -76,7 +76,7 @@ public abstract class HighResolutionTime implements Comparable {
     }
 
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public int compareTo(java.lang.Object object) {
         return compareTo((HighResolutionTime) object);
     }
@@ -95,7 +95,7 @@ public abstract class HighResolutionTime implements Comparable {
     }
 
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public Clock getClock() {
         return _clock;
     }
@@ -107,31 +107,31 @@ public abstract class HighResolutionTime implements Comparable {
     }
 
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public final long getMilliseconds() {
         return _milliseconds;
     }
 
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public final int getNanoseconds() {
         return _nanoseconds;
     }
 
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public void set(HighResolutionTime time) {
     	//TODO:
     }
     
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public void set(long millis) {
     	//TODO:
     }
     
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public void set(long millis, int nanos) {
     	//TODO:
     }
@@ -141,7 +141,7 @@ public abstract class HighResolutionTime implements Comparable {
      * that it waits with a precision of <code>HighResolutionTime</code>.
      */
     @SCJAllowed(LEVEL_2)
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public static void waitForObject(java.lang.Object target,
             HighResolutionTime time) throws java.lang.InterruptedException {
         if (target == null)

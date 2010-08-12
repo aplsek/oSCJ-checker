@@ -26,7 +26,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
 import edu.purdue.scj.BackingStoreID;
 import edu.purdue.scj.VMSupport;
-import edu.purdue.scj.utils.Utils;
+//import edu.purdue.scj.utils.Utils;
 
 /**
  * OVM version of this class differs from fiji version in that we don't have to
@@ -132,7 +132,7 @@ public class RealtimeThread extends Thread implements Schedulable {
 		_scopeStack = new ScopeStack(this);
 		_initAreaIndex = 0;
 		
-		//Utils.debugPrint("[SCJ] RealtimeThread.<init> @"
+		//////Utils.debugPrint("[SCJ] RealtimeThread.<init> @"
 		//		+ "\n\tcurrent area : " + getCurrentMemoryArea() + "\n\t InitArea: " + initArea
 		//		+ "\n\t ScopeStack:");
 	}
@@ -170,14 +170,14 @@ public class RealtimeThread extends Thread implements Schedulable {
 		// setSchedulingParameters(scheduling);
 		_scopeStack = new ScopeStack(this, RealtimeThread
 				.currentRealtimeThread().getScopeStack());
-		if (area == null)
-			Utils.panic("null init area not allowed");
+		if (area == null) {
+			////Utils.panic("null init area not allowed");
+		}
+		
 		initArea = area;
 		_initAreaIndex = _scopeStack.getDepth(true);
 
-		Utils.debugPrint("[SCJ] RealtimeThread.<init> @"
-				+ getCurrentMemoryArea() + "\n\t InitArea: " + area
-				+ "\n\t ScopeStack:");
+		////Utils.debugPrint("[SCJ] RealtimeThread.<init> @" + getCurrentMemoryArea() + "\n\t InitArea: " + area +	 "\n\t ScopeStack:");
 		_scopeStack.dump();
 	}
 
@@ -201,7 +201,7 @@ public class RealtimeThread extends Thread implements Schedulable {
 	 * residing in scoped memory.
 	 */
 	public void start() {
-		//Utils.debugPrint("[SCJ] RealtimeThread.start() - enter");
+		//////Utils.debugPrint("[SCJ] RealtimeThread.start() - enter");
 
 		
 		
@@ -219,7 +219,7 @@ public class RealtimeThread extends Thread implements Schedulable {
 		BackingStoreID thisArea = VMSupport.areaOf(this);
 		BackingStoreID oldArea = VMSupport.setCurrentArea(thisArea);
 
-		// Utils.debugPrint("[SCJ] initial area:" + this.initArea);
+		// ////Utils.debugPrint("[SCJ] initial area:" + this.initArea);
 
 		try {
 			// synchronized (_rtLock) {
@@ -252,7 +252,7 @@ public class RealtimeThread extends Thread implements Schedulable {
 			}
 		} finally {
 			VMSupport.setCurrentArea(oldArea);
-			//Utils.debugPrint("[SCJ] RealtimeThread.start() - end");
+			//////Utils.debugPrint("[SCJ] RealtimeThread.start() - end");
 		}
 	}
 
@@ -263,7 +263,7 @@ public class RealtimeThread extends Thread implements Schedulable {
 	@Override
 	public void run() {
 		
-		//Utils.debugPrint("[SCJ][  " + getCurrentMemoryArea()
+		//////Utils.debugPrint("[SCJ][  " + getCurrentMemoryArea()
 		//		+ "] RealtimeThread.run()"
 		//		+ "\n\t - Attempt to enter initArea " + initArea);
 		

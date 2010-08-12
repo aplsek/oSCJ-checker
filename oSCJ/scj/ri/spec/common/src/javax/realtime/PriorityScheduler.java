@@ -24,7 +24,7 @@ package javax.realtime;
 import javax.safetycritical.annotate.SCJAllowed;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 
@@ -57,19 +57,19 @@ public class PriorityScheduler extends Scheduler {
 	 */
 
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public int getMaxPriority() {
 		return MAX_PRIORITY;
 	}
 
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public int getNormPriority() {
 		return NORM_PRIORITY;
 	}
 
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public int getMinPriority() {
 		return MIN_PRIORITY;
 	}

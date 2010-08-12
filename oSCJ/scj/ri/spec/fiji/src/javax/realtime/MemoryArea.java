@@ -29,7 +29,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 
 import edu.purdue.scj.BackingStoreID;
 import edu.purdue.scj.VMSupport;
-import edu.purdue.scj.utils.Utils;
+//import edu.purdue.scj.utils.Utils;
 
 @SCJAllowed
 public abstract class MemoryArea implements AllocationContext {
@@ -63,21 +63,26 @@ public abstract class MemoryArea implements AllocationContext {
 		//System.out.println("[MEmoryArea conscturtor]Scope initialized: size:" + _size +"  \n\t--- MemoryArea - scopeID");
 		//System.out.println("\n[SCJ Debug] mission:" +  VMSupport.memoryConsumed(RealtimeThread.getCurrentMemoryArea().get_scopeID()));
         //System.out.println("\n[SCJ Debug] mission:" +  this.memoryRemaining());
-        
-        
 	}
 
 	@SCJAllowed
 	public static MemoryArea getMemoryArea(Object object) {
 		return getMemoryAreaObject(VMSupport.areaOf(object));
 	}
+	
+	
+	
 
 	@SCJAllowed
 	public void enter(Runnable logic) {
-		if (logic == null)
+	    ////Utils.debugIndentIncrement("###[SCJ] MemoryArea.enter");
+	    
+	    if (logic == null)
 			throw new IllegalArgumentException("null logic not permitted");
 		RealtimeThread thread = RealtimeThread.currentRealtimeThread();
 		enterImpl(thread, logic);
+		
+		////Utils.decreaseIndent();
 	}
 
 	// 
@@ -149,18 +154,24 @@ public abstract class MemoryArea implements AllocationContext {
 	 * deallocated on exit.
 	 */
 	final void enterImpl(RealtimeThread thread, Runnable logic) {
-		preScopeEnter(thread);
+	    ////Utils.debugIndentIncrement("###[SCJ] MemoryArea.enterIml");
+	    
+	    preScopeEnter(thread);
 		allocBackingStore();
 		thread.getScopeStack().push(this);
 		
 		// TODO: what to do with exception?
 		try {
+		    ////Utils.debugPrintln("###[SCJ] VMsupport.enter");
+		    
 			VMSupport.enter(get_scopeID(), logic);
 		} finally {
 			thread.getScopeStack().pop();
 			freeBackingStore();
 			postScopeEnter();
 		}
+		
+		////Utils.decreaseIndent();
 	}
 
 	/**
@@ -219,9 +230,9 @@ public abstract class MemoryArea implements AllocationContext {
 	}
 
 	static MemoryArea getMemoryAreaObject(BackingStoreID scopeID) {
-		if (scopeID == ImmortalMemory.instance().get_scopeID())
-			return ImmortalMemory.instance();
-		else
+	    if (scopeID == ImmortalMemory.instance().get_scopeID()) 
+	        return ImmortalMemory.instance();
+		else 
 			return (MemoryArea) VMSupport.getNote(scopeID);
 	}
 
@@ -257,12 +268,12 @@ public abstract class MemoryArea implements AllocationContext {
 	 * "this". Don't do anything if this is of ImmortalMemory class.
 	 */
 	private void allocBackingStore() {
-		if (get_scopeID() == null) {
-			
-			System.out.println(">>>> Alloc backing store : " + _size);
+	    ////Utils.debugIndentIncrement("###[SCJ] MemoryArea.allocBackingStore, size : " + _size);
+	    if (get_scopeID() == null) {
 			set_scopeID(VMSupport.pushScope(_size));
 			VMSupport.setNote(get_scopeID(), this);
 		}
+	    ////Utils.decreaseIndent();
 	}
 
 	/** pop the backing store unless this is immortal */

@@ -29,7 +29,7 @@ import javax.realtime.HighResolutionTime;
 import javax.safetycritical.annotate.SCJAllowed;
 
 import edu.purdue.scj.VMSupport;
-import edu.purdue.scj.utils.Utils;
+//import edu.purdue.scj.utils.Utils;
 
 /**
  * 
@@ -60,7 +60,9 @@ public abstract class CyclicExecutive extends Mission implements Safelet {
 
 	/** Do the Cyclic Execution. */
 	protected final void exec(MissionManager manager) {
-
+	   //Utils.debugIndentIncrement("###[SCJ] CyclicExecutive.exec");
+	    
+	    
 		if (manager.getHandlers() == 0)
 			return;
 
@@ -89,6 +91,8 @@ public abstract class CyclicExecutive extends Mission implements Safelet {
 					if (frameHandlers[j] != null) { // we check that handler is
 													// not null,
 						wrapper._handler = frameHandlers[j];
+						
+						////Utils.debugPrintln("###[SCJ] CyclicExecutive: run handler");
 						wrapper.runInItsInitArea();
 					}
 				}
@@ -98,17 +102,22 @@ public abstract class CyclicExecutive extends Mission implements Safelet {
 					waitForNextFrame(targetTime);
 			}
 		}
+		
+		
+        ////Utils.decreaseIndent();
 	}
 
 	private static void waitForNextFrame(AbsoluteTime targetTime) {
 		int result;
+		////Utils.debugPrintln("###[SCJ] CyclicExecutive: wait for the next frame");
+		
 		while (true) {
 			result = VMSupport.delayCurrentThreadAbsolute(toNanos(targetTime));
 			if (result == -1) {
 				break;
 			} else if (result == 0)
 				break;
-			// here, result == 1, the sleep is interrupted, try to sleep
+			// TODO: here, result == 1, the sleep is interrupted, try to sleep
 			// again.
 		}
 	}
@@ -132,8 +141,9 @@ public abstract class CyclicExecutive extends Mission implements Safelet {
 									// fiels in MissionManager, we dont need
 									// this.
 				_handler.getInitArea().enter(this);
-			else
-				Utils.panic("handler is null");
+			else {
+				////Utils.panic("ERROR: handler is null");
+			}
 		}
 
 		public void run() {
@@ -143,7 +153,7 @@ public abstract class CyclicExecutive extends Mission implements Safelet {
 				
 				_handler.handleEvent();
 			} catch (Throwable t) {
-				Utils.debugPrint(t.toString());
+				////Utils.debugPrintln(t.toString());
 				t.printStackTrace();
 			}
 		}

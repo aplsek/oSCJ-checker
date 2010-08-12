@@ -8,5 +8,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target({ ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR })
 public @interface SCJRestricted {
-    public Restrict[] value() default { Restrict.MAY_ALLOCATE, Restrict.MAY_BLOCK, Restrict.ANY_TIME };
+    public Phase[] value() default { Phase.ALL };
+    public boolean mayAllocate()    default true;
+    public boolean maySelfSuspend() default false;
 }

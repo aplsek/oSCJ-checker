@@ -22,7 +22,7 @@ package javax.realtime;
 
 import java.util.Iterator;
 
-import edu.purdue.scj.utils.Utils;
+//import edu.purdue.scj.utils.Utils;
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import javax.safetycritical.annotate.SCJAllowed;
 

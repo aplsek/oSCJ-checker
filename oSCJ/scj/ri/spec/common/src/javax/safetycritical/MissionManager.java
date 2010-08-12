@@ -27,7 +27,7 @@ import javax.realtime.RealtimeThread;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
 
-import edu.purdue.scj.utils.Utils;
+//import edu.purdue.scj.utils.Utils;
 
 @SCJAllowed
 // public abstract class MissionManager {

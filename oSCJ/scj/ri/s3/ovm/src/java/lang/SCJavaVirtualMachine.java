@@ -72,17 +72,17 @@ public class SCJavaVirtualMachine extends JavaVirtualMachine {
         VMSupport.setCurrentArea(VMSupport.getImmortalArea());
         JavaVirtualMachine.instance = new SCJavaVirtualMachine();
 
-        Utils.debugPrint("[SCJ] SCJavaVirtualMachine.init() done");
+        Utils.debugPrintln("[SCJ] SCJavaVirtualMachine.init() done");
     }
 
     /** Overrides to start the shutdown thread */
     void initializeVMThreads() {
-    	Utils.debugPrint("[SCJ] SCJavaVirtualMachine.initializeVMThreads() started");
+    	Utils.debugPrintln("[SCJ] SCJavaVirtualMachine.initializeVMThreads() started");
 
         Opaque current = VMSupport.getCurrentArea();
         VMSupport.setCurrentArea(VMSupport.getImmortalArea());
 
-        Utils.debugPrint("[SCJ] SCJavaVirtualMachine.initializeVMThreads() done");
+        Utils.debugPrintln("[SCJ] SCJavaVirtualMachine.initializeVMThreads() done");
     }
 
     /*
@@ -110,7 +110,7 @@ public class SCJavaVirtualMachine extends JavaVirtualMachine {
     	// must not hold lock on JVM instance when doing shutdown
         // otherwise the hook threads we join() with can't be started or
         // terminate
-    	Utils.debugPrint("[SCJ] ShutdownThread.run() done");
+    	Utils.debugPrintln("[SCJ] ShutdownThread.run() done");
     	LibraryImports.printString("OVM shutdown initiated by ");
     	SCJavaVirtualMachine.super.performShutdown();
     }

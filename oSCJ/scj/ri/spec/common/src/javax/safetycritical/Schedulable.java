@@ -22,7 +22,7 @@
 package javax.safetycritical;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 		
@@ -31,6 +31,6 @@ import javax.safetycritical.annotate.SCJRestricted;
 public interface Schedulable extends Runnable {
 
     @SCJAllowed(LEVEL_2)
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public StorageParameters getThreadConfigurationParameters();
 }

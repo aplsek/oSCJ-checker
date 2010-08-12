@@ -22,7 +22,7 @@
 package javax.realtime;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 
@@ -46,13 +46,13 @@ public class PeriodicParameters extends ReleaseParameters {
     }
 
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public HighResolutionTime getStart() {
         return _start;
     }
 
     @SCJAllowed(LEVEL_1)
-     @SCJRestricted(BLOCK_FREE)
+     @SCJRestricted()
     public RelativeTime getPeriod() {
         return _period;
     }

@@ -150,7 +150,7 @@ public abstract class ManagedMemory extends LTMemory {
 	}
 
 	
-	private void createChild(long size) /*throws org.ovmj.util.PragmaNoBarriers */ {
+	private void createChild(long size) throws org.ovmj.util.PragmaNoBarriers  {
 		_child = (ManagedMemory) new PrivateMemory(size);
 	}
 	

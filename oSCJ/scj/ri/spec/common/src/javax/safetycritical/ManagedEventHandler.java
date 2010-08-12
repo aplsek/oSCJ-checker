@@ -74,7 +74,7 @@ public abstract class ManagedEventHandler extends BoundAsyncEventHandler
 	 */
 	@Override
 	@SCJAllowed
-	public final void handleAsyncEvent() {
+	public void handleAsyncEvent() {
 		handleEvent();
 	}
 

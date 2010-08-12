@@ -24,7 +24,7 @@ package javax.realtime;
 
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 
@@ -51,7 +51,7 @@ public class NoHeapRealtimeThread extends RealtimeThread {
     }
     
     @SCJAllowed(LEVEL_2)
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
     public void start() {
     	
     }

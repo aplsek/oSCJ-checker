@@ -242,10 +242,10 @@ public abstract class MemoryArea implements AllocationContext {
 	}
 
 	static MemoryArea getMemoryAreaObject(Opaque scopeID) {
-		if (scopeID == ImmortalMemory.instance().area)
-			return ImmortalMemory.instance();
-		else
-			return (MemoryArea) VMSupport.getAreaMirror(scopeID);
+		if (scopeID == ImmortalMemory.instance().area)  
+		    return ImmortalMemory.instance();
+		else 
+		    return (MemoryArea) VMSupport.getAreaMirror(scopeID);
 	}
 
 	/**

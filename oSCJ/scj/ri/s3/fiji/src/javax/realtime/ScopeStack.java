@@ -23,7 +23,7 @@ package javax.realtime;
 
 import edu.purdue.scj.BackingStoreID;
 import edu.purdue.scj.VMSupport;
-import edu.purdue.scj.utils.Utils;
+//import edu.purdue.scj.utils.Utils;
 
 /**
  * ScopeStack is allocated in each thread's ScopeStack space. Each thread can
@@ -101,6 +101,12 @@ class ScopeStack {
 		_memSize = constructionSizeOf(_INCREASE);
 		// _owner = owner;
 		allocBackingStoreArray();
+		
+		//System.out.println("Scope stack created!");
+		// pushing the ImmortalMemory on stack
+		MemoryArea immortalMem = ImmortalMemory.instance();
+		push(immortalMem);
+		//System.out.println("Immortal Pushed!");
 	}
 
 	/**
@@ -188,15 +194,14 @@ class ScopeStack {
 	void push(MemoryArea area) {
 		if (_size == _capacity)
 			grow();
-		if (_size != _activePointer)
-			Utils
-					.panic("attempt to push a scope when the current top is inactive");
+		if (_size != _activePointer) {
+			////Utils.panic("attempt to push a scope when the current top is inactive");
+		}
 		try {
 			setAt(area.get_scopeID(), _size++);
 		} catch (Throwable t) {
-			Utils
-					.debugPrint("Get exception ........................................................................");
-			Utils.debugPrint(t.toString());
+			////Utils.debugPrint("Get exception .....................................");
+			////Utils.debugPrint(t.toString());
 		}
 		_activePointer++;
 	}
@@ -212,12 +217,13 @@ class ScopeStack {
 	}
 
 	void dump() {
-		Utils.debugPrint(this + " dump...");
-		Utils.debugPrint("\t - size: " + _size);
-		Utils.debugPrint("\t - activePointer: " + _activePointer);
-		Utils.debugPrint("\t - scopes");
-		for (int i = _size - 1; i >= 0; i--)
-			Utils.debugPrint("\t\t " + VMSupport.getNote(getAt(i)));
+		//Utils.debugPrint(this + " dump...");
+		//Utils.debugPrint("\t - size: " + _size);
+		//Utils.debugPrint("\t - activePointer: " + _activePointer);
+		//Utils.debugPrint("\t - scopes");
+		for (int i = _size - 1; i >= 0; i--) {
+			//Utils.debugPrint("\t\t " + VMSupport.getNote(getAt(i)));
+		}
 	}
 
 	/**

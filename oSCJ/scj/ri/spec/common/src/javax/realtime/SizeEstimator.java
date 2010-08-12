@@ -24,7 +24,7 @@ package javax.realtime;
 import javax.safetycritical.annotate.SCJAllowed;
 
 import edu.purdue.scj.VMSupport;
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 /**
@@ -55,27 +55,27 @@ public final class SizeEstimator {
      */
 
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public long getEstimate() {
         return size;
     }
 
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public void reserve(Class clazz, int num) {
         if (clazz != null)
             size += num * VMSupport.sizeOf(clazz);
     }
 
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public void reserve(SizeEstimator estimator) {
         // behavior on null not specified
         reserve(estimator, 1);
     }
 
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public void reserve(SizeEstimator estimator, int num) {
         // behavior on null not specified
         if (estimator != null)
@@ -83,7 +83,7 @@ public final class SizeEstimator {
     }
 
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public void reserveArray(int length) {
         if (length < 0)
             throw new IllegalArgumentException("negative length");
@@ -92,7 +92,7 @@ public final class SizeEstimator {
     }
 
     @SCJAllowed
-    @SCJRestricted(BLOCK_FREE)
+    @SCJRestricted()
     public void reserveArray(int length, Class clazz) {
         if (length < 0)
             throw new IllegalArgumentException("negative length");

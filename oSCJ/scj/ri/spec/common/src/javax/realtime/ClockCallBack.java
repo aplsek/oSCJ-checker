@@ -21,7 +21,7 @@
 package javax.realtime;
 
 import javax.safetycritical.annotate.SCJRestricted;
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 
@@ -44,7 +44,7 @@ public interface ClockCallBack {
 	//    
 	//
 	@SCJAllowed(LEVEL_1)
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	void atTime(Clock clock);
 	//
 	//
@@ -56,6 +56,6 @@ public interface ClockCallBack {
 	// */
 	//    
 	@SCJAllowed(LEVEL_1)
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	void discontinuity(Clock clock, AbsoluteTime updatedTime);
 }

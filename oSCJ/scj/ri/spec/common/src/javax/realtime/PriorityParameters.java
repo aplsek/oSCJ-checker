@@ -23,7 +23,7 @@ package javax.realtime;
 
 import javax.safetycritical.annotate.SCJAllowed;
 
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 import javax.safetycritical.annotate.SCJRestricted;
 
 /**
@@ -51,7 +51,7 @@ public class PriorityParameters extends SchedulingParameters {
 	}
 
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public int getPriority() {
 		return _priority;
 	}

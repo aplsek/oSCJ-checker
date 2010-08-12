@@ -26,7 +26,7 @@ import javax.realtime.SizeEstimator;
 import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
 import edu.purdue.scj.VMSupport;
-import edu.purdue.scj.utils.Utils;
+//import edu.purdue.scj.utils.Utils;
 
 @SCJAllowed
 public abstract class ManagedMemory extends LTMemory {

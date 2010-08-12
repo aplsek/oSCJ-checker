@@ -198,14 +198,14 @@ class ScopeStack {
 	}
 
 	void dump() {
-		Utils.debugPrint(this + " dump...");
-		Utils.debugPrint("\t - size: " + _size);
-		Utils.debugPrint("\t - activePtr: " + _activePointer);
-		Utils.debugPrint("\t - capacity: " + _capacity);
-		Utils.debugPrint("\t - scopes:");
-		for (int i = _size - 1; i >= 0; i--)
-			Utils.debugPrint("\t\t "
-					+ MemoryArea.getMemoryAreaObject(_stack[i]));
+		Utils.debugPrintln(this + " dump...");
+		Utils.debugPrintln("\t - size: " + _size);
+		Utils.debugPrintln("\t - activePtr: " + _activePointer);
+		Utils.debugPrintln("\t - capacity: " + _capacity);
+		Utils.debugPrintln("\t - scopes:");
+		for (int i = _size - 1; i >= 0; i--) {
+			Utils.debugPrintln("\t\t " + MemoryArea.getMemoryAreaObject(_stack[i]));
+		}
 	}
 
 	/**

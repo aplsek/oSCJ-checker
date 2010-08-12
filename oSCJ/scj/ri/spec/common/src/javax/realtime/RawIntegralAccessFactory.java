@@ -26,7 +26,7 @@ import static javax.safetycritical.annotate.Level.LEVEL_1;
 
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 

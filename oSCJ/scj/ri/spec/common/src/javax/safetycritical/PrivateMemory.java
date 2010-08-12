@@ -27,7 +27,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;   
 
 import edu.purdue.scj.VMSupport;
-import edu.purdue.scj.utils.Utils;
+//import edu.purdue.scj.utils.Utils;
 
 /**
  * Facts:
@@ -62,9 +62,10 @@ public class PrivateMemory extends ManagedMemory {
 		MemoryArea mem = RealtimeThread.getCurrentMemoryArea();
 		if (mem instanceof ManagedMemory)
 			_resideInScope = (ManagedMemory) mem;
-		else
-			Utils.panic("Private memory cannot be created in " + mem);
-
+		else {
+			////Utils.panic("Private memory cannot be created in " + mem);
+		}
+			
 		_manager = _resideInScope.getManager();
 	}
 
@@ -80,7 +81,7 @@ public class PrivateMemory extends ManagedMemory {
 			s += "\nPrivate Memory: " + this;
 			s += "\n Current Area: " + RealtimeThread.getCurrentMemoryArea();
 			s += "\n Expected Current Area: " + _resideInScope;
-			Utils.panic(s);
+			////Utils.panic(s);
 		}
 		super.enter(logic);
 	}

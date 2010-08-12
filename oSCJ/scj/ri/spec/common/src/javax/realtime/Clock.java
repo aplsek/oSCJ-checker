@@ -23,7 +23,7 @@ package javax.realtime;
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
-import static javax.safetycritical.annotate.Restrict.BLOCK_FREE;
+
 
 import edu.purdue.scj.VMSupport;
 
@@ -152,26 +152,26 @@ public abstract class Clock {
 	}
 
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public static Clock getRealtimeClock() {
 		return rtc;
 	}
 
 	/** Returns previously allocated resolution object, which is immutable. */
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public abstract RelativeTime getResolution();
 
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public abstract RelativeTime getResolution(RelativeTime time);
 	
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public abstract AbsoluteTime getTime();
 	
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public abstract AbsoluteTime getTime(AbsoluteTime time);
 
 	/**
@@ -181,7 +181,7 @@ public abstract class Clock {
 	 * @return
 	 */
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	protected abstract boolean drivesEvents();
 
 	/**
@@ -191,7 +191,7 @@ public abstract class Clock {
 	 * @param clockEvent
 	 */
 	@SCJAllowed(LEVEL_1)
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	protected abstract void registerCallBack(AbsoluteTime time,
 			ClockCallBack clockEvent);
 
@@ -203,7 +203,7 @@ public abstract class Clock {
 	 * @return
 	 */
 	@SCJAllowed(LEVEL_1)
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	protected abstract boolean resetTargetTime(AbsoluteTime time);
 
 	/**
@@ -216,6 +216,6 @@ public abstract class Clock {
 	
 	
 	@SCJAllowed
-	@SCJRestricted(BLOCK_FREE)
+	@SCJRestricted()
 	public abstract RelativeTime getEpochOffset();
 }

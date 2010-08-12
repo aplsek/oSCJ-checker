@@ -24,7 +24,7 @@ package javax.safetycritical;
 
 import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Level.LEVEL_1;
-import static javax.safetycritical.annotate.Restrict.INITIALIZATION;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import javax.safetycritical.annotate.SCJRestricted;
 
 @SCJAllowed

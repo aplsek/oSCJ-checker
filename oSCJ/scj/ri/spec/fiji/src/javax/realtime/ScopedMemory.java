@@ -25,7 +25,7 @@ import javax.realtime.ScopedAllocationContext;
 import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
 
-import edu.purdue.scj.utils.Utils;
+//import edu.purdue.scj.utils.Utils;
 
 public abstract class ScopedMemory extends MemoryArea implements ScopedAllocationContext {
 
