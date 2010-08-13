@@ -51,7 +51,7 @@ import java.util.ConcurrentModificationException;
  * This was based on the GNU Classpath ArrayList implementation.
  * 
  * @author David Holmes
- * 
+ *
  */
 class IdentityArraySet extends AbstractSet implements Set, Cloneable {
 
