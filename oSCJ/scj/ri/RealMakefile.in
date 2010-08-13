@@ -1,6 +1,8 @@
 JAVAC=@JAVAC@
 JAR=@JAR@
 
+include depend.mk
+
 all: scj.jar
 
 clean:
