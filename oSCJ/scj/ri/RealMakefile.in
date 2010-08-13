@@ -1,0 +1,15 @@
+JAVAC=@JAVAC@
+JAR=@JAR@
+
+all: scj.jar
+
+clean:
+	rm -rf build
+	rm -f scj.jar
+
+scj.jar: $(SRCFILES)
+	rm -rf build
+	mkdir build
+	$(JAVAC) -nowarn -target 1.5 -source 1.5 $(SRCFILES) -d build
+	$(JAR) cf scj.jar -C build .
+
