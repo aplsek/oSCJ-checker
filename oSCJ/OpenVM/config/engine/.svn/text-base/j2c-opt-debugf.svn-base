@@ -1,5 +1,0 @@
-# It is actually faster to perform our high-level optimizations before 
-# compiling code with g++ -g
-
--cflags "-O2 -gdwarf-2 -fwrapv"
--inline	"heavy"

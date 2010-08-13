@@ -1,2 +1,0 @@
-#!/bin/sh
-gcc3 -traditional-cpp -I include/ -O3 -DDEBUGGING=0 -DUNCHECKED_SYSCALLS=1  -DOSX_BUILD fast.c -o fast

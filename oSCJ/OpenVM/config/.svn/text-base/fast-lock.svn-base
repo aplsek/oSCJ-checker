@@ -1,9 +1,0 @@
-# Any garbage collector whose name looks like *-B_Mf... will be compiled 
-# with fast-lock support.  Examples include minimalMM-B_Mf, and 
-# MostlyCopyingWB-B_Mf_F_H.  Currently, an uncontented, non-recursive
-# lock can be taken in 11 x86 instructions, but this number could
-# easily be reduced to 8.
-
-ovm.core.execution.CoreServicesAccess$Factory \
- s3.services.fastLock.FastLockCoreServicesAccess$FLFactory
-

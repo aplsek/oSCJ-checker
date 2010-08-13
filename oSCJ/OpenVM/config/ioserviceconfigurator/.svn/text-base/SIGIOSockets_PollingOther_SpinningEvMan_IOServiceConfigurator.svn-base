@@ -1,3 +1,0 @@
-## -io=SIGIOSockets_PollingOther_SpinningEvMan just like SIGIOSockets_PollingOther,
-##        but never blocks
-ovm.core.stitcher.IOServiceConfigurator s3.core.stitcher.SIGIOSockets_PollingOther_SpinningEvMan_IOServiceConfigurator

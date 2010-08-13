@@ -1,5 +1,0 @@
-# Select an implementation of the transactional API described in the 
-# Preemptible Atomic Region paper. EmptyTransaction gives the default
-# behavior. S3Transaction is the real thing.
-s3.services.transactions.Transaction \
-                 s3.services.transactions.S3Transaction

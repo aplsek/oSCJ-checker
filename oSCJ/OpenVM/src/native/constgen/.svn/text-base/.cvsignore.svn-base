@@ -1,6 +1,0 @@
-constGen
-*.o
-Makefile.in
-Makefile
-.deps
-*.class

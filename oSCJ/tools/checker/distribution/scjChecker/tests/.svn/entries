@@ -1,57 +1,0 @@
-10
-
-dir
-13782
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/scj-project/scj-annotations/distribution/scjChecker/tests
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn
-
-
-
-2009-12-11T16:16:24.449216Z
-12697
-plsek
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-cfc9b378-9421-0410-8964-846f8f5da6ff
-
-
-
-
-
-
-0
-empty
-
-allocfree
-dir
-
-blockfree
-dir
-
-javax
-dir
-
-mainTest
-dir
-
-reportLogs
-dir
-
-runsIn
-dir
-
-scjAllowed
-dir
-

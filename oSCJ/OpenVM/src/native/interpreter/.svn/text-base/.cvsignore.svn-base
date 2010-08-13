@@ -1,9 +1,0 @@
-.deps
-Makefile
-Makefile.in
-img
-interpreter
-java_instructions_threaded.gen
-native_calls.gen
-classpath_native.c
-*.o

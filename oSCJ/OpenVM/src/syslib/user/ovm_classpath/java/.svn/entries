@@ -1,46 +1,0 @@
-10
-
-dir
-13495
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/ovm/branches/SCJ/OpenVM/src/syslib/user/ovm_classpath/java
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn
-
-
-
-2010-03-10T21:29:20.842004Z
-13353
-plsek
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-cfc9b378-9421-0410-8964-846f8f5da6ff
-
-lang
-dir
-
-nio
-dir
-
-net
-dir
-
-io
-dir
-
-security
-dir
-
-util
-dir
-

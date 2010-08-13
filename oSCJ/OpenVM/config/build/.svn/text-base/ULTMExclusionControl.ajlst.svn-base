@@ -1,9 +1,0 @@
-src/s3/aspects/UserLevelThreadManagerExclusionControl.aj
-src/s3/core/services/timer/TimerManagerImpl.java
-src/s3/core/execution/S3CoreServicesAccess.java
-src/s3/core/domain/S3Type.java
-src/s3/core/S3Executive.java
-src/s3/services/io/signals/IOSignalManagerBase.java
-src/s3/services/io/signals/IOSignalManagerViaSIGIO.java
-src/s3/services/events/EventAndIOManagerViaSelect.java
-src/ovm/core/services/process/ForkManager.java

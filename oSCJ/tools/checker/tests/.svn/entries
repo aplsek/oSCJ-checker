@@ -1,73 +1,0 @@
-10
-
-dir
-13742
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/scj-project/scj-annotations/tests
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn
-
-
-
-2010-05-25T05:31:33.972885Z
-13741
-dytang
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-cfc9b378-9421-0410-8964-846f8f5da6ff
-
-allocfree
-dir
-
-blockfree
-dir
-
-defineScope
-dir
-
-javax
-dir
-
-reportLogs
-dir
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-deleted
-
-scjAllowed
-dir
-
-scjRestricted
-dir
-
-scope
-dir
-

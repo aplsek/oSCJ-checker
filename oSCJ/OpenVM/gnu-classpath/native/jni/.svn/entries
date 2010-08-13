@@ -1,129 +1,0 @@
-10
-
-dir
-13495
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/ovm/branches/SCJ/OpenVM/gnu-classpath/native/jni
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn
-
-
-
-2009-12-22T22:05:09.227995Z
-12913
-tkaliber
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-cfc9b378-9421-0410-8964-846f8f5da6ff
-
-java-lang
-dir
-
-midi-alsa
-dir
-
-classpath
-dir
-
-midi-dssi
-dir
-
-Makefile.in
-file
-
-
-
-
-2010-03-29T21:08:51.000000Z
-e164920c2e4cb7c9df14c5689d69ee06
-2009-12-22T22:05:09.227995Z
-12913
-tkaliber
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-18816
-
-java-nio
-dir
-
-java-net
-dir
-
-java-io
-dir
-
-Makefile.am
-file
-
-
-
-
-2010-03-29T21:08:51.000000Z
-cb3d554b80c38d534243db6263b09113
-2009-12-22T22:05:09.227995Z
-12913
-tkaliber
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-754
-
-xmlj
-dir
-
-java-util
-dir
-
-qt-peer
-dir
-
-gtk-peer
-dir
-

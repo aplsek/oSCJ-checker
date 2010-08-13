@@ -1,140 +1,0 @@
-10
-
-dir
-13782
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/scj-project/scj-annotations/distribution/scjChecker/checkers/tests
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn
-
-
-
-2009-12-08T19:44:50.807775Z
-12631
-plsek
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-cfc9b378-9421-0410-8964-846f8f5da6ff
-
-
-
-
-
-
-0
-empty
-
-README
-file
-
-
-
-
-2009-09-05T01:27:20.000000Z
-84c202fdb3b4fbc607cb6f1589054a57
-2009-12-08T19:44:50.807775Z
-12631
-plsek
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-164
-
-basic
-dir
-
-build
-dir
-
-framework
-dir
-
-i18n
-dir
-
-igj
-dir
-
-interning
-dir
-
-javari
-dir
-
-junit.jar
-file
-
-
-
-
-2009-09-05T01:27:20.000000Z
-37dc57962c1275ebc572726a6f5cdd13
-2009-12-08T19:44:50.807775Z
-12631
-plsek
-has-props
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-218226
-
-lock
-dir
-
-nullness
-dir
-
-regex
-dir
-
-src
-dir
-
-tainting
-dir
-

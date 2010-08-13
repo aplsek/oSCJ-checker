@@ -1,6 +1,0 @@
-*.class
-deps
-META-INF
-Makefile
-ovm_apps.jar
-java-file-list

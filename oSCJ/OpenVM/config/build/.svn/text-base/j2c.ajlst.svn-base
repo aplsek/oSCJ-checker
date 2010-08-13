@@ -1,5 +1,0 @@
-# Some aspects
-src/s3/services/j2c/Domain.aj
-src/s3/core/domain/S3Domain.java
-src/s3/core/domain/S3Blueprint.java
-src/s3/services/j2c/FieldMagic.java

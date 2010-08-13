@@ -1,73 +1,0 @@
-10
-
-dir
-13495
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn/ovm/branches/SCJ/OpenVM/gnu-classpath/javax
-svn+ssh://plsek@zed.cs.purdue.edu/exports/u119/sss/common/svn
-
-
-
-2009-12-22T22:05:09.227995Z
-12913
-tkaliber
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-cfc9b378-9421-0410-8964-846f8f5da6ff
-
-accessibility
-dir
-
-crypto
-dir
-
-imageio
-dir
-
-management
-dir
-
-microedition
-dir
-
-naming
-dir
-
-net
-dir
-
-print
-dir
-
-rmi
-dir
-
-security
-dir
-
-sound
-dir
-
-sql
-dir
-
-swing
-dir
-
-transaction
-dir
-
-xml
-dir
-

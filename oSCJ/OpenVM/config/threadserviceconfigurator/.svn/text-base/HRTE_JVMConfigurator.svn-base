@@ -1,2 +1,0 @@
-## -threads=HRTE_JVM selects the standard java threading model with high resolution timer emulation (HRTE).
-ovm.core.stitcher.ThreadServiceConfigurator s3.core.stitcher.HRTE_JVMConfigurator
