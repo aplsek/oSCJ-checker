@@ -1,4 +1,0 @@
-tests/scope/TestScopeOnMethod.java:12: @Scope annotations not allowed on methods.
-    public void foo() {
-                ^
-1 error

@@ -1,4 +1,0 @@
-tests/scjAllowed/TestAllowedProtectedClash.java:13: Illegal method call of an @SCJProtected method.
-        FakeSCJ.scjProtected();
-                            ^
-1 error

@@ -1,4 +1,0 @@
-tests/scope/TestInvoke.java:20: Methods called must be in the same scope or in a parent scope and be @AllocFree.
-        foo();
-           ^
-1 error

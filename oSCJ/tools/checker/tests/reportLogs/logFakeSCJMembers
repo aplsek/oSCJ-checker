@@ -1,4 +1,0 @@
-tests/javax/safetycritical/FakeSCJMembers.java:27: Illegal visibility increase of an enclosing element.
-    public static void scjProtected() {
-                       ^
-1 error

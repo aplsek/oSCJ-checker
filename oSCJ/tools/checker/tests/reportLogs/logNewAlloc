@@ -1,7 +1,0 @@
-tests/allocfree/NewAlloc.java:21: Illegal allocation in a method marked @AllocFree
-		int[] x = new int[3];
-		          ^
-tests/allocfree/NewAlloc.java:22: Illegal allocation in a method marked @AllocFree
-		Object y = new Object();
-		           ^
-2 errors

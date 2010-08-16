@@ -1,4 +1,0 @@
-tests/scjAllowed/TestOverride401.java:20: Method must have the same SCJ visibility as all overridden methods.
-    public int toOverride() {
-               ^
-1 error

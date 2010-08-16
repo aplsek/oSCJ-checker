@@ -1,4 +1,0 @@
-tests/scjAllowed/TestSCJAllowed103.java:30: Illegal field access of an SCJ field.
-        int variable = FakeSCJ.variable;
-                              ^
-1 error
