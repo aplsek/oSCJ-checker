@@ -1,0 +1,4 @@
+tests/scope/testExecuteInArea.java:17: Runnable and PrivateMemory scopes disagree.
+        a.executeInArea(r);
+                       ^
+1 error

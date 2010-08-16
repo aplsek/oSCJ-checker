@@ -1,5 +1,0 @@
-## -io=SelectSockets_StallingFiles_PollingOther avoids blocking the VM for
-##        read/write type IO calls on sockets, pipes, and TTYs, but not on
-##        files.  file IO throughput should be better with this configuration
-##        than with others.  uses select(3) for IO multiplexing for sockets.
-ovm.core.stitcher.IOServiceConfigurator s3.core.stitcher.SelectSockets_StallingFiles_PollingOther_IOServiceConfigurator

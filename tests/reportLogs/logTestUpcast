@@ -1,0 +1,4 @@
+tests/scope/TestUpcast.java:14: @Scope annotations must agree with their overriden annotations.
+class L extends TestUpcast {
+^
+1 error

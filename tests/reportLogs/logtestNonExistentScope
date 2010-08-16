@@ -1,0 +1,4 @@
+tests/scope/testNonExistentScope.java:6: Scope does not exist.
+public class TestNonExistentScope {
+       ^
+1 error

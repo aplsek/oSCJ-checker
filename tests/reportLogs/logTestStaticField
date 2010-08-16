@@ -1,0 +1,4 @@
+tests/scope/TestStaticField.java:11: Static fields types must be @Scope("immortal").
+    static F f = null;
+             ^
+1 error

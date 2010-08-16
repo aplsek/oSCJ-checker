@@ -1,4 +1,0 @@
-# This doesn't work with pthreads.  Linking static leads to 
-# pthread_find_self() crashes, but you can't link dynamic with profiling.
--cflags		"-O2 -gdwarf-2 -pg -fwrapv"
-# add the -static flag if needed. OSX does not like it

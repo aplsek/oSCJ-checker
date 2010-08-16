@@ -1,3 +1,0 @@
-## -threads=TimePreemptiveJVM
-## non-realtime JVM configuration with time-preemptive scheduling support
-ovm.core.stitcher.ThreadServiceConfigurator s3.core.stitcher.TimePreemptiveJVMConfigurator

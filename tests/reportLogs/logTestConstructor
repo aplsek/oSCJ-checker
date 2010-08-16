@@ -1,0 +1,4 @@
+tests/scope/TestConstructor.java:14: @RunsIn annotations not allowed on constructors.
+    public TestConstructor() {
+           ^
+1 error

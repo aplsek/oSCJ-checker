@@ -1,8 +1,0 @@
--debugPrint	"true"
--simplejitopt   "false"
-
-s3.services.bootimage.ImageObserver \
-	s3.services.simplejit.bootimage.SimpleJITBootImageCompileObserver(debugPrint,simplejitopt)
-
-s3.services.simplejit.bootimage.SimpleJITFactory \
-	s3.services.simplejit.bootimage.SimpleJITFactoryX86Impl()

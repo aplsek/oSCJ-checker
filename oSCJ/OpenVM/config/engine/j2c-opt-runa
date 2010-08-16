@@ -1,4 +1,0 @@
-# I remember double-related problems with -O2 and higher...
--cflags		"-O3 -gdwarf-2 -fwrapv"
--inline		"heavy"
--ndebug		"false"

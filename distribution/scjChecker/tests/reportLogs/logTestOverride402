@@ -1,0 +1,4 @@
+tests/scjAllowed/TestOverride402.java:21: Extending a class that is invisible (has a lower level).
+    public TestOverride402() {
+                             ^
+1 error

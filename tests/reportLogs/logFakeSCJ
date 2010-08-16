@@ -1,0 +1,10 @@
+tests/javax/safetycritical/FakeSCJ.java:29: Illegal visibility increase of an enclosing element.
+    public static int variable;
+                      ^
+tests/javax/safetycritical/FakeSCJ.java:32: Illegal visibility increase of an enclosing element.
+	public static void level1Call() {
+	                   ^
+tests/javax/safetycritical/FakeSCJ.java:45: Illegal visibility increase of an enclosing element.
+	class NestedClass {
+	^
+3 errors

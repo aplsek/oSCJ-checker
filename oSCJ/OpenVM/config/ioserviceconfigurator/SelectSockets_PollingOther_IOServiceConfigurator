@@ -1,4 +1,0 @@
-## -io=SelectSockets_PollingOther avoids blocking the VM for all read/write type
-##        IO calls.  uses select(3) for IO multiplexing for sockets and polling
-##        for everything else.
-ovm.core.stitcher.IOServiceConfigurator s3.core.stitcher.SelectSockets_PollingOther_IOServiceConfigurator

@@ -1,0 +1,4 @@
+tests/allocfree/MethodParametersTest.java:20: Illegal allocation in a method marked @AllocFree
+        method(new String());
+               ^
+1 error

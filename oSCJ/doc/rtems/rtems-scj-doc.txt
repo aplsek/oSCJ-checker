@@ -1,5 +1,0 @@
-RTEMS SCJ OVM & Info
-========================
-- this is a log about running SCJ-OVM on top of RTEMS
-
-ALWAYS DO WRITE MANUALS WHAT WHEN & HOW I DID. IT SAVES TIME ON AT LARGE!

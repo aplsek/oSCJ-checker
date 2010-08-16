@@ -1,0 +1,4 @@
+tests/scope/TestEscaping2.java:22: escaping.nonannotated.field
+        J j = t.j;
+               ^
+1 error

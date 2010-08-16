@@ -1,0 +1,4 @@
+tests/scjAllowed/TestSuppress301.java:31: Invalid class instantiation, class has a higher SCJ-Level or is HIDDEN!.
+        connection_types_ = new ArrayList<String>();
+                            ^
+1 error

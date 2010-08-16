@@ -1,4 +1,0 @@
-## -io=SIGIOSockets_PollingOther avoids blocking the VM for all read/write type IO
-##        calls.  uses SIGIO for IO multiplexing for sockets and polling for
-##        everything else.
-ovm.core.stitcher.IOServiceConfigurator s3.core.stitcher.SIGIOSockets_PollingOther_IOServiceConfigurator

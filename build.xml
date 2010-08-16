@@ -1,0 +1,108 @@
+<!--
+  This is an Ant build file for compiling the SCJ-annotations.
+-->
+<project name="SCJ-annotations" default="" basedir=".">
+
+	
+	
+	 <property name="src.SCJChecker" value="/Users/plsek/_work/workspace_RT/scj-annotations/src"/>
+	   
+	 <property name="tests" value="tests"/>
+	 
+	 <property name="env" value="/Users/plsek/_work/scj/jsr308"/>
+	 <property name="env.CHECKERS" value="${env}/binary/javac"/>
+	
+	 <property name="tests" value="tests"/>
+	 
+	
+	
+	 <property name="checker.bin" value="/Users/plsek/_work/workspace_RT/scj-annotations/bin"/>
+	 <property name="build" value="build"/>
+	 <property name="build.tests" value="${build}/tests"/>
+	        
+	 <property name="build.tests" value="${build}/tests"/>
+	      
+	
+
+
+  <!-- Boilerplate to set jsr308javac property. Is there a better way? 
+  <property name="src" value="src"/>
+  <condition property="isUnix">
+    <os family="unix" />
+  </condition>
+	<target name="init-jsr308javac-unix" if="isUnix">
+    <property name="jsr308javac" value="${env.CHECKERS}/binary/javac" />
+  </target> -->
+ 
+  
+
+   <target name="scj-Check"
+          description="Check for SCJ errors."
+          depends="clean,init">
+    <javac 
+           fork="yes"
+           executable="${env.CHECKERS}">
+      <compilerarg value="-version"/>
+      <compilerarg line="-target 5"/>
+      <compilerarg line="-processor checkers.SCJChecker"/>
+      <compilerarg line="-sourcepath ${src.SCJChecker}"/>
+      <compilerarg value="-implicit:class"/>
+      <classpath>
+        <pathelement location="/bin"/>
+        
+      </classpath>
+      
+    </javac>
+  </target>
+	
+	
+	
+	
+	
+
+  <target name="run-alias-like"
+          description="Check for SCJ errors."
+          depends="clean,init">
+    
+    <echo>------------------------
+      run with paremeters:
+      executables=${env.CHECKERS}
+      srcdir=${tests}/allocfree
+      checker=${src.SCJChecker}
+      checker-bin=${checker.bin}
+      ------------------------
+     </echo>
+    
+    <javac 
+           fork="yes"
+           executable="${env.CHECKERS}"
+           srcdir="${tests}/allocfree">
+      <compilerarg value="-version"/>
+      <compilerarg line="-target 5"/>
+      <compilerarg line="-cp ${checker.bin}"/>
+      <compilerarg line="-processor checkers.ScjChecker"/>
+      <compilerarg line="-sourcepath ${src.SCJChecker}"/>
+      <compilerarg value="-implicit:class"/>
+    	<classpath>
+    	        <pathelement location="/Users/plsek/_work/scj/jsr308/checkers.jar"/>
+    	</classpath>
+
+      
+    </javac>
+  </target>
+  
+	
+	
+	
+	
+	<target name="init" description="">
+	        
+	    </target>
+	
+	
+  <target name="clean" description="Remove generated files">
+    </target>
+	
+	
+</project>
+

@@ -1,0 +1,4 @@
+tests/scjAllowed/TestSCJAllowed102.java:31: Illegal method call of an @SCJProtected method.
+        FakeSCJ.scjProtected();
+                            ^
+1 error

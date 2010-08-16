@@ -1,3 +1,0 @@
-## -io=SIGIOSockets_PollingOther_ProfilingEvMan just like SIGIOSockets_PollingOther,
-##        but does detailed time profiling of all event processors.
-ovm.core.stitcher.IOServiceConfigurator s3.core.stitcher.SIGIOSockets_PollingOther_ProfilingEvMan_IOServiceConfigurator

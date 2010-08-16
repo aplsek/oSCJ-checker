@@ -1,0 +1,4 @@
+tests/scope/testFieldScope.java:11: Field must be in the same or parent scope as its owning type.
+    E e = null;
+      ^
+1 error

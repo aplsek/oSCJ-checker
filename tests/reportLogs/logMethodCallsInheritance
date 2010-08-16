@@ -1,0 +1,4 @@
+tests/allocfree/MethodCallsInheritance.java:31: Illegal invocation of non @AllocFree method from within an @AllocFree method
+		foo3();
+		    ^
+1 error
