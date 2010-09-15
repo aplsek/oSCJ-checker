@@ -1,4 +1,0 @@
-tests/javax/safetycritical/FakeMemory.java:26: Illegal method call of an SCJ method.
-        super(size);
-             ^
-1 error

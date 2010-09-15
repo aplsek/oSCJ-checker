@@ -1,4 +1,0 @@
-tests/blockfree/BlockFreeTest.java:20: Illegal invocation of non @BlockFree method from within an @BlockFree method
-		foo3();
-		    ^
-1 error

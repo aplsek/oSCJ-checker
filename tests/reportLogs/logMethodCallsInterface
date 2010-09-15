@@ -1,4 +1,0 @@
-tests/allocfree/MethodCallsInterface.java:24: Illegal allocation in a method marked @AllocFree
-		new Object();
-		^
-1 error

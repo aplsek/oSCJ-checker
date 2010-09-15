@@ -1,4 +1,0 @@
-tests/scope/TestUnannotatedRunnable.java:14: Runnable used with executeInArea() without @RunsIn.
-        a.executeInArea(s);
-                       ^
-1 error

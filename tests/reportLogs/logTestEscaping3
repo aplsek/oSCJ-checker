@@ -1,7 +1,0 @@
-tests/scope/TestEscaping3.java:15: Cannot assign to a field in a different scope.
-        this.g = g;
-               ^
-tests/scope/TestEscaping3.java:19: Method return types must have a @Scope annotation.
-    public G foo2() {
-           ^
-2 errors

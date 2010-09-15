@@ -1,4 +1,0 @@
-tests/scope/TestInheritance.java:23: @Scope annotations must agree with their overriden annotations.
-class H extends TestInheritance {
-^
-1 error

@@ -1,4 +1,0 @@
-tests/allocfree/MethodCalls.java:23: Illegal invocation of non @AllocFree method from within an @AllocFree method
-		return foo3(); // illegal
-		           ^
-1 error

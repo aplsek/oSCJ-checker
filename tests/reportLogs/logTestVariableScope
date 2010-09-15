@@ -1,4 +1,0 @@
-tests/scope/TestVariableScope.java:12: Variables of this type are not allowed in this allocation context.
-    public void foo(D d) {
-                      ^
-1 error
