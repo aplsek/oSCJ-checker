@@ -23,6 +23,8 @@ public class SCJRestrictedChecker extends SourceChecker {
 		p.put("too.many.values", "@SCJRestricted annotation may only contain one of: %s");
 		p.put("illegal.override", "May not override %s with %s");
 		
+		p.put("illegal.override1", "The inherited/overridden annotations must be restate. The overriding method is missing the @SCJRestricted annotation while the overriden method has one.");
+		
 		p.put("unallowed.allocation", "Illegal allocation in a method marked ALLOCATE_FREE");
         p.put("unallowed.foreach", "For each loops not allowed in ALLOCATE_FREE methods");
 		return p;

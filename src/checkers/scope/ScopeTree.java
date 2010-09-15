@@ -57,7 +57,7 @@ public abstract class ScopeTree {
     }
     
     public static void printTree() {
-        System.out.println("\nSCOPE TREE : \n" + scopeTree.toString());
+        System.out.println("SCOPE TREE : \n" + scopeTree.toString());
     }
     
     /**

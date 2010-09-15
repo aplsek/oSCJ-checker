@@ -1,0 +1,107 @@
+ANNOTATION RULES
+==========================
+
+
+Mission Scope annotations:
+==========================================================================================
+
+Missions are now allocated in the mission memory instead of immortal.So before, we had@Scope("immortal") @RunsIn("FooMission") class FooMission ...We could tell that we needed to insert scope name=FooMission,parent=immortal from the annotations. However, now the annotationwould be@Scope("FooMission") /* RunsIn is implied to be FooMission */ class FooMissionWe can no longer infer the scope we need to add based on theannotations. Thus, each mission must have a @DefineScope on it now,and if it doesn't it's assumed to add a scope name with the name ofthe mission and the parent as immortal.
+
+
+
+Event-Handlers Implicit Scope
+==========================================================================================
+
+for any EH, you should have something like@Scope("AMissionMemory") @RunsIn("MyPEH") 
+class MyPEH extends PEH ...And the checker should automatically detect that allocations of MyPEHobjects are in AMissionMemory. It might be worth it to restrict it toinitialize(), but that's just extra work. TODO: ?????
+
+
+@DefineScope annotation
+==========================================================================================
+
+For each @DefineScope on a PrivateMemory variable,first verify that the scope/parent pair is in the scope tree (we don'tdo this in the DefineScopeVisitor because the tree is incomplete untilthe end), and then that the @DefineScope is valid.
+
+
+
+enterPrivateMemory
+==========================================================================================
+
+
+I think the syntaxwill usually be something like @DefineScope(name=x, parent=y)PrivateMemory = ManagedMemory.getCurrentManagedMemory() (actually thismethod returns ManagedMemory so this requires a little more thinking).We have to check that x is the current allocation context where it iscalled (determined by currentAllocContext()).
+
+
+Class-Inheritance:
+==========================================================================================
+
+
+@Scope("x")class A {}@Scope("y")class B extends A {}
+
+
+is legal iff :
+   ( x == y )  or (x = null)
+     
+     
+     
+VISIT - METHOD
+==========================================================================================
+
+If we don't have an allocation context, we need to skip the method? TODO: 
+
+
+CLASS-CAST
+==========================================================================================
+
+For class casting, there is one general rule:- child classes inherit the scope of parent classesTherefore, for:B b = (B) a;where:@Scope("")class A {}@Scope("")class B extends A {}===> scope of variable "a" must be the same as scope "b"
+
+
+Example 2:
+-------------------
+> class A {}> > > > @Scope("X") class B extends A {}> > > > Here, in casting :  A a = (A) bThe proper reasoning here is:1)   A is allocated in the current scope2)   B must be visible in the current scope; otherwise we would have had an error earlier3)   There are two case:          B == the current scope  ==>  OK          B is a parent of the current scope ==> FAIL
+
+
+
+Example :
+---------------
+However, there is a special case, since the following inheritance relationship is also legal:class A {}@Scope("")class B extends A {}, where class A has no @scope annotation.Here, in casting :A a = (A) b===> we need to determine in which allocation context *a* was declared and compare with *b*.
+
+
+Example :
+---------------
+
+class A {}@Scope("b")class B extends A {}@RunsIn("b")void foo(B b) {    A a = b; // valid}In any other scope it should be invalid. Since A has no annotation,any variable of its type takes on the scope of the allocation context,so the RHS of A a = must also be in the same scope. If A has the@Scope("b"), then it should work anywhere.
+
+
+Example 4:
+--------------
+
+???? = (A) b;
+
+- the casting is checked in this case
+ - b must have the same scope as A
+ - if A is null, then we look at the current allocation context.
+
+
+ExecuteInArea
+==========================================================================================
+
+- it is now checked taht:
+  	 a.executeInArea(r2);
+  	    --> r2 logig has @RunsIn same as the @DefineScope of a
+  	    - check that a exists, etc.
+
+
+
+.newInstace 
+==========================================================================================
+For example:
+ManagedMemory.getCurrentManagedMemory().newInstance("class to be instantiated");
+
+
+
+Objects with no @Scope annotation
+==========================================================================================
+
+For eg : 
+String prefix = debugPrefix + frameno + " ";
+----> we check that the current allocation context (meaning the area in which the right side is allocated) is identical with the scope annotation on the left side?
+----> In the case of any "no scopes" it should take on the allocation context.

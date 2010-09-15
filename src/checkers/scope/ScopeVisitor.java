@@ -1,7 +1,9 @@
 package checkers.scope;
 
 import static checkers.Utils.isStatic;
-import static javax.safetycritical.annotate.Restrict.ALLOCATE_FREE;
+
+import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
+import static checkers.scjAllowed.EscapeMap.escapeEnum;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -135,6 +137,16 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
     @Override
     public R visitClass(ClassTree node, P p) {
+        debugIndentIncrement("\nvisitClass " + node.getSimpleName());
+        debugIndent("\nvisitClass " + node.toString());
+        debugIndent("\nvisitClass :" + TreeUtils.elementFromDeclaration(node).getQualifiedName());
+         
+       
+        
+        if (escapeEnum(node) || escapeAnnotation(node)) {
+            debugIndentDecrement();
+            return null;
+        }
         
         // DEBUG::
         /*
@@ -147,20 +159,31 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         */
         
         
+       
+        
+        
+        if (!ScopeTree.verifyScopeTree()) { 
+            ScopeTree.reportErrors(this);
+            debugIndentDecrement();
+            return null;
+        }
+        
+        
         //verifying ScopeTree:
         //System.out.println("\n\n\n\nVerify SCOPE:");
         //ScopeTree.printTree();
-        if (!ScopeTree.verifyScopeTree()) { 
-            ScopeTree.reportErrors(this);
-            return null;
-        }
+        
+        
         
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         String oldScope = currentScope;
         String oldRunsIn = currentRunsIn;
         
+        
+        
+        
         try {
-            debugIndentIncrement("visitClass " + node.getSimpleName());
+            
             // context.printContext();
             
             String scope = context.getScope(t.getQualifiedName().toString());
@@ -205,6 +228,8 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     }
     
     
+    
+    
     @Override
     public R visitMemberSelect(MemberSelectTree node, P p) {
         Element elem = TreeUtils.elementFromUse(node);
@@ -247,8 +272,8 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         
         debugIndentIncrement("visitMethod " + node.getName());
         ExecutableElement method = TreeUtils.elementFromDeclaration(node);
+
         debugIndent("Seen method " + method.getSimpleName());
-        
         debugIndent("RUNS IN: " + currentRunsIn);
         debugIndent("scope: " + currentScope);
         
@@ -447,6 +472,29 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             }
         } else if (isMemoryAreaType(type) && "enterPrivateMemory".equals(methodName)) {
 
+            //TODO: 
+            method.getParameters();
+            System.out.println("Parameters: " +method.getParameters());
+            List<? extends VariableElement> params = method.getParameters();
+            
+            VariableElement runnable  = params.get(1);
+            
+            runnable.getEnclosingElement();
+            runnable.getEnclosedElements();
+            System.out.println("Runnable:" + runnable.getKind().getClass());
+            System.out.println("Runnable:" + runnable.getKind());
+            System.out.println("Runnable:" + runnable.asType());
+            List<? extends ExpressionTree> arg = node.getArguments();
+            
+            ExpressionTree ex = arg.get(1);
+            System.out.println("arg:" +ex);
+            Element xxx = TreeUtils.elementFromUse(ex);
+            System.out.println("element:" +xxx.asType());
+            // get runnable class
+            
+            // get runnable instantiation variable and its DefineScope
+            
+            
         } else if (!method.getSimpleName().toString().startsWith("<init>") && runsIn != null) {
             if (!(runsIn.equals(currentAllocScope()) || (Utils.isAllocFree(method, ats) && ScopeTree.isParentOf(
                 currentAllocScope(), runsIn)))) {
@@ -1146,7 +1194,11 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         // it its not the concern of this checker and since it
         // can have assignements, it brings errors to the regular code 
         // assignenments taht we need to check
-        if ( node.getAnnotationType().toString().equals("SCJRestricted"))
+        if (node.getAnnotationType().toString().equals("SCJRestricted"))
+            return null;
+        if (node.getAnnotationType().toString().equals("Target"))
+            return null;
+        if (node.getAnnotationType().toString().equals("Retention"))
             return null;
         
         return super.visitAnnotation(node, p);

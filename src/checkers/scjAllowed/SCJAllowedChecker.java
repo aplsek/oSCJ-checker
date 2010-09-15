@@ -41,9 +41,20 @@ public class SCJAllowedChecker extends SourceChecker {
         p.put("scjallowed.badfieldaccess", "Field access is not allowed at level %s.");
         p.put("scjallowed.badprotected",
         "Methods outside of javax.realtime or javax.safetycritical packages cannot be annotated with @SCJAllowed(INFRASTRUCTURE).");
+       
+        p.put("scjallowed.badsupport",
+        "Methods outside of javax.realtime or javax.safetycritical packages cannot be annotated with @SCJAllowed(SUPPORT).");
+        
+        p.put("scjallowed.badUserLevel",
+        "Elements outside of javax.realtime or javax.safetycritical packages cannot be annotated with @SCJAllowed(SUPPORT), @SCJAllowed(INFRASTRUCTURE), @SCJAllowed(HIDDEN).");
+       
+        
         p.put("scjallowed.badprotectedcall",
             "@SCJAllowed(INFRASTRUCTURE) methods may not be called outside of javax.realtime or javax.safetycritical packages.");
+        
         p.put("scjallowed.badoverride", "Method may not decrease visibility of their overrides.");
+        p.put("scjallowed.badoverrideInfrastructure", "Method outside of SCJ packages can not override methods with @SCJAllowed(INFRASTRUCTURE) and higher level.");
+        
         p.put("scjallowed.badsubclass", "Subclasses may not decrease visibility of their superclasses.");
         p.put("scjallowed.badenclosed", "Nested elements may not increase visibility of their outer elements.");
         p.put("scjallowed.badconstructorcall", "Extending a class that has a higher level.");

@@ -7,13 +7,14 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
-import javax.safetycritical.annotate.Restrict;
+import javax.safetycritical.annotate.Phase;
 import javax.safetycritical.annotate.SCJRestricted;
 import checkers.types.AnnotatedTypes;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
@@ -24,14 +25,17 @@ public final class Utils {
     /**
      * debugging flag
      */
-    public static boolean DEBUG = false;
+    public static boolean DEBUG = true;
 
+    
+    
+    
     public static void debugPrint(String msg) {
-        if (DEBUG) System.err.print(msg);
+        if (DEBUG) System.err.print(indent +msg);
     }
 
     public static void debugPrintln(String msg) {
-        if (DEBUG) System.err.println(msg);
+        if (DEBUG) System.err.println(indent + msg);
     }
     
     public static void debugPrintException(Exception e) {
@@ -58,13 +62,10 @@ public final class Utils {
     public static boolean isAllocFree(ExecutableElement methodElement, AnnotatedTypes ats) {
         SCJRestricted r;
         if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null && r.value() != null) {
-            if (EnumSet.copyOf(Arrays.asList(r.value())).contains(Restrict.ALLOCATE_FREE)) return true;
-        }
-        Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats.overriddenMethods(methodElement);
-        for (ExecutableElement override : overrides.values()) {
-            if ((r = override.getAnnotation(SCJRestricted.class)) != null && r.value() != null) {
-                if (EnumSet.copyOf(Arrays.asList(r.value())).contains(Restrict.ALLOCATE_FREE)) return true;
-            }
+            if (r.mayAllocate())
+                return false;
+            else
+                return true;
         }
         return false;
     }
@@ -91,7 +92,24 @@ public final class Utils {
     }
 
     public static TypeElement superType(TypeElement type) {
+        //tils.debugPrintln("superType: " + TypesUtils.isObject(type.asType()) );
+        //Utils.debugPrintln("as type: " +type.asType() );
+        //Utils.debugPrintln("super : " + type.getSuperclass());
+        
         if (TypesUtils.isObject(type.asType())) { return null; }
+        if (type.getSuperclass().toString().equals("<none>")) return null;
+         
         return (TypeElement) ((DeclaredType) type.getSuperclass()).asElement();
+    }
+
+    
+    private static String indent = "";
+    
+    public static void increaseIndent() {
+        indent += " ";
+    }
+
+    public static void decreaseIndent() {
+        indent = indent.substring(1);        
     }
 }

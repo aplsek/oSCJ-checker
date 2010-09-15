@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -12,6 +13,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import checkers.Utils;
 import checkers.source.Result;
@@ -106,8 +108,10 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
                     // TODO: doesn't reserve implicitly defined scopes
                 }
             }
-            checker.report(
-                Result.failure("Runnables used with enterPrivateMemory must have a @DefineScope annotation"), node);
+            //checker.report(
+            //    Result.failure("Runnables used with enterPrivateMemory must have a @DefineScope annotation"), node);
+        
+        
         }
         return super.visitMethodInvocation(node, p);
     }
@@ -120,9 +124,11 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
             boolean found = false;  
             List<? extends AnnotationMirror> def = var.getAnnotationMirrors();
             for (AnnotationMirror ann : def) {
-                 if ( ann.getAnnotationType().toString().equals("javax.safetycritical.annotate.DefineScope")) {
+                 if (ann.getAnnotationType().toString().equals("javax.safetycritical.annotate.DefineScope")) {
                      processDefineScope(node,ann);
                      found = true;
+                     
+                     
                  }
             }
             if (!found) 
@@ -130,9 +136,23 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
                     Result.failure("privateMem.no.DefineScope"), node);
         }
         
+        if (hasDefineScope(var) && !isPrivateMemory(var.asType())) {
+            System.out.println("has define scope: " + var.asType());
+            TypeMirror type = var.asType();
+            // is runnable
+               // add to define scopes list runnables...
+               // check with class definition....
+            
+        }
+        
+        
         return super.visitVariable(node, p);
     }
 
+    private boolean hasDefineScope(Element element) {
+        return element.getAnnotation(DefineScope.class) != null;
+    }
+    
    
     /**
      * add Defined scope to the ScopeTree
@@ -198,7 +218,6 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
         if (asType.toString().equals("javax.safetycritical.PrivateMemory"))
             return true;
         if (asType.toString().equals("javax.safetycritical.ManagedMemory")) 
-            // TODO: Ales: is this correct?
             return true;
         return false;
     }

@@ -39,6 +39,15 @@ public class ScopeCheckerContext {
     public String getScope(String clazz) throws ScopeException {
         TypeElement t = elements.getTypeElement(clazz);
         if (t == null) {
+            
+            Utils.debugPrintln("class is :" + clazz);
+            Utils.debugPrintln("t is null :" + t);
+            
+            if (clazz.equals("")) {
+                Utils.debugPrintln("class is EMPTY!! :" + clazz);
+                return null;
+            }
+            
             dummyException();
             return null;
         } else {
@@ -53,6 +62,11 @@ public class ScopeCheckerContext {
     public String getRunsIn(String clazz) throws ScopeException {
         TypeElement t = elements.getTypeElement(clazz);
         if (t == null) {
+            if (clazz.equals("")) {
+                Utils.debugPrintln("class is EMPTY!! :" + clazz);
+                return null;
+            }
+            
             dummyException();
             return null;
         } else {
@@ -247,6 +261,11 @@ public class ScopeCheckerContext {
         LinkedList<ExecutableElement> overrides = new LinkedList<ExecutableElement>();
         if (!TypesUtils.isObject(enclosing.asType())) {
             TypeElement superType = Utils.superType(enclosing);
+            if (superType == null) {
+                Utils.debugPrintln("super type null!!!");
+                return overrides;
+            }
+            
             HashSet<TypeElement> seenIfaces = new HashSet<TypeElement>();
             addInterfaceOverrides(enclosing, method, overrides, seenIfaces);
             while (!TypesUtils.isObject(superType.asType())) {

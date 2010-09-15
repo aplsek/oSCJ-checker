@@ -3,6 +3,13 @@ package checkers.scjAllowed;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.lang.model.element.TypeElement;
+
+import checkers.Utils;
+import checkers.util.TreeUtils;
+
+import com.sun.source.tree.ClassTree;
+
 public class EscapeMap {
     public static final Map<String, Integer> escape    = new HashMap<String, Integer>();
 
@@ -14,6 +21,8 @@ public class EscapeMap {
         escape.put("java.lang.Math", 0);
         escape.put("java.lang.Thread", 0);
         escape.put("java.lang.Runtime", 0);
+        escape.put("java.lang.Runnable", 0);
+        
         escape.put("java.lang.Eception", 0);
         escape.put("System", 0);
         escape.put("System.out.println", 0);
@@ -51,4 +60,33 @@ public class EscapeMap {
         else
             return false;
     }
+    
+    
+    public static boolean escapeEnum(ClassTree node) {
+        TypeElement t = TreeUtils.elementFromDeclaration(node);
+        TypeElement superType = Utils.superType(t);
+        
+        if (superType != null &&
+                superType.toString().equals("java.lang.Enum")) {
+            Utils.debugPrintln("escaping enum!! " + superType);
+            
+            return true;
+        }
+        return false;
+    }
+    
+    public static boolean escapeAnnotation(ClassTree node) {
+        TypeElement t = TreeUtils.elementFromDeclaration(node);
+        
+        if (t != null &&
+                (t.toString().contains("annotate")) || t.toString().contains("annotation") ) {
+            Utils.debugPrintln("escaping Annotation!! " + t);
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    
 }
