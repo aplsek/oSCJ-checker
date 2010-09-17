@@ -6,8 +6,8 @@ set -x
 
 TESTSUITE=./testsuite
 
+cd $TESTSUITE && ./clean.sh && ./build.sh && cd ..
 
-cd $TESTSUITE && ./clean.sh && ./build.sh
 
-python localbin/runtests.py  --scj-path ../../../../../lib/scj.jar:testsuite/build:build/ --directory ./testsuite/src
+python localbin/runtests.py  --scj-path ../../../../lib/scj.jar --directory testsuite
 

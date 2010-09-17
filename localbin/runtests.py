@@ -12,10 +12,10 @@
 import re
 import sys
 
-JAVAC='./checkers/binary/javac'
+JAVAC='./localbin/checkers/binary/javac'
 
 TEST_DIR = 'tests'
-RUN_CMD = JAVAC + ' -proc:only -cp build/tests:%s: -processor checkers.SCJChecker %s'
+RUN_CMD = JAVAC + ' -proc:only -cp testsuite/build:lib/scjChecker.jar:%s: -processor checkers.SCJChecker %s'
 
 def get_java_files(test_dir):
     import os
@@ -53,6 +53,7 @@ def run_tests(test_dir):
 
         expected_errors = clean_output(header)
         cmd = RUN_CMD % test
+        #print "----------------------"
         #print "%s" % cmd
         errors = clean_output(commands.getoutput(cmd).split('\n'))
         if expected_errors != errors:
