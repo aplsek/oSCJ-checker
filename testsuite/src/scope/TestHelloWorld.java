@@ -60,9 +60,6 @@ public class TestHelloWorld extends CyclicExecutive {
         public void cleanUp() {}
         
         @SCJAllowed()
-        public void register() {}
-        
-        @SCJAllowed()
         @Override
         public void handleAsyncEvent() {}
 

@@ -31,9 +31,6 @@ public class TestNoParent extends PeriodicEventHandler {
     public void handleEvent() {
     }
 
-    @Override
-    public void register() {
-    }
 
     @Override
     public StorageParameters getThreadConfigurationParameters() {

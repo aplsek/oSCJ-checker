@@ -74,9 +74,6 @@ class MyWordHandler3 extends PeriodicEventHandler {
     public void cleanUp() {}
     
     @SCJAllowed()
-    public void register() {}
-    
-    @SCJAllowed()
     @Override
     public void handleAsyncEvent() {}
 

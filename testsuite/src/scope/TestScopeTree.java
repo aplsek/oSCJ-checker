@@ -69,10 +69,6 @@ public class TestScopeTree extends PeriodicEventHandler {
     }
 
     @Override
-    public void register() {
-    }
-
-    @Override
     public StorageParameters getThreadConfigurationParameters() {
         return null;
     }
