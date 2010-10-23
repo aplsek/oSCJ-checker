@@ -1,3 +1,8 @@
+//crossScope_A/TestTransitiveCall.java:64: Object allocation in a context (scope.MyHandler) other than its designated scope (scope.MyMission).
+//        mem.enterPrivateMemory(1000, new 
+//                                     ^
+//1 error
+
 package crossScope_A;
 
 import javax.realtime.ImmortalMemory;
@@ -44,12 +49,13 @@ public class TestUnannotatedClass {
 	public ImmortalMemory getMyImmortal() {
 		return ImmortalMemory.instance();
 	}
+
+
+	@Scope("foo")
+	class Foo {
+		
+	}
 	
 	
 }
 
-
-@Scope("foo")
-class Foo {
-	
-}
