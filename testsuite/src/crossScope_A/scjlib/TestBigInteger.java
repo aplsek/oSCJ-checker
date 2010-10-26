@@ -14,7 +14,7 @@ public class TestBigInteger {
 		
 		BigInteger result = null;
 		result = myBI.add(one);					// OK
-		one	 = myBI.add(one);					//ERROR
+		one	 = myBI.add(one);					// OK
 		
 	}
 	

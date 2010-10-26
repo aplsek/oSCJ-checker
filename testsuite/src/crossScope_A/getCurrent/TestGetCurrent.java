@@ -51,14 +51,9 @@ public class TestGetCurrent  extends Mission  {
         void handleEvent() {
         	Mission mission = Mission.getCurrentMission();
         	
-        	MissionManager mm = MissionManager.getCurrentMissionManager();
+        	MissionManager mm = MissionManager.getCurrentMissionManager();		// OK
         	
-        	RealtimeThread rt = RealtimeThread.currentRealtimeThread();
-        	
-        	
-        	MemoryArea memory = RealtimeThread.getCurrentMemoryArea();
-        	MemoryArea outerMemory = RealtimeThread.getOuterMemoryArea(1);
-        	MemoryArea errMemory = RealtimeThread.getOuterMemoryArea(150);    // ERROR when inferring the scope of returned object
+        	RealtimeThread rt = RealtimeThread.currentRealtimeThread();			// OK
         	
         	
         	MyMemoryArea mem = (MyMemoryArea) RealtimeThread.getCurrentMemoryArea();  // ERROR - the cast?

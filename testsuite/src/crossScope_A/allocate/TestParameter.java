@@ -27,27 +27,38 @@ public class TestParameter {
 		return b;
 	} 
 
-	@Allocate(scope="Immortal")
+	@Allocate(scope="Immortal")				// OK
 	@CrossScope
-	public Bar method2(Bar b, Foo f) {	   // ERROR: is void and had @Allocate
+	public Bar method2(Bar b, Foo f) {	    // OK 
+		return this.b;						// OK - returned object lives in immortal
+	} 
+	
+	@Allocate(scope="Mission")				// ERROR
+	@CrossScope
+	public Bar method3(Bar b, Foo f) {	    // OK 
 		return this.b;						// OK - returned object lives in immortal
 	} 
 	
 	@Allocate(scope="Mission")
 	@CrossScope
-	public Bar method3(Bar b, Foo f) {		//OK 
-		return null;						// TODO: null must be of a scope Mission!!!
+	public Bar method4(Bar b, Foo f) {		//OK 
+		return null;						// OK : null must work for any scope!
 	} 
 	
 	@Allocate(scope="Immortal")
 	@CrossScope
-	public void method4(Bar b, Foo f) {	   // ERROR: is void and had @Allocate
-											// OK - returned object lives in immortal
+	public Bar methodNull(Bar b, Foo f) {   //OK 
+		return null;						// OK : null must work for any scope!
+	} 
+	
+	@Allocate(scope="Immortal")
+	@CrossScope
+	public void method5(Bar b, Foo f) {	   // ERROR: is void and had @Allocate
 	} 
 	
 	@Allocate(scope="private")				// ERROR - the scope does not exist
 	@CrossScope
-	public Bar method5(Bar b) {		
+	public Bar method6(Bar b) {		
 		return null;						
 	} 
 	

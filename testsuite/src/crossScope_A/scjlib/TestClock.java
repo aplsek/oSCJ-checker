@@ -7,12 +7,17 @@ public class TestClock {
 	
 	public void testClock() {
 		
-		Clock cl = Clock.getRealtimeClock();           // ERROR, should be @Allocate(static/immortal)
-															//  -- inferrint type to be immortal, singleton!!
+		Clock cl = Clock.getRealtimeClock();           // OK, should be @Allocate(static/immortal)
+															//  -- inferring type to be immortal, singleton!!
 											
-		AbsoluteTime dest = null;
-		AbsoluteTime ab = cl.getTime(dest);      // OK, will return the same scope as the dest is!
+		AbsoluteTime dest = new AbsoluteTime();
+		AbsoluteTime newDest = cl.getTime(dest);       				// OK, will return the same scope as the dest is!
+	
+		
+		dest = newDest;										// OK, this must be valid
 	}
+	
+	
 	
 	/*
 	@SCJRestricted(mayAllocate = false)

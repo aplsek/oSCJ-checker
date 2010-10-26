@@ -12,13 +12,15 @@ import javax.safetycritical.annotate.DefineScope;
 
 public class TestMissingAlloc {
 
+	
+	
 	@DefineScope(name = "Mission", parent = "Immortal")
     PrivateMemory mission = new PrivateMemory(0);
 
 	
 	public Mission returnMissionErr() {				//  ERROR @Allocate("mission") is missing
 		Mission m = null;
-		m = Mission.getCurrentMission();
+		m = Mission.getCurrentMission();			
 		
 		return m;									//  ERROR @Allocate("mission") is missing, we are 
 	}												//      loosing the scope information...

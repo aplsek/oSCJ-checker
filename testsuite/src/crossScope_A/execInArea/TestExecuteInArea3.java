@@ -1,5 +1,5 @@
-//crossScope_A/execInArea/TestExecuteInArea2.java:64: Object allocation in a context (scope.MyHandler) other than its designated scope (scope.MyMission).
 //        mem.enterPrivateMemory(1000, new 
+//crossScope_A/execInArea/TestExecuteInArea2.java:64: Object allocation in a context (scope.MyHandler) other than its designated scope (scope.MyMission).
 //                                     ^
 //1 error
 
@@ -68,14 +68,38 @@ public class TestExecuteInArea3 extends Mission  {
     	@CrossScope
     	public void run() {
     		Mission mission = Mission.getCurrentMission();      /// ERROR
-    		Foo f = new Foo();
-    		f.method();											// TODO: is this error??
+    		Foo f = new Foo();									// 
+    		f.method();											// OK 
+    		
+    		
+    		Bar b = new Bar();
+    		b.method();											// ERROR
+    		b.methodErr();										// OK
+    	
+    	
+    		f.method(b);										// ERROR : method is not @crossScope
     	}
     }
     
     class Foo {
+    	public void method() {									// OK, does not have to be @CrossScope
+    		Mission mission = Mission.getCurrentMission();			// ERROR since Foo is not annotated with @Scope
+    	}
+    	
+    	public void method(Bar b) {									// ERROR must be cross-scope
+    		//..
+    	}
+    }
+    
+    @Scope("Immortal")
+    class Bar {
     	public void method() {
-    		Mission mission = Mission.getCurrentMission();			// TODO: is this ERRROR??
+    		Mission mission = Mission.getCurrentMission();			// OK
+    	}
+    	
+    	@CrossScope
+    	public void methodErr() {
+    		Mission mission = Mission.getCurrentMission();			// ERROR
     	}
     }
     

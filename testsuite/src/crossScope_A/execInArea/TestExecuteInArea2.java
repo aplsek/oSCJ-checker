@@ -58,7 +58,7 @@ public class TestExecuteInArea2 extends Mission  {
         	
         	
         	MyRunnableErr runErr = new MyRunnableErr();
-        	mem.executeInArea(runErr);						// ERROR 
+        	mem.executeInArea(runErr);						// ERROR - the runnable is not annotated @CrossScope
         }
 
 

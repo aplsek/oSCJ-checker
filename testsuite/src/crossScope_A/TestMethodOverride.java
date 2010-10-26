@@ -19,11 +19,17 @@ public class TestMethodOverride {
 	}
 	
 	class BigFoo extends Foo {
+
+		Bar bar;
+		
 		@CrossScope
 		public void method(Bar b) {					// OK
 		}
 
-		public void method2(Bar b) {				// ERROR, overriding method is not @CrossScope
+		public void method2(Bar b) {				// OK, overriding method is inheriting @CrossScope from above 
+													// we automatically allow this
+			
+			this.bar = new Bar();					// ERROR 
 		}
 	
 	}
