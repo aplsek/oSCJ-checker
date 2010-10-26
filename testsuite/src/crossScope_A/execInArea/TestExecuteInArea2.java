@@ -69,7 +69,8 @@ public class TestExecuteInArea2 extends Mission  {
     }
 
 
-    
+    @Scope("crossScope_A.execInArea.Handler")
+    @RunsIn("ImmortalMemory")
     class MyRunnable implements Runnable {
     	
     	@Override
@@ -80,17 +81,15 @@ public class TestExecuteInArea2 extends Mission  {
     
     }
 
+    @Scope("crossScope_A.execInArea.Handler")
+    @RunsIn("ImmortalMemory")
     class MyRunnableErr implements Runnable {
     	
     	@Override
     	public void run() {
-    		//....
+    		BigDecimal one = BigDecimal.ONE;
+    		one.add(null);							// this is cross-scope but BigDecimal is reference-immutable
     	}
-    
     }
-	
-
-
-
 }
 

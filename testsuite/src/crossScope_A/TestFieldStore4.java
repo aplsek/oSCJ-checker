@@ -6,8 +6,11 @@ import javax.safetycritical.annotate.CrossScope;
 
 public class TestFieldStore4 {
 
+	@Scope("")
+	@RunsIn("")
 	class PEH {
-		  void handleEvent() {
+		
+		  public void handleEvent() {
 		       Foo foo = getCurrentFoo();     // OK --> foo will be inferred to be "Immortal"    
 		       Bar myBar = new Bar();       
 		   
@@ -15,7 +18,8 @@ public class TestFieldStore4 {
 		       
 		       Bar myBar2 = new Bar();  
 		       myBar = foo.myMethodLocal(myBar2);    // OK  ---> the assignement is ok since myMethod is @Allocate("current")
-		        						    //  ---> parameter myBar is "borrowed" and therefore its ok, otherwise it would be an error.
+		        
+		       foo = foo.getMyFoo(myBar2);			// ERROR
 		  }	
 		  
 		  @Allocate(scope="immortal")
@@ -31,7 +35,7 @@ public class TestFieldStore4 {
 		@CrossScope
 		public Bar mySimpleMethod(Bar b) {
 			return this.field;						// ERROR: has not @Allocate, we loose scope info!!
-		}
+		}											// - TODO: if the default for @allocate is not "this"
 		
 		@Allocate({THIS})
 		@CrossScope
@@ -39,10 +43,16 @@ public class TestFieldStore4 {
 			return this.field;
 		}
 		
-		@Allocate({CURRENT})
+		@Allocate({CURRENT})						// ERRO, should be ...
 		@CrossScope
 		public Bar myMethodLocal(Bar b) {
 			return b;
+		}
+		
+		@Allocate({CURRENT})						// ERRO, should be ...
+		@CrossScope
+		public Foo getMyFoo(Bar b) {
+			return null;
 		}
 	}
 	

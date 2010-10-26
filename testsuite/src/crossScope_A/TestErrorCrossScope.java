@@ -51,7 +51,8 @@ public class TestErrorCrossScope extends Mission  {
 
         	Foo foo = mission.getCurrentFoo();			// OK, will be inferred to be in Mission
         	Bar b = foo.method();						// ERROR? should this method be @CrossScope??
-        }
+        }												//      YES - "method" should be crosSCope to amke this correct
+        
 
 
         @Override
@@ -65,10 +66,19 @@ public class TestErrorCrossScope extends Mission  {
     	
     	@Allocate({THIS})
     	public Bar method() {
-    		this.field = new Bar();						// ERROR????? should this be an errror????
+    		this.field = new Bar();						// ERROR
     		
     		return this.field;
     	}
+    	
+    	@Allocate({THIS})
+    	@CrossScope
+    	public Bar method2() {
+    		this.field = new Bar();						// OK
+    		
+    		return this.field;
+    	}
+    	
     }
     
     class Bar {

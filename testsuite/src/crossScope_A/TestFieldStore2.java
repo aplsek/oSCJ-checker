@@ -14,12 +14,29 @@ import javax.safetycritical.annotate.CrossScope;
 public class TestFieldStore2 {
 	
 	class Foo {
-		@Allocate({CURRENT})
+		
+		@Allocate(parameter="in")
 		@CrossScope
 		public Bar myMethod(Bar in) {
-		    in.result = in.x + in.y;        // TODO: is it OK or ERROR????? it should be OK, no?    	
+		    in.result = in.x + in.y;        // OK, primitive fields modified	
 			return in;                      //  -----> OK
 		}
+		
+		
+		@Allocate({CURRENT})
+		@CrossScope
+		public Bar myMethod2(Bar in) {
+		    in.result = in.x + in.y;        // OK, primitive fields modified	
+			return in;                      //  -----> ERROR, we do not know that "in" is "current"
+		}
+		
+		@Allocate({CURRENT})
+		@CrossScope
+		public Bar myMethod3(Bar in) {
+			return new Bar();                  // OK
+		}
+		
+		
 	}
 
 	class Bar{

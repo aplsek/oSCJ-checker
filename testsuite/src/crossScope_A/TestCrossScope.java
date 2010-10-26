@@ -20,10 +20,6 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
-//crossScope_A/TestInference.java:64: error message.
-//foo.methodErr(bar); 
-//            ^
-//1 error
 
 
 @Scope("crossScope_A.CrossScope") 
@@ -45,7 +41,6 @@ public class TestCrossScope extends Mission {
     public Foo getFoo() {
     	return this.foo;
     }
-    
 
 
     @Scope("crossScope_A.MyMission")  
@@ -61,13 +56,16 @@ public class TestCrossScope extends Mission {
             this.mission = mission;
         }
 
-        public
-        void handleEvent() {
+        public void handleEvent() {
             Foo foo = mission.getFoo();
             List bar = new List();
             
             foo.method(bar);                //  ---> OK
             foo.methodErr(bar);				// ERROR: is not @crossScope
+           
+            
+            foo.methodCross();			//  ERROR: foo's methodCross runs in "Mission" so it
+             							//   should be annocated with "@crossScope"
         }
 
 
@@ -83,6 +81,12 @@ public class TestCrossScope extends Mission {
 
     	List x;
 
+    	public List methodCross() {				// this should be annotated with @crossScope to prevent the error abour
+    		this.x = new List();
+    		return x;
+    	}
+    	
+    	
     	@Allocate({CURRENT})
         @CrossScope
     	public List method(List bar) {

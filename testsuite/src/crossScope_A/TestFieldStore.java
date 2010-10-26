@@ -16,7 +16,7 @@ public class TestFieldStore {
   
 		 Bar bb=new Bar();				        // OK
 		 
-		 bb.updateField(myBar);					// ERR
+		 bb.updateField(myBar);					// OK
     }
 
 	 class Bar{
@@ -38,7 +38,7 @@ public class TestFieldStore {
 		 
 		 @CrossScope
 		 public void updateField(Bar b) {
-			 this.next = b;
+			 this.next = b;								// ERROR cause we are cross scope
 		 }
 		 
 	 }
