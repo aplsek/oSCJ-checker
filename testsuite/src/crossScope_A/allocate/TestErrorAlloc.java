@@ -28,7 +28,7 @@ public class TestErrorAlloc extends Mission  {
     }
     
     //@Allocate({THIS})
-    public Foo getCurrentFoo() {					// ERROR, should this be @Allocate({THIS}) ???
+    public Foo getCurrentFoo() {					// ERROR, should be @Allocate({THIS})
     	return this.foo;
     }
     
@@ -48,7 +48,7 @@ public class TestErrorAlloc extends Mission  {
 
         public
         void handleEvent() {
-        	Foo foo = mission.getCurrentFoo();			//ERROR, this should be inferred to be in Mission
+        	Foo foo = mission.getCurrentFoo();			//OK, but this should be inferred to be in Mission
         }
 
 

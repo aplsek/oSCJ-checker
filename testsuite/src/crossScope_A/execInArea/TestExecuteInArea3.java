@@ -82,12 +82,23 @@ public class TestExecuteInArea3 extends Mission  {
     }
     
     class Foo {
+    	Bar b ;
+    	
     	public void method() {									// OK, does not have to be @CrossScope
     		Mission mission = Mission.getCurrentMission();			// ERROR since Foo is not annotated with @Scope
     	}
     	
     	public void method(Bar b) {									// ERROR must be cross-scope
     		//..
+    	}
+    	
+    	@CrossScope
+    	public void method2(Bar b) {									// OK
+    		myMethod();
+    	}
+    	
+    	private void myMethod() {
+    		this.b = new Bar();
     	}
     }
     

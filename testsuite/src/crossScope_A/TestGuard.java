@@ -17,15 +17,10 @@ public class TestGuard {
 	@Allocate(parameter="b")
 	@CrossScope
 	public Bar method(Bar b) {
-		
-		if (MemoryArea.getMemoryArea(b) == MemoryArea.getMemoryArea(b)) { //  ---> GUARD
-		
+		if (MemoryArea.getMemoryArea(this) == MemoryArea.getMemoryArea(b)) { //  ---> GUARD
 			this.b = b;   // OK ---> field store in this is allowed because the runtime check guarantees that we are in the same scopes!
 		}
-		
-		
 		this.b = b;    // ERROR
-		
 		return b;
 	} 
 
