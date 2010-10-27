@@ -1,0 +1,153 @@
+Assumptions:
+=====================================
+- SCJ library has no/minimal @Scope annotations. Stuff like ImmortalMemory
+  could be annotated but is probably unnecessary.
+
+
+- vendor SCJ library: 
+	- vendor VM and SCJ lib implementation is not checked by the Checker
+	- SCJ lib is not broken and we can determine where each "getCurrent" object lives
+	       based on JSR302 spec.
+	- Infrastructure code can be mutable since it must be verified by the vendor.
+
+- Standard Java libraries shouldn't need to be annotated.
+	- @Allocate(THIS)/@Allocate(CURRENT). Already in the spec, but currently unused.
+
+
+
+
+Annotations and New Concepts
+=====================================
+
+
+@Allocate
+===============================================================================================================
+
+Applies TO:
+- can be used only for methods that do return a type 
+- not for methods that return "void"!  ---> if method returns "void", the @Alloc() has no effect  --> ERROR
+
+--> does it mean that every method that returns something must be annotated?
+
+Definition: 
+   if annotated on a method @Allocate(THIS/CURRENT) specifies that the returned object from the method
+              is allocated in THIS/CURRENT
+Idea : 
+   whenever we return an unannotated object, we could loose its scope information in the caller, therefore we need to specify it by @Allocate
+
+DEFAULT : 
+     @Allocate(CURRENT)
+
+
+ @Allocate(CURRENT)
+     - the method returns object that is allocated in the current allocation context
+     - this means that there is somehwere "new" in the method and that resulting object will be returned...
+  @Allocate(THIS)     
+     - method returns a field that is allocated in the same scope as the object of that method
+  @Allocate(parameter="input")
+    --> the parameter must be declared in the signature
+  @Allocate(scope="My_Mission")    
+    --> the declared scope must exist!!
+
+Singleton methods:
+	- a method returning a singleton must be annotated with @Allocate(scope="Immortal")
+
+TODO: if method returns "return this.field" and is not annotated with @Allocate(THIS), it is error?
+
+
+
+@CrossScope
+==================================================================================================================================
+
+
+Rules:
+------------------------
+
+- method must be @CrossScope when
+	- its default @RunsIn is different then the current allocation context. 
+		- the default @RunsIn is ineferred when the scope of the local variable is inferred.
+	- or when an object of an unnannotated type is passed into the method as a parameter
+
+- method annotated with @CrossScope can not:
+		- call getCurrent
+		- store into this fields
+		- store into the fields of input parameters
+- executeInARea
+	- each runnable used for "executeInArea" must be annotated with @CrossScope
+	- our scenario: "use executeInArea only to create new objects"
+- method calls:
+	- all the methods called from a @CrossScope method must transitively be @CrossScope
+- method overriding
+	- if a method is @CrossScope and this is method is overriden, the overriding method implicitly inherits the @CrossScope - the annotation does not have to be restated
+
+
+Guards for @CrossScope
+------------------------
+case 1:
+if (MemoryArea.getMemoryArea(this) == MemoryArea.getMemoryArea(b)) { 
+	this.b = b;   // OK ---> field store in this is allowed because the runtime check guarantees that we are in the same scopes!
+}
+
+case 2:
+MemoryArea mem = MemoryArea.getMemoryArea(this);
+this.field = (Bar) mem.newInstance(Bar.class);
+
+
+
+
+ExecuteInArea
+-------------------
+executeInArea( Runnable logic )
+- can only be made if the scoped memory is a parent of the current context in the scope tree
+- Runnable object passed to the method must have a RunsIn annotation that matches the name of the scoped memory
+
+each run() method used in "executeInArea" must be @CrossScope
+
+
+
+
+Local Variable Scope Inference
+=====================================================================================================================================================
+- Implicit @scope annotation on local variables  
+- only for unannotated types
+
+Basic Principle:
+- for x = getCurrent()   --> we determine the scope of returned object and assign it to the variable
+- then when we see "z = x"  --> we compare the implicit scopes of the variables 
+	                                and report a potential error -
+
+Usage:
+- only for unannotated types
+
+
+Impact on: 
+    @RunsIn! - the default @RunsIn of all of the object methods is the same as the inferred scope
+
+Rule:
+   null is of any scope   
+
+Rules for assignment:
+- If a local variable declaration has an initialization clause, the variable
+  inherits the scope of the initializer expression.
+- If a local variable declaration has no initialization clause, the variable
+  inherits the scope of the method in which it is declared.
+- a variable of an unannotated type can not change its implicit annotation
+   
+   
+   
+   
+Reference immutable:
+========================
+
+Reference Immutability
+-TODO: for classes or methods?
+
+
+Rules for reference immutability:
+- A method is locally immutable if it has no assignments to any reference fields
+- A method is "really" immutable if its static call graph contains only locally
+  immutable methods.
+- no annotation : the checker can determine if the object is reference-immutable
+
+
+
