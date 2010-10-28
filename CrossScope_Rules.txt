@@ -42,7 +42,7 @@ DEFAULT :
  @Allocate(CURRENT)
      - the method returns object that is allocated in the current allocation context
      - this means that there is somehwere "new" in the method and that resulting object will be returned...
-  @Allocate(THIS)     
+  @Allocate(THIS/IMMORTAL)     
      - method returns a field that is allocated in the same scope as the object of that method
   @Allocate(parameter="input")
     --> the parameter must be declared in the signature
@@ -52,13 +52,17 @@ DEFAULT :
 Singleton methods:
 	- a method returning a singleton must be annotated with @Allocate(scope="Immortal")
 
-TODO: if method returns "return this.field" and is not annotated with @Allocate(THIS), it is error?
+Checking:
+- we need to check that the @allocate method is places correctly
+e.g. if method returns "return this.field" and is not annotated with @Allocate(THIS), then ERROR
+  (unless the default for @Allocate is THIS.)
 
 
 
 @CrossScope
 ==================================================================================================================================
 
+- can be used also in "java.lang"
 
 Rules:
 ------------------------
@@ -75,10 +79,17 @@ Rules:
 - executeInARea
 	- each runnable used for "executeInArea" must be annotated with @CrossScope
 	- our scenario: "use executeInArea only to create new objects"
-- method calls:
+- transitivity - method calls:
 	- all the methods called from a @CrossScope method must transitively be @CrossScope
+	- 
 - method overriding
 	- if a method is @CrossScope and this is method is overriden, the overriding method implicitly inherits the @CrossScope - the annotation does not have to be restated
+
+- TODO: constructors
+        - new STring?
+        
+- TODO: exceptions ?
+
 
 
 Guards for @CrossScope
@@ -88,11 +99,21 @@ if (MemoryArea.getMemoryArea(this) == MemoryArea.getMemoryArea(b)) {
 	this.b = b;   // OK ---> field store in this is allowed because the runtime check guarantees that we are in the same scopes!
 }
 
+MemoryArea mem1 =
+MemoryArea mem2 = 
+if (mem1 == mem2) {
+	this.b = b;
+}
+--->TODO: mem1, mem2, b, ... must be "final" 
+
+
 case 2:
-MemoryArea mem = MemoryArea.getMemoryArea(this);
-this.field = (Bar) mem.newInstance(Bar.class);
+final Type x;
+final MemoryArea mem = MemoryArea.getMemoryArea(x);
+x.field = (Bar) mem.newInstance(Bar.class);
 
-
+--->  TODO: final fields...
+			
 
 
 ExecuteInArea
@@ -129,25 +150,40 @@ Rule:
 Rules for assignment:
 - If a local variable declaration has an initialization clause, the variable
   inherits the scope of the initializer expression.
-- If a local variable declaration has no initialization clause, the variable
-  inherits the scope of the method in which it is declared.
+- If a local variable declaration has no initialization clause, all the assignments into the variable must have the same scope.
 - a variable of an unannotated type can not change its implicit annotation
    
    
-   
+TODO: Unknown @Scope value  
+   CrossSCope = my parameters are unknown...
+   @Scope("unknown")
+  
+  
+  
    
 Reference immutable:
 ========================
 
 Reference Immutability
--TODO: for classes or methods?
+ -  for classes
 
 
 Rules for reference immutability:
-- A method is locally immutable if it has no assignments to any reference fields
-- A method is "really" immutable if its static call graph contains only locally
+- A class is immutable if it has no assignments to any reference fields and it can only
+call reference immutable methods. 
+
+- A class is "really" immutable if its static call graph contains only locally
   immutable methods.
 - no annotation : the checker can determine if the object is reference-immutable
+
+PROBlEM : hard to check, 
+
+Options:
+   - use @CrossScope in java.lang packages
+   - use @ReferenceImmutable 
+   - implicit checks
+   - 
+
 
 
 
