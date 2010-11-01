@@ -14,7 +14,7 @@ import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.Allocate;
 import static javax.safetycritical.annotate.Allocate.Area.*;
 
-@Scope("crossScope_A.motivation.TestErrorCrossScope") 
+@Scope("crossScope.motivation.TestErrorCrossScope") 
 public class TestNoParametersMethod extends Mission  {
 
 	Foo foo;
@@ -37,8 +37,8 @@ public class TestNoParametersMethod extends Mission  {
     }
     
 
-    @Scope("crossScope_A.motivation.TestErrorCrossScope")  
-    @RunsIn("crossScope_A.motivation.Handler") 
+    @Scope("crossScope.motivation.TestErrorCrossScope")  
+    @RunsIn("crossScope.motivation.Handler") 
     class Handler extends PeriodicEventHandler {
 
     	TestNoParametersMethod mission;

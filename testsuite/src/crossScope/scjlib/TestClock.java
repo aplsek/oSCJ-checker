@@ -1,4 +1,4 @@
-package crossScope_A.scjlib;
+package crossScope.scjlib;
 
 import javax.realtime.AbsoluteTime;
 import javax.realtime.Clock;

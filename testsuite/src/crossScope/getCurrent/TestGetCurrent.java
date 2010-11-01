@@ -19,7 +19,7 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
 
-@Scope("crossScope_A.getCurrent.TestInference") 
+@Scope("crossScope.getCurrent.TestInference") 
 public class TestGetCurrent  extends Mission  {
 
     protected
@@ -34,8 +34,8 @@ public class TestGetCurrent  extends Mission  {
 
 
 
-    @Scope("crossScope_A.getCurrent.MyMission")  
-    @RunsIn("crossScope_A.getCurrent.Handler") 
+    @Scope("crossScope.getCurrent.MyMission")  
+    @RunsIn("crossScope.getCurrent.Handler") 
     class Handler extends PeriodicEventHandler {
 
     	private TestGetCurrent mission;
@@ -68,7 +68,7 @@ public class TestGetCurrent  extends Mission  {
         }
     }
 
-    @Scope("crossScope_A.getCurrent.Handler")
+    @Scope("crossScope.getCurrent.Handler")
     class MyMemoryArea extends MemoryArea {
     	
     }

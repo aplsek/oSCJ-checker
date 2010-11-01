@@ -1,4 +1,4 @@
-//crossScope_A/TestTransitiveCall.java:64: Object allocation in a context (scope.MyHandler) other than its designated scope (scope.MyMission).
+//crossScope/TestTransitiveCall.java:64: Object allocation in a context (scope.MyHandler) other than its designated scope (scope.MyMission).
 //        mem.enterPrivateMemory(1000, new 
 //                                     ^
 //1 error

@@ -1,5 +1,7 @@
 package crossScope;
 
+import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.Allocate;
 import static javax.safetycritical.annotate.Allocate.Area.*;
 import javax.safetycritical.annotate.CrossScope;

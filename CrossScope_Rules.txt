@@ -27,8 +27,6 @@ Applies TO:
 - can be used only for methods that do return a type 
 - not for methods that return "void"!  ---> if method returns "void", the @Alloc() has no effect  --> ERROR
 
---> does it mean that every method that returns something must be annotated?
-
 Definition: 
    if annotated on a method @Allocate(THIS/CURRENT) specifies that the returned object from the method
               is allocated in THIS/CURRENT
@@ -41,19 +39,18 @@ DEFAULT :
 
  @Allocate(CURRENT)
      - the method returns object that is allocated in the current allocation context
-     - this means that there is somehwere "new" in the method and that resulting object will be returned...
-  @Allocate(THIS/IMMORTAL)     
+     - this means that there is somewhere "new" in the method and that resulting object will be returned...
+  @Allocate(THIS)     
      - method returns a field that is allocated in the same scope as the object of that method
   @Allocate(parameter="input")
     --> the parameter must be declared in the signature
   @Allocate(scope="My_Mission")    
     --> the declared scope must exist!!
-
-Singleton methods:
-	- a method returning a singleton must be annotated with @Allocate(scope="Immortal")
+  @Allocate(scope="Immortal")
+     - when returning a static object
 
 Checking:
-- we need to check that the @allocate method is places correctly
+- we need to check that the @allocate method is placed correctly
 e.g. if method returns "return this.field" and is not annotated with @Allocate(THIS), then ERROR
   (unless the default for @Allocate is THIS.)
 
@@ -71,6 +68,7 @@ Rules:
 	- its default @RunsIn is different then the current allocation context. 
 		- the default @RunsIn is ineferred when the scope of the local variable is inferred.
 	- or when an object of an unnannotated type is passed into the method as a parameter
+		and the the scopes of "this" and the passed are different
 
 - method annotated with @CrossScope can not:
 		- call getCurrent
@@ -86,9 +84,18 @@ Rules:
 	- if a method is @CrossScope and this is method is overriden, the overriding method implicitly inherits the @CrossScope - the annotation does not have to be restated
 
 - TODO: constructors
-        - new STring?
+        - new String?
         
 - TODO: exceptions ?
+
+
+String
+
+StringBuffer - you dont want to have it crosssope or you need to use guards
+
+@CrossScope --> can be used also for the whole class...
+
+q	
 
 
 
@@ -113,6 +120,16 @@ final MemoryArea mem = MemoryArea.getMemoryArea(x);
 x.field = (Bar) mem.newInstance(Bar.class);
 
 --->  TODO: final fields...
+	
+GetCurrent
+----------------
+@CrossScope method can not call getCurrent(...)
+
+- any class that does not have @Scope annotation, can not call "getCurrent" 	
+---> java.* libraries are not allowed to call "getCurrent"... therefore, they do not need
+to be annotated @CrossScope to be accessible from @CrossScope methods  ---> but you should be able to use the GUARDS!!!
+	
+	
 			
 
 
@@ -124,6 +141,53 @@ executeInArea( Runnable logic )
 
 each run() method used in "executeInArea" must be @CrossScope
 
+
+example:
+
+@CrossScope 
+public method(Foo f) {
+	Bar b = new Bar();
+	Bar bb = new Bar(b);
+	b.m(bb);
+}
+
+class Bar {
+
+	class Bar(Bar b) {
+		this.b = b;
+	}
+	
+	public Bar b(Bar b) {
+		..
+		return b;
+	}
+}
+
+
+CrossScope in java.*
+-----------
+- you need to use standard library that is memory safe
+
+for 
+
+@CrossScope
+class String {
+   
+	public String (String s) {
+		this.s = s                 -----> here you need to use the guards
+	}
+
+    public substring(String s, ...) {
+    	return new String();
+    }
+}
+
+
+
+Exceptions:
+---------------
+
+  
 
 
 
@@ -150,7 +214,8 @@ Rule:
 Rules for assignment:
 - If a local variable declaration has an initialization clause, the variable
   inherits the scope of the initializer expression.
-- If a local variable declaration has no initialization clause, all the assignments into the variable must have the same scope.
+- If a local variable declaration has no initialization clause, all the assignments into
+  the variable must have the same scope.
 - a variable of an unannotated type can not change its implicit annotation
    
    

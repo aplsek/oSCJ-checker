@@ -12,7 +12,7 @@ import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.Allocate;
 import static javax.safetycritical.annotate.Allocate.Area.*;
 
-@Scope("crossScope_A.allocate.TestErrorAlloc") 
+@Scope("crossScope.allocate.TestErrorAlloc") 
 public class TestErrorAlloc extends Mission  {
 
 	Foo foo = new Foo();
@@ -33,8 +33,8 @@ public class TestErrorAlloc extends Mission  {
     }
     
 
-    @Scope("crossScope_A.allocate.TestErrorAlloc")  
-    @RunsIn("crossScope_A.allocate.Handler") 
+    @Scope("crossScope.allocate.TestErrorAlloc")  
+    @RunsIn("crossScope.allocate.Handler") 
     class Handler extends PeriodicEventHandler {
 
     	TestErrorAlloc mission;

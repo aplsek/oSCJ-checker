@@ -20,8 +20,8 @@ import crossScope.TestInference;
 
 
 
-@Scope("crossScope_A.TestNullInference")  
-@RunsIn("crossScope_A.TestInferenceClash") 
+@Scope("crossScope.TestNullInference")  
+@RunsIn("crossScope.TestInferenceClash") 
 class TestMultiInference extends PeriodicEventHandler {
 
     public TestMultiInference(PriorityParameters priority,

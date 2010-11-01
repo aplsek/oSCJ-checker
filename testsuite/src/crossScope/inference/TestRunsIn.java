@@ -1,9 +1,4 @@
-//scope/MyMission.java:64: Object allocation in a context (scope.MyHandler) other than its designated scope (scope.MyMission).
-//        mem.enterPrivateMemory(1000, new 
-//                                     ^
-//1 error
-
-package crossScope.getCurrent;
+package crossScope.inference;
 
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
@@ -13,15 +8,15 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.MissionManager;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.Allocate;
-import javax.safetycritical.annotate.CrossScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
 
-@Scope("crossScope.getCurrent.TestGetCurrent2") 
-public class TestGetCurrent2  extends Mission  {
+@Scope("crossScope.inference.TestRunsIn") 
+public class TestRunsIn   extends Mission {
 
+	Foo f;
+	
     protected
     void initialize() { 
         new Handler(null, null, null, 0, this);
@@ -32,16 +27,19 @@ public class TestGetCurrent2  extends Mission  {
         return 0;
     }
 
+    public Foo getFoo() {
+    	return this.f;
+    }
 
 
-    @Scope("crossScope.getCurrent.TestGetCurrent2")  
-    @RunsIn("crossScope.getCurrent.Handler") 
+    @Scope("crossScope.inference.TestRunsIn")  
+    @RunsIn("crossScope.inference.Handler") 
     class Handler extends PeriodicEventHandler {
 
-    	private TestGetCurrent2 mission;
+    	private TestRunsIn mission;
     	
         public Handler(PriorityParameters priority,
-                PeriodicParameters parameters, StorageParameters scp, long memSize, TestGetCurrent2 mission) {
+                PeriodicParameters parameters, StorageParameters scp, long memSize, TestRunsIn mission) {
             super(priority, parameters, scp, memSize);
             
             this.mission = mission;
@@ -49,10 +47,9 @@ public class TestGetCurrent2  extends Mission  {
 
         public
         void handleEvent() {
-        
+        	Foo foo = mission.getFoo();		// OK, inferred
         	
-        	// TODO get current
-        	
+        	foo.method();					// ERROR, the method must be cross-scope, @RunsIn inferred!!
         	
         }
 
@@ -63,12 +60,13 @@ public class TestGetCurrent2  extends Mission  {
         }
     }
 
-    @Scope("crossScope.getCurrent.Handler")
-    class MyMemoryArea extends MemoryArea {
+    class Foo {
+    	Foo f;
     	
+    	public void method() {
+    		this.f = new Foo();				// OK
+    	}
     }
 
-
-    
+	
 }
-

@@ -11,7 +11,7 @@ import javax.safetycritical.annotate.Scope;
 import crossScope.TestInference;
 
 
-@Scope("crossScope_A.TestNullInference") 
+@Scope("crossScope.TestNullInference") 
 public class TestNullInference extends Mission {
 
     protected
@@ -27,8 +27,8 @@ public class TestNullInference extends Mission {
 }
 
 
-@Scope("crossScope_A.TestNullInference")  
-@RunsIn("crossScope_A.Handler") 
+@Scope("crossScope.TestNullInference")  
+@RunsIn("crossScope.Handler") 
 class Handler extends PeriodicEventHandler {
 
 	private TestInference mission;

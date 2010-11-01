@@ -1,4 +1,4 @@
-//crossScope_A/TestInference.java:64: error message.
+//crossScope/TestInference.java:64: error message.
 //        foo.methodErr(bar); 
 //                      ^
 //1 error
@@ -43,8 +43,8 @@ public class TestCrossScope extends Mission {
     }
 
 
-    @Scope("crossScope_A.MyMission")  
-    @RunsIn("crossScope_A.MyHandler") 
+    @Scope("crossScope.MyMission")  
+    @RunsIn("crossScope.MyHandler") 
     class MyHandler extends PeriodicEventHandler {
 
     	private TestCrossScope mission;

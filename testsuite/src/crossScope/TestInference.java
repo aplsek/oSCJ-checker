@@ -1,4 +1,4 @@
-//crossScope_A/TestInference.java:64: error message.
+//crossScope/TestInference.java:64: error message.
 //        foo.methodErr(bar); 
 //                      ^
 //1 error
@@ -20,7 +20,7 @@ import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Allocate.Area.*;
 
 
-@Scope("crossScope_A.TestInference") 
+@Scope("crossScope.TestInference") 
 public class TestInference extends Mission {
 
 	public Foo foo;
@@ -40,8 +40,8 @@ public class TestInference extends Mission {
     	return this.foo;
     }
 
-    @Scope("crossScope_A.TestInference")  
-    @RunsIn("crossScope_A.MyHandler2") 
+    @Scope("crossScope.TestInference")  
+    @RunsIn("crossScope.MyHandler2") 
     class MyHandler2 extends PeriodicEventHandler {
 
     	private TestInference mission;

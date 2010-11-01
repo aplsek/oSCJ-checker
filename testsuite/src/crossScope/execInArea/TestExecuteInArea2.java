@@ -1,4 +1,4 @@
-//crossScope_A/execInArea/TestExecuteInArea2.java:64: Object allocation in a context (scope.MyHandler) other than its designated scope (scope.MyMission).
+//crossScope/execInArea/TestExecuteInArea2.java:64: Object allocation in a context (scope.MyHandler) other than its designated scope (scope.MyMission).
 //        mem.enterPrivateMemory(1000, new 
 //                                     ^
 //1 error
@@ -26,7 +26,7 @@ import crossScope.getCurrent.TestGetCurrent;
  * 
  * 
  */
-@Scope("crossScope_A.execInArea.TestExecuteInArea2") 
+@Scope("crossScope.execInArea.TestExecuteInArea2") 
 public class TestExecuteInArea2 extends Mission  {
 
     protected
@@ -41,8 +41,8 @@ public class TestExecuteInArea2 extends Mission  {
     
 
 
-    @Scope("crossScope_A.execInArea.TestExecuteInArea2")  
-    @RunsIn("crossScope_A.execInArea.Handler") 
+    @Scope("crossScope.execInArea.TestExecuteInArea2")  
+    @RunsIn("crossScope.execInArea.Handler") 
     class Handler extends PeriodicEventHandler {
 
         public Handler(PriorityParameters priority,
@@ -69,7 +69,7 @@ public class TestExecuteInArea2 extends Mission  {
     }
 
 
-    @Scope("crossScope_A.execInArea.Handler")
+    @Scope("crossScope.execInArea.Handler")
     @RunsIn("ImmortalMemory")
     class MyRunnable implements Runnable {
     	
@@ -81,7 +81,7 @@ public class TestExecuteInArea2 extends Mission  {
     
     }
 
-    @Scope("crossScope_A.execInArea.Handler")
+    @Scope("crossScope.execInArea.Handler")
     @RunsIn("ImmortalMemory")
     class MyRunnableErr implements Runnable {
     	

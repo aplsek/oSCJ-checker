@@ -17,7 +17,7 @@ import crossScope.TestErrorCrossScope.Foo;
 import crossScope.TestErrorCrossScope.Handler;
 
 
-@Scope("crossScope_A.TestGetCurrentManagedMemory") 
+@Scope("crossScope.TestGetCurrentManagedMemory") 
 public class TestGetCurrentManagedMemory {
 
 
@@ -30,8 +30,8 @@ public class TestGetCurrentManagedMemory {
         return 0;
     }
     
-    @Scope("crossScope_A.TestGetCurrentManagedMemory")  
-    @RunsIn("crossScope_A.Handler") 
+    @Scope("crossScope.TestGetCurrentManagedMemory")  
+    @RunsIn("crossScope.Handler") 
     class Handler extends PeriodicEventHandler {
 
     	Foo foo ;
@@ -48,7 +48,7 @@ public class TestGetCurrentManagedMemory {
         	this.foo = new Foo();			// ERROR
         	
         	MyRunnable aRunnable = new MyRunnable(this);
-        	@DefineScope(name="crossScope_A.Handler.Child", parent="crossScope_A.Handler") 
+        	@DefineScope(name="crossScope.Handler.Child", parent="crossScope.Handler") 
             ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
             mem.enterPrivateMemory(1000, aRunnable);  
         	
@@ -66,8 +66,8 @@ public class TestGetCurrentManagedMemory {
     }
     
     
-    @Scope("crossScope_A.Handler")  
-    @RunsIn("crossScope_A.Handler.Child") 
+    @Scope("crossScope.Handler")  
+    @RunsIn("crossScope.Handler.Child") 
     class MyRunnable implements Runnable {
 		
     	private Handler handler;
@@ -93,7 +93,7 @@ public class TestGetCurrentManagedMemory {
     	}
     }
 
-    @RunsIn("crossScope_A.Handler.Child") 
+    @RunsIn("crossScope.Handler.Child") 
     class BigBar {
     	public void method() {
     		ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();  // OK

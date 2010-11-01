@@ -1,5 +1,10 @@
 package crossScope.level2;
 
+import javax.realtime.PeriodicParameters;
+import javax.realtime.PriorityParameters;
+import javax.realtime.RelativeTime;
+import javax.safetycritical.PeriodicEventHandler;
+import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 
@@ -13,7 +18,7 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 			RelativeTime period) { 
 		super(new PriorityParameters(_priority),
 			new PeriodicParameters(startTime, period), 
-			new StorageParameters(10000, 10000, 10000));
+			new StorageParameters(10000, 10000, 10000),_memSize);
 	}
 	
 	public void handleAsyncEvent() {
@@ -21,5 +26,14 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 	}
 
 	public void cleanup() {}
+
+	@Override
+	public StorageParameters getThreadConfigurationParameters() {
+		return null;
+	}
+
+	@Override
+	public void handleEvent() {
+	}
 	
 }
