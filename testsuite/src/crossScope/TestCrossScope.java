@@ -38,6 +38,7 @@ public class TestCrossScope extends Mission {
     }
 
     @Allocate({THIS})
+    @CrossScope
     public Foo getFoo() {
     	return this.foo;
     }
@@ -57,7 +58,8 @@ public class TestCrossScope extends Mission {
         }
 
         public void handleEvent() {
-            Foo foo = mission.getFoo();
+        	
+        	Foo foo = mission.getFoo();		// OK
             List bar = new List();
             
             foo.method(bar);                //  ---> OK

@@ -36,6 +36,11 @@ public class TestImmutable {
 
 
 */
+	public void method() {
+		String str = new String();
+		StringBuffer sBuff = new StringBuffer();
+	}
+	
 }
 	
 	
