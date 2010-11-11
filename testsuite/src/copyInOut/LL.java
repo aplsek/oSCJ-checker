@@ -15,19 +15,15 @@ public class LL {
 	// returns a deep copy of a list in current scope
 	@CrossScope
 	public LL copyDown() {
-		LL c = new LL();
+		final LL c = new LL();
 		c.id = this.id;												// DEEP-COPY all the fields
-		LL ct = this.next.copyDown();
-		final MemoryArea memC = ScopedMemory.getMemoryArea(c);
-		final MemoryArea memCT = ScopedMemory.getMemoryArea(ct);
-		if (memC == memCT) { 										// ---> GUARD
-			c.next = ct;
-		}
+		final LL ct = this.next.copyDown();
+		c.next = ct;
 		return c;
 	}
 
 	@CrossScope
-	public void copyUp(LL h) {
+	public void copyUp(final LL h) {
 		if (h == null)
 			return;												// TODO: copy-up an empty list?
 		this.id = h.id;											// DEEP-COPY all the data in the node
@@ -37,10 +33,8 @@ public class LL {
 			try {
 				if (this.next == null) {
 					final MemoryArea memT = ScopedMemory.getMemoryArea(this);
-					final MemoryArea memC = ScopedMemory.getMemoryArea(this);
-					LL c = (LL) memT.newInstance(LL.class);
-					if (memT == memC)
-						this.next = c;
+					final LL c = (LL) memT.newInstance(LL.class);				// inference 
+					this.next = c;
 				}
 				this.next.copyUp(h.next);
 			} catch (InstantiationException e) {

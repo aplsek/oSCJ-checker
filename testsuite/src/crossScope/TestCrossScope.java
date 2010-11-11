@@ -22,7 +22,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 
-@Scope("crossScope.CrossScope") 
+@Scope("crossScope.TestCrossScope") 
 public class TestCrossScope extends Mission {
 
 	public Foo foo;
@@ -44,7 +44,7 @@ public class TestCrossScope extends Mission {
     }
 
 
-    @Scope("crossScope.MyMission")  
+    @Scope("crossScope.TestCrossScope")  
     @RunsIn("crossScope.MyHandler") 
     class MyHandler extends PeriodicEventHandler {
 
