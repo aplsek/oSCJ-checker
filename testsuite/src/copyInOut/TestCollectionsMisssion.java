@@ -16,18 +16,37 @@ import javax.safetycritical.annotate.Scope;
 public class TestCollectionsMisssion extends Mission {
 
 	private LinkedList list; 
-	
+	private Iterator iterator = null;
 	
 	public LinkedList getList() {
 		return list;   											// ERROR????
 	}
 	
-	public Iterator getIterator() {
+	
+	/** 
+	 * TODO : should we return an iterator???
+	 * @return
+	 */
+	public Iterator getIterator() {								
+		//
+		//Iterator iter = list.iterator();
+		//Iterator res = new ListIterator(iter);
+		//
+		//return iter;
 		
-		Iterator iter = list.iterator();
-		Iterator res = new ListIterator(iter);
+		return null;
+	}
+	
+	
+	public Foo getNode() {
+		if (iterator == null) 
+			iterator = list.iterator();
 		
-		return iter;
+		if (!iterator.hasNext()) 
+			return null;
+		
+		Foo foo = (Foo) iterator.next();
+		return new Foo(foo);					// DEEP-COPY Foo!
 	}
 	
 	protected void initialize() { 
@@ -52,11 +71,13 @@ public class TestCollectionsMisssion extends Mission {
 		@Override
 		public void handleEvent() {
 			TestCollectionsMisssion mission = (TestCollectionsMisssion) Mission.getCurrentMission();
-			LinkedList<Foo> list = mission.getList();
-			Iterator<Foo> iter = list.iterator();
-			while (iter.hasNext()) {
-				Foo foo = iter.next();
-				foo.method();
+			//LinkedList<Foo> list = mission.getList();
+			//Iterator<Foo> iter = list.iterator();
+			
+			Foo node = mission.getNode();						// iterate through the list
+			while (node != null) {
+				node.method();
+				node = mission.getNode();
 			}
 		}
 	}
@@ -68,6 +89,16 @@ public class TestCollectionsMisssion extends Mission {
 	}
 	
 	class Foo {
+		int id;
+		
+		public Foo() {
+			id = 0;
+		}
+		
+		public Foo(Foo foo) {
+			id = foo.id;
+		}
+		
 		public void method() {
 		}
 	}

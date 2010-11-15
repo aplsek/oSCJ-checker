@@ -64,7 +64,6 @@ public class TestCrossScope extends Mission {
             
             foo.method(bar);                //  ---> OK
             foo.methodErr(bar);				// ERROR: is not @crossScope
-           
             
             foo.methodCross();			//  ERROR: foo's methodCross runs in "Mission" so it
              							//   should be annocated with "@crossScope"
