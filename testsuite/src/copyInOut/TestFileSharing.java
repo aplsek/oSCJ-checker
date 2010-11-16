@@ -22,10 +22,10 @@ import javax.safetycritical.annotate.Scope;
 public class TestFileSharing extends Mission {
 
 	public MyOutputStream output;
-	
+
 	protected void initialize() {
 		new MyHandler(null, null, null, 0);
-		
+
 		// init the output stream
 	}
 
@@ -33,7 +33,7 @@ public class TestFileSharing extends Mission {
 	public long missionMemorySize() {
 		return 0;
 	}
-	
+
 	@Scope("copyInOut.TestFileSharing")
 	@RunsIn("copyInOut.MyHandler")
 	class MyHandler extends PeriodicEventHandler {
@@ -44,36 +44,32 @@ public class TestFileSharing extends Mission {
 			super(priority, parameters, scp, memSize);
 		}
 
-		
 		@Override
 		public StorageParameters getThreadConfigurationParameters() {
 			return null;
 		}
 
 		@Scope("Unknown") MyOutputStream myOutput;
-		
+
 		@Override
 		public void handleEvent() {
 			TestFileSharing mission = (TestFileSharing) Mission.getCurrentMission();
-			
+
 			myOutput = mission.output;
-			
+
 			byte[] b;  //  = ... initialize";
 			myOutput.write(b);
-			
 		}
 	}
 }
 
 
 class MyOutputStream {
-	
-	
 	@CrossScope
 	public void write(byte[] b) {
-		
+
 	}
-	
+
 	@LivesIn("Unknown")
 	public FileChannel getChannel() {
 		return null;
@@ -82,7 +78,7 @@ class MyOutputStream {
 
 
 class FileChannel {
-	
+
 }
 
 
