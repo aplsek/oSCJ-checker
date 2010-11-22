@@ -13,6 +13,14 @@ public class LinkedList<E> {
 	private transient int size = 0;
 	protected transient int modCount = 0;
 
+	
+	
+	@CrossScope
+	public MyInternalIterator getCrossScopeIterator() {
+		return new MyInternalIterator(0);
+	}
+	
+	
 	class MyInternalIterator {
 		@Scope(UNKNOWN) private Entry<E> lastReturned = header;
 		@Scope(UNKNOWN) private Entry<E> next;
