@@ -4,8 +4,6 @@
 	<classpathentry kind="src" output="build/spec" path="spec"/>
 	<classpathentry kind="src" output="testsuite/build" path="testsuite/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/checkers.jar" sourcepath="/checkers"/>
-	<classpathentry kind="lib" path="lib/jsr308-all.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/scj-FIVM"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
