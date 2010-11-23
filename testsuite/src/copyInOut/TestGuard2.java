@@ -1,5 +1,8 @@
 package copyInOut;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+
 import javax.realtime.MemoryArea;
 import javax.realtime.ScopedMemory;
 import javax.safetycritical.annotate.CrossScope;
@@ -12,6 +15,10 @@ public class TestGuard2 {
 	public Foo method(final Foo h) {
 		
 		final MemoryArea ma = ScopedMemory.getMemoryArea(h);
+		
+		
+		LinkedList list = null;
+		Iterator iter = (Iterator) list.iterator();
 		
 		try {
 			final Foo foo = (Foo) ma.newInstance(Foo.class);			// OK
@@ -32,6 +39,8 @@ public class TestGuard2 {
 		}
 		return h;
 	}
+	
+	
 	
 	class Foo {}
 	class Bar {}

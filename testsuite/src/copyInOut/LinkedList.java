@@ -1,7 +1,6 @@
 package copyInOut;
 
 import java.util.NoSuchElementException;
-
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
@@ -22,52 +21,58 @@ public class LinkedList<E> {
 		return new MyInternalIterator(0);
 	}
 	
-	class MyInternalIterator {
+	static class MyInternalIterator {
+		
 		@Scope(UNKNOWN) private Entry<E> lastReturned;
 		@Scope(UNKNOWN) private Entry<E> next;
 		private int nextIndex;
 
 		@CrossScope
 		public MyInternalIterator(int index) {
-			// TODO: can we do this?:
+			// TODO : DYNAMIC CHECK next.isAbove(header);
 			next = header;
 		}
 
 		@CrossScope
+		public MyInternalIterator(LinkedList list,int index) {
+			// TODO : DYNAMIC CHECK next.isAbove(header);
+			next = header;
+		}
+		
 		public boolean hasNext() {
 			return nextIndex != size;
 		}
 
-		@CrossScope
 		public E next() {
 			if (nextIndex == size)
 				throw new NoSuchElementException();
 
-			// TODO: DYNAMIC SCOPE CHECK FOR THE:
-			lastReturned = next;  
-			next = next.next;
-			// --> end of the scope check
+			lastReturned = next;     // NOTE: no dynamic check needed, both are the fields of "this"
+			next = next.next; 		 // NOTE: no dynamic check needed, "next.next" is an unannotated field of "next" and therefore they are in the same scope 
 			
 			nextIndex++;
 			return lastReturned.element;
 		}
 
-
-		@CrossScope
-		public void add(E e) {
+		public void add(@Scope(UNKNOWN) E e) {
 			// TODO:
-			final MemoryArea mem1 = MemoryArea.getMemoryArea(e);
-			final MemoryArea mem2 = MemoryArea.getMemoryArea(header);
+			@Scope(UNKNOWN) final Entry<E> temp_header = header;
+			
+			final MemoryArea mem1 = MemoryArea.getMemoryArea(this);
+			final MemoryArea mem2 = MemoryArea.getMemoryArea(temp_header);
 			if (mem1 == mem2) {
 				// ...
-				lastReturned = header;
+				lastReturned = header;		// NOTE: assigning to a field of this, dynamic check is for "this".
 				addBefore(e, next);
 				nextIndex++;
 			}
 		}
+		
+		public void remove() {
+			// TODO:
+		}
 
-		@CrossScope
-		private  Entry<E> addBefore(E e, Entry<E> entry) {
+		private  Entry<E> addBefore(final @Scope(UNKNOWN) E e,final @Scope(UNKNOWN) Entry<E> entry) {
 			final MemoryArea mem1 = MemoryArea.getMemoryArea(e);
 			final MemoryArea mem2 = MemoryArea.getMemoryArea(entry);
 			Entry newItem = (Entry) mem2.newInstance(Entry.class);    // TODO: inferred to be mem2 ?? 			

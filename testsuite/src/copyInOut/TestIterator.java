@@ -64,7 +64,7 @@ class MyLinkedList {
 	@CrossScope
 	@LivesIn("Unknown")
 	public Node get(int index) {
-		return null;
+		return new Node();
 	}
 
     @CrossScope
