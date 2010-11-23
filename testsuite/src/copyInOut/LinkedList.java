@@ -3,44 +3,34 @@ package copyInOut;
 import java.util.NoSuchElementException;
 
 import javax.realtime.MemoryArea;
+import javax.realtime.PeriodicParameters;
+import javax.realtime.PriorityParameters;
+import javax.safetycritical.ManagedMemory;
+import javax.safetycritical.Mission;
+import javax.safetycritical.PeriodicEventHandler;
+import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.CrossScope;
 import javax.safetycritical.annotate.Scope;
-
-import copyInOut.MyIterator.Radd;
 
 public class LinkedList<E> {
 	private transient Entry<E> header = new Entry<E>();
 	private transient int size = 0;
 	protected transient int modCount = 0;
-
-	
 	
 	@CrossScope
 	public MyInternalIterator getCrossScopeIterator() {
 		return new MyInternalIterator(0);
 	}
 	
-	
 	class MyInternalIterator {
-		@Scope(UNKNOWN) private Entry<E> lastReturned = header;
+		@Scope(UNKNOWN) private Entry<E> lastReturned;
 		@Scope(UNKNOWN) private Entry<E> next;
 		private int nextIndex;
-		private int expectedModCount = modCount;
 
 		@CrossScope
 		public MyInternalIterator(int index) {
-			if (index < 0 || index > size)
-				throw new IndexOutOfBoundsException("Index: "+index+
-						", Size: "+size);
-			if (index < (size >> 1)) {
-				next = header.next;
-				for (nextIndex=0; nextIndex<index; nextIndex++)
-					next = next.next;
-			} else {
-				next = header;
-				for (nextIndex=size; nextIndex>index; nextIndex--)
-					next = next.previous;
-			}
+			// TODO: can we do this?:
+			next = header;
 		}
 
 		@CrossScope
@@ -50,13 +40,14 @@ public class LinkedList<E> {
 
 		@CrossScope
 		public E next() {
-			//checkForComodification();  // TODO: needs to be rewritten to 
 			if (nextIndex == size)
 				throw new NoSuchElementException();
 
-			// QUESTION: do we need the dynamic scope checks for the following?:
-			lastReturned = next;
+			// TODO: DYNAMIC SCOPE CHECK FOR THE:
+			lastReturned = next;  
 			next = next.next;
+			// --> end of the scope check
+			
 			nextIndex++;
 			return lastReturned.element;
 		}
@@ -72,7 +63,6 @@ public class LinkedList<E> {
 				lastReturned = header;
 				addBefore(e, next);
 				nextIndex++;
-				expectedModCount++;
 			}
 		}
 
@@ -80,10 +70,9 @@ public class LinkedList<E> {
 		private  Entry<E> addBefore(E e, Entry<E> entry) {
 			final MemoryArea mem1 = MemoryArea.getMemoryArea(e);
 			final MemoryArea mem2 = MemoryArea.getMemoryArea(entry);
-			final MemoryArea mem3 = MemoryArea.getMemoryArea(e);
-			Entry newItem = (Entry) mem2.newInstance(Entry.class);    // inferred to be mem2 ?? 			
+			Entry newItem = (Entry) mem2.newInstance(Entry.class);    // TODO: inferred to be mem2 ?? 			
 
-			if ( (mem1 == mem2) && ( mem2 == mem3) ) {
+			if ( (mem1 == mem2) ) {
 				newItem.element = e;
 				newItem.previous = entry.previous;
 				newItem.next = entry.next;
@@ -107,5 +96,48 @@ public class LinkedList<E> {
 		E element;
 		Entry<E> next;
 		Entry<E> previous;
+	}
+}
+
+
+
+
+class MyOtherMission extends Mission {	
+	LinkedList list;
+	
+	public void initialize() {
+		MyHandler handler = new MyHandler();
+		handler.list = 	list;	
+	}
+
+	@Override
+	public long missionMemorySize() {
+		return 0;
+	}	
+}
+
+class MyHandler extends PeriodicEventHandler {
+    public MyHandler() {
+    	super(null,null,null,0);
+    }
+	
+	public MyHandler(PriorityParameters priority, PeriodicParameters period,
+			StorageParameters storage, long size) {
+		super(priority, period, storage, size);
+	}
+
+	@Scope(UNKNOWN) public LinkedList list;
+    
+    public void handleEvent() {
+        LinkedList.MyInternalIterator myIterator = list.getCrossScopeIterator();
+        for ( ; myIterator.hasNext() ; ) {
+            Foo f = (Foo) myIterator.next();   
+            //..
+        }
+    }
+
+	@Override
+	public StorageParameters getThreadConfigurationParameters() {
+		return null;
 	}
 }
