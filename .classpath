@@ -3,7 +3,7 @@
 	<classpathentry kind="src" output="build/src" path="src"/>
 	<classpathentry kind="src" output="build/spec" path="spec"/>
 	<classpathentry kind="src" output="testsuite/build" path="testsuite/src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/scj-FIVM"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/scj-FIVM"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
