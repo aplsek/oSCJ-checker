@@ -10,6 +10,8 @@ import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.CrossScope;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 
 class LinkedList<E> {
 	public transient Entry<E> header = new Entry<E>();
@@ -24,7 +26,6 @@ class LinkedList<E> {
 
 class CrossScopeIterator<E> {
 	
-	private static final String UNKNOWN = "";
 	@Scope(UNKNOWN) private Entry<E> lastReturned;
 	@Scope(UNKNOWN) private Entry<E> next;
 	private int nextIndex;
