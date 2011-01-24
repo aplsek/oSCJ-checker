@@ -15,11 +15,11 @@ public class TestTerminal extends Mission  {
 		private Terminal myTerminal;
 
 		private WordHandler(long psize, String name, int count) {
-			super(null, null, null, psize, name);
+			super(null, null, null);
 			count_ = count;
 		}
 
-		public void handleEvent() {
+		public void handleAsyncEvent() {
 			Terminal.getTerminal().write("HelloWorld");					// print to terminal	
 			myTerminal = Terminal.getTerminal();						// TODO: store terminal reference?
 

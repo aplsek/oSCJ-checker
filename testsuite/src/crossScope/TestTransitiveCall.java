@@ -5,21 +5,22 @@
 
 package crossScope;
 
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 public class TestTransitiveCall {
 
-		@CrossScope
+		@RunsIn(UNKNOWN)
 		public void method(Bar b) {
-			foo(b);							// OK since that method is @CrossScope
+			foo(b);							// OK since that method is @RunsIn(UNKNOWN)
 			
-			foo2(b);					 	// ERROR, foo2 is not @CrossScope
+			foo2(b);					 	// ERROR, foo2 is not @RunsIn(UNKNOWN)
 			
 			Type t = new Type();
 			bar(t);							//OK since the type t is local and the same scope as this.
 		}
 		
-		@CrossScope
+		@RunsIn(UNKNOWN)
 		public void foo(Bar b) {
 		}
 		

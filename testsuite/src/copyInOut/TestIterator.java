@@ -5,9 +5,11 @@ import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 
 public class TestIterator extends Mission {
 	public MyLinkedList list;
@@ -37,7 +39,7 @@ class MyHandlerIterator extends PeriodicEventHandler {
 	public MyHandlerIterator(PriorityParameters priority,
 			PeriodicParameters parameters, StorageParameters scp,
 			long memSize) {
-		super(priority, parameters, scp, memSize);
+		super(priority, parameters, scp);
 	}
 
 	@Override
@@ -48,7 +50,7 @@ class MyHandlerIterator extends PeriodicEventHandler {
 	@Scope("Mission/Unknown") MyLinkedList myList;
 
 	@Override
-	public void handleEvent() {
+	public void handleAsyncEvent() {
 		TestIterator mission = (TestIterator) Mission.getCurrentMission();
 		@Scope("Unknown") MyLinkedList mylist =  mission.list;  			 // LOCAL INFERENCE .....  ///mission.getList();
 		this.myList = mission.list;  									// WE PROPOSE @LivesIN to have mission.getList();
@@ -61,14 +63,14 @@ class MyHandlerIterator extends PeriodicEventHandler {
 
 class MyLinkedList {
 
-	@CrossScope
-	@LivesIn("Unknown")
+	@RunsIn(UNKNOWN)
+	   @Scope(UNKNOWN)
 	public Node get(int index) {
 		return new Node();
 	}
 
-    @CrossScope
-    @LivesIn("Unknown")
+    @RunsIn(UNKNOWN)
+    @Scope(UNKNOWN)
 	public Iterator iterator() {
 		return new Iterator(this);
 	}
@@ -81,12 +83,12 @@ class Iterator {
 
 	@Scope("Unknown") MyLinkedList list;
 
-    @CrossScope
+    @RunsIn(UNKNOWN)
 	public Iterator(MyLinkedList list) {
 		this.list = list;
 	}
 
-	@LivesIn("Unknown")
+	@Scope(UNKNOWN)
 	public Node getNext() {
 		@Scope("Unknown") Node node = list.get(index);
 		return node;
@@ -103,12 +105,17 @@ class Iterator {
 class Node {
 	int id;
 
-	@CrossScope
+	@RunsIn(UNKNOWN)
+	public Node() {
+		//...
+	}
+	
+	@RunsIn(UNKNOWN)
 	public Node(Node node) {
 		//...
 	}
 
-	@CrossScope
+	@RunsIn(UNKNOWN)
 	public void method() {
 	}
 

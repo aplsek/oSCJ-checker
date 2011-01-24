@@ -1,3 +1,4 @@
+package crossScope;
 
 
 class StaticArray {
@@ -7,9 +8,9 @@ class StaticArray {
         array[0] = new Object();                   // ERROR if the array is IMMORTAL!
     } 
 
-    public static main() {
+    public static void main() {
         StaticArray st = new StaticArray();
-	st.method(array);
+        st.method(array);
     }
 
 }

@@ -2,13 +2,16 @@ package copyInOut;
 
 import javax.realtime.MemoryArea;
 import javax.realtime.ScopedMemory;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
+
 
 public class TestGuard {
 	
 	Foo foo;
 	
-	@CrossScope
+	@RunsIn(UNKNOWN)
 	public Foo method(Foo h) {
 		Foo c = new Foo();
 		Foo c2 = new Foo();

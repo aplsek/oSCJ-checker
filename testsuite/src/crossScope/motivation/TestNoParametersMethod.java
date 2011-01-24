@@ -1,13 +1,13 @@
 package crossScope.motivation;
 
-
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
@@ -45,14 +45,14 @@ public class TestNoParametersMethod extends Mission  {
     	
         public Handler(PriorityParameters priority,
                 PeriodicParameters parameters, StorageParameters scp, long memSize, TestNoParametersMethod mission) {
-            super(priority, parameters, scp, memSize);
+            super(priority, parameters, scp);
             
             this.mission = mission;
         }
 
-        public void handleEvent() {
+        public void handleAsyncEvent() {
         	Foo foo = mission.getCurrentFoo();			// OK, foo will be inferred to be in Mission
-        	Bar b = foo.method();						// ERROR? should this method be @CrossScope??
+        	Bar b = foo.method();						// ERROR? should this method be @RunsIn(UNKNOWN)??
         												//      YES - "method" should be crosSCope to make this correct
         	Bar b2 = foo.method2();
         
@@ -73,7 +73,7 @@ class Foo {
 	private Bar field;
 	
 	@Allocate({THIS})
-	@CrossScope
+	@RunsIn(UNKNOWN)
 	public Bar method() {
 		this.field = new Bar();						// ERROR and will be detected
 		return this.field;

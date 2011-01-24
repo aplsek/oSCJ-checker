@@ -4,7 +4,8 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.Allocate;
 import static javax.safetycritical.annotate.Allocate.Area.*;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 public class TestFieldStore4 {
 
@@ -12,7 +13,7 @@ public class TestFieldStore4 {
 	@RunsIn("")
 	class PEH {
 		
-		  public void handleEvent() {
+		  public void handleAsyncEvent() {
 		       Foo foo = getCurrentFoo();     // OK --> foo will be inferred to be "Immortal"    
 		       Bar myBar = new Bar();       
 		   
@@ -34,25 +35,25 @@ public class TestFieldStore4 {
 		
 		private Bar field;
 		
-		@CrossScope
+		@RunsIn(UNKNOWN)
 		public Bar mySimpleMethod(Bar b) {
 			return this.field;						// ERROR: has not @Allocate, we loose scope info!!
 		}											// - TODO: if the default for @allocate is not "this"
 		
 		@Allocate({THIS})
-		@CrossScope
+		@RunsIn(UNKNOWN)
 		public Bar myMethod(Bar b) {
 			return this.field;
 		}
 		
 		@Allocate({CURRENT})						// ERRO, should be ...
-		@CrossScope
+		@RunsIn(UNKNOWN)
 		public Bar myMethodLocal(Bar b) {
 			return b;
 		}
 		
 		@Allocate({CURRENT})						// ERRO, should be ...
-		@CrossScope
+		@RunsIn(UNKNOWN)
 		public Foo getMyFoo(Bar b) {
 			return null;
 		}

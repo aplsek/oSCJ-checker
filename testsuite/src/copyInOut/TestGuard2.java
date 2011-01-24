@@ -5,13 +5,15 @@ import java.util.LinkedList;
 
 import javax.realtime.MemoryArea;
 import javax.realtime.ScopedMemory;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 
 public class TestGuard2 {
 
 	Foo foo;
 	
-	@CrossScope
+	@RunsIn(UNKNOWN)
 	public Foo method(final Foo h) {
 		
 		final MemoryArea ma = ScopedMemory.getMemoryArea(h);

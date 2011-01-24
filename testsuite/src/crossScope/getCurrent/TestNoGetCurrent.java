@@ -6,8 +6,10 @@
 package crossScope.getCurrent;
 
 import javax.safetycritical.Mission;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 
 /**
  * CrossScope methods can not call "getCurrent"
@@ -18,7 +20,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 @SCJAllowed
 public class TestNoGetCurrent {
 
-	@CrossScope
+	@RunsIn(UNKNOWN)
 	public void method(Clazz c) {
 		Mission m = Mission.getCurrentMission(); 	// ERROR
 	}

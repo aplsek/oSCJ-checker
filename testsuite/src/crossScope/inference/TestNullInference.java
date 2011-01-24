@@ -35,11 +35,11 @@ class Handler extends PeriodicEventHandler {
 	
     public Handler(PriorityParameters priority,
             PeriodicParameters parameters, StorageParameters scp, long memSize) {
-        super(priority, parameters, scp, memSize);
+        super(priority, parameters, scp);
     }
 
     public
-    void handleEvent() {
+    void handleAsyncEvent() {
     	Mission mission = null; 							// OK
     	mission = Mission.getCurrentMission();				// OK!!!
     	

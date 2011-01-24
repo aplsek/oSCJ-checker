@@ -45,12 +45,12 @@ public class TestGetCurrentManMem2 extends CyclicExecutive {
 
         @SCJAllowed()
         private WordHandler(long psize) {
-            super(null, null, null, psize);
+            super(null, null, null);
         }
 
         @SCJAllowed()
         @RunsIn("scope.TestGetCurrentManMem2.WordHandler")
-        public void handleEvent() {
+        public void handleAsyncEvent() {
            
             /*@DefineScope(name="wronge_scope_name",    // ERROR: must be same as current alloc. context
                        parent="scope.TestGetCurrentManMem2")*/
@@ -65,10 +65,6 @@ public class TestGetCurrentManMem2 extends CyclicExecutive {
         @SCJAllowed()
         public void cleanUp() {}
         
-        @SCJAllowed()
-        @Override
-        public void handleAsyncEvent() {}
-
         @Override
         public StorageParameters getThreadConfigurationParameters() {
             // TODO Auto-generated method stub

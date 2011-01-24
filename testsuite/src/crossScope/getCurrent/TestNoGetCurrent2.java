@@ -1,17 +1,19 @@
 package crossScope.getCurrent;
 
 import javax.safetycritical.Mission;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 
 public class TestNoGetCurrent2 {
 
-	@CrossScope
+	@RunsIn(UNKNOWN)
 	public void method(Foo f) {
 		Bar b = new Bar();
-		b.method();   							// OK, we call a non-@CrossScope method 
+		b.method();   							// OK, we call a non-@RunsIn(UNKNOWN) method 
 		
 		Bar field = new Bar();
-		b.setField(field);						// OK, we call a non-@CrossScope method
+		b.setField(field);						// OK, we call a non-@RunsIn(UNKNOWN) method
 	
 		b.testFoo(f);							// ERROR: can not be called since we do not know where "f" is.
 	}

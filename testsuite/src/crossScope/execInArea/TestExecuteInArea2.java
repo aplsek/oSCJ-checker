@@ -14,15 +14,17 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.MissionManager;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
 import crossScope.getCurrent.TestGetCurrent;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 
 /**
- * @CrossScope + "executeInArea"
-    --> each runnable used for "executeInArea" must be annotated with @CrossScope
+ * @RunsIn(UNKNOWN) + "executeInArea"
+    --> each runnable used for "executeInArea" must be annotated with @RunsIn(UNKNOWN)
  * 
  * 
  */
@@ -47,18 +49,18 @@ public class TestExecuteInArea2 extends Mission  {
 
         public Handler(PriorityParameters priority,
                 PeriodicParameters parameters, StorageParameters scp, long memSize) {
-            super(priority, parameters, scp, memSize);
+            super(priority, parameters, scp);
         }
 
         public
-        void handleEvent() {
+        void handleAsyncEvent() {
         	ImmortalMemory mem = ImmortalMemory.instance();
         	MyRunnable runner = new MyRunnable();
         	mem.executeInArea(runner);						// OK
         	
         	
         	MyRunnableErr runErr = new MyRunnableErr();
-        	mem.executeInArea(runErr);						// ERROR - the runnable is not annotated @CrossScope
+        	mem.executeInArea(runErr);						// ERROR - the runnable is not annotated @RunsIn(UNKNOWN)
         }
 
 
@@ -74,7 +76,7 @@ public class TestExecuteInArea2 extends Mission  {
     class MyRunnable implements Runnable {
     	
     	@Override
-    	@CrossScope
+    	@RunsIn(UNKNOWN)
     	public void run() {
     		//..
     	}

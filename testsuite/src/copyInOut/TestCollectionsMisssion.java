@@ -60,7 +60,7 @@ public class TestCollectionsMisssion extends Mission {
 		public MyHandler(PriorityParameters priority,
 				PeriodicParameters parameters, StorageParameters scp,
 				long memSize) {
-			super(priority, parameters, scp, memSize);
+			super(priority, parameters, scp);
 		}
 
 		@Override
@@ -69,7 +69,7 @@ public class TestCollectionsMisssion extends Mission {
 		}
 
 		@Override
-		public void handleEvent() {
+		public void handleAsyncEvent() {
 			TestCollectionsMisssion mission = (TestCollectionsMisssion) Mission.getCurrentMission();
 			//LinkedList<Foo> list = mission.getList();
 			//Iterator<Foo> iter = list.iterator();

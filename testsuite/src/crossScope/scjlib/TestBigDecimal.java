@@ -45,7 +45,7 @@ public class TestBigDecimal {
 	PrivateMemory privateMem = new PrivateMemory(0);
 
 	@RunsIn("PrivateMemory")
-	public void handleEvent() {
+	public void handleAsyncEvent() {
 
 		BigDecimal myBig = new BigDecimal(11);
 		BigDecimal one = BigDecimal.ONE; // --> inferred @Scope(Immortal)
@@ -57,7 +57,7 @@ public class TestBigDecimal {
 		one = myBig;   /// ERROR
 		
 		
-		myBig.add(one); 		// OK!! passing immortal... trivial TODO:----> OK, but add must be @CrossScope or
+		myBig.add(one); 		// OK!! passing immortal... trivial TODO:----> OK, but add must be @RunsIn(UNKNOWN) or
 								// ref-immutable!!!!!
 
 		one.add(myBig); 		// TODO: ---> here you need to know that "add" method

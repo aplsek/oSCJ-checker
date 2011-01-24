@@ -12,13 +12,13 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.Allocate;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Allocate.Area.*;
-
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("crossScope.TestInference") 
 public class TestInference extends Mission {
@@ -48,13 +48,13 @@ public class TestInference extends Mission {
     	
         public MyHandler2(PriorityParameters priority,
                 PeriodicParameters parameters, StorageParameters scp, long memSize, TestInference mission) {
-            super(priority, parameters, scp, memSize);
+            super(priority, parameters, scp);
             
             this.mission = mission;
         }
 
         public
-        void handleEvent() {
+        void handleAsyncEvent() {
             Foo foo = mission.getFoo();
             Bar bar = new Bar();
             
@@ -72,7 +72,7 @@ public class TestInference extends Mission {
     	public Bar field;
 
     	@Allocate({CURRENT})
-        @CrossScope
+        @RunsIn(UNKNOWN)
     	public Bar method(Bar bar) {
     		return bar;
     	}

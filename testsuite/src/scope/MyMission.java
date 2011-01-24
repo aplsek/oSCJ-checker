@@ -18,8 +18,6 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
 
-
-
 @Scope("scope.MyMission") 
 class MyMission extends Mission {
 
@@ -47,15 +45,15 @@ class MyMission extends Mission {
 
 @Scope("scope.MyMission")  
 @RunsIn("scope.MyHandler") 
-class MyHandler  extends PeriodicEventHandler {
+class MyHandler extends PeriodicEventHandler {
 
     public MyHandler(PriorityParameters priority,
             PeriodicParameters parameters, StorageParameters scp, long memSize) {
-        super(priority, parameters, scp, memSize);
+        super(priority, parameters, scp);
     }
 
     public
-    void handleEvent() {
+    void handleAsyncEvent() {
         
         A aObj = new A();                                                
         B bObj = new B(); // Ok 
@@ -104,7 +102,6 @@ class MyHandler  extends PeriodicEventHandler {
     public StorageParameters getThreadConfigurationParameters() {
         return null;
     }
-
 
 }
 

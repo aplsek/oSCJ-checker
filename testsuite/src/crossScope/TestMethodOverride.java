@@ -5,15 +5,16 @@
 
 package crossScope;
 
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 public class TestMethodOverride {
 	
 	class Foo {
-		@CrossScope
+		@RunsIn(UNKNOWN)
 		public void method1(Bar b) {
 		}
-		@CrossScope
+		@RunsIn(UNKNOWN)
 		public void method2(Bar b) {
 		}
 	}
@@ -22,11 +23,11 @@ public class TestMethodOverride {
 
 		Bar bar;
 		
-		@CrossScope
+		@RunsIn(UNKNOWN)
 		public void method(Bar b) {					// OK
 		}
 
-		public void method2(Bar b) {				// OK, overriding method is inheriting @CrossScope from above 
+		public void method2(Bar b) {				// OK, overriding method is inheriting @RunsIn(UNKNOWN) from above 
 													// we automatically allow this
 			
 			this.bar = new Bar();					// ERROR 

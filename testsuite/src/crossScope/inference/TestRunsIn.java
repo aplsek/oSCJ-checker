@@ -40,13 +40,13 @@ public class TestRunsIn   extends Mission {
     	
         public Handler(PriorityParameters priority,
                 PeriodicParameters parameters, StorageParameters scp, long memSize, TestRunsIn mission) {
-            super(priority, parameters, scp, memSize);
+            super(priority, parameters, scp);
             
             this.mission = mission;
         }
 
         public
-        void handleEvent() {
+        void handleAsyncEvent() {
         	Foo foo = mission.getFoo();		// OK, inferred
         	
         	foo.method();					// ERROR, the method must be cross-scope, @RunsIn inferred!!

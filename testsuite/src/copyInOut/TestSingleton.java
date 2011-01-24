@@ -51,7 +51,7 @@ public class TestSingleton extends Mission {
 		public MyHandler(PriorityParameters priority,
 				PeriodicParameters parameters, StorageParameters scp,
 				long memSize) {
-			super(priority, parameters, scp, memSize);
+			super(priority, parameters, scp);
 		}
 
 		@Override
@@ -60,7 +60,7 @@ public class TestSingleton extends Mission {
 		}
 
 		@Override
-		public void handleEvent() {
+		public void handleAsyncEvent() {
 			MyBigInteger bI = new MyBigInteger(0);						// OK
 			MyBigInteger bI2 = new MyBigInteger(0);						// OK
 

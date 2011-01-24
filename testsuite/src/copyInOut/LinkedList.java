@@ -8,15 +8,15 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.CrossScope;
 import javax.safetycritical.annotate.Scope;
+
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 public class LinkedList<E> {
 	private transient Entry<E> header = new Entry<E>();
 	private transient int size = 0;
 	protected transient int modCount = 0;
 	
-	@CrossScope
 	public MyInternalIterator getCrossScopeIterator() {
 		return new MyInternalIterator(0);
 	}
@@ -27,13 +27,13 @@ public class LinkedList<E> {
 		@Scope(UNKNOWN) private Entry<E> next;
 		private int nextIndex;
 
-		@CrossScope
+		@RunsIn(UNKNOWN)
 		public MyInternalIterator(int index) {
 			// TODO : DYNAMIC CHECK next.isAbove(header);
 			next = header;
 		}
 
-		@CrossScope
+		@RunsIn(UNKNOWN)
 		public MyInternalIterator(LinkedList list,int index) {
 			// TODO : DYNAMIC CHECK next.isAbove(header);
 			next = header;
@@ -133,7 +133,7 @@ class MyHandler extends PeriodicEventHandler {
 
 	@Scope(UNKNOWN) public LinkedList list;
     
-    public void handleEvent() {
+    public void handleAsyncEvent() {
         LinkedList.MyInternalIterator myIterator = list.getCrossScopeIterator();
         for ( ; myIterator.hasNext() ; ) {
             Foo f = (Foo) myIterator.next();   

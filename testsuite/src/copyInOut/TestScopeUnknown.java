@@ -1,5 +1,7 @@
 package copyInOut;
 
+import javax.realtime.PeriodicParameters;
+import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
@@ -13,6 +15,11 @@ public class TestScopeUnknown extends Mission {
 	@RunsIn("copyInOut.MyHandler")
 	class MyHandler extends PeriodicEventHandler {
 
+		public MyHandler(PriorityParameters priority,
+				PeriodicParameters period, StorageParameters storage) {
+			super(priority, period, storage);
+		}
+
 		@Override
 		public StorageParameters getThreadConfigurationParameters() {
 			// TODO Auto-generated method stub
@@ -20,13 +27,21 @@ public class TestScopeUnknown extends Mission {
 		}
 
 		@Override
-		public void handleEvent() {
-			// TODO Auto-generated method stub
+		public void handleAsyncEvent() {
 			
 		}
 	
 	
 	
+	}
+
+	@Override
+	public long missionMemorySize() {
+		return 0;
+	}
+
+	@Override
+	protected void initialize() {
 	}
 	
 }

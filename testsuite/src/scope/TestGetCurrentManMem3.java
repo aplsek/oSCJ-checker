@@ -28,7 +28,7 @@ class DummyMission2 extends CyclicExecutive {
 
     @Override
     protected void initialize() {
-        new TestGetCurrentManMem3(null, null, null, 0);
+        new TestGetCurrentManMem3(null, null, null);
     }
 
     @Override
@@ -59,21 +59,17 @@ public class TestGetCurrentManMem3 extends PeriodicEventHandler  {
     PrivateMemory mem;
     
     public TestGetCurrentManMem3(PriorityParameters priority,
-            PeriodicParameters parameters, StorageParameters scp, long memSize) {
-        super(priority, parameters, scp, memSize);
+            PeriodicParameters parameters, StorageParameters scp) {
+        super(priority, parameters, scp);
     }
 
     @RunsIn("scope.TestGetCurrentManMem3")
     public
-    void handleEvent() {
+    void handleAsyncEvent() {
           @DefineScope(name="scope.TestGetCurrentManMem3", parent="scope.B") 
           ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
     }
     
-    @Override
-    public void handleAsyncEvent() {
-    }
-       
     @Override
     public StorageParameters getThreadConfigurationParameters() {
         return null;

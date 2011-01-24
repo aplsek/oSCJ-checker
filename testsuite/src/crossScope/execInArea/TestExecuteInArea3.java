@@ -14,13 +14,13 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.MissionManager;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.CrossScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 /**
- * @CrossScope + "executeInArea"
-    --> each runnable used for "executeInArea" must be annotated with @CrossScope
+ * @RunsIn(UNKNOWN) + "executeInArea"
+    --> each runnable used for "executeInArea" must be annotated with @RunsIn(UNKNOWN)
  * 
  * 
  */
@@ -43,11 +43,11 @@ public class TestExecuteInArea3 extends Mission  {
 
         public Handler(PriorityParameters priority,
                 PeriodicParameters parameters, StorageParameters scp, long memSize) {
-            super(priority, parameters, scp, memSize);
+            super(priority, parameters, scp);
         }
 
         public
-        void handleEvent() {
+        void handleAsyncEvent() {
         	ImmortalMemory mem = ImmortalMemory.instance();
         	MyRunnable runner = new MyRunnable();
         	mem.executeInArea(runner);						// OK
@@ -65,7 +65,7 @@ public class TestExecuteInArea3 extends Mission  {
     class MyRunnable implements Runnable {
     	
     	@Override
-    	@CrossScope
+    	@RunsIn(UNKNOWN)
     	public void run() {
     		Mission mission = Mission.getCurrentMission();      /// ERROR
     		Foo f = new Foo();									// 
@@ -77,14 +77,14 @@ public class TestExecuteInArea3 extends Mission  {
     		b.methodErr();										// OK
     	
     	
-    		f.method(b);										// ERROR : method is not @crossScope
+    		f.method(b);										// ERROR : method is not @RunsIn(UNKNOWN)
     	}
     }
     
     class Foo {
     	Bar b ;
     	
-    	public void method() {									// OK, does not have to be @CrossScope
+    	public void method() {									// OK, does not have to be @RunsIn(UNKNOWN)
     		Mission mission = Mission.getCurrentMission();			// ERROR since Foo is not annotated with @Scope
     	}
     	
@@ -92,7 +92,7 @@ public class TestExecuteInArea3 extends Mission  {
     		//..
     	}
     	
-    	@CrossScope
+    	@RunsIn(UNKNOWN)
     	public void method2(Bar b) {									// OK
     		myMethod();
     	}
@@ -108,7 +108,7 @@ public class TestExecuteInArea3 extends Mission  {
     		Mission mission = Mission.getCurrentMission();			// OK
     	}
     	
-    	@CrossScope
+    	@RunsIn(UNKNOWN)
     	public void methodErr() {
     		Mission mission = Mission.getCurrentMission();			// ERROR
     	}

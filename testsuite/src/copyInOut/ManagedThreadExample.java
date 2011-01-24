@@ -66,18 +66,18 @@ class MyOtherMission extends Mission {
 @RunsIn("MyHandler")
 class MyHandler extends PeriodicEventHandler {
 	public MyHandler() {
-		super(null, null, null, 0);
+		super(null, null, null);
 	}
 
 	public MyHandler(PriorityParameters priority, PeriodicParameters period,
 			StorageParameters storage, long size) {
-		super(priority, period, storage, size);
+		super(priority, period, storage);
 	}
 
 	@Scope(UNKNOWN)
 	public LinkedList list;
 
-	public void handleEvent() {
+	public void handleAsyncEvent() {
 		// ....
 	}
 

@@ -5,14 +5,14 @@
 
 package crossScope;
 
-import javax.safetycritical.annotate.CrossScope;
-
+import javax.safetycritical.annotate.RunsIn;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 public class TestFieldStore {
 
-	@CrossScope
+	@RunsIn(UNKNOWN)
     public void method(Bar b) {
-		 Bar myBar =new Bar(b); 				 //---> OK if the constructor is @CrossScope
+		 Bar myBar =new Bar(b); 				 //---> OK if the constructor is @RunsIn(UNKNOWN)
   
 		 Bar bb=new Bar();				        // OK
 		 
@@ -27,16 +27,16 @@ public class TestFieldStore {
 			 
 		 }
 		 
-		 @CrossScope
+		 @RunsIn(UNKNOWN)
 		 public Bar(Bar b) {
 			 this.i = b.i;
 		 }
 		 
-		 @CrossScope
+		 @RunsIn(UNKNOWN)
 		 public Bar(Bar b, Bar b2) {
 		 }
 		 
-		 @CrossScope
+		 @RunsIn(UNKNOWN)
 		 public void updateField(Bar b) {
 			 this.next = b;								// ERROR cause we are cross scope
 		 }

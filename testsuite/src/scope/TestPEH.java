@@ -17,7 +17,7 @@ class MyDummyMission extends Mission {
 
     @Override
     protected void initialize() {
-        new TestVariable(null, null, null, 0);
+        new TestPEH(null, null, null);
     }
 
     @Override
@@ -33,20 +33,15 @@ class MyDummyMission extends Mission {
 public class TestPEH  extends PeriodicEventHandler {
     
     public TestPEH(PriorityParameters priority,
-            PeriodicParameters parameters, StorageParameters scp, long memSize) {
-        super(priority, parameters, scp, memSize);
+            PeriodicParameters parameters, StorageParameters scp) {
+        super(priority, parameters, scp);
     }
 
     public
-    void handleEvent() {
+    void handleAsyncEvent() {
           @DefineScope(name="scope.TestPEH", parent="scope.MyDummyMission") 
           ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
     }
-
-    @Override
-    public void handleAsyncEvent() {
-    }
-      
 
     @Override
     public StorageParameters getThreadConfigurationParameters() {

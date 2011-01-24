@@ -5,6 +5,7 @@
 
 package scope;
 
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import javax.realtime.RelativeTime;
 import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
@@ -47,12 +48,12 @@ public class TestEnterPrivateMemory2 extends CyclicExecutive {
 
         @SCJAllowed()
         private WordHandler(long psize) {
-            super(null, null, null, psize);
+            super(null, null, null);
         }
 
         @SCJAllowed()
         @RunsIn("scope.TestEnterPrivateMemory2.WordHandler")
-        public void handleEvent() {
+        public void handleAsyncEvent() {
             
             ManagedMemory.
                 getCurrentManagedMemory().enterPrivateMemory(300, 
@@ -63,10 +64,6 @@ public class TestEnterPrivateMemory2 extends CyclicExecutive {
         @SCJAllowed()
         public void cleanUp() {}
         
-        @SCJAllowed()
-        @Override
-        public void handleAsyncEvent() {}
-
         @Override
         public StorageParameters getThreadConfigurationParameters() {
             return null;

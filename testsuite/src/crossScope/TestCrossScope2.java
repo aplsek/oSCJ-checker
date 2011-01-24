@@ -15,12 +15,12 @@ import javax.safetycritical.annotate.Allocate;
 import static javax.safetycritical.annotate.Allocate.Area.*;
 
 
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
-
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("crossScope.TestCrossScope2") 
 public class TestCrossScope2 extends Mission {
@@ -41,17 +41,17 @@ public class TestCrossScope2 extends Mission {
     	System.out.println("This is NOT cross-scope");
     }
     
-    @CrossScope
+    @RunsIn(UNKNOWN)
     public void methodCS() {
     	System.out.println("This is cross-scope");
     }
     
-    @CrossScope
+    @RunsIn(UNKNOWN)
     public Foo getFoo() {
     	return this.foo;							// ERROR!!! this must be checked!
     }
     
-    @CrossScope
+    @RunsIn(UNKNOWN)
     public Foo getFooCopy() {
     	
     	Foo foo = new Foo();
@@ -70,10 +70,10 @@ public class TestCrossScope2 extends Mission {
 
         public MyHandler(PriorityParameters priority,
                 PeriodicParameters parameters, StorageParameters scp, long memSize) {
-            super(priority, parameters, scp, memSize);
+            super(priority, parameters, scp);
         }
 
-        public void handleEvent() {
+        public void handleAsyncEvent() {
         	
         	Mission mission = Mission.getCurrentMission();				// OK, scope type is inferred
         	TestCrossScope2 myMission = (TestCrossScope2) mission;		// OK, both are of the same type
@@ -83,11 +83,11 @@ public class TestCrossScope2 extends Mission {
         	
         	
         	Foo foo = myMission.getFoo();								// ERROR ???
-        	Foo foo2 = myMission.getFooCopy();						 	// OK, its @CrossScope
+        	Foo foo2 = myMission.getFooCopy();						 	// OK, its @RunsIn(UNKNOWN)
         	
         	
         	Bar bar = myMission.getBar();								// OK
-        	bar.method();												// OK - because bar.method() is @CrossScope
+        	bar.method();												// OK - because bar.method() is @RunsIn(UNKNOWN)
         	
         }
 
@@ -106,7 +106,7 @@ public class TestCrossScope2 extends Mission {
     class Bar {
     	int id;
     	
-    	@CrossScope
+    	@RunsIn(UNKNOWN)
     	public void method() {
     		return;
     	}

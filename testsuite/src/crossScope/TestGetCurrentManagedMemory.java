@@ -8,14 +8,14 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.Allocate;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
 import crossScope.TestErrorCrossScope.Foo;
 import crossScope.TestErrorCrossScope.Handler;
-
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("crossScope.TestGetCurrentManagedMemory") 
 public class TestGetCurrentManagedMemory {
@@ -38,12 +38,12 @@ public class TestGetCurrentManagedMemory {
     	
         public Handler(PriorityParameters priority,
                 PeriodicParameters parameters, StorageParameters scp, long memSize) {
-            super(priority, parameters, scp, memSize);
+            super(priority, parameters, scp);
         
             this.foo = new Foo();			// OK
         }
 
-        public void handleEvent() {
+        public void handleAsyncEvent() {
 
         	this.foo = new Foo();			// ERROR
         	
@@ -82,7 +82,7 @@ public class TestGetCurrentManagedMemory {
 			
 			Foo foo = handler.getCurrentFoo();				// OK
 			
-			foo.methodAlloc();								// ERROR< should be @CrossScope
+			foo.methodAlloc();								// ERROR< should be @RunsIn(UNKNOWN)
 		}
     }
     

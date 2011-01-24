@@ -41,12 +41,12 @@ public class TestGetCurrentManMem extends CyclicExecutive {
 
         @SCJAllowed()
         private WordHandler(long psize) {
-            super(null, null, null, psize);
+            super(null, null, null);
         }
 
         @SCJAllowed()
         @RunsIn("scope.TestGetCurrentManMem.WordHandler")
-        public void handleEvent() {
+        public void handleAsyncEvent() {
            
             @DefineScope(name="scope.TestGetCurrentManMem.WordHandler",  
                        parent="scope.TestGetCurrentManMem")
@@ -61,10 +61,6 @@ public class TestGetCurrentManMem extends CyclicExecutive {
         @SCJAllowed()
         public void cleanUp() {}
         
-        @SCJAllowed()
-        @Override
-        public void handleAsyncEvent() {}
-
         @Override
         public StorageParameters getThreadConfigurationParameters() {
             return null;

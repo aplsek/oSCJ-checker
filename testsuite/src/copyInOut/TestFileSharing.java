@@ -11,9 +11,10 @@ import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 // PLAN: open a file
 //       share it with SOs
@@ -41,7 +42,7 @@ public class TestFileSharing extends Mission {
 		public MyHandler(PriorityParameters priority,
 				PeriodicParameters parameters, StorageParameters scp,
 				long memSize) {
-			super(priority, parameters, scp, memSize);
+			super(priority, parameters, scp);
 		}
 
 		@Override
@@ -52,7 +53,7 @@ public class TestFileSharing extends Mission {
 		@Scope("Unknown") MyOutputStream myOutput;
 
 		@Override
-		public void handleEvent() {
+		public void handleAsyncEvent() {
 			TestFileSharing mission = (TestFileSharing) Mission.getCurrentMission();
 
 			myOutput = mission.output;
@@ -65,12 +66,12 @@ public class TestFileSharing extends Mission {
 
 
 class MyOutputStream {
-	@CrossScope
+	@RunsIn(UNKNOWN)
 	public void write(byte[] b) {
 
 	}
 
-	@LivesIn("Unknown")
+	@Scope(UNKNOWN)
 	public FileChannel getChannel() {
 		return null;
 	}

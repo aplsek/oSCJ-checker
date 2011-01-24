@@ -7,6 +7,8 @@ import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 
 @SCJAllowed(members=true, value=LEVEL_2)
 public class MyPeriodicEventHandler extends PeriodicEventHandler {
@@ -18,7 +20,7 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 			RelativeTime period) { 
 		super(new PriorityParameters(_priority),
 			new PeriodicParameters(startTime, period), 
-			new StorageParameters(10000, 10000, 10000),_memSize);
+			new StorageParameters(10000, 10000, 10000));
 	}
 	
 	public void handleAsyncEvent() {
@@ -32,8 +34,4 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 		return null;
 	}
 
-	@Override
-	public void handleEvent() {
-	}
-	
 }

@@ -19,7 +19,7 @@ public class TestNoParent extends PeriodicEventHandler {
 
      public TestNoParent(PriorityParameters priority, PeriodicParameters period,
             StorageParameters storage, long size) {
-        super(priority, period, storage, size);
+        super(priority, period, storage);
     }
 
     public void foo() {
@@ -28,7 +28,7 @@ public class TestNoParent extends PeriodicEventHandler {
      }
 
     @Override
-    public void handleEvent() {
+    public void handleAsyncEvent() {
     }
 
 

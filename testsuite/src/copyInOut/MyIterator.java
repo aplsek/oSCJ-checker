@@ -10,8 +10,10 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 
 /**
 *    MyIterator is the same as Dan's LinkedList iterator from the email below.
@@ -24,7 +26,7 @@ class MyIterator {
     int nextIndex ; 
     int size;
     
-    @CrossScope 
+    @RunsIn(UNKNOWN) 
     public MyIterator (final LinkedList list) {
             final MemoryArea mem1 = MemoryArea.getMemoryArea(list);
             final MemoryArea mem2 = MemoryArea.getMemoryArea(this);
@@ -38,11 +40,11 @@ class MyIterator {
             //TODO: assign index and size
             
         }
-        @CrossScope boolean hasNext() {
+        @RunsIn(UNKNOWN) boolean hasNext() {
         	  return nextIndex != size;
         }
 
-        @CrossScope Object next() {
+        @RunsIn(UNKNOWN) Object next() {
             if (hasNext()) {
                 
             	Rget r = new Rget(iter);
@@ -59,12 +61,12 @@ class MyIterator {
             }
         }
 
-        @CrossScope void remove() {
+        @RunsIn(UNKNOWN) void remove() {
             throw new Error();
         }
 
         
-        @CrossScope void add(Foo item) {
+        @RunsIn(UNKNOWN) void add(Foo item) {
         	  final MemoryArea mem1 = MemoryArea.getMemoryArea(item);
               final MemoryArea mem2 = MemoryArea.getMemoryArea(list);
               if (mem1 == mem2) {
@@ -120,19 +122,19 @@ class MyMission extends Mission {
 
 class Handler extends PeriodicEventHandler {
     public Handler() {
-    	super(null,null,null,0);
+    	super(null,null,null);
     }
 	
 	public Handler(PriorityParameters priority, PeriodicParameters period,
 			StorageParameters storage, long size) {
-		super(priority, period, storage, size);
+		super(priority, period, storage);
 	}
 	
 	
 	MyIterator myIterator;
 
-    public void handleEvent() {
-        // f is @Scope(UNKNOWN) if we now assume @CrossScopes return UNKNOWN
+    public void handleAsyncEvent() {
+        // f is @Scope(UNKNOWN) if we now assume @RunsIn(UNKNOWN)s return UNKNOWN
         for ( ; myIterator.hasNext() ; ) { // does f need to be final? is it already?
             Foo f = (Foo) myIterator.next();    // @Scope(UNKNOWN) object casted to @Scope(Mission) Foo
 
@@ -154,5 +156,5 @@ class Handler extends PeriodicEventHandler {
 @Scope("Mission")                                // <<-- Foo annotated with @Scope("Mission")
 class Foo {
     void notCrossScope() { }
-    @CrossScope void crossScope() { }
+    @RunsIn(UNKNOWN) void crossScope() { }
 } 

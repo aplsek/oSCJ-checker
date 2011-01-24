@@ -5,12 +5,14 @@ import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
 import javax.safetycritical.annotate.Allocate;
 import static javax.safetycritical.annotate.Allocate.Area.*;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 
 @Scope("crossScope.allocate.TestErrorAlloc") 
 public class TestErrorAlloc extends Mission  {
@@ -41,13 +43,13 @@ public class TestErrorAlloc extends Mission  {
     	
         public Handler(PriorityParameters priority,
                 PeriodicParameters parameters, StorageParameters scp, long memSize, TestErrorAlloc mission) {
-            super(priority, parameters, scp, memSize);
+            super(priority, parameters, scp);
             
             this.mission = mission;
         }
 
         public
-        void handleEvent() {
+        void handleAsyncEvent() {
         	Foo foo = mission.getCurrentFoo();			//OK, but this should be inferred to be in Mission
         }
 

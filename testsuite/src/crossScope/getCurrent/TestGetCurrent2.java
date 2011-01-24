@@ -14,7 +14,7 @@ import javax.safetycritical.MissionManager;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.Allocate;
-import javax.safetycritical.annotate.CrossScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
@@ -42,13 +42,13 @@ public class TestGetCurrent2  extends Mission  {
     	
         public Handler(PriorityParameters priority,
                 PeriodicParameters parameters, StorageParameters scp, long memSize, TestGetCurrent2 mission) {
-            super(priority, parameters, scp, memSize);
+            super(priority, parameters, scp);
             
             this.mission = mission;
         }
 
         public
-        void handleEvent() {
+        void handleAsyncEvent() {
         
         	
         	// TODO get current

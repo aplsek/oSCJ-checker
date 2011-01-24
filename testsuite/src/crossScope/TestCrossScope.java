@@ -15,12 +15,9 @@ import javax.safetycritical.annotate.Allocate;
 import static javax.safetycritical.annotate.Allocate.Area.*;
 
 
-import javax.safetycritical.annotate.CrossScope;
-import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
-import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
-
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("crossScope.TestCrossScope") 
 public class TestCrossScope extends Mission {
@@ -38,7 +35,7 @@ public class TestCrossScope extends Mission {
     }
 
     @Allocate({THIS})
-    @CrossScope
+    @RunsIn(UNKNOWN)
     public Foo getFoo() {
     	return this.foo;
     }
@@ -52,21 +49,21 @@ public class TestCrossScope extends Mission {
     	
         public MyHandler(PriorityParameters priority,
                 PeriodicParameters parameters, StorageParameters scp, long memSize, TestCrossScope mission) {
-            super(priority, parameters, scp, memSize);
+            super(priority, parameters, scp);
             
             this.mission = mission;
         }
 
-        public void handleEvent() {
+        public void handleAsyncEvent() {
         	
         	Foo foo = mission.getFoo();		// OK
             List bar = new List();
             
             foo.method(bar);                //  ---> OK
-            foo.methodErr(bar);				// ERROR: is not @crossScope
+            foo.methodErr(bar);				// ERROR: is not @RunsIn(UNKNOWN)
             
             foo.methodCross();			//  ERROR: foo's methodCross runs in "Mission" so it
-             							//   should be annocated with "@crossScope"
+             							//   should be annocated with "@RunsIn(UNKNOWN)"
         }
 
 
@@ -82,14 +79,14 @@ public class TestCrossScope extends Mission {
 
     	List x;
 
-    	public List methodCross() {				// this should be annotated with @crossScope to prevent the error abour
+    	public List methodCross() {				// this should be annotated with @RunsIn(UNKNOWN) to prevent the error abour
     		this.x = new List();
     		return x;
     	}
     	
     	
     	@Allocate({CURRENT})
-        @CrossScope
+        @RunsIn(UNKNOWN)
     	public List method(List bar) {
     		return bar;
     	}

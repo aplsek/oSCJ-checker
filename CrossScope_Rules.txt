@@ -56,7 +56,7 @@ e.g. if method returns "return this.field" and is not annotated with @Allocate(T
 
 
 
-@CrossScope
+@RunsIn(UNKNOWN)
 ==================================================================================================================================
 
 - can be used also in "java.lang"
@@ -64,24 +64,24 @@ e.g. if method returns "return this.field" and is not annotated with @Allocate(T
 Rules:
 ------------------------
 
-- method must be @CrossScope when
+- method must be @RunsIn(UNKNOWN) when
 	- its default @RunsIn is different then the current allocation context. 
 		- the default @RunsIn is ineferred when the scope of the local variable is inferred.
 	- or when an object of an unnannotated type is passed into the method as a parameter
 		and the the scopes of "this" and the passed are different
 
-- method annotated with @CrossScope can not:
+- method annotated with @RunsIn(UNKNOWN) can not:
 		- call getCurrent
 		- store into this fields
 		- store into the fields of input parameters
 - executeInARea
-	- each runnable used for "executeInArea" must be annotated with @CrossScope
+	- each runnable used for "executeInArea" must be annotated with @RunsIn(UNKNOWN)
 	- our scenario: "use executeInArea only to create new objects"
 - transitivity - method calls:
-	- all the methods called from a @CrossScope method must transitively be @CrossScope
+	- all the methods called from a @RunsIn(UNKNOWN) method must transitively be @RunsIn(UNKNOWN)
 	- 
 - method overriding
-	- if a method is @CrossScope and this is method is overriden, the overriding method implicitly inherits the @CrossScope - the annotation does not have to be restated
+	- if a method is @RunsIn(UNKNOWN) and this is method is overriden, the overriding method implicitly inherits the @RunsIn(UNKNOWN) - the annotation does not have to be restated
 
 - TODO: constructors
         - new String?
@@ -93,13 +93,13 @@ String
 
 StringBuffer - you dont want to have it crosssope or you need to use guards
 
-@CrossScope --> can be used also for the whole class...
+@RunsIn(UNKNOWN) --> can be used also for the whole class...
 
 q	
 
 
 
-Guards for @CrossScope
+Guards for @RunsIn(UNKNOWN)
 ------------------------
 case 1:
 if (MemoryArea.getMemoryArea(this) == MemoryArea.getMemoryArea(b)) { 
@@ -123,11 +123,11 @@ x.field = (Bar) mem.newInstance(Bar.class);
 	
 GetCurrent
 ----------------
-@CrossScope method can not call getCurrent(...)
+@RunsIn(UNKNOWN) method can not call getCurrent(...)
 
 - any class that does not have @Scope annotation, can not call "getCurrent" 	
 ---> java.* libraries are not allowed to call "getCurrent"... therefore, they do not need
-to be annotated @CrossScope to be accessible from @CrossScope methods  ---> but you should be able to use the GUARDS!!!
+to be annotated @RunsIn(UNKNOWN) to be accessible from @RunsIn(UNKNOWN) methods  ---> but you should be able to use the GUARDS!!!
 	
 	
 			
@@ -139,12 +139,12 @@ executeInArea( Runnable logic )
 - can only be made if the scoped memory is a parent of the current context in the scope tree
 - Runnable object passed to the method must have a RunsIn annotation that matches the name of the scoped memory
 
-each run() method used in "executeInArea" must be @CrossScope
+each run() method used in "executeInArea" must be @RunsIn(UNKNOWN)
 
 
 example:
 
-@CrossScope 
+@RunsIn(UNKNOWN) 
 public method(Foo f) {
 	Bar b = new Bar();
 	Bar bb = new Bar(b);
@@ -170,7 +170,7 @@ CrossScope in java.*
 
 for 
 
-@CrossScope
+@RunsIn(UNKNOWN)
 class String {
    
 	public String (String s) {
@@ -244,7 +244,7 @@ call reference immutable methods.
 PROBlEM : hard to check, 
 
 Options:
-   - use @CrossScope in java.lang packages
+   - use @RunsIn(UNKNOWN) in java.lang packages
    - use @ReferenceImmutable 
    - implicit checks
    - 

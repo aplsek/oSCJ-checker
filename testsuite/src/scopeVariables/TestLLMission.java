@@ -12,11 +12,8 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.Allocate;
-import javax.safetycritical.annotate.CrossScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
-
-import copyInOut.LL;
 
 @Scope("copyInOut.TestLLMission")
 public class TestLLMission extends Mission {
@@ -47,11 +44,11 @@ public class TestLLMission extends Mission {
 		public MyHandler(PriorityParameters priority,
 				PeriodicParameters parameters, StorageParameters scp,
 				long memSize, TestLLMission mission) {
-			super(priority, parameters, scp, memSize);
+			super(priority, parameters, scp);
 			this.myMission = mission;
 		}
 
-		public void handleEvent() {
+		public void handleAsyncEvent() {
 
 			@Scope("copyInOut.TestLLMission") 
 			LL realLL = myMission.getRealLL();					// OK
@@ -77,3 +74,5 @@ public class TestLLMission extends Mission {
 		}
 	}
 }
+
+

@@ -47,22 +47,18 @@ public class TestHelloWorld extends CyclicExecutive {
 
         @SCJAllowed()
         private WordHandler(long psize) {
-            super(null, null, null, psize);
+            super(null, null, null);
         }
 
         @SCJAllowed()
         @RunsIn("scope.TestHelloWorld.WordHandler")
-        public void handleEvent() {
+        public void handleAsyncEvent() {
             // printing HelloWorld!!!!
         }
 
         @SCJAllowed()
         public void cleanUp() {}
         
-        @SCJAllowed()
-        @Override
-        public void handleAsyncEvent() {}
-
         @Override
         public StorageParameters getThreadConfigurationParameters() {
             return null;

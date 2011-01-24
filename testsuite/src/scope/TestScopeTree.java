@@ -25,11 +25,11 @@ public class TestScopeTree extends PeriodicEventHandler {
 
     public TestScopeTree(PriorityParameters priority,
             PeriodicParameters parameters, StorageParameters scp, long memSize) {
-        super(priority, parameters, scp, memSize);
+        super(priority, parameters, scp);
     }
 
     @SCJRestricted(maySelfSuspend=true)
-    public void handleEvent() {
+    public void handleAsyncEvent() {
         A aObj = new A(); // Error
         B bObj = new B(); // Ok
 
@@ -43,10 +43,6 @@ public class TestScopeTree extends PeriodicEventHandler {
         mem.enterPrivateMemory(1000, new
         /*@DefineScope(name="BRunnable", parent="MyHandler")*/
         BRunnable111()); // Ok
-    }
-
-    @Override
-    public void handleAsyncEvent() {
     }
 
     @Scope("TestVariable")

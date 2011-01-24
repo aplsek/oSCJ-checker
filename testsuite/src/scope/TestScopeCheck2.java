@@ -49,13 +49,13 @@ public class TestScopeCheck2  extends CyclicExecutive  {
 class MyWordHandler2 extends PeriodicEventHandler {
 
     public MyWordHandler2(long psize) {
-        super(null, null, null, psize);
+        super(null, null, null);
     }
 
     public Object data;
     
     @RunsIn("scope.TestScopeCheck2.MyWordHandler2")
-    public void handleEvent() {
+    public void handleAsyncEvent() {
        
         
      @DefineScope(name="scope.TestScopeCheck2.MyWordHandler2",  
@@ -71,10 +71,6 @@ class MyWordHandler2 extends PeriodicEventHandler {
     @SCJAllowed()
     public void cleanUp() {}
     
-    @SCJAllowed()
-    @Override
-    public void handleAsyncEvent() {}
-
     @Override
     public StorageParameters getThreadConfigurationParameters() {
         return null;

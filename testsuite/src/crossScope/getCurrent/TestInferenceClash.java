@@ -26,11 +26,11 @@ class TestInferenceClash extends PeriodicEventHandler {
 
     public TestInferenceClash(PriorityParameters priority,
             PeriodicParameters parameters, StorageParameters scp, long memSize) {
-        super(priority, parameters, scp, memSize);
+        super(priority, parameters, scp);
     }
 
     public
-    void handleEvent() {
+    void handleAsyncEvent() {
     	MemoryArea mem = null;
     	
     	mem = RealtimeThread.getCurrentMemoryArea();

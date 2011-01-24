@@ -41,9 +41,6 @@ public class TestScopeCheck  extends CyclicExecutive  {
         return 5000000;
     }
 
-
-    
-
     @Override
     public void setUp() {}
     @Override
@@ -57,13 +54,13 @@ public class TestScopeCheck  extends CyclicExecutive  {
 class MyWordHandler extends PeriodicEventHandler {
 
     public MyWordHandler(long psize) {
-        super(null, null, null, psize);
+        super(null, null, null);
     }
 
     public Object data;
     
     @RunsIn("scope.TestScopeCheck.MyWordHandler")
-    public void handleEvent() {
+    public void handleAsyncEvent() {
        
         
      @DefineScope(name="scope.TestScopeCheck.MyWordHandler",  
@@ -79,10 +76,6 @@ class MyWordHandler extends PeriodicEventHandler {
     @SCJAllowed()
     public void cleanUp() {}
     
-    @SCJAllowed()
-    @Override
-    public void handleAsyncEvent() {}
-
     @Override
     public StorageParameters getThreadConfigurationParameters() {
         return null;
