@@ -1,7 +1,7 @@
 #!/bin/bash
 
-set -e
-set -x
+#set -e
+#set -x
 
 BUILD=./build
 
@@ -12,14 +12,19 @@ mkdir $BUILD
 
 JAVAC=./localbin/checkers/binary/javac
 
-CLASSPATH=lib/my-checkers.jar:lib/langtools.jar:lib/scjChecker.jar:lib/build/:lib/jsr308-all.jar:lib/checkers.jar
+
+
+#CLASSPATH=lib/my-checkers.jar:lib/langtools.jar:lib/build/:lib/jsr308-all.jar:lib/checkers.jar
+
+CLASSPATH=lib/build/:lib/jsr308-all.jar:lib/checkers.jar
+
 if [ -f "../../../../lib/scj.jar" ] 
 then 
  	CLASSPATH=$CLASSPATH:../../../../lib/scj.jar
 	rm -rf ./lib/scj.jar
 	mv ../../../../lib/scj.jar ./lib/
 else
-	CLASSPATH=$CLASPATH:./lib/scj.jar
+	CLASSPATH=$CLASSPATH:./lib/scj.jar
 fi
 
 echo "Compiling SCJChecker"
