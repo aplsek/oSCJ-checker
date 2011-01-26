@@ -24,8 +24,8 @@ public class TestIterator extends Mission {
 
 		@Scope("Unknown") Node node = (Node) iterator.getNext();
 		while (node != null) {
-			if (mem_node == mem_current)
-				node.methodNoCS();
+			//if (mem_node == mem_current)
+			//	node.methodNoCS();
 			node = (Node) iterator.getNext();
 		}
 	}

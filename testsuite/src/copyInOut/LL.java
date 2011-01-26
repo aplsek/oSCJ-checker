@@ -1,19 +1,20 @@
 package copyInOut;
 
 import static javax.safetycritical.annotate.Allocate.Area.THIS;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 import javax.realtime.MemoryArea;
 import javax.realtime.ScopedMemory;
 import javax.safetycritical.annotate.Allocate;
-import javax.safetycritical.annotate.CrossScope;
-
+import javax.safetycritical.annotate.RunsIn;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 public class LL {
 	int id;
 	LL next;
 
 	// returns a deep copy of a list in current scope
-	@CrossScope
+	@RunsIn(UNKNOWN)
 	public LL copyDown() {
 		final LL c = new LL();
 		c.id = this.id;												// DEEP-COPY all the fields
@@ -22,7 +23,7 @@ public class LL {
 		return c;
 	}
 
-	@CrossScope
+	@RunsIn(UNKNOWN)
 	public void copyUp(final LL h) {
 		if (h == null)
 			return;												// TODO: copy-up an empty list?
@@ -46,7 +47,7 @@ public class LL {
 	}
 
 	@Allocate({THIS})				                // OK: Returns value because it uses @Allocate
-	@CrossScope
+	@RunsIn(UNKNOWN)
 	public LL copyDown2Up(LL h) { 					// XXX: This is valid only in our new annotation system!
 		if (h == null)
 			return null;
@@ -73,7 +74,7 @@ public class LL {
 											//    current scope
 	}
 
-	@CrossScope
+	@RunsIn(UNKNOWN)
 	public LL testBadReturn() {
 		try {
 			final MemoryArea mem = ScopedMemory.getMemoryArea(this);

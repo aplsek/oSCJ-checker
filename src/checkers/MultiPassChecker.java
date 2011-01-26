@@ -62,11 +62,6 @@ public class MultiPassChecker extends SourceChecker {
     }
 
     @Override
-    public final SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.RELEASE_7;
-    }
-
-    @Override
     protected SourceVisitor<?, ?> createSourceVisitor(CompilationUnitTree root) {
         return null;
     }

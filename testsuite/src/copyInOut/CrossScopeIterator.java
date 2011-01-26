@@ -8,17 +8,16 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.CrossScope;
 import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
-
+import javax.safetycritical.annotate.RunsIn;
 
 class LinkedList<E> {
 	public transient Entry<E> header = new Entry<E>();
 	public transient int size = 0;
 	public transient int modCount = 0;
 	
-	@CrossScope
+	@RunsIn(UNKNOWN)
 	public CrossScopeIterator<E> getCrossScopeIterator() {
 		return new CrossScopeIterator<E>(this,0);
 	}
@@ -32,7 +31,7 @@ class CrossScopeIterator<E> {
 
 	@Scope(UNKNOWN) LinkedList<E> list;
 	
-	@CrossScope
+	@RunsIn(UNKNOWN)
 	public CrossScopeIterator(LinkedList<E> list,int index) {
 		// TODO : DYNAMIC CHECK next.isAbove(header);
 		next = list.header;
@@ -61,8 +60,8 @@ class CrossScopeIterator<E> {
 		
 		//asdfasd
 		
-		if ( MemoryArea.isAbove(temp_header,this)) {
-			// ...
+		if ( ManagedMemory.allocInSame(temp_header,this)) {
+            //...
 			this.lastReturned = temp_header;		// NOTE: assigning to a field of this, dynamic check is for "this".
 			addBefore(e, this.next);
 			this.nextIndex++;
@@ -75,25 +74,33 @@ class CrossScopeIterator<E> {
 	}
 
 	private @Scope(UNKNOWN)  Entry<E> addBefore(final @Scope(UNKNOWN) E e,final @Scope(UNKNOWN) Entry<E> entry) {
-		final MemoryArea mem1 = MemoryArea.getMemoryArea(e);
-		final MemoryArea mem2 = MemoryArea.getMemoryArea(entry);
-		Entry newItem = (Entry) mem2.newInstance(Entry.class);    // TODO: inferred to be mem2 ?? 			
+		Entry newItem = null;
+		try {
+			final MemoryArea mem1 = MemoryArea.getMemoryArea(e);
+			final MemoryArea mem2 = MemoryArea.getMemoryArea(entry);
+			newItem = (Entry) mem2.newInstance(Entry.class);    // TODO: inferred to be mem2 ?? 	
+		
+			if ( (mem1 == mem2) ) {
+				newItem.element = e;
+				newItem.previous = entry.previous;
+				newItem.next = entry.next;
 
-		if ( (mem1 == mem2) ) {
-			newItem.element = e;
-			newItem.previous = entry.previous;
-			newItem.next = entry.next;
+				newItem.previous.next = newItem;
+				newItem.next.previous = newItem;
 
-			newItem.previous.next = newItem;
-			newItem.next.previous = newItem;
+				list.size++;
+				list.modCount++;
+			}
+			else {
+				throw new Error();
+			}
+		} catch (InstantiationException e1) {
+			e1.printStackTrace();
+		} catch (IllegalAccessException e1) {
+			e1.printStackTrace();
+		}     			
 
-			list.size++;
-			list.modCount++;
-			return newItem;
-		}
-		else {
-			throw new Error();
-		}
+		return newItem;
 	}
 }
 
@@ -122,17 +129,17 @@ class MyOtherMission extends Mission {
 
 class MyHandler extends PeriodicEventHandler {
     public MyHandler() {
-    	super(null,null,null,0);
+    	super(null,null,null);
     }
 	
 	public MyHandler(PriorityParameters priority, PeriodicParameters period,
 			StorageParameters storage, long size) {
-		super(priority, period, storage, size);
+		super(priority, period, storage);
 	}
 
 	@Scope(UNKNOWN) public LinkedList list;
     
-    public void handleEvent() {
+    public void handleAsyncEvent() {
     	CrossScopeIterator myIterator = list.getCrossScopeIterator();
         while ( myIterator.hasNext()) {
             Foo f = (Foo) myIterator.next();   

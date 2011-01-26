@@ -30,7 +30,7 @@ class MyIterator {
     public MyIterator (final LinkedList list) {
             final MemoryArea mem1 = MemoryArea.getMemoryArea(list);
             final MemoryArea mem2 = MemoryArea.getMemoryArea(this);
-            if (mem1.isAbove(mem2)) { // not a real method
+            if (ManagedMemory.allocInSame(list, this)) { 
                 this.list = list;
                 iter = (Iterator) list.iterator();
             } else {
@@ -59,6 +59,7 @@ class MyIterator {
             } else {
                 throw new Error();
             }
+			return iter;   // FIXME: ????
         }
 
         @RunsIn(UNKNOWN) void remove() {

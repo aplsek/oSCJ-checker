@@ -58,7 +58,7 @@ public class TestFileSharing extends Mission {
 
 			myOutput = mission.output;
 
-			byte[] b;  //  = ... initialize";
+			byte[] b = null;  //  = ... initialize";
 			myOutput.write(b);
 		}
 	}

@@ -3,6 +3,7 @@ package copyInOut;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
@@ -33,7 +34,7 @@ class ManagedThread {
 }
 
 
-@Scope("Immortal")
+@Scope(IMMORTAL)
 class ImmortalEntry {
 	
 	MyManagedRunnable logic;
@@ -43,8 +44,8 @@ class ImmortalEntry {
 }
 
 
-@Scope("MyOtherMission")
-class MyOtherMission extends Mission {
+@Scope("copyInOut.MyOtherMission2")
+class MyOtherMission2 extends Mission {
 
 	MyManagedRunnable logic;
 	PriorityParameters pp;
@@ -62,15 +63,15 @@ class MyOtherMission extends Mission {
 	}
 }
 
-@Scope("MyOtherMission")
-@RunsIn("MyHandler")
-class MyHandler extends PeriodicEventHandler {
-	public MyHandler() {
+@Scope("MyOtherMission2")
+@RunsIn("MyHandler2")
+class MyHandler2 extends PeriodicEventHandler {
+	public MyHandler2() {
 		super(null, null, null);
 	}
 
-	public MyHandler(PriorityParameters priority, PeriodicParameters period,
-			StorageParameters storage, long size) {
+	public MyHandler2(PriorityParameters priority, PeriodicParameters period,
+			StorageParameters storage) {
 		super(priority, period, storage);
 	}
 

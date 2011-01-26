@@ -16,7 +16,6 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import scopeVariables.LL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 
