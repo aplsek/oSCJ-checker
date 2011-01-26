@@ -7,17 +7,11 @@ package crossScope;
 
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
-import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.Allocate;
 import javax.safetycritical.annotate.RunsIn;
-import javax.safetycritical.annotate.DefineScope;
-import javax.safetycritical.annotate.RunsIn;
-import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
-import static javax.safetycritical.annotate.Allocate.Area.*;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("crossScope.TestInference") 
@@ -35,7 +29,6 @@ public class TestInference extends Mission {
         return 0;
     }
 
-    @Allocate({THIS})
     public Foo getFoo() {
     	return this.foo;
     }
@@ -71,7 +64,6 @@ public class TestInference extends Mission {
 
     	public Bar field;
 
-    	@Allocate({CURRENT})
         @RunsIn(UNKNOWN)
     	public Bar method(Bar bar) {
     		return bar;
@@ -81,8 +73,6 @@ public class TestInference extends Mission {
     		return null;
     	}
     	
-    	
-    	@Allocate({THIS})
         public Bar method2() {
     		return this.field;
     	}	 

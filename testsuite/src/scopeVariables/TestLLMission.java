@@ -1,17 +1,14 @@
 package scopeVariables;
 
-import static javax.safetycritical.annotate.Allocate.Area.THIS;
 
 import javax.realtime.ImmortalMemory;
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.realtime.RealtimeThread;
-import javax.realtime.ScopedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.Allocate;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 

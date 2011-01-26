@@ -6,12 +6,8 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.RunsIn;
-import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import javax.safetycritical.annotate.Allocate;
-import static javax.safetycritical.annotate.Allocate.Area.*;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 
 @Scope("crossScope.allocate.TestErrorAlloc") 

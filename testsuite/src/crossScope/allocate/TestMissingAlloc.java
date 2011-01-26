@@ -7,8 +7,8 @@ package crossScope.allocate;
 
 import javax.safetycritical.Mission;
 import javax.safetycritical.PrivateMemory;
-import javax.safetycritical.annotate.Allocate;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.Scope;
 
 public class TestMissingAlloc {
 
@@ -28,7 +28,7 @@ public class TestMissingAlloc {
 	
 	
 	
-	@Allocate(scope="Mission")						// OK
+	@Scope("Mission")						// OK
 	public Mission returnMission() {				
 		Mission m = null;
 		m = Mission.getCurrentMission();

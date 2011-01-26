@@ -5,8 +5,7 @@
 
 package crossScope;
 
-import javax.safetycritical.annotate.Allocate;
-import static javax.safetycritical.annotate.Allocate.Area.*;
+import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.RunsIn;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -15,7 +14,7 @@ public class TestFieldStore2 {
 	
 	class Foo {
 		
-		@Allocate(parameter="in")
+		@Scope("in")
 		@RunsIn(UNKNOWN)
 		public Bar myMethod(Bar in) {
 		    in.result = in.x + in.y;        // OK, primitive fields modified	
@@ -23,14 +22,12 @@ public class TestFieldStore2 {
 		}
 		
 		
-		@Allocate({CURRENT})
 		@RunsIn(UNKNOWN)
 		public Bar myMethod2(Bar in) {
 		    in.result = in.x + in.y;        // OK, primitive fields modified	
 			return in;                      //  -----> ERROR, we do not know that "in" is "current"
 		}
 		
-		@Allocate({CURRENT})
 		@RunsIn(UNKNOWN)
 		public Bar myMethod3(Bar in) {
 			return new Bar();                  // OK

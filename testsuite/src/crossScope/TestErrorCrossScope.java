@@ -6,12 +6,7 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.RunsIn;
-import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
-
-import javax.safetycritical.annotate.Allocate;
-import static javax.safetycritical.annotate.Allocate.Area.*;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("crossScope.TestErrorCrossScope") 
 public class TestErrorCrossScope extends Mission  {
@@ -28,7 +23,6 @@ public class TestErrorCrossScope extends Mission  {
         return 0;
     }
     
-    @Allocate({THIS})
     public Foo getCurrentFoo() {
     	return this.foo;
     }
@@ -66,7 +60,6 @@ public class TestErrorCrossScope extends Mission  {
     class Foo {
     	private Bar field;
     	
-    	@Allocate({THIS})
     	public Bar method() {
     		this.field = new Bar();						// ERROR
     		

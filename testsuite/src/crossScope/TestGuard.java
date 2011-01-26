@@ -6,15 +6,15 @@
 package crossScope;
 
 import javax.realtime.MemoryArea;
+import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.RunsIn;
-import javax.safetycritical.annotate.Allocate;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 public class TestGuard {
 
 	Bar b;
 
-	@Allocate(parameter="b")
+	@Scope("b")
 	@RunsIn(UNKNOWN)
 	public Bar method(Bar b) {
 		if (MemoryArea.getMemoryArea(this) == MemoryArea.getMemoryArea(b)) { //  ---> GUARD

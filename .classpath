@@ -10,6 +10,6 @@
 	<classpathentry kind="lib" path="lib/jsr308-langtools.jar"/>
 	<classpathentry kind="lib" path="lib/my-checkers.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/checkers"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/scj"/>
-	<classpathentry kind="output" path="build"/>
+	<classpathentry kind="lib" path="lib/scj.jar"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>

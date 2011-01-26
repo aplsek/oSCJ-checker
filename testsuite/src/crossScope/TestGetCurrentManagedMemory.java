@@ -1,16 +1,13 @@
 package crossScope;
 
-import static javax.safetycritical.annotate.Allocate.Area.THIS;
 
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.Allocate;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.DefineScope;
-import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
 import crossScope.TestErrorCrossScope.Foo;
@@ -54,7 +51,6 @@ public class TestGetCurrentManagedMemory {
         	
         }        
 
-        @Allocate({THIS})
         public Foo getCurrentFoo() {
         	return this.foo;
         }

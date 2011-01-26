@@ -10,9 +10,7 @@
 \*---------------------------------------------------------------------*/
 package java.lang;
 
-import static javax.safetycritical.annotate.Allocate.Area.CURRENT;
-import static javax.safetycritical.annotate.Allocate.Area.THIS;
-
+import static javax.safetycritical.annotate.Allocate.Area.*;
 import javax.safetycritical.annotate.Allocate;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.SCJAllowed;

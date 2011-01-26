@@ -6,13 +6,12 @@
 package crossScope.allocate;
 
 import javax.safetycritical.PrivateMemory;
-import javax.safetycritical.annotate.Allocate;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
 
 import javax.safetycritical.annotate.RunsIn;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
-
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("Immortal")
 public class TestParameter {
@@ -22,42 +21,42 @@ public class TestParameter {
 	
 	Bar b;
 	
-	@Allocate(parameter="b")
+	@Scope("b")
 	@RunsIn(UNKNOWN)
 	public Bar method(Bar b) {				// OK
 		return b;
 	} 
 
-	@Allocate(scope="Immortal")				// OK
+	@Scope("Immortal")				// OK
 	@RunsIn(UNKNOWN)
 	public Bar method2(Bar b, Foo f) {	    // OK 
 		return this.b;						// OK - returned object lives in immortal
 	} 
 	
-	@Allocate(scope="Mission")				// ERROR
+	@Scope("Mission")				// ERROR
 	@RunsIn(UNKNOWN)
 	public Bar method3(Bar b, Foo f) {	    // OK 
 		return this.b;						// OK - returned object lives in immortal
 	} 
 	
-	@Allocate(scope="Mission")
+	@Scope("Mission")
 	@RunsIn(UNKNOWN)
 	public Bar method4(Bar b, Foo f) {		//OK 
 		return null;						// OK : null must work for any scope!
 	} 
 	
-	@Allocate(scope="Immortal")
+	@Scope(IMMORTAL)
 	@RunsIn(UNKNOWN)
 	public Bar methodNull(Bar b, Foo f) {   //OK 
 		return null;						// OK : null must work for any scope!
 	} 
 	
-	@Allocate(scope="Immortal")
+	@Scope(IMMORTAL)
 	@RunsIn(UNKNOWN)
 	public void method5(Bar b, Foo f) {	   // ERROR: is void and had @Allocate
 	} 
 	
-	@Allocate(scope="private")				// ERROR - the scope does not exist
+	@Scope("private")				// ERROR - the scope does not exist
 	@RunsIn(UNKNOWN)
 	public Bar method6(Bar b) {		
 		return null;						

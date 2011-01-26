@@ -2,9 +2,6 @@ package crossScope;
 
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
-import javax.safetycritical.annotate.Allocate;
-import static javax.safetycritical.annotate.Allocate.Area.*;
-import javax.safetycritical.annotate.RunsIn;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 public class TestFieldStore4 {
@@ -25,7 +22,7 @@ public class TestFieldStore4 {
 		       foo = foo.getMyFoo(myBar2);			// ERROR
 		  }	
 		  
-		  @Allocate(scope="immortal")
+		  @Scope("immortal")
 		  public Foo getCurrentFoo() {
 			  return null;
 		  }
@@ -40,19 +37,16 @@ public class TestFieldStore4 {
 			return this.field;						// ERROR: has not @Allocate, we loose scope info!!
 		}											// - TODO: if the default for @allocate is not "this"
 		
-		@Allocate({THIS})
 		@RunsIn(UNKNOWN)
 		public Bar myMethod(Bar b) {
 			return this.field;
 		}
 		
-		@Allocate({CURRENT})						// ERRO, should be ...
 		@RunsIn(UNKNOWN)
 		public Bar myMethodLocal(Bar b) {
 			return b;
 		}
 		
-		@Allocate({CURRENT})						// ERRO, should be ...
 		@RunsIn(UNKNOWN)
 		public Foo getMyFoo(Bar b) {
 			return null;
