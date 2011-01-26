@@ -20,5 +20,5 @@
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.sun.tools.javac.Main"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-processor checkers.scjRestricted.SCJRestrictedChecker -proc:only -Awarns -cp ./build/src: /Users/plsek/workspace/jsr302-TCK/scj/specsrc/java/lang/Exception.java"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="scj-annotations-NEW"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="scj-Checker"/>
 </launchConfiguration>
