@@ -6,6 +6,10 @@
 #	 python runtests.py  --scj-path ./build/src/:./build/spec/
 #	 python runtests.py  --scj-path ./build/src/:/Users/plsek/_work/workspace_RT/Spec-SRC/bin
 #
+# To change the default input directory:
+#        python runtests.py  --scj-path ./build/src/:./build/spec/ --directory testsuite
+#
+#
 #   python runtests.py  --scj-path ./build/src/:/Users/plsek/_work/workspace_RT/scj-current/bin
 
 
@@ -90,5 +94,5 @@ if __name__ == '__main__':
         parser.parse_args(['-h'])
 
     RUN_CMD = RUN_CMD % (options.scj_path, '%s')
-    #print 'Running tests with root directory %s' % test_dir
+    print 'Running tests with root directory: %s' % options.directory
     run_tests(options.directory)
