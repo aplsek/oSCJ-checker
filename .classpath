@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="lib" path="lib/checkers.jar" sourcepath="/checkers"/>
-	<classpathentry kind="lib" path="lib/jsr308-all.jar"/>
-	<classpathentry kind="lib" path="lib/scj.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry excluding="copyInOut/LinkedList.java" kind="src" path="testsuite/src"/>
 	<classpathentry kind="src" path="spec"/>
+	<classpathentry kind="lib" path="lib/checkers.jar" sourcepath="/checkers"/>
+	<classpathentry kind="lib" path="lib/jsr308-all.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/checkers"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/javaparser"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jsr308-langtools"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/scj"/>
+	<classpathentry kind="lib" path="lib/scj.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

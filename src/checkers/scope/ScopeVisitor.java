@@ -24,6 +24,8 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.*;
+
 
 import checkers.Utils;
 import checkers.source.Result;
@@ -58,6 +60,8 @@ import com.sun.source.tree.VariableTree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeInfo;
+
+
 
 //TODO: Defaults for @RunsIn/@Scope on specific SCJ classes
 //TODO: Unscoped method parameters?
@@ -128,7 +132,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         debugIndentIncrement("visitBlock");
         String oldRunsIn = currentRunsIn;
         if (node.isStatic()) {
-            currentRunsIn = "immortal";
+            currentRunsIn = IMMORTAL;
         }
         R r = super.visitBlock(node, p);
         currentRunsIn = oldRunsIn;
@@ -770,15 +774,15 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         if (isStatic(var.getModifiers())) {
             Utils.debugPrintln("static (immortal)");
             // Class variable
-            if (varScope != null && !"immortal".equals(varScope)) {
+            if (varScope != null && IMMORTAL.equals(varScope)) {
                 // If a variable is static, its type should be
-                // @Scope("immortal") or nothing at all
+                // @Scope(IMMorTAL) or nothing at all
                 report(Result.failure("static.not.immortal"), node);
             }
             // We need to set this for visiting the variable initializer.
             // Apparently sometimes the static initializer is optimized into
             // individual initializers?
-            currentRunsIn = "immortal";
+            currentRunsIn = IMMORTAL;
         } else if (classOrInterface.contains(varEnv.getKind())) {
             // Instance variable
             Utils.debugPrintln("instance @Scope(" + varScope + ")");
@@ -910,7 +914,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
     private String scope(VariableElement var) throws ScopeException {
         if (isStatic(var.getModifiers())) { // static
-            return "immortal";
+            return IMMORTAL;
         }
 
         String varScope = varScope(var);
@@ -1216,7 +1220,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             if (TypesUtils.isDeclaredOfName(type.asType(),
             "javax.realtime.ImmortalMemory")
             && "instance".equals(methodName)) {
-                return "immortal";
+                return IMMORTAL;
             } else if (TypesUtils.isDeclaredOfName(type.asType(),
             "javax.realtime.MemoryArea")
             && "getMemoryArea".equals(methodName)) {
@@ -1295,10 +1299,19 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
      * 
      */
     public R visitAnnotation(AnnotationTree node, P p) {
-        // we are escaping @SCJRestricted annotation
+        Utils.debugPrintln(indent + "visit annotation:" +  node.getAnnotationType().toString());
+        
+        if (node.getAnnotationType().toString().equals("DefineScope"))
+            return null;
+        if (node.getAnnotationType().toString().equals("Scope"))
+            return null;
+        if (node.getAnnotationType().toString().equals("RunsIn"))
+            return null;
+        
+         // we are escaping @SCJRestricted annotation
         // it its not the concern of this checker and since it
         // can have assignements, it brings errors to the regular code
-        // assignenments taht we need to check
+        // assignenments that we need to check
         if (node.getAnnotationType().toString().equals("SCJRestricted"))
             return null;
         if (node.getAnnotationType().toString().equals("Target"))

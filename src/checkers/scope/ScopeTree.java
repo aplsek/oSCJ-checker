@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import static javax.safetycritical.annotate.Scope.*;
 import checkers.source.Result;
 
 import com.sun.source.tree.Tree;
@@ -26,7 +26,7 @@ public abstract class ScopeTree {
     public static void initialize() {
         scopeTree = new HashMap<String, String>();
         scopeMap = new HashMap<String, Tree>();
-        put("immortal", "", null);
+        put(IMMORTAL, "", null);
     }
     
     public static boolean isInitialized() {
@@ -104,7 +104,7 @@ public abstract class ScopeTree {
     }
     
     private static boolean connectsWithRoot(String key) {
-        if (isParentOf(key,"immortal"))
+        if (isParentOf(key,IMMORTAL))
             return true;
         else
             return false;

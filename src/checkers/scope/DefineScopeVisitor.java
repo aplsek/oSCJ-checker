@@ -29,7 +29,7 @@ import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
-
+import static javax.safetycritical.annotate.Scope.*;
 // TODO: Verify tree structure after construction
 
 @SuppressWarnings("restriction")
@@ -51,25 +51,32 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
     @Override
     public R visitClass(ClassTree node, P p) {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
+        
+        DefineScope d = t.getAnnotation(DefineScope.class);
+        if (d != null) {
+            ScopeTree.put(d.name(), d.parent(), node);
+        }
+        
+        /*
         if (isSubtype(t, "javax.safetycritical.Mission")) {
             // TODO: This needs to check superclasses, if we assume user missions can be inherited from
             DefineScope d = t.getAnnotation(DefineScope.class);
             if (d == null) {
-                ScopeTree.put(t.getQualifiedName().toString(), "immortal", node);
+                ScopeTree.put(t.getQualifiedName().toString(), IMMORTAL, node);
             } else {
                 ScopeTree.put(d.name(), d.parent(), node);
             }
         } else if (isSubtype(t, "javax.safetycritical.ManagedEventHandler")) {
             Scope s = t.getAnnotation(Scope.class);
             if (s == null) {
-                ScopeTree.put(t.getQualifiedName().toString(), "immortal", node);
+                ScopeTree.put(t.getQualifiedName().toString(), IMMORTAL, node);
             } else {
                 ScopeTree.put(t.getQualifiedName().toString(), s.value(), node);
             }
-        }
+        }*/
         
-       //System.out.println("\nScope Visist!!!!!");
-        //ScopeTree.printTree();
+        System.out.println("\nScope Visit!!!!!");
+        ScopeTree.printTree();
         
         return super.visitClass(node, p);
     }
@@ -93,7 +100,7 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
                     }
                 }
                 if (name != null && parent != null) {
-                    if ("immortal".equals(name)) {
+                    if (IMMORTAL.equals(name)) {
                         checker.report(Result.failure("bad.scope.name"), node);
                     //
                     // TODO: ales, this is disabled, we allow this...
@@ -110,8 +117,6 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
             }
             //checker.report(
             //    Result.failure("Runnables used with enterPrivateMemory must have a @DefineScope annotation"), node);
-        
-        
         }
         return super.visitMethodInvocation(node, p);
     }
@@ -127,8 +132,6 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
                  if (ann.getAnnotationType().toString().equals("javax.safetycritical.annotate.DefineScope")) {
                      processDefineScope(node,ann);
                      found = true;
-                     
-                     
                  }
             }
             if (!found) 
@@ -173,7 +176,7 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
         }
         
         if (name != null && parent != null) {
-            if ("immortal".equals(name)) {
+            if (IMMORTAL.equals(name)) {
                 checker.report(Result.failure("bad.scope.name"), node);
             }
             else if (ScopeTree.hasScope(name)) {
