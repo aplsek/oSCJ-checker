@@ -12,16 +12,16 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+@DefineScope(name="a", parent=IMMORTAL)
 public class TestDuplicate {
 
-    @DefineScope(name="a", parent=IMMORTAL)
     PrivateMemory a;
     
     static class Helper {
         static void foo() {
             ManagedMemory.
             getCurrentManagedMemory().
-                enterPrivateMemory(0, new /*@DefineScope(name="a", parent=IMMORTAL)*/ R1());
+                enterPrivateMemory(0, new R1());
         }
         
         @DefineScope(name="a", parent=IMMORTAL)
