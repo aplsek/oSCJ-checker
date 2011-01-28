@@ -13,8 +13,8 @@ import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @DefineScope(name="a", parent=IMMORTAL)
+@Scope("a")
 public class TestDuplicate {
-
     PrivateMemory a;
     
     static class Helper {
@@ -25,7 +25,7 @@ public class TestDuplicate {
         }
         
         @DefineScope(name="a", parent=IMMORTAL)
-        @Scope(IMMORTAL) @RunsIn("a")
+        @Scope("a") @RunsIn("a")
         static class R1 implements Runnable {
             @Override
             public void run() {

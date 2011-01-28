@@ -7,7 +7,8 @@ BUILD=./build
 
 rm -rf $BUILD
 rm -rf sources
-rm -rf SCJChecker.jar
+rm -rf scjChecker.jar
+rm -rf lib/scjChecker.jar
 mkdir $BUILD
 
 JAVAC=./localbin/checkers/binary/javac

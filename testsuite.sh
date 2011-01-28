@@ -6,7 +6,8 @@
 # ReCompile the Checker
 ./build.sh
 
-
+# Recompile the TESTSUITE
+echo "Compiling the TEST-SUITE."
 TESTSUITE=./testsuite
 cd $TESTSUITE && ./clean.sh && ./build.sh && cd ..
 
