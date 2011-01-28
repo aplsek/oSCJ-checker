@@ -10,10 +10,11 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
-
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @SCJAllowed(members=true)
-@Scope("immortal")
+@Scope(IMMORTAL)
+@DefineScope(name = "scope.TestGetCurrentManMem", parent = IMMORTAL)
 public class TestGetCurrentManMem extends CyclicExecutive {
 
     public TestGetCurrentManMem() {
@@ -37,6 +38,7 @@ public class TestGetCurrentManMem extends CyclicExecutive {
     @SCJAllowed()
     @Scope("scope.TestGetCurrentManMem")
     @RunsIn("scope.TestGetCurrentManMem.WordHandler")
+    @DefineScope(name = "scope.TestGetCurrentManMem.WordHandler", parent = "scope.TestGetCurrentManMem")
     public class WordHandler extends PeriodicEventHandler {
 
         @SCJAllowed()
@@ -48,14 +50,9 @@ public class TestGetCurrentManMem extends CyclicExecutive {
         @RunsIn("scope.TestGetCurrentManMem.WordHandler")
         public void handleAsyncEvent() {
            
-            @DefineScope(name="scope.TestGetCurrentManMem.WordHandler",  
-                       parent="scope.TestGetCurrentManMem")
             ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
-            
             mem.enterPrivateMemory(300, 
-                            new /*@DefineScope(name="MyTestRunnable_area",
-                             parent="scope.TestGetCurrentManMem.WordHandler")*/ 
-                                MyTestRunnable333());
+                            new MyTestRunnable333());
         }
 
         @SCJAllowed()
@@ -81,6 +78,8 @@ public class TestGetCurrentManMem extends CyclicExecutive {
 @SCJAllowed(members=true)
 @Scope("scope.TestGetCurrentManMem.WordHandler")
 @RunsIn("MyTestRunnable_area")
+@DefineScope(name="MyTestRunnable_area",
+                             parent="scope.TestGetCurrentManMem.WordHandler")
 class MyTestRunnable333 implements Runnable {
     public void run() {
     }

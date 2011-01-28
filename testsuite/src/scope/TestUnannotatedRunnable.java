@@ -10,10 +10,12 @@ import javax.safetycritical.PrivateMemory;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-@Scope("immortal")
+
+@Scope(IMMORTAL)
 public class TestUnannotatedRunnable {
-    @DefineScope(name = "a", parent = "immortal")
+    @DefineScope(name = "a", parent = IMMORTAL)
     PrivateMemory a = new PrivateMemory(0);
 
     public void foo() {
@@ -26,20 +28,21 @@ class HelperUnannotatedRunnable {
     void foo() {
         ManagedMemory.
             getCurrentManagedMemory().
-                enterPrivateMemory(0, new /*@DefineScope(name="b", parent="immortal")*/ R11());
+                enterPrivateMemory(0, new R11());
     }
 }
 
-@Scope("immortal") @RunsIn("b")
+@Scope(IMMORTAL) @RunsIn("b")
+@DefineScope(name = "b", parent = IMMORTAL)
 class R11 implements Runnable {
     @Override
     public void run() {
     }
 }
 
-@Scope("immortal")
-// error from missing @RunsIn("a")
+@Scope(IMMORTAL)
+@DefineScope(name = "a", parent = IMMORTAL)
 class S22 implements Runnable {
-    public void run() {
+    public void run() {                     // error from missing @RunsIn("a")
     }
 }

@@ -9,8 +9,9 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-@Scope("immortal")
+@Scope(IMMORTAL)
 public class TestFieldScope {
     E e = null;
     
@@ -18,12 +19,13 @@ public class TestFieldScope {
         static void foo() {
             ManagedMemory.
             getCurrentManagedMemory().
-                enterPrivateMemory(0, new /*@DefineScope(name="a", parent="immortal")*/ R12());
+                enterPrivateMemory(0, new R12());
         }
     }
 }
 
-@Scope("immortal") @RunsIn("a")
+@Scope(IMMORTAL) @RunsIn("a")
+@DefineScope(name="a", parent=IMMORTAL)
 class R12 implements Runnable {
     @Override
     public void run() {

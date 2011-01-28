@@ -15,11 +15,12 @@ import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
-
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import javax.safetycritical.annotate.DefineScope;
 
 @SCJAllowed(members=true)
-@Scope("scope.TestEnterPrivateMemory")
+@Scope("TestEnterPrivateMemory")
+@DefineScope(name="TestEnterPrivateMemory", parent=IMMORTAL)
 public class TestEnterPrivateMemory extends CyclicExecutive {
   
     public TestEnterPrivateMemory() {
@@ -43,8 +44,9 @@ public class TestEnterPrivateMemory extends CyclicExecutive {
     }
     
     @SCJAllowed()
-    @Scope("scope.TestEnterPrivateMemory")
-    @RunsIn("scope.TestEnterPrivateMemory.WordHandler")
+    @Scope("TestEnterPrivateMemory")
+    @RunsIn("WordHandler")
+    @DefineScope(name="WordHandler", parent="TestEnterPrivateMemory")
     public class WordHandler extends PeriodicEventHandler {
 
         @SCJAllowed()
@@ -53,14 +55,12 @@ public class TestEnterPrivateMemory extends CyclicExecutive {
         }
 
         @SCJAllowed()
-        @RunsIn("scope.TestEnterPrivateMemory.WordHandler")
+        @RunsIn("WordHandler")
         public void handleAsyncEvent() {
             ManagedMemory.
                 getCurrentManagedMemory().
                     enterPrivateMemory(300, 
-                            new /*@DefineScope(name="handler22",   // FAIL!!
-                             parent="scope.TestEnterPrivateMemory.WordHandler")*/ 
-                                MyTestRunnable());
+                            new MyTestRunnable());
         }
 
         @SCJAllowed()
@@ -77,9 +77,11 @@ public class TestEnterPrivateMemory extends CyclicExecutive {
 }
 
 @SCJAllowed(members=true)
-@Scope("scope.TestEnterPrivateMemory.WordHandler")
+@Scope("WordHandler")
 @RunsIn("handler_child")
 class MyTestRunnable implements Runnable {
+    
+    @RunsIn("handler_child")
     public void run() {
     }
 }

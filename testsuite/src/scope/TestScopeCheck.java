@@ -20,8 +20,10 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("scope.TestScopeCheck")
+@DefineScope(name="scope.TestScopeCheck",parent=IMMORTAL)
 public class TestScopeCheck  extends CyclicExecutive  {
 
     public TestScopeCheck() {
@@ -51,6 +53,7 @@ public class TestScopeCheck  extends CyclicExecutive  {
 
 @Scope("scope.TestScopeCheck")
 @RunsIn("scope.TestScopeCheck.MyWordHandler")
+@DefineScope(name="scope.TestScopeCheck.MyWordHandler", parent="scope.TestScopeCheck")
 class MyWordHandler extends PeriodicEventHandler {
 
     public MyWordHandler(long psize) {
@@ -61,16 +64,9 @@ class MyWordHandler extends PeriodicEventHandler {
     
     @RunsIn("scope.TestScopeCheck.MyWordHandler")
     public void handleAsyncEvent() {
-       
-        
-     @DefineScope(name="scope.TestScopeCheck.MyWordHandler",  
-                parent="scope.TestScopeCheck")
-     ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
-     
-     mem.enterPrivateMemory(300, 
-                     new /*@DefineScope(name="MyTestRunnable",
-                      parent="scope.TestScopeCheck.MyWordHandler")*/ 
-                     MyErrorRunnable());
+        ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
+        mem.enterPrivateMemory(300, 
+                     new MyErrorRunnable());
     }
 
     @SCJAllowed()
@@ -83,6 +79,7 @@ class MyWordHandler extends PeriodicEventHandler {
 
     @Scope("scope.TestScopeCheck.MyWordHandler")
     @RunsIn("MyTestRunnable")
+    @DefineScope(name="MyTestRunnable",parent="scope.TestScopeCheck.MyWordHandler")
     class MyErrorRunnable implements Runnable {
 
         Object mydata;

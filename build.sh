@@ -38,6 +38,6 @@ mv SCJChecker.jar lib/
 echo "SCJ-Checker installation completed."
 
 #test-suite
-echo "SCJChecker Test Suite compilation..."
-
-cd testsuite && ./build.sh
+#echo "SCJChecker Test Suite compilation..."
+#
+#cd testsuite && ./build.sh

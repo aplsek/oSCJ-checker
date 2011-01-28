@@ -12,11 +12,13 @@ import javax.safetycritical.PrivateMemory;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("a")
+@DefineScope(name="a", parent=IMMORTAL)
 public class TestExecuteInAreaTarget {
-    @DefineScope(name="a", parent="immortal") PrivateMemory a;
-    @DefineScope(name="b", parent="a") PrivateMemory b;
+    PrivateMemory a;
+    PrivateMemory b;
 
     @RunsIn("a")
     public void foo() {
@@ -25,6 +27,7 @@ public class TestExecuteInAreaTarget {
 }
 
 @RunsIn("b")
+@DefineScope(name="b", parent="a")
 class TestExecuteInAreaTargetRunnable implements Runnable {
     public void run() {
     }

@@ -1,10 +1,10 @@
-//scope/TestUpcast.java:50: Cannot assign expression in scope a to variable in scope immortal.
+//scope/TestUpcast.java:50: Cannot assign expression in scope a to variable in scope IMMORTAL.
 //        TestUpcast.cast = cast;   // ERROR
 //                        ^
-//scope/TestUpcast.java:52: Cannot assign expression in scope null to variable in scope immortal.
+//scope/TestUpcast.java:52: Cannot assign expression in scope null to variable in scope IMMORTAL.
 //        TestUpcast.upCast = (TestUpcast) cast;  // ERROR
 //                          ^
-///Users/plsek/_work/workspace_RT/scj-annotations/tests/scope/TestUpcast.java:54: Cannot assign expression in scope a to variable in scope immortal.
+///Users/plsek/_work/workspace_RT/scj-annotations/tests/scope/TestUpcast.java:54: Cannot assign expression in scope a to variable in scope IMMORTAL.
 //        TestUpcast.upCast = cast;   // ERROR
 //                          ^
 //3 errors
@@ -12,9 +12,12 @@
 package scope;
 
 import javax.safetycritical.ManagedMemory;
+import javax.safetycritical.PrivateMemory;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 
 public class TestUpcast {
    
@@ -25,9 +28,10 @@ public class TestUpcast {
         static void foo() {
             ManagedMemory.
             getCurrentManagedMemory().
-                enterPrivateMemory(0, new /*@DefineScope(name="a", parent="immortal")*/ R1());
+                enterPrivateMemory(0, new R1());
         }
-        @Scope("immortal") @RunsIn("a")
+        @Scope(IMMORTAL) @RunsIn("a")
+        @DefineScope(name="a", parent=IMMORTAL)
         static class R1 implements Runnable {
             @Override
             public void run() {

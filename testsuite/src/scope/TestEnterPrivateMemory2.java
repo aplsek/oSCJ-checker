@@ -18,9 +18,11 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 import javax.safetycritical.annotate.DefineScope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @SCJAllowed(members=true)
-@Scope("immortal")
+@Scope(IMMORTAL)
+@DefineScope(name="scope.TestEnterPrivateMemory2", parent=IMMORTAL)
 public class TestEnterPrivateMemory2 extends CyclicExecutive {
   
     public TestEnterPrivateMemory2() {
@@ -44,6 +46,7 @@ public class TestEnterPrivateMemory2 extends CyclicExecutive {
     @SCJAllowed()
     @Scope("scope.TestEnterPrivateMemory2")
     @RunsIn("scope.TestEnterPrivateMemory2.WordHandler")
+    @DefineScope(name="scope.TestEnterPrivateMemory2.WordHandler", parent="scope.TestEnterPrivateMemory2")
     public class WordHandler extends PeriodicEventHandler {
 
         @SCJAllowed()
@@ -57,7 +60,7 @@ public class TestEnterPrivateMemory2 extends CyclicExecutive {
             
             ManagedMemory.
                 getCurrentManagedMemory().enterPrivateMemory(300, 
-                            new /*@DefineScope(name="error_name", parent="scope.TestEnterPrivateMemory2.WordHandler")*/ 
+                            new 
                             MyTestRunnable2());
         }
 
@@ -80,6 +83,7 @@ public class TestEnterPrivateMemory2 extends CyclicExecutive {
 @SCJAllowed(members=true)
 @Scope("scope.TestEnterPrivateMemory2.WordHandler")
 @RunsIn("handler")
+@DefineScope(name="error_name", parent="scope.TestEnterPrivateMemory2.WordHandler")
 class MyTestRunnable2 implements Runnable {
     public void run() {
     }

@@ -13,12 +13,14 @@ import javax.safetycritical.PrivateMemory;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-@Scope("immortal") 
-@RunsIn("immortal")
+@Scope(IMMORTAL) 
+@RunsIn(IMMORTAL)
+@DefineScope(name="a", parent=IMMORTAL)
 public class TestEnterTarget {
-    @DefineScope(name="a", parent="immortal") PrivateMemory a;
-    @DefineScope(name="b", parent="a") PrivateMemory b;
+    PrivateMemory a;
+    PrivateMemory b;
 
     @RunsIn("b")
     public void foo() {
@@ -28,21 +30,23 @@ public class TestEnterTarget {
     public void foo2() {
             ManagedMemory.
                 getCurrentManagedMemory().
-                    enterPrivateMemory(0, new /*@DefineScope(name="a1", parent="immortal")*/ R1000());
+                    enterPrivateMemory(0, new R1000());
         }
 }
 
-@Scope("immortal") @RunsIn("a1")
+@Scope(IMMORTAL) @RunsIn("a1")
+@DefineScope(name="a1", parent=IMMORTAL)
 class R1000 implements Runnable {
     @Override
     public void run() {
         ManagedMemory.
             getCurrentManagedMemory().
-                enterPrivateMemory(0, new /*@DefineScope(name="b1", parent="a1")*/ R2000());
+                enterPrivateMemory(0, new R2000());
     }
 }
 
 @Scope("a1") @RunsIn("b1")
+@DefineScope(name="b1", parent="a1")
 class R2000 implements Runnable {
     @Override
     public void run() {
@@ -54,4 +58,7 @@ class TestEnterTargetRunnable implements Runnable {
     public void run() {
     }
 }
+
+@DefineScope(name="b", parent="a")
+class B1112 {}
 

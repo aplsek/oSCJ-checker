@@ -21,87 +21,90 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-
+@Scope("scope.DummyMission") 
+@DefineScope(name="scope.DummyMission",parent=IMMORTAL)
 class DummyMission extends Mission {
 
-	@Override
-	protected void initialize() {
-		new TestVariable(null, null, null, 0);
-	}
+    @Override
+    protected void initialize() {
+        new TestVariable(null, null, null, 0);
+    }
 
-	@Override
-	public long missionMemorySize() {
-		return 0;
-	}
+    @Override
+    public long missionMemorySize() {
+        return 0;
+    }
 
 }
 
 @Scope("scope.DummyMission") 
-@RunsIn("scope.TestVariable")
+@DefineScope(name="scope.TestVariable", parent="scope.DummyMission") 
 public class TestVariable  extends PeriodicEventHandler {
 
-	public TestVariable(PriorityParameters priority,
-			PeriodicParameters parameters, StorageParameters scp, long memSize) {
-		super(priority, parameters, scp);
-	}
+    public TestVariable(PriorityParameters priority,
+            PeriodicParameters parameters, StorageParameters scp, long memSize) {
+        super(priority, parameters, scp);
+    }
 
-	public
-	void handleAsyncEvent() {
-		A aObj = new A(); // Error 
-		B bObj = new B(); // Ok 
-
-		@DefineScope(name="scope.TestVariable", parent="scope.DummyMission") 
-		ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
-
-		mem.enterPrivateMemory(1000, new 
-				/*@DefineScope(name="ARunnable", parent="scope.TestVariable")*/
-				ARunnable()); 
-
-		mem.enterPrivateMemory(1000, new 
-				/*@DefineScope(name="BRunnable", parent="scope.TestVariable")*/ 
-				BRunnable()); // Ok
-
-		@Scope("scope.DummyMission") 
-		class A {
-			void bar() { }
-		}
-
-		@Scope("scope.TestVariable") 
-		class B {
-			A a; 
-			A a2 = new A(); // Error 
-			Object o;
-
-			@SCJRestricted(mayAllocate=false) 
-			void foo(A a) {
-				o = a; // Error  
-				// a.bar(); // Error
-			}
-		}
-	}
-	
-	@Override
-	public StorageParameters getThreadConfigurationParameters() {
-		return null;
-	}
+    @RunsIn("scope.TestVariable")
+    public
+    void handleAsyncEvent() {
+        A aObj = new A(); // Error 
+        B bObj = new B(); // Ok 
 
 
+        ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
 
-	@Scope("scope.TestVariable") 
-	@RunsIn("ARunnable") 
-	class ARunnable implements Runnable {
-		@Override
-		public void run() {
-		}  
-	}
+        mem.enterPrivateMemory(1000, new 
+                ARunnable()); 
 
-	@Scope("scope.TestVariable") 
-	@RunsIn("BRunnable") 
-	class BRunnable implements Runnable {
+        mem.enterPrivateMemory(1000, new 
+                BRunnable()); // Ok
+    }
+    
+    @Scope("scope.DummyMission") 
+    class A {
+        void bar() { }
+    }
 
-		@Override
-		public void run() {
-		}
-	}
+    @Scope("scope.TestVariable") 
+    class B {
+        A a; 
+        A a2 = new A(); // Error 
+        Object o;
+
+        @SCJRestricted(mayAllocate=false) 
+        void foo(A a) {
+            o = a; // Error  
+            // a.bar(); // Error
+        }
+    }
+
+    @Override
+    public StorageParameters getThreadConfigurationParameters() {
+        return null;
+    }
+
+
+
+    @Scope("scope.TestVariable") 
+    @RunsIn("ARunnable") 
+    @DefineScope(name="ARunnable",parent="scope.TestVariable")
+    class ARunnable implements Runnable {
+        @Override
+        public void run() {
+        }  
+    }
+
+    @Scope("scope.TestVariable") 
+    @RunsIn("BRunnable") 
+    @DefineScope(name="BRunnable",parent="scope.TestVariable")
+    class BRunnable implements Runnable {
+
+        @Override
+        public void run() {
+        }
+    }
 }

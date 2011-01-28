@@ -3,15 +3,18 @@ package crossScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import javax.safetycritical.annotate.DefineScope;
 
 public class TestFieldStore4 {
 
-	@Scope("")
-	@RunsIn("")
+	@Scope("a")
+	@RunsIn("a")
+	@DefineScope(name="a",parent=IMMORTAL)
 	class PEH {
 		
 		  public void handleAsyncEvent() {
-		       Foo foo = getCurrentFoo();     // OK --> foo will be inferred to be "Immortal"    
+		       Foo foo = getCurrentFoo();     // OK --> foo will be inferred to be IMMORTAL    
 		       Bar myBar = new Bar();       
 		   
 		       myBar = foo.mySimpleMethod(myBar);    // OK
@@ -22,7 +25,7 @@ public class TestFieldStore4 {
 		       foo = foo.getMyFoo(myBar2);			// ERROR
 		  }	
 		  
-		  @Scope("immortal")
+		  @Scope(IMMORTAL)
 		  public Foo getCurrentFoo() {
 			  return null;
 		  }

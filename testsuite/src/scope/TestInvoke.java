@@ -1,4 +1,4 @@
-//scope/TestInvoke.java:20: Illegal invocation of method of object in scope a while in scope immortal.
+//scope/TestInvoke.java:20: Illegal invocation of method of object in scope a while in scope IMMORTAL.
 //        foo();
 //           ^
 //1 error
@@ -11,8 +11,9 @@ import javax.safetycritical.annotate.Phase;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-@Scope("immortal")
+@Scope(IMMORTAL)
 public class TestInvoke {
     @RunsIn("a")
     public void foo() {
@@ -31,9 +32,10 @@ public class TestInvoke {
         static void foo() {
             ManagedMemory.
             getCurrentManagedMemory().
-                enterPrivateMemory(0, new /*@DefineScope(name="a", parent="immortal")*/ R1());
+                enterPrivateMemory(0, new R1());
         }
-        @Scope("immortal") @RunsIn("a")
+        @Scope(IMMORTAL) @RunsIn("a")
+        @DefineScope(name = "a", parent = IMMORTAL)
         static class R1 implements Runnable {
             @Override
             public void run() {

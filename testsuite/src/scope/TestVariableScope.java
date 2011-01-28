@@ -1,4 +1,4 @@
-//scope/TestVariableScope.java:12: Variables of type D are not allowed in this allocation context (immortal).
+//scope/TestVariableScope.java:12: Variables of type D are not allowed in this allocation context (IMMORTAL).
 //    public void foo(D d) {
 //                      ^
 //1 error
@@ -9,8 +9,10 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-@Scope("immortal")
+
+@Scope(IMMORTAL)
 public class TestVariableScope {
     public void foo(D d) {
     }
@@ -19,9 +21,10 @@ public class TestVariableScope {
         static void foo() {
             ManagedMemory.
                 getCurrentManagedMemory().
-                    enterPrivateMemory(0, new /*@DefineScope(name="a", parent="immortal")*/ R1());
+                    enterPrivateMemory(0, new R1());
         }
-        @Scope("immortal") @RunsIn("a")
+        @Scope(IMMORTAL) @RunsIn("a")
+        @DefineScope(name="a",parent=IMMORTAL)
         static class R1 implements Runnable {
             @Override
             public void run() {

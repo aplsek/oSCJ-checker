@@ -8,6 +8,7 @@ package crossScope.scjlib;
 import javax.safetycritical.PrivateMemory;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 /**
  * BigDecimal
@@ -38,7 +39,7 @@ import javax.safetycritical.annotate.RunsIn;
  */
 public class TestBigDecimal {
 
-	@DefineScope(name = "Mission", parent = "Immortal")
+	@DefineScope(name = "Mission", parent = IMMORTAL)
 	PrivateMemory mission = new PrivateMemory(0);
 
 	@DefineScope(name = "PrivateMemory", parent = "Mission")
@@ -57,7 +58,7 @@ public class TestBigDecimal {
 		one = myBig;   /// ERROR
 		
 		
-		myBig.add(one); 		// OK!! passing immortal... trivial TODO:----> OK, but add must be @RunsIn(UNKNOWN) or
+		myBig.add(one); 		// OK!! passing IMMORTAL... trivial TODO:----> OK, but add must be @RunsIn(UNKNOWN) or
 								// ref-immutable!!!!!
 
 		one.add(myBig); 		// TODO: ---> here you need to know that "add" method

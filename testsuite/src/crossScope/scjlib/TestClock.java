@@ -7,8 +7,8 @@ public class TestClock {
 	
 	public void testClock() {
 		
-		Clock cl = Clock.getRealtimeClock();           // OK, should be @Allocate(static/immortal)
-															//  -- inferring type to be immortal, singleton!!
+		Clock cl = Clock.getRealtimeClock();           // OK, should be @Allocate(static/IMMORTAL)
+															//  -- inferring type to be IMMORTAL, singleton!!
 											
 		AbsoluteTime dest = new AbsoluteTime();
 		AbsoluteTime newDest = cl.getTime(dest);       				// OK, will return the same scope as the dest is!

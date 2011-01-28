@@ -15,13 +15,14 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+@DefineScope(name = "TestVariable", parent = IMMORTAL)
+class TestVariableClass {}
 
-@Scope("immortal")
+@Scope(IMMORTAL)
+@DefineScope(name = "MyHandler", parent = "TestVariable")
 public class TestScopeTree extends PeriodicEventHandler {
-
-    //@DefineScope(name="TestVariable", parent="immortal") <-------- Errrrrrrrr
-    // ManagedMemory mem1 = ManagedMemory.getCurrentManagedMemory();
 
     public TestScopeTree(PriorityParameters priority,
             PeriodicParameters parameters, StorageParameters scp, long memSize) {
@@ -33,15 +34,13 @@ public class TestScopeTree extends PeriodicEventHandler {
         A aObj = new A(); // Error
         B bObj = new B(); // Ok
 
-        @DefineScope(name = "MyHandler", parent = "TestVariable")
+       
         ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
 
         mem.enterPrivateMemory(1000, new
-        /*@DefineScope(name="MyMissionInit", parent="MyHandler")*/
         ARunnable111()); // Error
 
         mem.enterPrivateMemory(1000, new
-        /*@DefineScope(name="BRunnable", parent="MyHandler")*/
         BRunnable111()); // Ok
     }
 
@@ -73,6 +72,7 @@ public class TestScopeTree extends PeriodicEventHandler {
 
 @Scope("MyHandler")
 @RunsIn("MyMissionInit")
+@DefineScope(name="MyMissionInit", parent="MyHandler")
 class ARunnable111 implements Runnable {
 
     @Override
@@ -82,6 +82,7 @@ class ARunnable111 implements Runnable {
 
 @Scope("MyHandler")
 @RunsIn("BRunnable")
+@DefineScope(name="BRunnable", parent="MyHandler")
 class BRunnable111 implements Runnable {
 
     @Override

@@ -11,8 +11,10 @@ import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-
+@Scope("scope.MyDummyMission")
+@DefineScope(name="scope.MyDummyMission", parent=IMMORTAL) 
 class MyDummyMission extends Mission {
 
     @Override
@@ -24,12 +26,12 @@ class MyDummyMission extends Mission {
     public long missionMemorySize() {
         return 0;
     }
-     
 }
 
 
 @Scope("scope.MyDummyMission") 
 @RunsIn("scope.TestPEH")
+ @DefineScope(name="scope.TestPEH", parent="scope.MyDummyMission") 
 public class TestPEH  extends PeriodicEventHandler {
     
     public TestPEH(PriorityParameters priority,
@@ -39,7 +41,6 @@ public class TestPEH  extends PeriodicEventHandler {
 
     public
     void handleAsyncEvent() {
-          @DefineScope(name="scope.TestPEH", parent="scope.MyDummyMission") 
           ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
     }
 

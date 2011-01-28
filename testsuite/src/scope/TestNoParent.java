@@ -14,7 +14,8 @@ import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.Scope;
 
-@Scope("scope.MyMission") 
+@Scope("scope.MyMission")
+@DefineScope(name="scope.MyMission", parent="TestVariable")    // ERROR
 public class TestNoParent extends PeriodicEventHandler {
 
      public TestNoParent(PriorityParameters priority, PeriodicParameters period,
@@ -23,7 +24,6 @@ public class TestNoParent extends PeriodicEventHandler {
     }
 
     public void foo() {
-         @DefineScope(name="scope.MyMission", parent="TestVariable")    // ERROR
          ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
      }
 

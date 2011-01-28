@@ -11,17 +11,18 @@ import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.PeriodicEventHandler;
-import javax.safetycritical.Safelet;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import javax.safetycritical.annotate.DefineScope;
 
 
 @SCJAllowed(members=true)
 @Scope("scope.TestGetCurrentManMem2")
 @RunsIn("scope.TestGetCurrentManMem2")
+@DefineScope(name="scope.TestGetCurrentManMem2",parent=IMMORTAL)
 public class TestGetCurrentManMem2 extends CyclicExecutive {
 
     public TestGetCurrentManMem2() {
@@ -41,6 +42,7 @@ public class TestGetCurrentManMem2 extends CyclicExecutive {
     @SCJAllowed()
     @Scope("scope.TestGetCurrentManMem2")
     @RunsIn("scope.TestGetCurrentManMem2.WordHandler")
+    @DefineScope(name="scope.TestGetCurrentManMem2.WordHandler",parent="scope.TestGetCurrentManMem2")
     public class WordHandler extends PeriodicEventHandler {
 
         @SCJAllowed()
@@ -52,14 +54,9 @@ public class TestGetCurrentManMem2 extends CyclicExecutive {
         @RunsIn("scope.TestGetCurrentManMem2.WordHandler")
         public void handleAsyncEvent() {
            
-            /*@DefineScope(name="wronge_scope_name",    // ERROR: must be same as current alloc. context
-                       parent="scope.TestGetCurrentManMem2")*/
             ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
-            
             mem.enterPrivateMemory(300, 
-                            new /*@DefineScope(name="MyTestRunnable_area",
-                             parent="scope.TestGetCurrentManMem2.WordHandler")*/ 
-                                MyTestRunnable33());
+                            new MyTestRunnable33());
         }
 
         @SCJAllowed()
@@ -67,7 +64,6 @@ public class TestGetCurrentManMem2 extends CyclicExecutive {
         
         @Override
         public StorageParameters getThreadConfigurationParameters() {
-            // TODO Auto-generated method stub
             return null;
         }
     }
@@ -86,7 +82,10 @@ public class TestGetCurrentManMem2 extends CyclicExecutive {
 @SCJAllowed(members=true)
 @Scope("scope.TestGetCurrentManMem2.WordHandler")
 @RunsIn("MyTestRunnable_area")
+@DefineScope(name="MyTestRunnable_area", parent="scope.TestGetCurrentManMem2.WordHandler")
 class MyTestRunnable33 implements Runnable {
+    
+    @RunsIn("MyTestRunnable_area")
     public void run() {
     }
 }

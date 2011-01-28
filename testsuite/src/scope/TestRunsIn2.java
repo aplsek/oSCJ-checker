@@ -10,15 +10,18 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
+
 @Scope("a")
+@DefineScope(name = "a", parent = IMMORTAL)
 public class TestRunsIn2 {
-    @DefineScope(name = "a", parent = "immortal")
     PrivateMemory a = new PrivateMemory(0);
-    @DefineScope(name = "b", parent = "immortal")
     PrivateMemory b = new PrivateMemory(0);
 }
 
 @Scope("a")
 @RunsIn("b")
+@DefineScope(name = "b", parent = IMMORTAL)
 class RunsInWrong {
 }

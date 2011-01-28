@@ -124,6 +124,7 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
     
     @Override
     public R visitVariable(VariableTree node, P p) {
+        /*
         VariableElement var = TreeUtils.elementFromDeclaration(node);
         if (isPrivateMemory(var.asType())) {
             boolean found = false;  
@@ -146,7 +147,7 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
                // add to define scopes list runnables...
                // check with class definition....
             
-        }
+        }*/
         
         
         return super.visitVariable(node, p);

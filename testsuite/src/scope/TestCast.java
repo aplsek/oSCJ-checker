@@ -10,20 +10,21 @@ import javax.safetycritical.PrivateMemory;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 public class TestCast {
 
-    @DefineScope(name = "a", parent = "immortal")
     PrivateMemory a = new PrivateMemory(0);
-    @DefineScope(name = "b", parent = "a")
     PrivateMemory b = new PrivateMemory(0);
 }
 
 @Scope("a")
+@DefineScope(name = "a", parent = IMMORTAL)
 class A11  {
 }
 
 @Scope("b")                 // ERROR
+@DefineScope(name = "b", parent = "a")
 class B11 extends A11 {  
 }
 
@@ -33,7 +34,7 @@ class C1 extends A11 {
 
 
 
-@Scope("immortal") @RunsIn("a")
+@Scope(IMMORTAL) @RunsIn("a")
 class Runnable1 implements Runnable {
     @Override
     public void run() {

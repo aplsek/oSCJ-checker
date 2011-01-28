@@ -5,7 +5,7 @@
 //ManagedMemory.enterPrivateMemory(0, new /*@DefineScope(name="a", parent="b")*/ A());
 //                                ^
 //defineScope/DefineScopeTest.java:21: Reserved scope name used in @DefineScope.
-//ManagedMemory.enterPrivateMemory(0, new /*@DefineScope(name="immortal", parent="b")*/ A());
+//ManagedMemory.enterPrivateMemory(0, new /*@DefineScope(name=IMMORTAL, parent="b")*/ A());
 //                                ^
 //3 errors
 
@@ -38,6 +38,6 @@ public class DefineScopeTest {
             enterPrivateMemory(0, new /*@DefineScope(name="a", parent="b")*/ A());
         ManagedMemory.
         getCurrentManagedMemory().
-            enterPrivateMemory(0, new /*@DefineScope(name="immortal", parent="b")*/ A());
+            enterPrivateMemory(0, new /*@DefineScope(name=IMMORTAL, parent="b")*/ A());
     }
 }

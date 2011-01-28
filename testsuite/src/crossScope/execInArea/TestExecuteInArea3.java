@@ -5,15 +5,16 @@
 
 package crossScope.execInArea;
 
+
+
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import javax.realtime.ImmortalMemory;
-import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
-import javax.realtime.RealtimeThread;
 import javax.safetycritical.Mission;
-import javax.safetycritical.MissionManager;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
@@ -25,6 +26,7 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
  * 
  */
 @Scope("crossScope.execInArea.TestExecuteInArea3") 
+@DefineScope(name="crossScope.execInArea.TestExecuteInArea3",parent="IMMORTAL")
 public class TestExecuteInArea3 extends Mission  {
 
     protected
@@ -39,6 +41,7 @@ public class TestExecuteInArea3 extends Mission  {
 
     @Scope("crossScope.execInArea.TestExecuteInArea3")  
     @RunsIn("crossScope.execInArea.Handler") 
+    @DefineScope(name="crossScope.execInArea.Handler",parent="crossScope.execInArea.TestExecuteInArea3")  
     class Handler extends PeriodicEventHandler {
 
         public Handler(PriorityParameters priority,
@@ -61,7 +64,7 @@ public class TestExecuteInArea3 extends Mission  {
     }
 
     @Scope("crossScope.execInArea.Handler")
-    @RunsIn("Immortal")
+    @RunsIn(IMMORTAL)
     class MyRunnable implements Runnable {
     	
     	@Override
@@ -102,7 +105,7 @@ public class TestExecuteInArea3 extends Mission  {
     	}
     }
     
-    @Scope("Immortal")
+    @Scope(IMMORTAL)
     class Bar {
     	public void method() {
     		Mission mission = Mission.getCurrentMission();			// OK

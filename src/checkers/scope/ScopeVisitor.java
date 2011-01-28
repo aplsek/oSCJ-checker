@@ -276,7 +276,6 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         debugIndent("scope: " + currentScope);
 
         TypeElement type = (TypeElement) method.getEnclosingElement();
-
         checkWellFormed(node);
 
         // run() requires a @RunsIn annotation on concrete classes that
@@ -299,9 +298,17 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             if (isRunnable && "run".equals(method.getSimpleName().toString())
                     && method.getParameters().size() == 0
                     && Utils.runsIn(method.getAnnotationMirrors()) != null) {
-                report(Result.failure("bad.runs.in.override"), node);
+                
+                //debugIndent("bad.runs.in.override: " +isRunnable);
+                //debugIndent("bad.runs.in.override: " + method.getAnnotationMirrors());
+                
+                //TODO: we need to check the runnable's method its being called.
+                
+               // report(Result.failure("bad.runs.in.override"), node);
             }
         }
+        
+        
         String oldRunsIn = currentRunsIn;
         R r = null;
         try {
@@ -395,6 +402,8 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             ExpressionTree arg = node.getArguments().get(0);
             String argRunsIn = null;
 
+            debugIndent("executeInArea Invocation: ");
+            
             // TODO: Single exit point sure would be nicer
             switch (arg.getKind()) {
             case IDENTIFIER:
@@ -467,6 +476,8 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             case IDENTIFIER:
                 varScope = scopeDef((VariableElement) TreeUtils
                         .elementFromUse((IdentifierTree) e));
+                
+                
                 break;
             case MEMBER_SELECT:
                 varScope = getScopeDef(((MemberSelectTree) e).getExpression());
@@ -493,6 +504,56 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         } else if (isMemoryAreaType(type)
                 && "enterPrivateMemory".equals(methodName)) {
 
+            // !!!BIG!!! TODO:FIXME: The checking of "enterPrivateMemory" is not done yet.
+            debugIndent("executeInArea Invocation:");
+            
+            ExpressionTree e = node.getMethodSelect();
+            ExpressionTree arg = node.getArguments().get(1);
+            
+            
+            
+            System.out.println("expression arg:" + arg);
+            System.out.println("expression arg kind:" + arg.getKind());
+            
+            // TODO: Single exit point sure would be nicer
+            switch (arg.getKind()) {
+            case IDENTIFIER:
+                directRunsIn((VariableElement) TreeUtils
+                        .elementFromUse((IdentifierTree) arg));
+                // System.out.println("argument var " + (VariableElement)
+                // TreeUtils.elementFromUse((IdentifierTree) arg));
+
+                Element bof = TreeUtils.elementFromUse((IdentifierTree) arg);
+                System.out.println("bof is:" + getRunsInFromRunnable((VariableElement) TreeUtils.elementFromUse((IdentifierTree) arg)));
+                
+                
+                break;
+            case MEMBER_SELECT:
+                
+                System.out.println("MEMBER select");
+               
+                
+                Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
+                if (tmp.getKind() != ElementKind.FIELD) {
+                    report(Result.failure("bad.enter.parameter"), arg);
+                    return;
+                } else {
+                   // argRunsIn = directRunsIn((VariableElement) tmp);
+                }
+                break;
+            case NEW_CLASS:
+                ExecutableElement ctor = (ExecutableElement) TreeUtils
+                .elementFromUse((NewClassTree) arg);
+               // argRunsIn = context.getRunsIn((TypeElement) ctor
+               //         .getEnclosingElement());
+                break;
+            default:
+                report(Result.failure("bad.enter.parameter"), arg);
+                return;
+            }
+            
+            
+            
             // TODO:
             method.getParameters();
             System.out.println("Parameters: " + method.getParameters());
@@ -500,20 +561,17 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
             VariableElement runnable = params.get(1);
 
+            debugIndent("\t runnable is " + runnable.toString());
+            
             runnable.getEnclosingElement();
             runnable.getEnclosedElements();
             System.out.println("Runnable:" + runnable.getKind().getClass());
             System.out.println("Runnable:" + runnable.getKind());
             System.out.println("Runnable:" + runnable.asType());
-            List<? extends ExpressionTree> arg = node.getArguments();
 
-            ExpressionTree ex = arg.get(1);
-            System.out.println("arg:" + ex);
-            Element xxx = TreeUtils.elementFromUse(ex);
-            System.out.println("element:" + xxx.asType());
             // TODO: get runnable class
 
-            // TODO: get runnable instantiation variable and its DefineScope
+            // TODO: get runnable instantiation variable 
 
         } else if (!method.getSimpleName().toString().startsWith("<init>")
                 && runsIn != null) {
@@ -796,8 +854,9 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             }
             currentRunsIn = varScope;
         } else if (isPrivateMemory(node, p)) {
-            checkDefineScope(node, p);
-
+            //checkDefineScope(node, p);
+            // TODO: are we sure that we dont need to check this assignment?
+            // TODO: this should implement the getCurrent rules 
             return; // we do not need to check assignement
 
         } else {
@@ -846,6 +905,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
      * @param node
      * @param p
      */
+    /*
     private void checkDefineScope(VariableTree node, P p) {
         DefineScope scopeDef = getDefineScope(node);
         if (scopeDef != null) {
@@ -863,20 +923,21 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             // we verify that this @DefineScope is well formed??
             if (!ScopeTree.get(scopeDef.name).equals(scopeDef.parent))
                 /** tested by TestGetCurrentManMem3.java */
-                report(Result.failure("bad.enterPrivateMem.defineScope.parent",
+               /* report(Result.failure("bad.enterPrivateMem.defineScope.parent",
                         currentScope.toString(), scopeDef.name), node);
 
         } else
             report(Result.failure("bad.enterPrivateMem.no.defineScope",
                     currentScope.toString()), node);
         // this should be detected by the DefineScopeChecker anyway !!
-    }
+    }*/
 
     class DefineScope {
         String name;
         String parent;
     }
 
+    /*
     private DefineScope getDefineScope(VariableTree node) {
         DefineScope result = null;
 
@@ -898,7 +959,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             }
         }
         return result;
-    }
+    }*/
 
     private boolean isPrivateMemory(TypeMirror asType) {
         if (asType.toString().equals("javax.safetycritical.PrivateMemory"))
@@ -966,6 +1027,44 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         }
         return null;
     }
+    
+    private String getRunsInFromRunnable(VariableElement var) {
+        AnnotatedTypeMirror exprType = atf.getAnnotatedType(var);
+        
+        System.out.println("expr type : " + exprType);
+
+        System.out.println("expr element : " + exprType.getElement());
+        System.out.println("expr element : " + exprType.getElement().getEnclosedElements().size());
+        exprType.getElement();
+        
+        //TreeUtils.elementFromDeclaration(exprType);
+        /*
+        AnnotatedDeclaredType tt = ((AnnotatedDeclaredType) exprType);
+        //List el = tt.
+        if (el == null)
+            System.out.println("eleemnts    NULLLL:" + el.toString());
+        System.out.println("eleemnts:" + el.toString() +   " size: " + el.size() );
+        */
+        // TODO: since the exprType sometimes does not contains the annotations
+        // if this does not work, we use the loop below...
+        if (exprType.getKind() == TypeKind.DECLARED) {
+            Element type = ((AnnotatedDeclaredType) exprType)
+            .getUnderlyingType().asElement();
+            if (hasRunsIn(type))
+                return runsIn(type);
+        }
+
+        while (!TypesUtils.isObject(exprType.getUnderlyingType())) {
+            String exprScope = Utils.runsIn(exprType.getAnnotations());
+            if (exprScope != null) {
+                return exprScope;
+            } else {
+                exprType = exprType.directSuperTypes().get(0);
+            }
+        }
+        return null;
+    }
+    
 
     private String runsIn(Element type) {
         for (AnnotationMirror mirror : type.getAnnotationMirrors()) {

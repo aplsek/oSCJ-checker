@@ -1,4 +1,4 @@
-//scope/TestInterface2.java:20: Variables of type A are not allowed in this allocation context (immortal).
+//scope/TestInterface2.java:20: Variables of type A are not allowed in this allocation context (IMMORTAL).
 //        A a = new A();
 //          ^
 //1 error
@@ -9,13 +9,14 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-@Scope("immortal")
+@Scope(IMMORTAL)
 interface Test2 {
     void run();
 }
 
-@Scope("immortal")
+@Scope(IMMORTAL)
 public class TestInterface2 implements Test2 {
     @Scope("a")
     class A {
@@ -29,9 +30,10 @@ public class TestInterface2 implements Test2 {
         static void foo() {
             ManagedMemory.
             getCurrentManagedMemory().
-                enterPrivateMemory(0, new /*@DefineScope(name="a", parent="immortal")*/ R1());
+                enterPrivateMemory(0, new R1());
         }
-        @Scope("immortal") @RunsIn("a")
+        @Scope(IMMORTAL) @RunsIn("a")
+        @DefineScope(name = "a", parent = IMMORTAL)
         static class R1 implements Runnable {
             @Override
             public void run() {

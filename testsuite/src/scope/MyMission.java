@@ -17,7 +17,10 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+
+@DefineScope(name="scope.MyMission",parent=IMMORTAL)
 @Scope("scope.MyMission") 
 class MyMission extends Mission {
 
@@ -31,7 +34,6 @@ class MyMission extends Mission {
         
         //ManagedMemory.getCurrentManagedMemory().
         //    enterPrivateMemory(1000, new 
-        //            /*@DefineScope(name="MyMissionInitA", parent="scope.MyMission")*/ 
         //                ARunnable1()); // Ok
     }
 
@@ -45,6 +47,7 @@ class MyMission extends Mission {
 
 @Scope("scope.MyMission")  
 @RunsIn("scope.MyHandler") 
+@DefineScope(name="scope.MyHandler",parent="scope.MyMission")
 class MyHandler extends PeriodicEventHandler {
 
     public MyHandler(PriorityParameters priority,
@@ -58,18 +61,15 @@ class MyHandler extends PeriodicEventHandler {
         A aObj = new A();                                                
         B bObj = new B(); // Ok 
 
-        @DefineScope(name="scope.MyHandler", parent="scope.MyMission") 
+       
         ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
 
         //ARunnable1 aRunnable = new ARunnable1();
         //mem.enterPrivateMemory(1000, aRunnable);                         // ERROR
 
-        @DefineScope(name="MyMissionInitA", parent="scope.MyMission")
         ARunnable1 aRunnable = new ARunnable1();
         ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, aRunnable);    
         
-        
-        @DefineScope(name="MyMissionRunB", parent="scope.MyHandler") 
         BRunnable1 bRunnable = new BRunnable1();
         mem.enterPrivateMemory(2000, bRunnable);                          // Ok
         
@@ -109,6 +109,7 @@ class MyHandler extends PeriodicEventHandler {
 
 @Scope("scope.MyHandler") 
 @RunsIn("MyMissionRunB") 
+@DefineScope(name="scope.MyHandler", parent="scope.MyMission")
 class BRunnable1 implements Runnable {
     @Override
     public void run() {
@@ -118,6 +119,7 @@ class BRunnable1 implements Runnable {
 
 @Scope("scope.MyMission") 
 @RunsIn("MyMissionInitA") 
+@DefineScope(name="MyMissionInitA", parent="scope.MyMission")
 class ARunnable1 implements Runnable {
     @Override
     public void run() {
@@ -133,6 +135,7 @@ class RunnableNull implements Runnable {
 
 @Scope("scope.MyHandler") 
 @RunsIn("MyMissionRunB") 
+@DefineScope(name="MyMissionRunB", parent="scope.MyHandler") 
 class CRunner implements Runnable {
     @Override
     public void run() {

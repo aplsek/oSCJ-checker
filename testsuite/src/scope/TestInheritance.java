@@ -9,8 +9,9 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-@Scope("immortal")
+@Scope(IMMORTAL)
 @RunsIn("a")
 public class TestInheritance {
     public void foo() {
@@ -21,18 +22,20 @@ public class TestInheritance {
         static void foo() {
             ManagedMemory.
             getCurrentManagedMemory().
-                enterPrivateMemory(0, new /*@DefineScope(name="a", parent="immortal")*/ R1());
+                enterPrivateMemory(0, new R1());
         }
-        @Scope("immortal") @RunsIn("a")
+        @Scope(IMMORTAL) @RunsIn("a")
+        @DefineScope(name = "a", parent = IMMORTAL)
         static class R1 implements Runnable {
             @Override
             public void run() {
                 ManagedMemory.
                 getCurrentManagedMemory().
-                    enterPrivateMemory(0, new /*@DefineScope(name="b", parent="a")*/ R2());
+                    enterPrivateMemory(0, new R2());
             }
         }
         @Scope("a") @RunsIn("b")
+        @DefineScope(name = "b", parent = "a")
         static class R2 implements Runnable {
             @Override
             public void run() {
@@ -46,7 +49,7 @@ public class TestInheritance {
 class H extends TestInheritance {
 }
 
-@Scope("immortal")
+@Scope(IMMORTAL)
 @RunsIn("a")
 class I extends TestInheritance {
     @Override

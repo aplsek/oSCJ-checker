@@ -13,16 +13,18 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 class MemoryAreas {
 	
-	@DefineScope(name = "my_area", parent = "immortal")
+	@DefineScope(name = "my_area", parent = IMMORTAL)
     PrivateMemory b = new PrivateMemory(0);
 	
 }
 
-@Scope("immortal")
+@Scope(IMMORTAL)
 @RunsIn("my_area")
+@DefineScope(name = "my_area", parent = IMMORTAL)
 public class TestGetImmortal {
 	
 	public void method() {
@@ -33,5 +35,4 @@ public class TestGetImmortal {
 		mem = imm;												// ERROR
 		
 	}
-
 }

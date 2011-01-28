@@ -13,15 +13,13 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
 
-@Scope("immortal")
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
+@Scope(IMMORTAL)
+@DefineScope(name = "a", parent = IMMORTAL)
 public class TestExecuteInArea {
-    @DefineScope(name = "a", parent = "immortal")
     PrivateMemory a = new PrivateMemory(0);
-    
-    @DefineScope(name = "b", parent = "immortal")
     PrivateMemory b = new PrivateMemory(0);
-    
-    @DefineScope(name = "c", parent = "a")
     PrivateMemory c = new PrivateMemory(0);
     
     GoodR r2 = new GoodR();
@@ -37,16 +35,18 @@ public class TestExecuteInArea {
     }
 }
 
-@Scope("immortal")
+@Scope(IMMORTAL)
 @RunsIn("b")
+@DefineScope(name = "b", parent = IMMORTAL)
 class R111 implements Runnable {
     @RunsIn("a")
     public void run() {    // FAIL:  @RunsIn annotations must agree with their overridden annotations.
     }
 }
 
-@Scope("immortal")
+@Scope(IMMORTAL)
 @RunsIn("a")
+@DefineScope(name = "c", parent = "a")
 class GoodR implements Runnable {
     public void run() {
     }

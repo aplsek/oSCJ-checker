@@ -13,10 +13,10 @@ import javax.safetycritical.annotate.RunsIn;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-@Scope("Immortal")
+@Scope(IMMORTAL)
 public class TestParameter {
 
-	@DefineScope(name = "Mission", parent = "Immortal")
+	@DefineScope(name = "Mission", parent = IMMORTAL)
     PrivateMemory mission = new PrivateMemory(0);
 	
 	Bar b;
@@ -27,16 +27,16 @@ public class TestParameter {
 		return b;
 	} 
 
-	@Scope("Immortal")				// OK
+	@Scope(IMMORTAL)				// OK
 	@RunsIn(UNKNOWN)
 	public Bar method2(Bar b, Foo f) {	    // OK 
-		return this.b;						// OK - returned object lives in immortal
+		return this.b;						// OK - returned object lives in IMMORTAL
 	} 
 	
 	@Scope("Mission")				// ERROR
 	@RunsIn(UNKNOWN)
 	public Bar method3(Bar b, Foo f) {	    // OK 
-		return this.b;						// OK - returned object lives in immortal
+		return this.b;						// OK - returned object lives in IMMORTAL
 	} 
 	
 	@Scope("Mission")

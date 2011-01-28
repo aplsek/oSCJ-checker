@@ -9,19 +9,23 @@ import javax.safetycritical.PrivateMemory;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-@Scope("immortal") 
+
+@Scope(IMMORTAL) 
+@DefineScope(name="A", parent=IMMORTAL)
 public class TestVariable2 {
-    @DefineScope(name="A", parent="immortal") PrivateMemory a;
-    @DefineScope(name="B", parent="A") PrivateMemory b;
+    PrivateMemory a;
+    PrivateMemory b;
 }
 
-
+@DefineScope(name="A", parent=IMMORTAL)
 @Scope("A") 
 class A1 {
     void bar() { }
 }
 
+@DefineScope(name="B", parent="A")
 @Scope("B") 
 class B1 {
     A1 a; 

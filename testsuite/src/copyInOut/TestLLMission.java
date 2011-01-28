@@ -1,25 +1,22 @@
 package copyInOut;
 
-import static javax.safetycritical.annotate.Allocate.Area.THIS;
 
 import javax.realtime.ImmortalMemory;
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.realtime.RealtimeThread;
-import javax.realtime.ScopedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.Allocate;
-import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
-
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
-
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("copyInOut.TestLLMission")
+@DefineScope(name="copyInOut.TestLLMission",parent=IMMORTAL)
 public class TestLLMission extends Mission {
 
 	LL ll;
@@ -49,6 +46,7 @@ public class TestLLMission extends Mission {
 
 	@Scope("copyInOut.TestLLMission")
 	@RunsIn("copyInOut.MyHandler")
+	@DefineScope(name="copyInOut.MyHandler",parent="copyInOut.TestLLMission")
 	class MyHandler extends PeriodicEventHandler {
 
 		TestLLMission myMission;
@@ -78,7 +76,7 @@ public class TestLLMission extends Mission {
 															// all mission's method visible from here must be @CS
 															// --> implicit or explicit inference, these limitations holds
 
-			@Scope("Immortal")
+			@Scope(IMMORTAL)
 			MemoryArea immMemory = ImmortalMemory.instance();
 			@Scope("copyInOut.TestLLMission")
 			MemoryArea mem = RealtimeThread.getCurrentMemoryArea();

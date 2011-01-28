@@ -3,9 +3,11 @@
 #set -e
 #set -x
 
+# ReCompile the Checker
+./build.sh
+
 
 TESTSUITE=./testsuite
-
 cd $TESTSUITE && ./clean.sh && ./build.sh && cd ..
 
 if [ $# -eq 0 ]

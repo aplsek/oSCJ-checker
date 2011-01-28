@@ -19,6 +19,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import checkers.Utils;
 import checkers.scope.ScopeTree;
 import checkers.util.TypesUtils;
@@ -89,7 +90,7 @@ public class ScopeCheckerContext {
        
         //System.out.println("  name :" + name);
         if (name.equals("byte")) 
-            return new String("immortal");
+            return IMMORTAL;
         
         
         ScopeResult res = map.get(name);
@@ -185,7 +186,7 @@ public class ScopeCheckerContext {
         if (methodName.startsWith("<init>")) {
             return new ScopeResult(methodEnvScope, false);
         } else if (methodName.startsWith("<clinit>")) {
-            return new ScopeResult("immortal", false);
+            return new ScopeResult(Scope.IMMORTAL, false);
         } else {
             if (!scopeExists(runsIn)) { return new ScopeResult(String.format("Scope %s does not exist.", runsIn), true); }
             if (runsIn != null) {

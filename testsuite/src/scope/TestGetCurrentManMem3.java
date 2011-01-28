@@ -19,7 +19,11 @@ import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+
+@Scope("scope.DummyMission2")
+@DefineScope(name="scope.DummyMission2",parent=IMMORTAL)
 class DummyMission2 extends CyclicExecutive {
 
     public DummyMission2(StorageParameters storage) {
@@ -53,9 +57,9 @@ class DummyMission2 extends CyclicExecutive {
 
 @Scope("scope.DummyMission2")
 @RunsIn("scope.TestGetCurrentManMem3")
+@DefineScope(name="scope.TestGetCurrentManMem3",parent="scope.DummyMission2")
 public class TestGetCurrentManMem3 extends PeriodicEventHandler  {
     
-    @DefineScope(name="scope.B", parent="scope.DummyMission2")
     PrivateMemory mem;
     
     public TestGetCurrentManMem3(PriorityParameters priority,
@@ -66,7 +70,6 @@ public class TestGetCurrentManMem3 extends PeriodicEventHandler  {
     @RunsIn("scope.TestGetCurrentManMem3")
     public
     void handleAsyncEvent() {
-          @DefineScope(name="scope.TestGetCurrentManMem3", parent="scope.B") 
           ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
     }
     

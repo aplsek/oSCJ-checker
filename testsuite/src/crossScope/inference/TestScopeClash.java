@@ -5,11 +5,12 @@
 
 package crossScope.inference;
 
-import javax.safetycritical.annotate.Allocate;
 import javax.safetycritical.annotate.Scope;
-import static javax.safetycritical.annotate.Allocate.Area.*;
 
-@Scope("immortal")
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
+
+@Scope(IMMORTAL)
 public class TestScopeClash {
 
 	static final BigFoo bfoo = new BigFoo();
@@ -21,7 +22,6 @@ public class TestScopeClash {
 		foo = bf;							// ERROR
 	}
 	
-	@Allocate(THIS)
 	public static BigFoo getBigFoo() {
 		return bfoo;
 	}

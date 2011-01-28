@@ -1,5 +1,5 @@
-//scope/TestEscaping2.java:34: Cannot assign expression in scope immortal to variable in scope a.
-//        J j = t.j; // disallowed because foo does not run in immortal
+//scope/TestEscaping2.java:34: Cannot assign expression in scope IMMORTAL to variable in scope a.
+//        J j = t.j; // disallowed because foo does not run in IMMORTAL
 //          ^
 //1 error
 
@@ -9,8 +9,9 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-@Scope("immortal")
+@Scope(IMMORTAL)
 public class TestEscaping2 {
     J j;
     
@@ -18,9 +19,10 @@ public class TestEscaping2 {
         static void foo() {
             ManagedMemory.
             getCurrentManagedMemory().
-                enterPrivateMemory(0, new /*@DefineScope(name="a", parent="immortal")*/ R1());
+                enterPrivateMemory(0, new R1());
         }
-        @Scope("immortal") @RunsIn("a")
+        @Scope(IMMORTAL) @RunsIn("a")
+        @DefineScope(name="a", parent=IMMORTAL)
         static class R1 implements Runnable {
             @Override
             public void run() {
@@ -33,13 +35,13 @@ class J {
     
 }
 
-@Scope("immortal")
+@Scope(IMMORTAL)
 class K {
     @RunsIn("a") public void foo(TestEscaping2 t) {
-        J j = t.j; // disallowed because foo does not run in immortal
+        J j = t.j; // disallowed because foo does not run in IMMORTAL
     }
 
     public void bar(TestEscaping2 t) {
-        J j2 = t.j; // allowed because bar runs in immortal
+        J j2 = t.j; // allowed because bar runs in IMMORTAL
     }
 }
