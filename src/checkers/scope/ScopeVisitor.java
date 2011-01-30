@@ -541,7 +541,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             VariableElement var = (VariableElement) TreeUtils
                     .elementFromUse((IdentifierTree) arg);
 
-            argRunsIn = getRunsInFromRunnable(var);
+            argRunsIn = getRunsInFromRunnable(var.asType());
             argScope = scope(var);
             //System.out.println("\t :>>>>>> annotation:::" + argRunsIn);
             //System.out.println("\t :>>>>>> scope annotation:::" + argScope);
@@ -550,22 +550,24 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         case MEMBER_SELECT:
             // TODO: check this
 
-            System.out.println("MEMBER select");
+            System.err.println("\n\nTODO : EnterPrivateMemory: MEMBER select\n\n");
 
             Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
             if (tmp.getKind() != ElementKind.FIELD) {
                 report(Result.failure("bad.enter.parameter"), arg);
                 return;
             } else {
-                 argRunsIn = getRunsInFromRunnable((VariableElement) tmp);
+                 argRunsIn = getRunsInFromRunnable(tmp.asType());
+                 argScope = context.getScope((TypeElement) tmp.asType());
             }
             break;
         case NEW_CLASS:
-            // TODO:
             ExecutableElement ctor = (ExecutableElement) TreeUtils
-                    .elementFromUse((NewClassTree) arg);
-            // argRunsIn = context.getRunsIn((TypeElement) ctor
-            // .getEnclosingElement());
+            .elementFromUse((NewClassTree) arg);
+
+            argRunsIn = getRunsInFromRunnable(ctor.getEnclosingElement().asType());
+            argScope = context.getScope((TypeElement) ctor.getEnclosingElement());
+            
             break;
         default:
             report(Result.failure("bad.enter.parameter"), arg);
@@ -575,7 +577,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         if (argRunsIn == null) {
             /** checked by scope.MyMission2.java */
             report(Result.failure("bad.enterPrivateMem.no.runsIn"), node);
-        } else if (!argScope.equals(currentAllocScope())) {
+        } else if (argScope == null || !argScope.equals(currentAllocScope())) {
             /** checked by scope.MyMission2.java */
             report(Result
                     .failure("bad.enterPrivateMem.no.Scope.on.Runnable"),
@@ -962,9 +964,10 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         return null;
     }
 
-    private String getRunsInFromRunnable(VariableElement var) {
+    private String getRunsInFromRunnable(TypeMirror var) {
         String result = null;
-        TypeElement myType = context.getTypeElement(var.asType().toString());
+        //TypeElement myType = context.getTypeElement(var.asType().toString());
+        TypeElement myType = context.getTypeElement(var.toString());
         List<? extends Element> elements = myType.getEnclosedElements();
         // search for run() method:
         for (Element el : elements)
