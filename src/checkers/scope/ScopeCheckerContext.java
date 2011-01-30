@@ -75,6 +75,10 @@ public class ScopeCheckerContext {
         }
     }
     
+    public TypeElement getTypeElement(String clazz) {
+        return elements.getTypeElement(clazz);
+    }
+    
     public String getRunsIn(TypeElement t) throws ScopeException {
         return getScopeInternal(MapType.RUNS_IN, t);
     }

@@ -1,14 +1,20 @@
-Checker readme
----------------
+SCJ Checker README
+Contact:
+Date
+Version :
+============================================================================================
+
+
 
 INSTALL
-------------
+==============================================
 run:
 $ .build.sh
 
 
+
 TEST-SUITE
----------------
+==============================================
 
 Compile:
 $ cs testsuite
@@ -19,17 +25,26 @@ python runtests.py  --scj-path ./build/src/
 
 
 RUN
-------------------------------------
+==============================================
+
+
+
+
+
+CHECKER IMPLEMENTATION
+==============================================
+
+Checker framework documentation: 
+http://types.cs.washington.edu/checker-framework/
+
+Checker framework API: 
+http://types.cs.washington.edu/checker-framework/doc/overview-summary.html
 
 
 
 
 NOTES
---------------------------------------------
-
-
-[[[  SOME NOTES - Ales   ]]]
-
+==============================================
 
 PYTHON SCRIPT:
 

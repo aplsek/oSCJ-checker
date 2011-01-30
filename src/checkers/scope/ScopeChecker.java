@@ -22,7 +22,6 @@ public class ScopeChecker extends SourceChecker {
     public Properties getMessages() {
         Properties p = new Properties();
         p.put("bad.assignment.private.mem", "Cannot assign to a private memory with a different @DefineScope.");
-        p.put("bad.assignment.scope", "Cannot assign expression in scope %s to variable in scope %s.");
         p.put("scope.runs.in.disagreement", "@RunsIn annotations must be a sub-scope of @Scope annotations.");
         p.put("escaping.nonannotated.field", "escaping.nonannotated.field");
         p.put("scope.on.method", "@Scope annotations not allowed on methods.");
@@ -47,16 +46,12 @@ public class ScopeChecker extends SourceChecker {
         p.put("unresolvable.scopedef", "Unable to resolve declared scope for expression.");
         p.put("unannotated.class", "Class %s has no @Scope annotation.");
         
-        p.put("bad.enterPrivateMem.defineScope", "The variable referencing getCurrentManagedMemory must have" +
-        		" a @DefineScope with name that equals to the current allocation context." +
-        		"\n\t Allocation-Context: %s " +
-        		"\n\t DefineScope name: %s");
-        p.put("bad.enterPrivateMem.defineScope.parent", "The @DefineScope variable is not consistent with its scope definition, check the parent of the scope!" +
-                "\n\t Allocation-Context: %s " +
-                "\n\t DefineScope name: %s");
+        p.put("bad.enterPrivateMem.no.runsIn", "The Runnable passed into the enterPrivateMemory() call must have a run() method with a @RunsIn annotation.");  
+        p.put("bad.enterPrivateMem.no.Scope.on.Runnable", "The Runnable class must have a matching @Scope annotation." );  
+        p.put("bad.enterPrivateMem.runsIn.no.match", "The Runnable's @RunsIn must be a child scope of the CurrentScope" +
+                "\n\t @RunsIn: %s " +
+                "\n\t Current Scope: %s");
         
-        p.put("bad.enterPrivateMem.no.defineScope", "Reference obtained from getCurrentManagedMemory must have a @DefineScope annotation." +
-                "\n\t Expected Define-Scope name =  %s " );  // this should be detected by the DefineScopeChecker
         
         p.put("scope.Tree.not.consistent", "Scope Definitions are not consistent: \n\t%s");
         
