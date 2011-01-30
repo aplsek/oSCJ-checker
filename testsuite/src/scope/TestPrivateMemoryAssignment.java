@@ -1,8 +1,3 @@
-//scope/TestPrivateMemoryAssignment.java:16: Cannot assign to a private memory with a different @DefineScope.
-//        b = a; // This should fail
-//          ^
-//1 error
-
 package scope;
 
 import javax.safetycritical.PrivateMemory;
@@ -18,7 +13,7 @@ public class TestPrivateMemoryAssignment {
     PrivateMemory b = new PrivateMemory(0);
     
     public void foo() {
-        b = a; // This should fail
+        b = a; 
     }
 }
 

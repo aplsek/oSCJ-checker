@@ -1,7 +1,12 @@
-//tests/scope/TestEnterPrivateMemory.java:93: (Class scope.MyTestRunnable has a scope annotation with no matching @DefineScope)
-//class MyTestRunnable implements Runnable {
-//^
-//1 error
+//testsuite/src/scope/TestEnterPrivateMemory.java:61: The Runnable's @RunsIn must be a child scope of the CurrentScope
+//                    enterPrivateMemory(300, 
+//                                      ^
+//         @RunsIn: handler_child 
+//         Current Scope: WordHandler
+//testsuite/src/scope/TestEnterPrivateMemory.java:83: (Scope handler_child does not exist.)
+//    public void run() {
+//                ^
+//2 errors
 
 package scope;
 

@@ -13,7 +13,6 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 
 @Scope(IMMORTAL) 
-@DefineScope(name="A", parent=IMMORTAL)
 public class TestVariable2 {
     PrivateMemory a;
     PrivateMemory b;

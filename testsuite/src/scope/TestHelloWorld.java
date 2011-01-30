@@ -2,21 +2,19 @@
 
 package scope;
 
-import javax.realtime.RelativeTime;
 import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
-import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.PeriodicEventHandler;
-import javax.safetycritical.Safelet;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
-
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import javax.safetycritical.annotate.DefineScope;
 
 @SCJAllowed(members=true)
 @Scope("scope.TestHelloWorld")
+@DefineScope(name="scope.TestHelloWorld",parent=IMMORTAL)
 public class TestHelloWorld extends CyclicExecutive {
   
     public TestHelloWorld() {
@@ -43,6 +41,7 @@ public class TestHelloWorld extends CyclicExecutive {
     @SCJAllowed()
     @Scope("scope.TestHelloWorld")
     @RunsIn("scope.TestHelloWorld.WordHandler")
+    @DefineScope(name="scope.TestHelloWorld.WordHandler",parent="scope.TestHelloWorld")
     public class WordHandler extends PeriodicEventHandler {
 
         @SCJAllowed()

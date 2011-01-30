@@ -45,8 +45,7 @@ class MyMission extends Mission {
 }
 
 
-@Scope("scope.MyMission")  
-@RunsIn("scope.MyHandler") 
+@Scope("scope.MyMission")  @RunsIn("scope.MyHandler") 
 @DefineScope(name="scope.MyHandler",parent="scope.MyMission")
 class MyHandler extends PeriodicEventHandler {
 
@@ -55,8 +54,8 @@ class MyHandler extends PeriodicEventHandler {
         super(priority, parameters, scp);
     }
 
-    public
-    void handleAsyncEvent() {
+    @RunsIn("scope.MyHandler") 
+    public void handleAsyncEvent() {
         
         A aObj = new A();                                                
         B bObj = new B(); // Ok 
@@ -108,7 +107,6 @@ class MyHandler extends PeriodicEventHandler {
 
 
 @Scope("scope.MyHandler") 
-@DefineScope(name="scope.MyHandler", parent="scope.MyMission")
 class BRunnable1 implements Runnable {
     @Override
     @RunsIn("MyMissionRunB") 

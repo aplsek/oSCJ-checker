@@ -34,7 +34,6 @@ class R1 implements Runnable {
     @RunsIn("a")
     public void run() {
         
-        @DefineScope(name="b", parent="a")
         R2 r2 = new R2();
         
         ManagedMemory.

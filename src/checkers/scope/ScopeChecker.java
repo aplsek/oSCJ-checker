@@ -22,6 +22,7 @@ public class ScopeChecker extends SourceChecker {
     public Properties getMessages() {
         Properties p = new Properties();
         p.put("bad.assignment.private.mem", "Cannot assign to a private memory with a different @DefineScope.");
+        p.put("bad.assignment.scope", "Cannot assign expression in scope %s to variable in scope %s.");
         p.put("scope.runs.in.disagreement", "@RunsIn annotations must be a sub-scope of @Scope annotations.");
         p.put("escaping.nonannotated.field", "escaping.nonannotated.field");
         p.put("scope.on.method", "@Scope annotations not allowed on methods.");
