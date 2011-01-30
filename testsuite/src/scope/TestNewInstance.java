@@ -31,10 +31,11 @@ public class TestNewInstance {
             getCurrentManagedMemory().
                 enterPrivateMemory(0, new R1());
         }
-        @Scope(IMMORTAL) @RunsIn("a")
+        @Scope(IMMORTAL)
         @DefineScope(name = "a", parent = IMMORTAL)
         static class R1 implements Runnable {
             @Override
+            @RunsIn("a")
             public void run() {
             }
         }

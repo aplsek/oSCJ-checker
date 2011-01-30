@@ -90,20 +90,20 @@ public class TestVariable  extends PeriodicEventHandler {
 
 
     @Scope("scope.TestVariable") 
-    @RunsIn("ARunnable") 
     @DefineScope(name="ARunnable",parent="scope.TestVariable")
     class ARunnable implements Runnable {
         @Override
+        @RunsIn("ARunnable") 
         public void run() {
         }  
     }
 
     @Scope("scope.TestVariable") 
-    @RunsIn("BRunnable") 
     @DefineScope(name="BRunnable",parent="scope.TestVariable")
     class BRunnable implements Runnable {
 
         @Override
+        @RunsIn("BRunnable") 
         public void run() {
         }
     }

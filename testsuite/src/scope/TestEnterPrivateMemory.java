@@ -45,7 +45,6 @@ public class TestEnterPrivateMemory extends CyclicExecutive {
     
     @SCJAllowed()
     @Scope("TestEnterPrivateMemory")
-    @RunsIn("WordHandler")
     @DefineScope(name="WordHandler", parent="TestEnterPrivateMemory")
     public class WordHandler extends PeriodicEventHandler {
 
@@ -78,7 +77,6 @@ public class TestEnterPrivateMemory extends CyclicExecutive {
 
 @SCJAllowed(members=true)
 @Scope("WordHandler")
-@RunsIn("handler_child")
 class MyTestRunnable implements Runnable {
     
     @RunsIn("handler_child")

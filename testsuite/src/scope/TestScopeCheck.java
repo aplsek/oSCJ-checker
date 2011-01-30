@@ -78,7 +78,6 @@ class MyWordHandler extends PeriodicEventHandler {
     }
 
     @Scope("scope.TestScopeCheck.MyWordHandler")
-    @RunsIn("MyTestRunnable")
     @DefineScope(name="MyTestRunnable",parent="scope.TestScopeCheck.MyWordHandler")
     class MyErrorRunnable implements Runnable {
 
@@ -88,6 +87,7 @@ class MyWordHandler extends PeriodicEventHandler {
         }
         
         @Override
+        @RunsIn("MyTestRunnable")
         public void run() {
             mydata = new Object();     
             data = mydata;   //// ERROR

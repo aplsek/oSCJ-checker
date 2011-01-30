@@ -71,21 +71,21 @@ public class TestScopeTree extends PeriodicEventHandler {
 }
 
 @Scope("MyHandler")
-@RunsIn("MyMissionInit")
 @DefineScope(name="MyMissionInit", parent="MyHandler")
 class ARunnable111 implements Runnable {
 
     @Override
+    @RunsIn("MyMissionInit")
     public void run() {
     }
 }
 
 @Scope("MyHandler")
-@RunsIn("BRunnable")
 @DefineScope(name="BRunnable", parent="MyHandler")
 class BRunnable111 implements Runnable {
 
     @Override
+    @RunsIn("BRunnable")
     public void run() {
     }
 }

@@ -77,10 +77,11 @@ public class TestGetCurrentManMem extends CyclicExecutive {
 
 @SCJAllowed(members=true)
 @Scope("scope.TestGetCurrentManMem.WordHandler")
-@RunsIn("MyTestRunnable_area")
+
 @DefineScope(name="MyTestRunnable_area",
                              parent="scope.TestGetCurrentManMem.WordHandler")
 class MyTestRunnable333 implements Runnable {
+    @RunsIn("MyTestRunnable_area")
     public void run() {
     }
 }

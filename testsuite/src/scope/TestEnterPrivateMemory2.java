@@ -45,7 +45,6 @@ public class TestEnterPrivateMemory2 extends CyclicExecutive {
     
     @SCJAllowed()
     @Scope("scope.TestEnterPrivateMemory2")
-    @RunsIn("scope.TestEnterPrivateMemory2.WordHandler")
     @DefineScope(name="scope.TestEnterPrivateMemory2.WordHandler", parent="scope.TestEnterPrivateMemory2")
     public class WordHandler extends PeriodicEventHandler {
 
@@ -82,9 +81,9 @@ public class TestEnterPrivateMemory2 extends CyclicExecutive {
 
 @SCJAllowed(members=true)
 @Scope("scope.TestEnterPrivateMemory2.WordHandler")
-@RunsIn("handler")
 @DefineScope(name="error_name", parent="scope.TestEnterPrivateMemory2.WordHandler")
 class MyTestRunnable2 implements Runnable {
+    @RunsIn("handler")
     public void run() {
     }
 }

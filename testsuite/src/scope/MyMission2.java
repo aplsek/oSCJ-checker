@@ -27,6 +27,7 @@ import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
+
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @DefineScope(name="MyMission2",parent=IMMORTAL)
@@ -64,12 +65,14 @@ class MyHandler2 extends PeriodicEventHandler {
         ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, bRunnable);  
         
         BRunnable112 bRunnable112 = new BRunnable112();
-        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, bRunnable112); 
+        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, bRunnable112);    // ERR
         
-        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, runnableMission); 
+        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, runnableMission);   // ERR
         
         WrongScopeRunnable wrongScopeRun = new WrongScopeRunnable();
-        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, wrongScopeRun); 
+        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, wrongScopeRun);    // ERR
+        
+        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, new BRunnable12());  
         
     }
 

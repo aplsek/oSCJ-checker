@@ -42,9 +42,9 @@ class C11 extends A111 {
 
 
 @Scope(IMMORTAL)
-@RunsIn("a")
 class CastRunnable2 implements Runnable {
     @Override
+    @RunsIn("a")
     public void run() {
     }
     

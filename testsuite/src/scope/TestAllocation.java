@@ -21,9 +21,10 @@ public class TestAllocation {
                 enterPrivateMemory(0, new R());
     }
     
-    @Scope(IMMORTAL) @RunsIn("a")
+    @Scope(IMMORTAL) 
     @DefineScope(name = "a", parent = IMMORTAL)
     public static class R implements Runnable {
+        @RunsIn("a")
         public void run() {
             new C();
         }

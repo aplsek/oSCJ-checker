@@ -24,10 +24,11 @@ public class TestFieldScope {
     }
 }
 
-@Scope(IMMORTAL) @RunsIn("a")
+@Scope(IMMORTAL) 
 @DefineScope(name="a", parent=IMMORTAL)
 class R12 implements Runnable {
     @Override
+    @RunsIn("a")
     public void run() {
     }
 }

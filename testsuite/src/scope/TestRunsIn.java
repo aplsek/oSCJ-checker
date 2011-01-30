@@ -27,10 +27,11 @@ public class TestRunsIn {
     }
 }
 
-@Scope(IMMORTAL) @RunsIn("a")
+@Scope(IMMORTAL) 
 @DefineScope(name = "a", parent = IMMORTAL)
 class R1 implements Runnable {
     @Override
+    @RunsIn("a")
     public void run() {
         
         @DefineScope(name="b", parent="a")
@@ -44,10 +45,10 @@ class R1 implements Runnable {
 }
 
 @Scope("a") 
-@RunsIn("b")
 @DefineScope(name = "b", parent = "a")
 class R2 implements Runnable {
     @Override
+    @RunsIn("b")
     public void run() {
     }
 }

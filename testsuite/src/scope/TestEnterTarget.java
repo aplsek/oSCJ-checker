@@ -34,10 +34,11 @@ public class TestEnterTarget {
         }
 }
 
-@Scope(IMMORTAL) @RunsIn("a1")
+@Scope(IMMORTAL) 
 @DefineScope(name="a1", parent=IMMORTAL)
 class R1000 implements Runnable {
     @Override
+    @RunsIn("a1")
     public void run() {
         ManagedMemory.
             getCurrentManagedMemory().
@@ -45,10 +46,11 @@ class R1000 implements Runnable {
     }
 }
 
-@Scope("a1") @RunsIn("b1")
+@Scope("a1") 
 @DefineScope(name="b1", parent="a1")
 class R2000 implements Runnable {
     @Override
+    @RunsIn("b1")
     public void run() {
     }
 }

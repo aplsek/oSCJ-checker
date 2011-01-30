@@ -25,9 +25,10 @@ public class TestDuplicate {
         }
         
         @DefineScope(name="a", parent=IMMORTAL)
-        @Scope("a") @RunsIn("a")
+        @Scope("a")
         static class R1 implements Runnable {
             @Override
+            @RunsIn("a")
             public void run() {
             }
         }

@@ -32,10 +32,11 @@ class HelperUnannotatedRunnable {
     }
 }
 
-@Scope(IMMORTAL) @RunsIn("b")
+@Scope(IMMORTAL)
 @DefineScope(name = "b", parent = IMMORTAL)
 class R11 implements Runnable {
     @Override
+    @RunsIn("b")
     public void run() {
     }
 }

@@ -81,7 +81,6 @@ public class TestGetCurrentManMem2 extends CyclicExecutive {
 
 @SCJAllowed(members=true)
 @Scope("scope.TestGetCurrentManMem2.WordHandler")
-@RunsIn("MyTestRunnable_area")
 @DefineScope(name="MyTestRunnable_area", parent="scope.TestGetCurrentManMem2.WordHandler")
 class MyTestRunnable33 implements Runnable {
     

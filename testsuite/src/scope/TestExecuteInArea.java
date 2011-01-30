@@ -36,7 +36,6 @@ public class TestExecuteInArea {
 }
 
 @Scope(IMMORTAL)
-@RunsIn("b")
 @DefineScope(name = "b", parent = IMMORTAL)
 class R111 implements Runnable {
     @RunsIn("a")
@@ -45,9 +44,9 @@ class R111 implements Runnable {
 }
 
 @Scope(IMMORTAL)
-@RunsIn("a")
 @DefineScope(name = "c", parent = "a")
 class GoodR implements Runnable {
+    @RunsIn("a")
     public void run() {
     }
 }

@@ -10,14 +10,15 @@ import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.PeriodicEventHandler;
-import javax.safetycritical.Safelet;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("scope.TestScopeCheck3")
+@DefineScope(name="scope.TestScopeCheck3",parent=IMMORTAL)
 public class TestScopeCheck3  extends CyclicExecutive  {
 
     public TestScopeCheck3() {
@@ -47,7 +48,7 @@ public class TestScopeCheck3  extends CyclicExecutive  {
 
 
 @Scope("scope.TestScopeCheck3")
-@RunsIn("scope.TestScopeCheck3.MyWordHandler3")
+@DefineScope(name="scope.TestScopeCheck3.MyWordHandler3",parent="scope.TestScopeCheck3")
 class MyWordHandler3 extends PeriodicEventHandler {
 
     public MyWordHandler3(long psize) {
@@ -58,16 +59,9 @@ class MyWordHandler3 extends PeriodicEventHandler {
     
     @RunsIn("scope.TestScopeCheck3.MyWordHandler3")
     public void handleAsyncEvent() {
-       
-        
-     @DefineScope(name="scope.TestScopeCheck3.MyWordHandler3",  
-                parent="scope.TestScopeCheck3")
-     ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
-     
-     mem.enterPrivateMemory(300, 
-                     new /*@DefineScope(name="MyTestRunnable",
-                      parent="scope.TestScopeCheck3.MyWordHandler3")*/ 
-                     MyErrorRunnable(this));
+        ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
+        mem.enterPrivateMemory(300, 
+                     new MyErrorRunnable(this));
     }
 
     @SCJAllowed()
@@ -81,7 +75,7 @@ class MyWordHandler3 extends PeriodicEventHandler {
 
 
 @Scope("scope.TestScopeCheck3.MyWordHandler3")
-@RunsIn("MyTestRunnable")
+@DefineScope(name="MyTestRunnable",parent="scope.TestScopeCheck3.MyWordHandler3")
 class MyErrorRunnable implements Runnable {
 
     MyWordHandler3 peh;
@@ -91,6 +85,7 @@ class MyErrorRunnable implements Runnable {
     }
     
     @Override
+    @RunsIn("MyTestRunnable")
     public void run() {
         Object mydata = new Object();
         peh.data = mydata;   //// ERROR

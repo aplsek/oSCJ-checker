@@ -26,9 +26,10 @@ public class TestExecuteInAreaTarget {
     }
 }
 
-@RunsIn("b")
+
 @DefineScope(name="b", parent="a")
 class TestExecuteInAreaTargetRunnable implements Runnable {
+    @RunsIn("b")
     public void run() {
     }
 }

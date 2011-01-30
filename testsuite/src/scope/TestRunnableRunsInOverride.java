@@ -26,19 +26,21 @@ public class TestRunnableRunsInOverride implements Runnable {
             getCurrentManagedMemory().
                 enterPrivateMemory(0, new R1());
         }
-        @Scope(IMMORTAL) @RunsIn("a")
+        @Scope(IMMORTAL)
         static class R1 implements Runnable {
             @Override
+            @RunsIn("a")
             public void run() {
                 ManagedMemory.
                 getCurrentManagedMemory().
                     enterPrivateMemory(0, new R2());
             }
         }
-        @Scope("a") @RunsIn("b")
+        @Scope("a")
         @DefineScope(name = "b", parent = IMMORTAL)
         static class R2 implements Runnable {
             @Override
+            @RunsIn("b")
             public void run() {
             }
         }

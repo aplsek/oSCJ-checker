@@ -34,9 +34,10 @@ class C1 extends A11 {
 
 
 
-@Scope(IMMORTAL) @RunsIn("a")
+@Scope(IMMORTAL) 
 class Runnable1 implements Runnable {
     @Override
+    @RunsIn("a")
     public void run() {
         A11 a = new A11();
         B11 b = (B11) a;   // ERROR but the previous error gets detected first.

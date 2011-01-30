@@ -41,15 +41,15 @@ public class TestCast3 {
 
 
 @Scope("b")
- @DefineScope(name = "b", parent = IMMORTAL)
+@DefineScope(name = "b", parent = IMMORTAL)
 class Bcast extends Acast {
 }
 
 @Scope(IMMORTAL)
-@RunsIn("b")
 class RunnableCast implements Runnable {
 
     @Override
+    @RunsIn("b")
     public void run() {
     }
     

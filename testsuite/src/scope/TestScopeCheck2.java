@@ -15,8 +15,12 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
+
 
 @Scope("scope.TestScopeCheck2")
+@DefineScope(name="scope.TestScopeCheck2", parent=IMMORTAL)
 public class TestScopeCheck2  extends CyclicExecutive  {
 
     public TestScopeCheck2() {
@@ -46,6 +50,8 @@ public class TestScopeCheck2  extends CyclicExecutive  {
 
 @Scope("scope.TestScopeCheck2")
 @RunsIn("scope.TestScopeCheck2.MyWordHandler2")
+@DefineScope(name="scope.TestScopeCheck2.MyWordHandler2",  
+                parent="scope.TestScopeCheck2")
 class MyWordHandler2 extends PeriodicEventHandler {
 
     public MyWordHandler2(long psize) {
@@ -58,14 +64,11 @@ class MyWordHandler2 extends PeriodicEventHandler {
     public void handleAsyncEvent() {
        
         
-     @DefineScope(name="scope.TestScopeCheck2.MyWordHandler2",  
-                parent="scope.TestScopeCheck2")
+    
      ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
      
      mem.enterPrivateMemory(300, 
-                     new /*@DefineScope(name="MyTestRunnable",
-                      parent="scope.TestScopeCheck2.MyWordHandler2")*/ 
-                     MyErrorRunnable());
+                     new MyErrorRunnable());
     }
 
     @SCJAllowed()
@@ -75,15 +78,17 @@ class MyWordHandler2 extends PeriodicEventHandler {
     public StorageParameters getThreadConfigurationParameters() {
         return null;
     }
-
+    
+    @DefineScope(name="MyTestRunnable",
+            parent="scope.TestScopeCheck2.MyWordHandler2")
     @Scope("scope.TestScopeCheck2.MyWordHandler2")
-    @RunsIn("MyTestRunnable")
     class MyErrorRunnable implements Runnable {
 
         public MyErrorRunnable() {
         }
         
         @Override
+        @RunsIn("MyTestRunnable")
         public void run() {
             data = new Object();   //// ERROR
         }

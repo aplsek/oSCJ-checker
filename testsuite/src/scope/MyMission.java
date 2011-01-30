@@ -108,20 +108,21 @@ class MyHandler extends PeriodicEventHandler {
 
 
 @Scope("scope.MyHandler") 
-@RunsIn("MyMissionRunB") 
 @DefineScope(name="scope.MyHandler", parent="scope.MyMission")
 class BRunnable1 implements Runnable {
     @Override
+    @RunsIn("MyMissionRunB") 
     public void run() {
     } 
 }
 
 
 @Scope("scope.MyMission") 
-@RunsIn("MyMissionInitA") 
+
 @DefineScope(name="MyMissionInitA", parent="scope.MyMission")
 class ARunnable1 implements Runnable {
     @Override
+    @RunsIn("MyMissionInitA") 
     public void run() {
     }  
 }
@@ -134,10 +135,10 @@ class RunnableNull implements Runnable {
 
 
 @Scope("scope.MyHandler") 
-@RunsIn("MyMissionRunB") 
 @DefineScope(name="MyMissionRunB", parent="scope.MyHandler") 
 class CRunner implements Runnable {
     @Override
+    @RunsIn("MyMissionRunB") 
     public void run() {
     }   
 }

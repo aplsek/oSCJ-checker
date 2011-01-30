@@ -21,20 +21,22 @@ public class TestSimple {
             getCurrentManagedMemory().
                 enterPrivateMemory(0, new R1());
         }
-        @Scope(IMMORTAL) @RunsIn("a")
+        @Scope(IMMORTAL)
         @DefineScope(name = "a", parent = IMMORTAL)
         static class R1 implements Runnable {
             @Override
+            @RunsIn("a")
             public void run() {
                 ManagedMemory.
                 getCurrentManagedMemory().
                     enterPrivateMemory(0, new R2());
             }
         }
-        @Scope("a") @RunsIn("b")
+        @Scope("a")
         @DefineScope(name = "b", parent = "a")
         static class R2 implements Runnable {
             @Override
+            @RunsIn("b")
             public void run() {
             }
         }

@@ -41,19 +41,4 @@ public class DefineScopeTest {
         }
            
     }
-    
-    public void test() {
-        ManagedMemory.
-        getCurrentManagedMemory().
-            enterPrivateMemory(0, new A());
-        ManagedMemory.
-        getCurrentManagedMemory().
-            enterPrivateMemory(0, new A());
-        ManagedMemory.
-        getCurrentManagedMemory().
-            enterPrivateMemory(0, new A());
-        ManagedMemory.
-        getCurrentManagedMemory().
-            enterPrivateMemory(0, new A());
-    }
 }
