@@ -494,6 +494,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             
             break;
         case MEMBER_SELECT:
+            // TODO:
             Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
             if (tmp.getKind() != ElementKind.FIELD) {
                 report(Result.failure("bad.enter.parameter"), arg);
@@ -504,18 +505,19 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             }
             break;
         case NEW_CLASS:
+       
             ExecutableElement ctor = (ExecutableElement) TreeUtils
                     .elementFromUse((NewClassTree) arg);
-            argRunsIn = context.getRunsIn((TypeElement) ctor
-                    .getEnclosingElement());
-            argScope = context.getScope((TypeElement) ctor.getEnclosingElement());
-           
+            TypeElement el = (TypeElement) ctor.getEnclosingElement();
+            argRunsIn = getRunsInFromRunnable(el.asType());
+            argScope = scope(el);
+            
             break;
         default:
             report(Result.failure("bad.enter.parameter"), arg);
             return;
         }
-
+        
         if (argRunsIn == null) {
             // All Runnables used with executeInArea/enter should have
             // @RunsIn on "run()" method
@@ -543,7 +545,11 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
            // System.out.println("argRunsIn :" + argRunsIn);
            // System.out.println("argScope :" + argScope);
            // System.out.println("varScope :" + varScope);
-          
+            //System.out.println("current :" + currentAllocScope());
+           // System.out.println("ancestor :" +  ScopeTree.isAncestorOf(currentAllocScope(), varScope)
+            //        );
+            
+           
             
             if (varScope == null || !varScope.equals(argRunsIn)) {
                 // The Runnable and the PrivateMemory must have agreeing
@@ -551,12 +557,13 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 report(Result.failure("bad.executeInArea.or.enter"), node);
             }
             if ("executeInArea".equals(methodName)
-                    && !ScopeTree.isParentOf(currentAllocScope(), varScope)) {
+                    && !ScopeTree.isAncestorOf(currentAllocScope(), varScope)) {
                 report(Result.failure("bad.executeInArea.target"), node);
             } else if ("enter".equals(methodName)
                     && !ScopeTree.isParentOf(varScope, currentAllocScope())) {
                 report(Result.failure("bad.enter.target"), node);
             }
+            
         } 
     }
     

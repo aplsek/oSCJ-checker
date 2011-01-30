@@ -1,9 +1,9 @@
-//scope/TestExecuteInAreaTarget.java:15: executeInArea() must target a parent scope.
+//scope/TestExecuteInAreaTarget.java:25: executeInArea() must target a parent scope.
 //        b.executeInArea(new TestExecuteInAreaTargetRunnable());
 //                       ^
-//scope/TestExecuteInAreaTarget.java:25: (Class may not have @RunsIn annotation with no @Scope annotation.)
-//class TestExecuteInAreaTargetRunnable implements Runnable {
-//^
+//scope/TestExecuteInAreaTarget.java:33: Methods must run in the same scope or a child scope of their owning type.
+//    public void run() {
+//                ^
 //2 errors
 
 package scope;
@@ -29,7 +29,7 @@ public class TestExecuteInAreaTarget {
 
 @DefineScope(name="b", parent="a")
 class TestExecuteInAreaTargetRunnable implements Runnable {
-    @RunsIn("b")
+    @RunsIn("a")
     public void run() {
     }
 }

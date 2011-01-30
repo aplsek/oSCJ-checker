@@ -51,6 +51,23 @@ public abstract class ScopeTree {
         return false;
     }
     
+    public static boolean isAncestorOf(String name, String expectedParent) {
+        if (expectedParent == null) 
+            return false;
+        
+        //printTree();
+        if (expectedParent.equals(name)) // if they are the same, its not ancestor
+            return false;
+            
+        while (name != null) {
+            if (name.equals(expectedParent)) {
+                return true;
+            }
+            name = get(name);
+        }
+        return false;
+    }
+    
     public static void put(String name, String parent, Tree node) {
         scopeTree.put(name, parent);
         scopeMap.put(name, node);
