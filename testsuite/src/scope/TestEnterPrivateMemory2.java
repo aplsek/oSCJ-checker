@@ -1,17 +1,20 @@
-//scope/TestEnterPrivateMemory2.java:95: (Class scope.MyTestRunnable2 has a scope annotation with no matching @DefineScope)
-//class MyTestRunnable2 implements Runnable {
-//^
-//1 error
+//scope/TestEnterPrivateMemory2.java:58: The Runnable's @RunsIn must be a child scope of the CurrentScope
+//                getCurrentManagedMemory().enterPrivateMemory(300, 
+//                                                            ^
+//         @RunsIn: handler 
+//         Current Scope: scope.TestEnterPrivateMemory2.WordHandler
+//scope/TestEnterPrivateMemory2.java:84: (Scope handler does not exist.)
+//    public void run() {
+//                ^
+//2 errors
+
 
 package scope;
 
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-import javax.realtime.RelativeTime;
 import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.PeriodicEventHandler;
-import javax.safetycritical.Safelet;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;

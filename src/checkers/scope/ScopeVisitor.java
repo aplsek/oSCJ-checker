@@ -147,6 +147,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
         if (escapeEnum(node) || escapeAnnotation(node)) {
             debugIndentDecrement();
+            System.out.println("ESCAPE!!!!!!!!!!!!!!! " + node.getSimpleName());
             return null;
         }
 
@@ -265,7 +266,6 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
     @Override
     public R visitMethod(MethodTree node, P p) {
-
         debugIndentIncrement("visitMethod " + node.getName());
         ExecutableElement method = TreeUtils.elementFromDeclaration(node);
 
@@ -393,81 +393,24 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         String runsIn = context.getRunsIn(method);
         // Ignore constructors, since they should be type checked by the class
         // visitation anyway.
+        
         String methodName = method.getSimpleName().toString();
+        
+       // System.out.println("method Invocation: " + methodName);
+       // System.out.println("\t\t is mem: " + isMemoryAreaType(type));
+        
+        
+        
         if (isMemoryAreaType(type)
                 && ("executeInArea".equals(methodName) || "enter"
                         .equals(methodName))) {
-            ExpressionTree e = node.getMethodSelect();
-            ExpressionTree arg = node.getArguments().get(0);
-            String argRunsIn = null;
-
-            debugIndent("executeInArea Invocation: ");
-
-            // TODO: Single exit point sure would be nicer
-            switch (arg.getKind()) {
-            case IDENTIFIER:
-                argRunsIn = directRunsIn((VariableElement) TreeUtils
-                        .elementFromUse((IdentifierTree) arg));
-                // System.out.println("argument var " + (VariableElement)
-                // TreeUtils.elementFromUse((IdentifierTree) arg));
-
-                break;
-            case MEMBER_SELECT:
-                Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
-                if (tmp.getKind() != ElementKind.FIELD) {
-                    report(Result.failure("bad.enter.parameter"), arg);
-                    return;
-                } else {
-                    argRunsIn = directRunsIn((VariableElement) tmp);
-                }
-                break;
-            case NEW_CLASS:
-                ExecutableElement ctor = (ExecutableElement) TreeUtils
-                        .elementFromUse((NewClassTree) arg);
-                argRunsIn = context.getRunsIn((TypeElement) ctor
-                        .getEnclosingElement());
-                break;
-            default:
-                report(Result.failure("bad.enter.parameter"), arg);
-                return;
-            }
-
-            if (argRunsIn == null) {
-                // All Runnables used with executeInArea/enter should have
-                // @RunsIn
-                // TODO: Prevent Runnables from having their run override
-                // annotations?
-                report(Result.failure("runnable.without.runsin"), node);
-            } else {
-                String varScope = null;
-                switch (e.getKind()) {
-                case IDENTIFIER:
-                    // TODO: This only happens for this/super constructor calls
-                    // or implicit this.method calls. How do we
-                    // handle this.method? Do we need to?
-                    varScope = scopeDef((VariableElement) TreeUtils
-                            .elementFromUse((IdentifierTree) e));
-                    break;
-                case MEMBER_SELECT:
-                    varScope = getScopeDef(((MemberSelectTree) e)
-                            .getExpression());
-                    break;
-                }
-                if (varScope == null || !varScope.equals(argRunsIn)) {
-                    // The Runnable and the PrivateMemory must have agreeing
-                    // scopes
-                    report(Result.failure("bad.executeInArea.or.enter"), node);
-                }
-                if ("executeInArea".equals(methodName)
-                        && !ScopeTree.isParentOf(currentAllocScope(), varScope)) {
-                    report(Result.failure("bad.executeInArea.target"), node);
-                } else if ("enter".equals(methodName)
-                        && !ScopeTree.isParentOf(varScope, currentAllocScope())) {
-                    report(Result.failure("bad.enter.target"), node);
-                }
-            }
+           
+            checkExecuteInArea(node);
+            
         } else if (isMemoryAreaType(type) && "newInstance".equals(methodName)) {
-
+            
+            // TODO: revisit checking of the "newInstance"!!!!
+            
             ExpressionTree e = node.getMethodSelect();
             ExpressionTree arg = node.getArguments().get(0);
             String varScope = null;
@@ -522,6 +465,101 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         }
     }
     
+    private void checkExecuteInArea(MethodInvocationTree node) throws ScopeException {
+        ExecutableElement method = TreeUtils.elementFromUse(node);
+        
+        String methodName = method.getSimpleName().toString();
+        
+        ExpressionTree e = node.getMethodSelect();
+        ExpressionTree arg = node.getArguments().get(0);
+        String argRunsIn = null;  // runsIn of the Runnable
+        String argScope = null;   // @Scope of the Runnable
+        String varScope = null;   // @Scope of the target
+        
+        debugIndent("executeInArea Invocation: ");
+        // TODO: Single exit point sure would be nicer
+        switch (arg.getKind()) {
+        case IDENTIFIER:
+            //argRunsIn = directRunsIn((VariableElement) TreeUtils
+            //        .elementFromUse((IdentifierTree) arg));
+            // System.out.println("argument var " + (VariableElement)
+            // TreeUtils.elementFromUse((IdentifierTree) arg));
+
+            VariableElement var = (VariableElement) TreeUtils
+            .elementFromUse((IdentifierTree) arg);
+
+            argRunsIn = getRunsInFromRunnable(var.asType());
+            argScope = scope(var);
+            
+            
+            break;
+        case MEMBER_SELECT:
+            Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
+            if (tmp.getKind() != ElementKind.FIELD) {
+                report(Result.failure("bad.enter.parameter"), arg);
+                return;
+            } else {
+                argRunsIn = directRunsIn((VariableElement) tmp);
+                argScope = context.getScope((TypeElement) tmp.asType());
+            }
+            break;
+        case NEW_CLASS:
+            ExecutableElement ctor = (ExecutableElement) TreeUtils
+                    .elementFromUse((NewClassTree) arg);
+            argRunsIn = context.getRunsIn((TypeElement) ctor
+                    .getEnclosingElement());
+            argScope = context.getScope((TypeElement) ctor.getEnclosingElement());
+           
+            break;
+        default:
+            report(Result.failure("bad.enter.parameter"), arg);
+            return;
+        }
+
+        if (argRunsIn == null) {
+            // All Runnables used with executeInArea/enter should have
+            // @RunsIn on "run()" method
+            report(Result.failure("runnable.without.runsin"), node);
+        } else {
+            switch (e.getKind()) {
+            case IDENTIFIER:
+                // TODO: This only happens for this/super constructor calls
+                // or implicit this.method calls. How do we
+                // handle this.method? Do we need to?
+                varScope = scopeDef((VariableElement) TreeUtils
+                        .elementFromUse((IdentifierTree) e));
+                break;
+            case MEMBER_SELECT:
+                //varScope = getScopeDef(((MemberSelectTree) e)
+                //        .getExpression());
+                ExpressionTree ee = ((MemberSelectTree) e).getExpression();
+                Element el =TreeUtils.elementFromUse(ee);
+                varScope = scope(el);
+                break;
+            }
+
+            
+           // System.out.println("\n\n-------------------- :");
+           // System.out.println("argRunsIn :" + argRunsIn);
+           // System.out.println("argScope :" + argScope);
+           // System.out.println("varScope :" + varScope);
+          
+            
+            if (varScope == null || !varScope.equals(argRunsIn)) {
+                // The Runnable and the PrivateMemory must have agreeing
+                // scopes
+                report(Result.failure("bad.executeInArea.or.enter"), node);
+            }
+            if ("executeInArea".equals(methodName)
+                    && !ScopeTree.isParentOf(currentAllocScope(), varScope)) {
+                report(Result.failure("bad.executeInArea.target"), node);
+            } else if ("enter".equals(methodName)
+                    && !ScopeTree.isParentOf(varScope, currentAllocScope())) {
+                report(Result.failure("bad.enter.target"), node);
+            }
+        } 
+    }
+    
     private void checkEnterPrivateMemory(MethodInvocationTree node) throws ScopeException {
         debugIndent("enterPrivateMemory Invocation");
 
@@ -543,15 +581,9 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
             argRunsIn = getRunsInFromRunnable(var.asType());
             argScope = scope(var);
-            //System.out.println("\t :>>>>>> annotation:::" + argRunsIn);
-            //System.out.println("\t :>>>>>> scope annotation:::" + argScope);
 
             break;
         case MEMBER_SELECT:
-            // TODO: check this
-
-            System.err.println("\n\nTODO : EnterPrivateMemory: MEMBER select\n\n");
-
             Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
             if (tmp.getKind() != ElementKind.FIELD) {
                 report(Result.failure("bad.enter.parameter"), arg);
@@ -909,7 +941,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         return currentRunsIn != null ? currentRunsIn : currentScope;
     }
 
-    private String scope(VariableElement var) throws ScopeException {
+    private String scope(Element var) throws ScopeException {
         if (isStatic(var.getModifiers())) { // static
             return IMMORTAL;
         }
@@ -927,7 +959,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         }
     }
 
-    private String varScope(VariableElement var) throws ScopeException {
+    private String varScope(Element var) throws ScopeException {
         AnnotatedTypeMirror exprType = atf.getAnnotatedType(var);
         while (exprType.getKind() == TypeKind.ARRAY) {
             AnnotatedArrayType arrayType = (AnnotatedArrayType) exprType;
@@ -964,6 +996,14 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         return null;
     }
 
+    
+    /**
+     * @return the @RunsIn annotation of the "run()" method
+     *      - we know that the "var" is a type of "java.lang.Runnable", 
+     *      so we are safe to look for the "run()" method
+     * @param var - the variable passed into the enterPrivateMemory/executeInArea
+     *  call as parameter
+     */
     private String getRunsInFromRunnable(TypeMirror var) {
         String result = null;
         //TypeElement myType = context.getTypeElement(var.asType().toString());

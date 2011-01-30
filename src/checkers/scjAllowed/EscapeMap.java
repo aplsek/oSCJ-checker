@@ -75,11 +75,15 @@ public class EscapeMap {
         return false;
     }
     
+    /**
+     * @param node
+     * @return
+     */
     public static boolean escapeAnnotation(ClassTree node) {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         
         if (t != null &&
-                (t.toString().contains("annotate")) || t.toString().contains("annotation") ) {
+                (t.toString().contains(".annotate.")) || t.toString().contains("annotation") ) {
             Utils.debugPrintln("escaping Annotation!! " + t);
             
             return true;

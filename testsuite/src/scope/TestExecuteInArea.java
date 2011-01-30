@@ -1,10 +1,7 @@
 //scope/TestExecuteInArea.java:17: Runnable and PrivateMemory scopes disagree.
 //        a.executeInArea(r);
 //                       ^
-//scope/TestExecuteInArea.java:25: @RunsIn annotations must agree with their overridden annotations.
-//    public void run() {
-//                ^
-//2 errors
+//1 error
 
 package scope;
 
@@ -46,7 +43,7 @@ class R111 implements Runnable {
 @Scope(IMMORTAL)
 @DefineScope(name = "c", parent = "a")
 class GoodR implements Runnable {
-    @RunsIn("a")
+    @RunsIn("IMMORTAL")
     public void run() {
     }
 }

@@ -1,10 +1,3 @@
-//scope/TestGetCurrentManMem3.java:69: The @DefineScope variable is not consistent with its scope definition, check the parent of the scope!
-//          ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
-//                        ^
-//         Allocation-Context: scope.DummyMission2 
-//        DefineScope name: scope.TestGetCurrentManMem3
-//1 error
-
 package scope;
 
 import javax.realtime.PeriodicParameters;

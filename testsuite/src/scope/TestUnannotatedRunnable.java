@@ -15,7 +15,6 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope(IMMORTAL)
 public class TestUnannotatedRunnable {
-    @DefineScope(name = "a", parent = IMMORTAL)
     PrivateMemory a = new PrivateMemory(0);
 
     public void foo() {

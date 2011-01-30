@@ -1,7 +1,15 @@
-//scope/TestRunnableRunsInOverride.java:14: @RunsIn annotations must agree with their overridden annotations.
+//scope/TestRunnableRunsInOverride.java:19: Methods must run in the same scope or a child scope of their owning type.
 //    public void run() {
 //                ^
-//1 error
+//scope/TestRunnableRunsInOverride.java:36: The Runnable's @RunsIn must be a child scope of the CurrentScope
+//                    enterPrivateMemory(0, new R2());
+//                                      ^
+//         @RunsIn: b 
+//         Current Scope: a
+//scope/TestRunnableRunsInOverride.java:44: Methods must run in the same scope or a child scope of their owning type.
+//            public void run() {
+//                        ^
+//3 errors
 
 package scope;
 

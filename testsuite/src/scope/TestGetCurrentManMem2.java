@@ -1,10 +1,3 @@
-//scope/TestGetCurrentManMem2.java:57: The variable referencing getCurrentManagedMemory must have a @DefineScope with name that equals to the current allocation context.
-//            ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
-//                          ^
-//         Allocation-Context: scope.TestGetCurrentManMem2 
-//         DefineScope name: wronge_scope_name
-//1 error
-
 package scope;
 
 import javax.safetycritical.CyclicExecutive;
