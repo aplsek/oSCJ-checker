@@ -46,7 +46,7 @@ class MyMission extends Mission {
 }
 
 
-@Scope("scope.MyMission")  @RunsIn("scope.MyHandler") 
+@Scope("scope.MyMission")
 @DefineScope(name="scope.MyHandler",parent="scope.MyMission")
 class MyHandler extends PeriodicEventHandler {
 

@@ -52,7 +52,6 @@ public class TestScopeCheck  extends CyclicExecutive  {
 
 
 @Scope("scope.TestScopeCheck")
-@RunsIn("scope.TestScopeCheck.MyWordHandler")
 @DefineScope(name="scope.TestScopeCheck.MyWordHandler", parent="scope.TestScopeCheck")
 class MyWordHandler extends PeriodicEventHandler {
 

@@ -21,7 +21,10 @@ public class TestRunsIn2 {
 }
 
 @Scope("a")
-@RunsIn("b")
 @DefineScope(name = "b", parent = IMMORTAL)
 class RunsInWrong {
+    @RunsIn("b")
+    public void method() {
+        
+    }
 }

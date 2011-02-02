@@ -146,17 +146,10 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 + TreeUtils.elementFromDeclaration(node).getQualifiedName());
 
         if (escapeEnum(node) || escapeAnnotation(node)) {
+            debugIndent("\nvisitClass : escaping hte Class. ");
             debugIndentDecrement();
-            System.out.println("ESCAPE!!!!!!!!!!!!!!! " + node.getSimpleName());
             return null;
         }
-
-        // DEBUG::
-        /*
-         * if (node.getSimpleName().toString().equals("Reducer")) {
-         * System.out.println("my class"); Utils.DEBUG = true; } else
-         * Utils.DEBUG = false;
-         */
 
         /**
          * SCOPE TREE Verification
@@ -166,9 +159,6 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             debugIndentDecrement();
             return null;
         }
-
-        // verifying ScopeTree:
-        // System.out.println("\n\n\n\nVerify SCOPE:");
         // ScopeTree.printTree();
 
         TypeElement t = TreeUtils.elementFromDeclaration(node);
@@ -182,9 +172,9 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             String scope = context.getScope(t.getQualifiedName().toString());
             String runsIn = context.getRunsIn(t.getQualifiedName().toString());
 
-            if (runsIn != null && scope == null) {
+            if (runsIn != null) {
                 throw new ScopeException(
-                        "Class may not have @RunsIn annotation with no @Scope annotation.");
+                        "Class may not have @RunsIn annotation.");
             }
 
             // check parent-child relationship between scope/runsIn
@@ -193,7 +183,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                     /** TESTED BY: scope/TestRunsIn2.java **/
                     report(Result.failure("scope.runs.in.disagreement"), node);
 
-            if (runsIn == null && scope == null) {
+            if (scope == null) {
                 /**
                  * TODO: The correct behavior for visiting unannotated classes
                  * is to make sure the class doesn't mention any annotated

@@ -30,8 +30,7 @@ class MyDummyMission extends Mission {
 
 
 @Scope("scope.MyDummyMission") 
-@RunsIn("scope.TestPEH")
- @DefineScope(name="scope.TestPEH", parent="scope.MyDummyMission") 
+@DefineScope(name="scope.TestPEH", parent="scope.MyDummyMission") 
 public class TestPEH  extends PeriodicEventHandler {
     
     public TestPEH(PriorityParameters priority,
@@ -39,8 +38,8 @@ public class TestPEH  extends PeriodicEventHandler {
         super(priority, parameters, scp);
     }
 
-    public
-    void handleAsyncEvent() {
+    @RunsIn("scope.TestPEH")
+    public void handleAsyncEvent() {
           ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
     }
 

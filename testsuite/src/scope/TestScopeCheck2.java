@@ -17,16 +17,14 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-
-
 @Scope("scope.TestScopeCheck2")
-@DefineScope(name="scope.TestScopeCheck2", parent=IMMORTAL)
-public class TestScopeCheck2  extends CyclicExecutive  {
+@DefineScope(name = "scope.TestScopeCheck2", parent = IMMORTAL)
+public class TestScopeCheck2 extends CyclicExecutive {
 
     public TestScopeCheck2() {
         super(null);
     }
-    
+
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         return null;
     }
@@ -40,18 +38,17 @@ public class TestScopeCheck2  extends CyclicExecutive  {
     }
 
     @Override
-    public void setUp() {}
+    public void setUp() {
+    }
+
     @Override
-    public void tearDown() {}
+    public void tearDown() {
+    }
 
 }
 
-
-
 @Scope("scope.TestScopeCheck2")
-@RunsIn("scope.TestScopeCheck2.MyWordHandler2")
-@DefineScope(name="scope.TestScopeCheck2.MyWordHandler2",  
-                parent="scope.TestScopeCheck2")
+@DefineScope(name = "scope.TestScopeCheck2.MyWordHandler2", parent = "scope.TestScopeCheck2")
 class MyWordHandler2 extends PeriodicEventHandler {
 
     public MyWordHandler2(long psize) {
@@ -59,40 +56,35 @@ class MyWordHandler2 extends PeriodicEventHandler {
     }
 
     public Object data;
-    
+
     @RunsIn("scope.TestScopeCheck2.MyWordHandler2")
     public void handleAsyncEvent() {
-       
-        
-    
-     ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
-     
-     mem.enterPrivateMemory(300, 
-                     new MyErrorRunnable());
+
+        ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
+
+        mem.enterPrivateMemory(300, new MyErrorRunnable());
     }
 
     @SCJAllowed()
-    public void cleanUp() {}
-    
+    public void cleanUp() {
+    }
+
     @Override
     public StorageParameters getThreadConfigurationParameters() {
         return null;
     }
-    
-    @DefineScope(name="MyTestRunnable",
-            parent="scope.TestScopeCheck2.MyWordHandler2")
+
+    @DefineScope(name = "MyTestRunnable", parent = "scope.TestScopeCheck2.MyWordHandler2")
     @Scope("scope.TestScopeCheck2.MyWordHandler2")
     class MyErrorRunnable implements Runnable {
 
         public MyErrorRunnable() {
         }
-        
+
         @Override
         @RunsIn("MyTestRunnable")
         public void run() {
-            data = new Object();   //// ERROR
+            data = new Object(); // // ERROR
         }
     }
 }
-
-

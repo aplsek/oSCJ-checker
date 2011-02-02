@@ -14,7 +14,6 @@ import javax.safetycritical.annotate.DefineScope;
 
 @SCJAllowed(members=true)
 @Scope("scope.TestGetCurrentManMem2")
-@RunsIn("scope.TestGetCurrentManMem2")
 @DefineScope(name="scope.TestGetCurrentManMem2",parent=IMMORTAL)
 public class TestGetCurrentManMem2 extends CyclicExecutive {
 
@@ -34,7 +33,6 @@ public class TestGetCurrentManMem2 extends CyclicExecutive {
 
     @SCJAllowed()
     @Scope("scope.TestGetCurrentManMem2")
-    @RunsIn("scope.TestGetCurrentManMem2.WordHandler")
     @DefineScope(name="scope.TestGetCurrentManMem2.WordHandler",parent="scope.TestGetCurrentManMem2")
     public class WordHandler extends PeriodicEventHandler {
 

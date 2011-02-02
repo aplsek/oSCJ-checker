@@ -16,7 +16,6 @@ import javax.safetycritical.annotate.DefineScope;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope(IMMORTAL) 
-@RunsIn(IMMORTAL)
 @DefineScope(name="a", parent=IMMORTAL)
 public class TestEnterTarget {
     PrivateMemory a;
@@ -27,6 +26,7 @@ public class TestEnterTarget {
         a.enter(new TestEnterTargetRunnable());  // FAIL : enter() must target a child scope.
     }
    
+    @RunsIn(IMMORTAL)
     public void foo2() {
             ManagedMemory.
                 getCurrentManagedMemory().

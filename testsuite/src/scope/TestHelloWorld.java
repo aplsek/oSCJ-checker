@@ -40,7 +40,6 @@ public class TestHelloWorld extends CyclicExecutive {
     
     @SCJAllowed()
     @Scope("scope.TestHelloWorld")
-    @RunsIn("scope.TestHelloWorld.WordHandler")
     @DefineScope(name="scope.TestHelloWorld.WordHandler",parent="scope.TestHelloWorld")
     public class WordHandler extends PeriodicEventHandler {
 

@@ -49,7 +49,6 @@ class DummyMission2 extends CyclicExecutive {
 }
 
 @Scope("scope.DummyMission2")
-@RunsIn("scope.TestGetCurrentManMem3")
 @DefineScope(name="scope.TestGetCurrentManMem3",parent="scope.DummyMission2")
 public class TestGetCurrentManMem3 extends PeriodicEventHandler  {
     

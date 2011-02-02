@@ -37,7 +37,6 @@ public class TestGetCurrentManMem extends CyclicExecutive {
     
     @SCJAllowed()
     @Scope("scope.TestGetCurrentManMem")
-    @RunsIn("scope.TestGetCurrentManMem.WordHandler")
     @DefineScope(name = "scope.TestGetCurrentManMem.WordHandler", parent = "scope.TestGetCurrentManMem")
     public class WordHandler extends PeriodicEventHandler {
 
@@ -77,7 +76,6 @@ public class TestGetCurrentManMem extends CyclicExecutive {
 
 @SCJAllowed(members=true)
 @Scope("scope.TestGetCurrentManMem.WordHandler")
-
 @DefineScope(name="MyTestRunnable_area",
                              parent="scope.TestGetCurrentManMem.WordHandler")
 class MyTestRunnable333 implements Runnable {

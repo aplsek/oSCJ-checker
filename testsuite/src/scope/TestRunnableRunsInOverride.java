@@ -20,7 +20,6 @@ import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("a")
-@RunsIn("a")
 @DefineScope(name = "a", parent = IMMORTAL)
 public class TestRunnableRunsInOverride implements Runnable {
     @RunsIn("b")

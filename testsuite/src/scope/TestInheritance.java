@@ -12,8 +12,9 @@ import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope(IMMORTAL)
-@RunsIn("a")
 public class TestInheritance {
+   
+    @RunsIn("a")
     public void foo() {
         
     }
@@ -47,8 +48,10 @@ public class TestInheritance {
 }
 
 @Scope("a")
-@RunsIn("b")
 class H extends TestInheritance {
+    @RunsIn("b")
+    public void foo() {}
+
 }
 
 @Scope(IMMORTAL)
