@@ -870,7 +870,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         debugIndent("Variable " + var.getSimpleName() + " is ");
 
         if (isStatic(var.getModifiers())) {
-            Utils.debugPrintln("static (immortal)");
+            Utils.debugPrintln("static (IMMORTAL)");
             // Class variable
             if (varScope != null && IMMORTAL.equals(varScope)) {
                 // If a variable is static, its type should be

@@ -55,7 +55,7 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
         DefineScope d = t.getAnnotation(DefineScope.class);
         if (d != null) {
-            System.out.println("scope def: " + d.name() + " par:" + d.parent());
+            //System.out.println("scope def: " + d.name() + " par:" + d.parent());
             if (d.name() == null || d.parent() == null) {
                 checker.report(Result.failure("bad.scope.name"), node);
             } else if (d.name() != null && d.parent() != null) {
@@ -72,20 +72,6 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
             }
         }
 
-
-        /*
-         * if (isSubtype(t, "javax.safetycritical.Mission")) { // TODO: This
-         * needs to check superclasses, if we assume user missions can be
-         * inherited from DefineScope d = t.getAnnotation(DefineScope.class); if
-         * (d == null) { ScopeTree.put(t.getQualifiedName().toString(),
-         * IMMORTAL, node); } else { ScopeTree.put(d.name(), d.parent(), node);
-         * } } else if (isSubtype(t,
-         * "javax.safetycritical.ManagedEventHandler")) { Scope s =
-         * t.getAnnotation(Scope.class); if (s == null) {
-         * ScopeTree.put(t.getQualifiedName().toString(), IMMORTAL, node); }
-         * else { ScopeTree.put(t.getQualifiedName().toString(), s.value(),
-         * node); } }
-         */
 
        //System.out.println("\nScope Visit:");
        // ScopeTree.printTree();

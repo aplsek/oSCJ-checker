@@ -1,7 +1,17 @@
-//scope/MyMission.java:64: Object allocation in a context (scope.MyHandler) other than its designated scope (scope.MyMission).
-//        mem.enterPrivateMemory(1000, new 
-//                                     ^
-//1 error
+//scope/MyMission.java:60: Cannot assign expression in scope scope.MyHandler to variable in scope scope.MyMission.
+//        ARunnable1 aRunnable = new ARunnable1();
+//                   ^
+//scope/MyMission.java:60: Object allocation in a context (scope.MyHandler) other than its designated scope (scope.MyMission).
+//        ARunnable1 aRunnable = new ARunnable1();
+//                               ^
+//scope/MyMission.java:65: The Runnable class must have a matching @Scope annotation.
+//        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, aRunnable);  // ERROR  
+//                                                                  ^
+//scope/MyMission.java:70: The Runnable passed into the enterPrivateMemory() call must have a run() method with a @RunsIn annotation.
+//        mem.enterPrivateMemory(2000, runNull);
+//                              ^
+//
+//4 errors
 
 package scope;
 
@@ -24,17 +34,8 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 @Scope("scope.MyMission") 
 class MyMission extends Mission {
 
-    protected
-    void initialize() { 
+    protected void initialize() { 
         new MyHandler(null, null, null, 0);
-        
-        //@DefineScope(name="MyMissionInitA", parent="scope.MyMission")
-        //ARunnable1 aRunnable = new ARunnable1();
-        //ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, aRunnable);    
-        
-        //ManagedMemory.getCurrentManagedMemory().
-        //    enterPrivateMemory(1000, new 
-        //                ARunnable1()); // Ok
     }
 
     @Override
@@ -58,25 +59,22 @@ class MyHandler extends PeriodicEventHandler {
     public void handleAsyncEvent() {
         
         A aObj = new A();                                                
-        B bObj = new B(); // Ok 
+        B bObj = new B(); // OK
 
        
         ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
 
-        //ARunnable1 aRunnable = new ARunnable1();
-        //mem.enterPrivateMemory(1000, aRunnable);                         // ERROR
-
-        ARunnable1 aRunnable = new ARunnable1();
-        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, aRunnable);    
+        ARunnable1 aRunnable = new ARunnable1();                // ERROR
+        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, aRunnable);  // ERROR  
         
         BRunnable1 bRunnable = new BRunnable1();
-        mem.enterPrivateMemory(2000, bRunnable);                          // Ok
+        mem.enterPrivateMemory(2000, bRunnable);                          // OK
         
         CRunner cRun = new CRunner();
-        mem.enterPrivateMemory(2000, cRun);
+        mem.enterPrivateMemory(2000, cRun);                 // OK
         
         RunnableNull runNull = new RunnableNull();
-        mem.enterPrivateMemory(2000, runNull);
+        mem.enterPrivateMemory(2000, runNull);                  // ERROR, no @RunsIn
         
     }
 
@@ -116,7 +114,6 @@ class BRunnable1 implements Runnable {
 
 
 @Scope("scope.MyMission") 
-
 @DefineScope(name="MyMissionInitA", parent="scope.MyMission")
 class ARunnable1 implements Runnable {
     @Override
