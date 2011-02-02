@@ -395,16 +395,11 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         // visitation anyway.
         
         String methodName = method.getSimpleName().toString();
-        
-       // System.out.println("method Invocation: " + methodName);
-       // System.out.println("\t\t is mem: " + isMemoryAreaType(type));
-        
-        
+        //System.out.println("method Invocation: " + methodName);
         
         if (isMemoryAreaType(type)
                 && ("executeInArea".equals(methodName) || "enter"
                         .equals(methodName))) {
-           
             checkExecuteInArea(node);
             
         } else if (isMemoryAreaType(type) && "newInstance".equals(methodName)) {
@@ -541,13 +536,12 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             }
 
             
-           // System.out.println("\n\n-------------------- :");
-           // System.out.println("argRunsIn :" + argRunsIn);
-           // System.out.println("argScope :" + argScope);
-           // System.out.println("varScope :" + varScope);
-            //System.out.println("current :" + currentAllocScope());
-           // System.out.println("ancestor :" +  ScopeTree.isAncestorOf(currentAllocScope(), varScope)
-            //        );
+            //System.out.println("\n\n-------------------- :");
+            //   System.out.println("argRunsIn :" + argRunsIn);
+            //   System.out.println("argScope :" + argScope);
+            //   System.out.println("varScope :" + varScope);
+            // System.out.println("current :" + currentAllocScope());
+            // System.out.println("ancestor :" +  ScopeTree.isAncestorOf(currentAllocScope(), varScope));
             
            
             

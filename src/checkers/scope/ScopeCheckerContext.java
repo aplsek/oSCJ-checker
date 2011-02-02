@@ -20,6 +20,7 @@ import javax.lang.model.util.Elements;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import checkers.Utils;
 import checkers.scope.ScopeTree;
 import checkers.util.TypesUtils;
@@ -194,7 +195,7 @@ public class ScopeCheckerContext {
         } else {
             if (!scopeExists(runsIn)) { return new ScopeResult(String.format("Scope %s does not exist.", runsIn), true); }
             if (runsIn != null) {
-                if (!ScopeTree.isParentOf(runsIn, methodEnvScope)) {
+                if (!ScopeTree.isParentOf(runsIn, methodEnvScope) || runsIn.equals(UNKNOWN)) {
                     // A method must run in a child scope (or same scope) as the allocation context of its type
                     return new ScopeResult("bad.runs.in.method", true);
                 }

@@ -9,6 +9,7 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 @Scope(IMMORTAL)
 public class TestStaticField {
     static F f = null;
+    static G11 g = null;
     
     static class Helper {
         static void foo() {
@@ -28,6 +29,10 @@ public class TestStaticField {
 }
 
 @Scope("a")
-class F {
-    
+class F { 
+}
+
+
+@Scope(IMMORTAL)
+class G11 {
 }

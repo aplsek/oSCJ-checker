@@ -43,7 +43,7 @@ class R111 implements Runnable {
 @Scope(IMMORTAL)
 @DefineScope(name = "c", parent = "a")
 class GoodR implements Runnable {
-    @RunsIn("IMMORTAL")
+    @RunsIn(IMMORTAL)
     public void run() {
     }
 }

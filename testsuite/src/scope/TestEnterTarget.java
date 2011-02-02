@@ -1,9 +1,9 @@
-//scope/TestEnterTarget.java:25: enter() must target a child scope.
-//        a.enter(new TestEnterTargetRunnable());
+//scope/TestEnterTarget.java:27: enter() must target a child scope.
+//        a.enter(new TestEnterTargetRunnable());  // FAIL : enter() must target a child scope.
 //               ^
-//Users/plsek/_work/workspace_RT/scj-annotations/tests/scope/TestEnterTarget.java:55: (Class may not have @RunsIn annotation with no @Scope annotation.)
-//class TestEnterTargetRunnable implements Runnable {
-//^
+//scope/TestEnterTarget.java:61: Methods must run in the same scope or a child scope of their owning type.
+//    public void run() {
+//               ^
 //2 errors
 
 package scope;
@@ -55,8 +55,9 @@ class R2000 implements Runnable {
     }
 }
 
-@RunsIn("a")  // FAIL
+@Scope("b") 
 class TestEnterTargetRunnable implements Runnable {
+    @RunsIn(IMMORTAL)  // FAIL
     public void run() {
     }
 }

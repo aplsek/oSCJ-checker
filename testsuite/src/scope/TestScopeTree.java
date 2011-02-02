@@ -1,6 +1,6 @@
-//scope/TestScopeTree.java:41: Scope Definitions are not consistent: 
-//        ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
-//                      ^
+//scope/TestScopeTree.java:25: Scope Definitions are not consistent: 
+//public class TestScopeTree extends PeriodicEventHandler {
+//       ^
 //        Scope *TestVariable* is not defined but is parent to other scope.
 //1 error
 
@@ -17,10 +17,10 @@ import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-@DefineScope(name = "TestVariable", parent = IMMORTAL)
+//@DefineScope(name = "TestVariable", parent = IMMORTAL)
 class TestVariableClass {}
 
-@Scope(IMMORTAL)
+@Scope("MyHandler")
 @DefineScope(name = "MyHandler", parent = "TestVariable")
 public class TestScopeTree extends PeriodicEventHandler {
 
@@ -30,37 +30,9 @@ public class TestScopeTree extends PeriodicEventHandler {
     }
 
     @SCJRestricted(maySelfSuspend=true)
+    @RunsIn("MyHandler")
     public void handleAsyncEvent() {
-        A aObj = new A(); // Error
-        B bObj = new B(); // Ok
 
-       
-        ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
-
-        mem.enterPrivateMemory(1000, new
-        ARunnable111()); // Error
-
-        mem.enterPrivateMemory(1000, new
-        BRunnable111()); // Ok
-    }
-
-    @Scope("TestVariable")
-    class A {
-        void bar() {
-        }
-    }
-
-    @Scope("MyHandler")
-    class B {
-        A a;
-        A a2 = new A(); // Error
-        Object o;
-
-        @SCJRestricted(mayAllocate=false)
-        void foo(A a) {
-            o = a; // Error
-            // a.bar(); // Error
-        }
     }
 
     @Override
@@ -68,24 +40,4 @@ public class TestScopeTree extends PeriodicEventHandler {
         return null;
     }
 
-}
-
-@Scope("MyHandler")
-@DefineScope(name="MyMissionInit", parent="MyHandler")
-class ARunnable111 implements Runnable {
-
-    @Override
-    @RunsIn("MyMissionInit")
-    public void run() {
-    }
-}
-
-@Scope("MyHandler")
-@DefineScope(name="BRunnable", parent="MyHandler")
-class BRunnable111 implements Runnable {
-
-    @Override
-    @RunsIn("BRunnable")
-    public void run() {
-    }
 }

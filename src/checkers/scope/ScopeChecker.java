@@ -34,7 +34,7 @@ public class ScopeChecker extends SourceChecker {
         //p.put("bad.method.invoke", "Methods called must be in the same scope or in a parent scope and be @AllocFree.");
         p.put("bad.method.invoke", "Illegal invocation of method of object in scope %s while in scope %s.");
         p.put("bad.allocation", "Object allocation in a context (%s) other than its designated scope (%s).");
-        p.put("static.not.immortal", "Static fields types must be @Scope(\"IMMORTAL\").");
+        p.put("static.not.immortal", "Static fields types must be @Scope(IMMORTAL).");
         p.put("bad.field.scope", "Field must be in the same or parent scope as its owning type.");
         p.put("bad.variable.scope", "Variables of type %s are not allowed in this allocation context (%s).");
         p.put("runs.in.on.ctor", "@RunsIn annotations not allowed on constructors.");
