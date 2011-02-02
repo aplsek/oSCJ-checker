@@ -24,7 +24,6 @@ import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.Phase;
 import javax.safetycritical.annotate.SCJRestricted;
 
-import checkers.MyUtils;
 import checkers.Utils;
 import checkers.source.Result;
 import checkers.source.SourceVisitor;
