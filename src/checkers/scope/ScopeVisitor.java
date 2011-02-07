@@ -563,6 +563,9 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         String argRunsIn = null;
         String argScope = null;
 
+        
+       // System.out.println("arg kind:" + arg.getKind());
+        
         // TODO: Single exit point sure would be nicer
         switch (arg.getKind()) {
         case IDENTIFIER:
@@ -592,6 +595,9 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             argScope = context.getScope((TypeElement) ctor.getEnclosingElement());
             
             break;
+        //case TYPE_CAST: // TODO: what if the user casts it? 
+        //         // e.g. enterPrivateMemory(...,(Runnable) myRun)
+        //    break;
         default:
             report(Result.failure("bad.enter.parameter"), arg);
             return;
@@ -706,6 +712,8 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
      */
     public R visitTypeCast(TypeCastTree node, P p) {
 
+        //System.out.println("\n\n Visit Typecast: " + node.toString());
+        
         if (escapeTypes(node.getType())) {
             return null;
         }

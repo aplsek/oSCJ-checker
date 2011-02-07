@@ -60,7 +60,6 @@ class MyHandler extends PeriodicEventHandler {
         
         A aObj = new A();                                                
         B bObj = new B(); // OK
-
        
         ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
 
@@ -70,12 +69,13 @@ class MyHandler extends PeriodicEventHandler {
         BRunnable1 bRunnable = new BRunnable1();
         mem.enterPrivateMemory(2000, bRunnable);                          // OK
         
+        Runnable cc = (Runnable) new CRunner();
+        
         CRunner cRun = new CRunner();
-        mem.enterPrivateMemory(2000, cRun);                 // OK
+        mem.enterPrivateMemory(2000, (Runnable) cRun);                 // OK
         
         RunnableNull runNull = new RunnableNull();
         mem.enterPrivateMemory(2000, runNull);                  // ERROR, no @RunsIn
-        
     }
 
 
