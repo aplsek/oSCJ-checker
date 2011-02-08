@@ -1,5 +1,5 @@
-//scope/scopeReturn/MyMission.java:47: Cannot assign expression in scope MyHandler to variable in scope IMMORTAL.
-//        return new Bar();           // ERR
+//scope/scopeReturn/MyMission.java:47: Cannot return expression in scope MyHandler in a method that has @Scope annotation: IMMORTAL.
+//        return new BarBar();           // ERR
 //        ^
 //scope/scopeReturn/MyMission.java:52: A method that returns a primitive type cannot have @Scope annotation.
 //    public int getPrimitive() {

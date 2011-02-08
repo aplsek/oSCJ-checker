@@ -1228,19 +1228,28 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             if (retMirror.getKind().isPrimitive()) {
                 exprScope = varScope; // primitives are always assignable
             } else {
+                
                 exprScope = context
                 .getScope((TypeElement) ((DeclaredType) retMirror)
                         .asElement());
                 if (exprScope == null) {
-                    exprScope = context.getRunsIn(methodElem); // TODO: revisit
+                    // first, look if the method has @Scope annotation
+                    exprScope = getScope(methodElem); 
+                    
+                    // second, if its null, then look at its @RunsIn
+                    if (exprScope == null)
+                          exprScope = context.getRunsIn(methodElem); // TODO: revisit
                 }
                 if (exprScope == null) {
                     debugIndent("Expression Scope is NULL, ERR?? :"
                             + methodExpr.getMethodSelect().getKind());
                 }
 
-                // METHOD INVoCATION - check method's @Scope!!!
-
+                
+                debugIndent("Assignment, method invoke:" + errorNode);
+                debugIndent("varScope:" + varScope);
+                debugIndent("exprScope:" + exprScope);
+                debugIndent("expr Tree:" + exprTree);
             }
         } else if (exprKind == Kind.NEW_CLASS) {
 
@@ -1322,6 +1331,8 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             report(Result.failure("bad.assignment.scope", exprScope, varScope),
                     errorNode);
         }
+        
+        
         return isLegal;
     }
 

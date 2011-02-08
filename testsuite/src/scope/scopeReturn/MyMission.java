@@ -90,13 +90,12 @@ class MyHandler extends PeriodicEventHandler {
             PeriodicParameters parameters, StorageParameters scp, long memSize, MyMission mission) {
         super(priority, parameters, scp);
         
-        //this.mission = mission;
+        this.mission = mission;
         
     }
 
     @RunsIn("MyHandler") 
     public void handleAsyncEvent() {
-        
         //MyMission mission = (MyMission) Mission.getCurrentMission();
         
        // @Scope(IMMORTAL) Foo immFoo = mission.getFoo();
