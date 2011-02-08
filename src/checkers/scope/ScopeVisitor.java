@@ -490,7 +490,10 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 && "enterPrivateMemory".equals(methodName)) {
 
             checkEnterPrivateMemory(node);
-
+        } else if (runsIn != null && runsIn.equals(UNKNOWN)) {
+            // @RunsIn(UNKNOWN) is OK
+            return;
+            
         } else if (!method.getSimpleName().toString().startsWith("<init>")
                 && runsIn != null) {
             if (!(runsIn.equals(currentAllocScope()) || (Utils.isAllocFree(

@@ -1,13 +1,19 @@
-//scope/TestUpcast2.java:32: Object allocation in a context (IMMORTAL) other than its designated scope (a).
+//testsuite/src/scope/TestUpcast2.java:30: Static fields types must be @Scope(IMMORTAL) or nothing at all.
+//   public static Lower el = new Lower();
+//                       ^
+//testsuite/src/scope/TestUpcast2.java:30: Cannot assign expression in scope IMMORTAL to variable in scope a.
+//   public static Lower el = new Lower();
+//                       ^
+//testsuite/src/scope/TestUpcast2.java:30: Object allocation in a context (IMMORTAL) other than its designated scope (a).
 //   public static Lower el = new Lower();
 //                            ^
-//scope/TestUpcast2.java:38: Class Cast Error : The class being casted must have a scope (@Scope=IMMORTAL) that is the same as the scope of the target class (@Scope=b).
+//testsuite/src/scope/TestUpcast2.java:37: Class Cast Error : The class being casted must have a scope (@Scope=a) that is the same as the scope of the target class (@Scope=b).
 //      TestUpcast2 f = (TestUpcast2) Lower.el; // should fail
 //                      ^
-//scope/TestUpcast2.java:39: Cannot assign expression in scope IMMORTAL to variable in scope b.
+//testsuite/src/scope/TestUpcast2.java:38: Cannot assign expression in scope a to variable in scope b.
 //      TestUpcast2 g = Lower.el; // should fail
 //                  ^
-//3 errors
+//5 errors
 
 
 package scope;
