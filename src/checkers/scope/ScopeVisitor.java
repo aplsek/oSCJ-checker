@@ -357,17 +357,18 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 return;
         }
 
+        if (node.getReturnType().toString().equals("void") && hasScope(node)) {
+            report(Result.failure("scope.on.void.method"), node);
+            return;
+        }
+        
         boolean isPrimitive = false;
-        if (node.getReturnType() != null
-                && node.getReturnType().getKind() == Kind.PRIMITIVE_TYPE)
+        if ( node.getReturnType().getKind() == Kind.PRIMITIVE_TYPE)
             isPrimitive = true;
         else if (methodType.getReturnType().getKind() == TypeKind.ARRAY) {
-            ExecutableElement methodElem = TreeUtils
-            .elementFromDeclaration(node);
-            AnnotatedExecutableType methodType2 = atf
-            .getAnnotatedType(methodElem);
-            TypeMirror retMirror = methodType2.getReturnType()
-            .getUnderlyingType();
+            ExecutableElement methodElem = TreeUtils.elementFromDeclaration(node);
+            AnnotatedExecutableType methodType2 = atf.getAnnotatedType(methodElem);
+            TypeMirror retMirror = methodType2.getReturnType().getUnderlyingType();
 
             while (retMirror.getKind() == TypeKind.ARRAY) {
                 retMirror = ((ArrayType) retMirror).getComponentType();
@@ -491,6 +492,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 && "enterPrivateMemory".equals(methodName)) {
 
             checkEnterPrivateMemory(node);
+       
         } else if (isManagedMemoryType(type) &&
                 ("allocInSame".equals(methodName) || "allocInParent".equals(methodName) )) {             
             /** DYNAMIC GUARD CHECKING */
@@ -1386,8 +1388,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         } else if (exprKind == Kind.MEMBER_SELECT
                 || exprKind == Kind.IDENTIFIER) {
 
-            VariableElement var = (VariableElement) TreeUtils
-            .elementFromUse(exprTree);
+            VariableElement var = (VariableElement) TreeUtils.elementFromUse(exprTree);
             exprScope = scope(var);
 
             if (var.getSimpleName().toString().equals("cs")) {

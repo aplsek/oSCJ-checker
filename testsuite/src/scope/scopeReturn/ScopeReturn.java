@@ -35,7 +35,7 @@ public class ScopeReturn extends Mission {
     public long missionMemorySize() {
         return 0;
     }
-    
+
     @Scope(IMMORTAL) @RunsIn("MyHandler")
     public BarBar getFooErr() {
         return new BarBar();           // ERR
@@ -46,17 +46,16 @@ public class ScopeReturn extends Mission {
     public int getPrimitive() {
         return 1;           
     }
-    
+
     @Scope(IMMORTAL)                    // ERROR
     public void getVoid() {
         return;           
     }
     
-    
     @Scope(IMMORTAL)                    // ERROR
     public int[] getPrimitive2() {
-        return new int[]{1};           
-    }
+        return new int[]{1};   
+        }        
 }
 
 class BarBar {}

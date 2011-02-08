@@ -16,9 +16,9 @@ public class TestOverride4 {
 
 @DefineScope(name="ONE",parent=IMMORTAL)
 class AClass44 {
-      AClass a;
+      AClass44 a;
       public void X() { 
-          a = new AClass();
+          a = new AClass44();
       }
 }
 
