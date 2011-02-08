@@ -199,6 +199,14 @@ public class ScopeCheckerContext {
         String methodEnvScope = getScope(methodEnv);
         String runsIn = getScopeValue(m, MapType.RUNS_IN);
 
+        //System.out.println("\t method:" + methodName);
+        //System.out.println("\t method:" + methodEnv);
+        //System.out.println("\t method:" +  methodEnvScope);
+        //System.out.println("\t runsIn:" + runsIn);
+        //
+        //System.out.println("\t method element:" + m);
+        // System.out.println("\t method element ann:" + m.getAnnotationMirrors());
+        
         //debugIndent("\t method:" + methodName);
         //debugIndent("\t method:" + methodEnv);
         //debugIndent("\t method:" +  methodEnvScope);

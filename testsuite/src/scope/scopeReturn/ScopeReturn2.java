@@ -5,6 +5,8 @@
 
 package scope.scopeReturn;
 
+
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.realtime.PeriodicParameters;
@@ -38,6 +40,12 @@ public class ScopeReturn2 extends Mission {
     public MyFoo getFoo() {
         return this.foo;           // ERR
     }
+    
+
+    @RunsIn(UNKNOWN)
+    public MyFoo getUNKNOWN() {
+        return this.foo;           // ERR
+    }
 }
 
 
@@ -58,9 +66,17 @@ class MyPEH extends PeriodicEventHandler {
 
     @RunsIn("MyHandler") 
     public void handleAsyncEvent() {
-        //MyMission mission = (MyMission) Mission.getCurrentMission();
         
-        MyFoo localFoo = mission.getFoo();              // ERROR
+        MyFoo localFoo = mission.getFoo();                       // ERROR
+        
+        localFoo = mission.getUNKNOWN();                         // ERROR 
+        
+        
+        Mission mission =  Mission.getCurrentMission();                 // ERROR
+        
+        @Scope("Mission") Mission missionUNK =  Mission.getCurrentMission();  // OK
+        
+        mission.requestSequenceTermination();                        // OK
     }
 
     @Override

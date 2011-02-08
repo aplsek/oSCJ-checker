@@ -19,7 +19,7 @@ import sys
 JAVAC='./localbin/checkers/binary/javac'
 
 TEST_DIR = 'tests'
-RUN_CMD = JAVAC + ' -proc:only -cp testsuite/build:lib/scjChecker.jar:%s: -processor checkers.SCJChecker %s'
+RUN_CMD = JAVAC + ' -proc:only -cp testsuite/build:lib/SCJChecker.jar:%s: -processor checkers.SCJChecker %s'
 
 def get_java_files(test_dir):
     import os

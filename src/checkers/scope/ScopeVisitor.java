@@ -427,6 +427,8 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         try {
             debugIndentIncrement("visitMethodInvocation");
 
+            //System.out.println("visit method invocae: " + node);
+            
             checkMethodInvocation(node, p);
             return super.visitMethodInvocation(node, p);
         } catch (ScopeException e) {
@@ -446,8 +448,13 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         // visitation anyway.
 
         String methodName = method.getSimpleName().toString();
-        // System.out.println("method Invocation: " + methodName);
-
+        /*
+        System.out.println("method : " + method);
+        System.out.println("method Invocation: " + methodName);
+        System.out.println("method runsIn: " + runsIn);
+        System.out.println("current: " + currentAllocScope());
+        */
+        
         if (isMemoryAreaType(type)
                 && ("executeInArea".equals(methodName) || "enter"
                         .equals(methodName))) {
