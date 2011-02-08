@@ -27,6 +27,6 @@ class AClass {
 class BClass extends AClass  {
     @RunsIn("TWO")
     public void method() {
-      this.X();                     // OK or ERROR ??
+      this.X();                     //  ERROR : because "X" is running in "ONE"
     }
 }

@@ -1,3 +1,8 @@
+//scope/TestStaticField.java:11: Static fields types must be @Scope(IMMORTAL) or nothing at all.
+//    static F f = null;
+//             ^
+//1 error
+
 package scope;
 
 import javax.safetycritical.ManagedMemory;

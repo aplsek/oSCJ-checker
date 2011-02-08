@@ -1,5 +1,5 @@
-//scope/TestInterface.java:21: @RunsIn annotations must agree with their overridden annotations.
-//    public void run() {   
+//scope/TestInterface.java:27: @RunsIn annotations must agree with their overridden annotations.
+//    public void run() {           // ERROR
 //                ^
 //1 error
 

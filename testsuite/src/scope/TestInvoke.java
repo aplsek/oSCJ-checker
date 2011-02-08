@@ -1,4 +1,4 @@
-//scope/TestInvoke.java:20: Illegal invocation of method of object in scope a while in scope IMMORTAL.
+//scope/TestInvoke.java:24: Illegal invocation of method of object in scope a while in scope IMMORTAL.
 //        foo();
 //           ^
 //1 error

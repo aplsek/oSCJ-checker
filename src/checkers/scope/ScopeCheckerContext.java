@@ -172,9 +172,20 @@ public class ScopeCheckerContext {
             methodKey += var.asType().toString();
         }
         ScopeResult res = methodRunsIns.get(methodKey);
+        //TODO: methodRunsIns.size() is always  0!!!
+        
+        
+        //System.out.println("methodRusnIns size:" + methodRunsIns.size());
+        
+        
+        
         if (res == null) {
             res = getRunsInSlow(m);
         }
+        
+       // System.out.println("ScopeCheckerContext: getRunsIn: " + res.toString());
+        //System.out.println("ScopeCheckerContext: getRunsIn name: " + res.name);
+        
         if (res.isError) {
             throw new ScopeException(res.name);
         } else {
@@ -188,6 +199,11 @@ public class ScopeCheckerContext {
         String methodEnvScope = getScope(methodEnv);
         String runsIn = getScopeValue(m, MapType.RUNS_IN);
 
+        //debugIndent("\t method:" + methodName);
+        //debugIndent("\t method:" + methodEnv);
+        //debugIndent("\t method:" +  methodEnvScope);
+        //debugIndent("\t runsIn:" + runsIn);
+        
         if (methodName.startsWith("<init>")) {
             return new ScopeResult(methodEnvScope, false);
         } else if (methodName.startsWith("<clinit>")) {
@@ -195,7 +211,7 @@ public class ScopeCheckerContext {
         } else {
             if (!scopeExists(runsIn)) { return new ScopeResult(String.format("Scope %s does not exist.", runsIn), true); }
             if (runsIn != null) {
-                if (!ScopeTree.isParentOf(runsIn, methodEnvScope) || runsIn.equals(UNKNOWN)) {
+                if (!ScopeTree.isParentOf(runsIn, methodEnvScope) && !runsIn.equals(UNKNOWN)) {
                     // A method must run in a child scope (or same scope) as the allocation context of its type
                     return new ScopeResult("bad.runs.in.method", true);
                 }
@@ -230,7 +246,7 @@ public class ScopeCheckerContext {
     //
 
     private boolean scopeExists(String scope) {
-        return scope == null || ScopeTree.get(scope) != null;
+        return scope == null || scope.equals(UNKNOWN) || ScopeTree.get(scope) != null;
     }
 
     private String getScopeValue(TypeElement t, MapType mapType) {
@@ -362,5 +378,21 @@ public class ScopeCheckerContext {
             //System.out.println("\t" +key + "\t: " + value.name);  
         }  
         
+    }
+    
+    
+    private String indent = "";
+
+    private void debugIndentDecrement() {
+        indent = indent.substring(1);
+    }
+
+    private void debugIndentIncrement(String method) {
+        Utils.debugPrintln(indent + method);
+        indent += " ";
+    }
+
+    private void debugIndent(String method) {
+        Utils.debugPrintln(indent + method);
     }
 }

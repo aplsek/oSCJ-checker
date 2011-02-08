@@ -1,4 +1,4 @@
-//scope/TestScopeOnMethod.java:12: @Scope annotations not allowed on methods.
+//scope/TestScopeOnMethod.java:12:  A method that returns void cannot have @Scope annotation.
 //    public void foo() {
 //                ^
 //1 error

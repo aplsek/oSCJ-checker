@@ -1,10 +1,10 @@
-//scope/TestUpcast.java:50: Cannot assign expression in scope a to variable in scope IMMORTAL.
-//        TestUpcast.cast = cast;   // ERROR
-//                        ^
+//scope/TestUpcast.java:24: Static fields types must be @Scope(IMMORTAL) or nothing at all.
+//    static public L cast = null;
+//                   ^
 //scope/TestUpcast.java:52: Cannot assign expression in scope null to variable in scope IMMORTAL.
 //        TestUpcast.upCast = (TestUpcast) cast;  // ERROR
 //                          ^
-///Users/plsek/_work/workspace_RT/scj-annotations/tests/scope/TestUpcast.java:54: Cannot assign expression in scope a to variable in scope IMMORTAL.
+//scope/TestUpcast.java:54: Cannot assign expression in scope a to variable in scope IMMORTAL.
 //        TestUpcast.upCast = cast;   // ERROR
 //                          ^
 //3 errors
@@ -21,7 +21,7 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 public class TestUpcast {
    
-    static public L cast = null;
+    static public L cast = null;                // ERROR
     static public TestUpcast upCast = null;
     
     static class Helper {
@@ -50,7 +50,7 @@ class L extends TestUpcast {
         L cast = new L();
         TestUpcast fail = (TestUpcast) cast; // OK
         
-        TestUpcast.cast = cast;   // ERROR
+        TestUpcast.cast = cast;   // ERROR but wont be reached since the field cast generates ERROR
         
         TestUpcast.upCast = (TestUpcast) cast;  // ERROR
         

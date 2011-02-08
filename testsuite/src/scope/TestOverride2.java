@@ -27,7 +27,7 @@ class AClass2 {
 @DefineScope(name="TWO",parent="ONE")
 class BClass2 extends AClass2 implements Runnable {
     @RunsIn("TWO")
-    public void run() {
+    public void run() {             // ERROR: can not override run with @RunsIn
       this.X();
     }
 }

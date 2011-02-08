@@ -1,7 +1,10 @@
 //tests/scope/TestInheritance.java:46: (Class scope.TestInheritance has a disagreeing @Scope annotation from parent class scope.H)
 //class H extends TestInheritance {
 //^
-//1 error
+//scope/TestInheritance.java:61: @RunsIn annotations must agree with their overridden annotations.
+//    public void foo() {
+//                ^
+//2 errors
 
 package scope;
 

@@ -25,7 +25,7 @@ public class ScopeChecker extends SourceChecker {
         p.put("bad.assignment.scope", "Cannot assign expression in scope %s to variable in scope %s.");
         p.put("scope.runs.in.disagreement", "@RunsIn annotations must be a sub-scope of @Scope annotations.");
         p.put("escaping.nonannotated.field", "escaping.nonannotated.field");
-        p.put("scope.on.method", "@Scope annotations not allowed on methods.");
+        p.put("define.scope.on.method", "@DefineScope annotations not allowed on methods.");
         p.put("bad.return.type", "Method return types must have a @Scope annotation.");
         p.put("runnable.without.runsin", "Runnable used with executeInArea() without @RunsIn.");
         p.put("bad.executeInArea.or.enter", "Runnable and PrivateMemory scopes disagree.");
@@ -34,7 +34,7 @@ public class ScopeChecker extends SourceChecker {
         //p.put("bad.method.invoke", "Methods called must be in the same scope or in a parent scope and be @AllocFree.");
         p.put("bad.method.invoke", "Illegal invocation of method of object in scope %s while in scope %s.");
         p.put("bad.allocation", "Object allocation in a context (%s) other than its designated scope (%s).");
-        p.put("static.not.immortal", "Static fields types must be @Scope(IMMORTAL).");
+        p.put("static.not.immortal", "Static fields types must be @Scope(IMMORTAL) or nothing at all.");
         p.put("bad.field.scope", "Field must be in the same or parent scope as its owning type.");
         p.put("bad.variable.scope", "Variables of type %s are not allowed in this allocation context (%s).");
         p.put("runs.in.on.ctor", "@RunsIn annotations not allowed on constructors.");
@@ -63,6 +63,10 @@ public class ScopeChecker extends SourceChecker {
         p.put("checker.bug", "Error of the checker, please, report this to the authors of the checker: %s");
         
         
+        p.put("scope.on.void.method", "A method that returns void cannot have @Scope annotation.");
+        p.put("scope.on.method.primitive.return", "A method that returns a primitive type cannot have @Scope annotation.");
+        p.put("bad.return.scope", "Cannot return expression in scope %s in a method that has @Scope annotation: %s.");
+        
         return p;
     }
     
@@ -70,7 +74,7 @@ public class ScopeChecker extends SourceChecker {
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         Utils.DEBUG = processingEnv.getOptions().containsKey("debug");
-        //Utils.DEBUG = true; // TODO: how to set up that debug parameter??!!
+        //Utils.DEBUG = true;
         context = new ScopeCheckerContext(this);
     }
 }

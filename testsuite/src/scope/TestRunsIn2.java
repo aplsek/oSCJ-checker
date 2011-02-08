@@ -1,6 +1,6 @@
-//scope/TestRunsIn2.java:19: @RunsIn annotations must be a sub-scope of @Scope annotations.
-//class RunsInWrong {
-//^
+//scope/TestRunsIn2.java:27: Methods must run in the same scope or a child scope of their owning type.
+//    public void method() {
+//                ^
 //1 error
 
 package scope;
