@@ -58,6 +58,10 @@ public final class Utils {
     public static boolean isStatic(Collection<Modifier> modifiers) {
         return modifiers.contains(Modifier.STATIC);
     }
+    
+    public static boolean isFinal(Collection<Modifier> modifiers) {
+        return modifiers.contains(Modifier.FINAL);
+    }
 
     public static boolean isAllocFree(ExecutableElement methodElement, AnnotatedTypes ats) {
         SCJRestricted r;

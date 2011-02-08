@@ -1,4 +1,7 @@
-// NO ERROR
+//testsuite/src/scope/unknown/UnknownMethod.java:39: Illegal invocation of method of object in scope MyMission while in scope UNKNOWN.
+//        myMethod();                     // ERROR
+//                ^
+//1 error
 
 package scope.unknown;
 
@@ -33,7 +36,25 @@ public class UnknownMethod extends Mission {
     
     @Scope(UNKNOWN) @RunsIn(UNKNOWN)
     public Foo unknownMethod() {
+       
+        otherUnknown();                 // Ok
+        
+        myMethod();                     // ERROR
+        
         return foo;
+    }
+    
+    @Scope(UNKNOWN) @RunsIn(UNKNOWN)
+    public Foo otherUnknown() {
+       
+        Foo myFoo  = new Foo();
+        myFoo.method();             // OK
+        
+        return foo;
+    }
+    
+    public void myMethod() {
+        //
     }
     
 }
@@ -65,4 +86,8 @@ class MyHandler extends PeriodicEventHandler {
 }
 
 class Foo {
+    
+    public void method() {
+        
+    }
 }

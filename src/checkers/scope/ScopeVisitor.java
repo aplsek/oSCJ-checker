@@ -1,6 +1,7 @@
 package checkers.scope;
 
 import static checkers.Utils.isStatic;
+import static checkers.Utils.isFinal;
 
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
@@ -490,7 +491,14 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 && "enterPrivateMemory".equals(methodName)) {
 
             checkEnterPrivateMemory(node);
-        } else if (runsIn != null && runsIn.equals(UNKNOWN)) {
+        } else if (isManagedMemoryType(type) &&
+                ("allocInSame".equals(methodName) || "allocInParent".equals(methodName) )) {             
+            /** DYNAMIC GUARD CHECKING */
+            
+            checkDynamicGuard(node);
+            
+        }
+        else if (runsIn != null && runsIn.equals(UNKNOWN)) {
             // @RunsIn(UNKNOWN) is OK
             return;
             
@@ -510,6 +518,35 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             // ExpressionTree arg = node.geta
             // }
         }
+    }
+
+    private void checkDynamicGuard(MethodInvocationTree node) {
+        ExpressionTree arg1 = node.getArguments().get(0);
+        ExpressionTree arg2 = node.getArguments().get(1);
+        
+        checkFinal(arg1,node);
+        checkFinal(arg2,node);
+        
+        // TODO : finish the checking of the guard
+    }
+
+    private void checkFinal(ExpressionTree arg,MethodInvocationTree node) {
+        switch (arg.getKind()) {
+        case IDENTIFIER:
+            VariableElement var = (VariableElement) TreeUtils
+            .elementFromUse((IdentifierTree) arg);
+            var.getModifiers();
+
+            
+            if (!isFinal(var.getModifiers())) {
+                report(Result.failure("bad.guard.no.final",arg), node);
+            } 
+            break;     
+        default:
+            report(Result.failure("bad.guard.argument",arg), node);
+            return;
+        }
+        
     }
 
     private void checkExecuteInArea(MethodInvocationTree node)
@@ -1440,6 +1477,20 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         }
         return TypesUtils.isDeclaredOfName(t.asType(),
         "javax.realtime.MemoryArea");
+    }
+    
+    // Doesn't work for interfaces (nor should it)
+    private boolean isManagedMemoryType(TypeElement t) {
+        if (t.getKind() == ElementKind.INTERFACE) {
+            return false;
+        }
+        while (!TypesUtils.isDeclaredOfName(t.asType(),
+        "javax.safetycritical.ManagedMemory")
+        && !TypesUtils.isObject(t.asType())) {
+            t = (TypeElement) ((DeclaredType) t.getSuperclass()).asElement();
+        }
+        return TypesUtils.isDeclaredOfName(t.asType(),
+        "javax.safetycritical.ManagedMemory");
     }
 
     private String getScopeDef(ExpressionTree e) throws ScopeException {

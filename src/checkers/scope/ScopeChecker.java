@@ -59,6 +59,8 @@ public class ScopeChecker extends SourceChecker {
         p.put("scope.cast", "Class Cast Error : The class being casted must have a scope (@Scope=%s) that is the same as the scope of the target class (@Scope=%s).");
         
         
+        p.put("bad.guard.no.final", "The variables passed into the GUARD statement must be final. The argument %s is not.");
+        p.put("bad.guard.argument", "Only single variables can be passed as arguments into guards, no other expressions are allowed, eg. %s.");
         
         p.put("checker.bug", "Error of the checker, please, report this to the authors of the checker: %s");
         
