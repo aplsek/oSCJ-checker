@@ -12,10 +12,14 @@ import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 
 
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
+@DefineScope(name="crossScope.TestCrossScope2", parent=IMMORTAL)
 @Scope("crossScope.TestCrossScope2") 
 public class TestCrossScope2 extends Mission {
 
@@ -59,7 +63,7 @@ public class TestCrossScope2 extends Mission {
     }
 
     @Scope("crossScope.TestCrossScope2")  
-    @RunsIn("crossScope.MyHandler") 
+    @DefineScope(name="crossScope.MyHandler", parent="crossScope.TestCrossScope2")
     class MyHandler extends PeriodicEventHandler {
 
         public MyHandler(PriorityParameters priority,
@@ -67,6 +71,7 @@ public class TestCrossScope2 extends Mission {
             super(priority, parameters, scp);
         }
 
+        @RunsIn("crossScope.MyHandler") 
         public void handleAsyncEvent() {
         	
         	Mission mission = Mission.getCurrentMission();				// OK, scope type is inferred

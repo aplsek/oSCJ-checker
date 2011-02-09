@@ -15,9 +15,6 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 @DefineScope(name = "Mission", parent = IMMORTAL)
 public class TestMissingAlloc {
 
-	@DefineScope(name = "Mission", parent = IMMORTAL)
-    PrivateMemory mission = new PrivateMemory(0);
-	
 	public Mission returnMissionErr() {				//  ERROR @Allocate("mission") is missing
 		Mission m = null;
 		m = Mission.getCurrentMission();			

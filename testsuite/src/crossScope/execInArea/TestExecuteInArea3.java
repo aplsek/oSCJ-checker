@@ -20,8 +20,6 @@ import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 /**
- * @RunsIn(UNKNOWN) + "executeInArea"
-    --> each runnable used for "executeInArea" must be annotated with @RunsIn(UNKNOWN)
  * 
  * 
  */
@@ -40,7 +38,6 @@ public class TestExecuteInArea3 extends Mission  {
     }
 
     @Scope("crossScope.execInArea.TestExecuteInArea3")  
-    @RunsIn("crossScope.execInArea.Handler") 
     @DefineScope(name="crossScope.execInArea.Handler",parent="crossScope.execInArea.TestExecuteInArea3")  
     class Handler extends PeriodicEventHandler {
 
@@ -49,8 +46,8 @@ public class TestExecuteInArea3 extends Mission  {
             super(priority, parameters, scp);
         }
 
-        public
-        void handleAsyncEvent() {
+        @RunsIn("crossScope.execInArea.Handler") 
+        public void handleAsyncEvent() {
         	ImmortalMemory mem = ImmortalMemory.instance();
         	MyRunnable runner = new MyRunnable();
         	mem.executeInArea(runner);						// OK
@@ -64,11 +61,10 @@ public class TestExecuteInArea3 extends Mission  {
     }
 
     @Scope("crossScope.execInArea.Handler")
-    @RunsIn(IMMORTAL)
     class MyRunnable implements Runnable {
     	
     	@Override
-    	@RunsIn(UNKNOWN)
+    	@RunsIn(IMMORTAL)
     	public void run() {
     		Mission mission = Mission.getCurrentMission();      /// ERROR
     		Foo f = new Foo();									// 

@@ -5,6 +5,8 @@
 
 package crossScope.getCurrent;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
@@ -14,11 +16,12 @@ import javax.safetycritical.MissionManager;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.Allocate;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-
+@DefineScope(name="crossScope.getCurrent.TestGetCurrent2", parent=IMMORTAL)
 @Scope("crossScope.getCurrent.TestGetCurrent2") 
 public class TestGetCurrent2  extends Mission  {
 
@@ -35,7 +38,7 @@ public class TestGetCurrent2  extends Mission  {
 
 
     @Scope("crossScope.getCurrent.TestGetCurrent2")  
-    @RunsIn("crossScope.getCurrent.Handler") 
+    @DefineScope(name="crossScope.getCurrent.Handler", parent="crossScope.getCurrent.TestGetCurrent2")
     class Handler extends PeriodicEventHandler {
 
     	private TestGetCurrent2 mission;
@@ -47,6 +50,7 @@ public class TestGetCurrent2  extends Mission  {
             this.mission = mission;
         }
 
+        @RunsIn("crossScope.getCurrent.Handler") 
         public
         void handleAsyncEvent() {
         

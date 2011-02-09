@@ -5,7 +5,6 @@
 
 package crossScope;
 
-import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.RunsIn;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -14,7 +13,6 @@ public class TestFieldStore2 {
 	
 	class Foo {
 		
-		@Scope("in")
 		@RunsIn(UNKNOWN)
 		public Bar myMethod(Bar in) {
 		    in.result = in.x + in.y;        // OK, primitive fields modified	

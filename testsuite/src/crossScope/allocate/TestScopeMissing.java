@@ -5,9 +5,12 @@
 
 package crossScope.allocate;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.Scope;
 
-
+@DefineScope(name="b", parent=IMMORTAL)
 public class TestScopeMissing {
 
 	Bar b;
@@ -17,7 +20,7 @@ public class TestScopeMissing {
 		return b;
 	} 
 	
-	@Scope("bbb")
+	@Scope("b")
 	public Bar method(Bar b, Foo f) {		/// ERROR : no such parameter exists
 		return b;
 	} 

@@ -14,20 +14,21 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.MissionManager;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
 import crossScope.getCurrent.TestGetCurrent;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 
 /**
- * @RunsIn(UNKNOWN) + "executeInArea"
-    --> each runnable used for "executeInArea" must be annotated with @RunsIn(UNKNOWN)
  * 
  * 
  */
+@DefineScope(name="crossScope.execInArea.TestExecuteInArea2", parent=IMMORTAL)
 @Scope("crossScope.execInArea.TestExecuteInArea2") 
 public class TestExecuteInArea2 extends Mission  {
 
@@ -42,9 +43,8 @@ public class TestExecuteInArea2 extends Mission  {
     }
     
 
-
+    @DefineScope(name="crossScope.execInArea.Handler", parent="crossScope.execInArea.TestExecuteInArea2")
     @Scope("crossScope.execInArea.TestExecuteInArea2")  
-    @RunsIn("crossScope.execInArea.Handler") 
     class Handler extends PeriodicEventHandler {
 
         public Handler(PriorityParameters priority,
@@ -52,8 +52,8 @@ public class TestExecuteInArea2 extends Mission  {
             super(priority, parameters, scp);
         }
 
-        public
-        void handleAsyncEvent() {
+        @RunsIn("crossScope.execInArea.Handler") 
+        public void handleAsyncEvent() {
         	ImmortalMemory mem = ImmortalMemory.instance();
         	MyRunnable runner = new MyRunnable();
         	mem.executeInArea(runner);						// OK
@@ -72,11 +72,10 @@ public class TestExecuteInArea2 extends Mission  {
 
 
     @Scope("crossScope.execInArea.Handler")
-    @RunsIn("ImmortalMemory")
     class MyRunnable implements Runnable {
     	
     	@Override
-    	@RunsIn(UNKNOWN)
+    	@RunsIn(IMMORTAL)
     	public void run() {
     		//..
     	}
@@ -84,10 +83,10 @@ public class TestExecuteInArea2 extends Mission  {
     }
 
     @Scope("crossScope.execInArea.Handler")
-    @RunsIn("ImmortalMemory")
     class MyRunnableErr implements Runnable {
     	
     	@Override
+    	@RunsIn(IMMORTAL)
     	public void run() {
     		BigDecimal one = BigDecimal.ONE;
     		one.add(null);							// this is cross-scope but BigDecimal is reference-immutable

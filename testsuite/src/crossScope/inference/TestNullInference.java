@@ -1,21 +1,23 @@
 package crossScope.inference;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
 import crossScope.TestInference;
 
-
+@DefineScope(name="crossScope.TestNullInference", parent=IMMORTAL)
 @Scope("crossScope.TestNullInference") 
 public class TestNullInference extends Mission {
 
-    protected
-    void initialize() { 
+    protected void initialize() { 
         new Handler(null, null, null, 0);
     }
 
@@ -23,12 +25,10 @@ public class TestNullInference extends Mission {
     public long missionMemorySize() {
         return 0;
     }
-    
 }
 
-
+@DefineScope(name="crossScope.Handler", parent="crossScope.TestNullInference")
 @Scope("crossScope.TestNullInference")  
-@RunsIn("crossScope.Handler") 
 class Handler extends PeriodicEventHandler {
 
 	private TestInference mission;
@@ -38,8 +38,8 @@ class Handler extends PeriodicEventHandler {
         super(priority, parameters, scp);
     }
 
-    public
-    void handleAsyncEvent() {
+    @RunsIn("crossScope.Handler") 
+    public void handleAsyncEvent() {
     	Mission mission = null; 							// OK
     	mission = Mission.getCurrentMission();				// OK!!!
     	

@@ -10,10 +10,14 @@ import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
+@DefineScope(name="crossScope.TestInference", parent=IMMORTAL)
 @Scope("crossScope.TestInference") 
 public class TestInference extends Mission {
 
@@ -34,7 +38,7 @@ public class TestInference extends Mission {
     }
 
     @Scope("crossScope.TestInference")  
-    @RunsIn("crossScope.MyHandler2") 
+    @DefineScope(name="crossScope.MyHandler2", parent="crossScope.TestInference")
     class MyHandler2 extends PeriodicEventHandler {
 
     	private TestInference mission;
@@ -46,8 +50,8 @@ public class TestInference extends Mission {
             this.mission = mission;
         }
 
-        public
-        void handleAsyncEvent() {
+        @RunsIn("crossScope.MyHandler2") 
+        public void handleAsyncEvent() {
             Foo foo = mission.getFoo();
             Bar bar = new Bar();
             

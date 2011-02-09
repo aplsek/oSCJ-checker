@@ -12,8 +12,10 @@ import javax.safetycritical.annotate.Scope;
 
 import crossScope.TestErrorCrossScope.Foo;
 import crossScope.TestErrorCrossScope.Handler;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
+@DefineScope(name="crossScope.TestGetCurrentManagedMemory", parent=IMMORTAL)
 @Scope("crossScope.TestGetCurrentManagedMemory") 
 public class TestGetCurrentManagedMemory {
 
@@ -28,7 +30,7 @@ public class TestGetCurrentManagedMemory {
     }
     
     @Scope("crossScope.TestGetCurrentManagedMemory")  
-    @RunsIn("crossScope.Handler") 
+    @DefineScope(name="crossScope.Handler", parent="crossScope.TestGetCurrentManagedMemory")
     class Handler extends PeriodicEventHandler {
 
     	Foo foo ;
@@ -40,12 +42,12 @@ public class TestGetCurrentManagedMemory {
             this.foo = new Foo();			// OK
         }
 
+        @RunsIn("crossScope.Handler") 
         public void handleAsyncEvent() {
 
         	this.foo = new Foo();			// ERROR
         	
         	MyRunnable aRunnable = new MyRunnable(this);
-        	@DefineScope(name="crossScope.Handler.Child", parent="crossScope.Handler") 
             ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
             mem.enterPrivateMemory(1000, aRunnable);  
         	
@@ -63,7 +65,7 @@ public class TestGetCurrentManagedMemory {
     
     
     @Scope("crossScope.Handler")  
-    @RunsIn("crossScope.Handler.Child") 
+    @DefineScope(name="crossScope.Handler.Child", parent="crossScope.Handler")
     class MyRunnable implements Runnable {
 		
     	private Handler handler;
@@ -72,6 +74,7 @@ public class TestGetCurrentManagedMemory {
     		this.handler = handler;
     	}
     	
+    	@RunsIn("crossScope.Handler.Child") 
     	public void run() {
 			BigBar bb = new BigBar();
 			bb.method();
@@ -89,8 +92,9 @@ public class TestGetCurrentManagedMemory {
     	}
     }
 
-    @RunsIn("crossScope.Handler.Child") 
+   
     class BigBar {
+        @RunsIn("crossScope.Handler.Child") 
     	public void method() {
     		ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();  // OK
     	}

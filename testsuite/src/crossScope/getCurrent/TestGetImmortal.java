@@ -15,18 +15,16 @@ import javax.safetycritical.annotate.Scope;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+@DefineScope(name = "my_area", parent = IMMORTAL)
 class MemoryAreas {
 	
-	@DefineScope(name = "my_area", parent = IMMORTAL)
-    PrivateMemory b = new PrivateMemory(0);
 	
 }
 
 @Scope(IMMORTAL)
-@RunsIn("my_area")
-@DefineScope(name = "my_area", parent = IMMORTAL)
 public class TestGetImmortal {
 	
+    @RunsIn("my_area")
 	public void method() {
 		ImmortalMemory imm = ImmortalMemory.instance();
 		

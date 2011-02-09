@@ -14,9 +14,10 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope(IMMORTAL)
+@DefineScope(name = "Mission", parent = IMMORTAL)
 public class TestParameter {
 
-	@DefineScope(name = "Mission", parent = IMMORTAL)
+
     PrivateMemory mission = new PrivateMemory(0);
 	
 	Bar b;
@@ -53,15 +54,17 @@ public class TestParameter {
 	
 	@Scope(IMMORTAL)
 	@RunsIn(UNKNOWN)
-	public void method5(Bar b, Foo f) {	   // ERROR: is void and had @Allocate
+	public void method5(Bar b, Foo f) {	   // ERROR: is void and has @Scope
 	} 
 	
-	@Scope("private")				// ERROR - the scope does not exist
+	@Scope("b")			
 	@RunsIn(UNKNOWN)
 	public Bar method6(Bar b) {		
 		return null;						
 	} 
 	
+	@DefineScope(name = "b", parent = IMMORTAL)
 	class Bar {}
+	
 	class Foo{}
 }

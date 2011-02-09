@@ -37,13 +37,8 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
  * @author plsek
  * 
  */
+@DefineScope(name = "Mission", parent = IMMORTAL)
 public class TestBigDecimal {
-
-	@DefineScope(name = "Mission", parent = IMMORTAL)
-	PrivateMemory mission = new PrivateMemory(0);
-
-	@DefineScope(name = "PrivateMemory", parent = "Mission")
-	PrivateMemory privateMem = new PrivateMemory(0);
 
 	@RunsIn("PrivateMemory")
 	public void handleAsyncEvent() {
@@ -69,3 +64,6 @@ public class TestBigDecimal {
 	}
 
 }
+
+@DefineScope(name = "PrivateMemory", parent = "Mission")
+class PEH {}

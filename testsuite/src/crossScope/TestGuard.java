@@ -6,10 +6,14 @@
 package crossScope;
 
 import javax.realtime.MemoryArea;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.RunsIn;
+
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
+@DefineScope(name="b", parent=IMMORTAL)
 public class TestGuard {
 
 	Bar b;

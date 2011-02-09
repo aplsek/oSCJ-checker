@@ -5,6 +5,8 @@
 
 package crossScope.getCurrent;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
@@ -12,6 +14,7 @@ import javax.realtime.RealtimeThread;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
@@ -19,9 +22,8 @@ import crossScope.TestInference;
 
 
 
-
+@DefineScope(name="crossScope.TestNullInference", parent=IMMORTAL)
 @Scope("crossScope.TestNullInference")  
-@RunsIn("crossScope.TestInferenceClash") 
 class TestInferenceClash extends PeriodicEventHandler {
 
     public TestInferenceClash(PriorityParameters priority,
@@ -29,8 +31,8 @@ class TestInferenceClash extends PeriodicEventHandler {
         super(priority, parameters, scp);
     }
 
-    public
-    void handleAsyncEvent() {
+    @RunsIn("crossScope.TestInferenceClash") 
+    public void handleAsyncEvent() {
     	MemoryArea mem = null;
     	
     	mem = RealtimeThread.getCurrentMemoryArea();

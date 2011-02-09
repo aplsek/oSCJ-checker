@@ -1,17 +1,16 @@
 package crossScope.inference;
 
-import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
-import javax.realtime.RealtimeThread;
 import javax.safetycritical.Mission;
-import javax.safetycritical.MissionManager;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-
+@DefineScope(name="crossScope.inference.TestRunsIn", parent=IMMORTAL)
 @Scope("crossScope.inference.TestRunsIn") 
 public class TestRunsIn   extends Mission {
 
@@ -32,8 +31,8 @@ public class TestRunsIn   extends Mission {
     }
 
 
-    @Scope("crossScope.inference.TestRunsIn")  
-    @RunsIn("crossScope.inference.Handler") 
+    @Scope("crossScope.inference.TestRunsIn") 
+    @DefineScope(name="crossScope.inference.Handler", parent="crossScope.inference.TestRunsIn")
     class Handler extends PeriodicEventHandler {
 
     	private TestRunsIn mission;
@@ -45,8 +44,8 @@ public class TestRunsIn   extends Mission {
             this.mission = mission;
         }
 
-        public
-        void handleAsyncEvent() {
+        @RunsIn("crossScope.inference.Handler") 
+        public void handleAsyncEvent() {
         	Foo foo = mission.getFoo();		// OK, inferred
         	
         	foo.method();					// ERROR, the method must be cross-scope, @RunsIn inferred!!

@@ -9,12 +9,12 @@ import javax.safetycritical.annotate.DefineScope;
 public class TestFieldStore4 {
 
 	@Scope("a")
-	@RunsIn("a")
 	@DefineScope(name="a",parent=IMMORTAL)
 	class PEH {
 		
+	      @RunsIn("a")
 		  public void handleAsyncEvent() {
-		       Foo foo = getCurrentFoo();     // OK --> foo will be inferred to be IMMORTAL    
+		       Foo foo = getCurrentFoo();              // OK --> foo will be inferred to be IMMORTAL    
 		       Bar myBar = new Bar();       
 		   
 		       myBar = foo.mySimpleMethod(myBar);    // OK

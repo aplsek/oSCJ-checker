@@ -13,12 +13,16 @@ import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.Allocate;
 import static javax.safetycritical.annotate.Allocate.Area.*;
-
-
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+
+
+
+@DefineScope(name="crossScope.TestCrossScope", parent=IMMORTAL)
 @Scope("crossScope.TestCrossScope") 
 public class TestCrossScope extends Mission {
 
@@ -34,15 +38,15 @@ public class TestCrossScope extends Mission {
         return 0;
     }
 
-    @Allocate({THIS})
+    @Scope("crossScope.TestCrossScope")
     @RunsIn(UNKNOWN)
     public Foo getFoo() {
     	return this.foo;
     }
 
 
+    @DefineScope(name="crossScope.MyHandler", parent="crossScope.TestCrossScope")
     @Scope("crossScope.TestCrossScope")  
-    @RunsIn("crossScope.MyHandler") 
     class MyHandler extends PeriodicEventHandler {
 
     	private TestCrossScope mission;
@@ -54,6 +58,7 @@ public class TestCrossScope extends Mission {
             this.mission = mission;
         }
 
+        @RunsIn("crossScope.MyHandler") 
         public void handleAsyncEvent() {
         	
         	Foo foo = mission.getFoo();		// OK
@@ -85,7 +90,6 @@ public class TestCrossScope extends Mission {
     	}
     	
     	
-    	@Allocate({CURRENT})
         @RunsIn(UNKNOWN)
     	public List method(List bar) {
     		return bar;

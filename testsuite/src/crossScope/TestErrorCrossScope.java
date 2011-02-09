@@ -1,13 +1,23 @@
+//crossScope/TestInference.java:64: error message.
+//        foo.methodErr(bar); 
+//                      ^
+//1 error
+
+
 package crossScope;
+
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
+@DefineScope(name="crossScope.TestErrorCrossScope", parent=IMMORTAL)
 @Scope("crossScope.TestErrorCrossScope") 
 public class TestErrorCrossScope extends Mission  {
 
@@ -29,7 +39,7 @@ public class TestErrorCrossScope extends Mission  {
     
 
     @Scope("crossScope.TestErrorCrossScope")  
-    @RunsIn("crossScope.Handler") 
+    @DefineScope(name="crossScope.Handler", parent="crossScope.TestErrorCrossScope")
     class Handler extends PeriodicEventHandler {
 
     	TestErrorCrossScope mission;
@@ -41,8 +51,8 @@ public class TestErrorCrossScope extends Mission  {
             this.mission = mission;
         }
 
-        public
-        void handleAsyncEvent() {
+        @RunsIn("crossScope.Handler") 
+        public void handleAsyncEvent() {
 
         	Foo foo = mission.getCurrentFoo();			// OK, will be inferred to be in Mission
         	Bar b = foo.method();						// ERROR? should this method be @RunsIn(UNKNOWN)??

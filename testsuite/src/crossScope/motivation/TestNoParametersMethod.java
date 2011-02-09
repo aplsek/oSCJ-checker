@@ -1,5 +1,6 @@
 package crossScope.motivation;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
@@ -7,6 +8,7 @@ import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
@@ -14,6 +16,7 @@ import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.Allocate;
 import static javax.safetycritical.annotate.Allocate.Area.*;
 
+@DefineScope(name="crossScope.motivation.TestErrorCrossScope", parent=IMMORTAL)
 @Scope("crossScope.motivation.TestErrorCrossScope") 
 public class TestNoParametersMethod extends Mission  {
 
@@ -36,9 +39,8 @@ public class TestNoParametersMethod extends Mission  {
     	return this.foo;
     }
     
-
+    @DefineScope(name="crossScope.motivation.Handler", parent="crossScope.motivation.TestErrorCrossScope")
     @Scope("crossScope.motivation.TestErrorCrossScope")  
-    @RunsIn("crossScope.motivation.Handler") 
     class Handler extends PeriodicEventHandler {
 
     	TestNoParametersMethod mission;
@@ -50,6 +52,7 @@ public class TestNoParametersMethod extends Mission  {
             this.mission = mission;
         }
 
+        @RunsIn("crossScope.motivation.Handler") 
         public void handleAsyncEvent() {
         	Foo foo = mission.getCurrentFoo();			// OK, foo will be inferred to be in Mission
         	Bar b = foo.method();						// ERROR? should this method be @RunsIn(UNKNOWN)??
@@ -72,14 +75,12 @@ public class TestNoParametersMethod extends Mission  {
 class Foo {
 	private Bar field;
 	
-	@Allocate({THIS})
 	@RunsIn(UNKNOWN)
 	public Bar method() {
 		this.field = new Bar();						// ERROR and will be detected
 		return this.field;
 	}
 	
-	@Allocate({THIS})
 	public Bar method2() {
 		try {
 			MemoryArea mem = MemoryArea.getMemoryArea(this);

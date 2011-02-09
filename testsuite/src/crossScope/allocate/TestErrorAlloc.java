@@ -1,15 +1,18 @@
 package crossScope.allocate;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
 
-
+@DefineScope(name="crossScope.TestNullInference", parent=IMMORTAL)
 @Scope("crossScope.allocate.TestErrorAlloc") 
 public class TestErrorAlloc extends Mission  {
 
@@ -25,14 +28,13 @@ public class TestErrorAlloc extends Mission  {
         return 0;
     }
     
-    //@Allocate({THIS})
-    public Foo getCurrentFoo() {					// ERROR, should be @Allocate({THIS})
+    @Scope("crossScope.allocate.TestErrorAlloc")
+    public Foo getCurrentFoo() {					
     	return this.foo;
     }
     
-
+    @DefineScope(name="crossScope.allocate.Handler", parent="crossScope.allocate.TestErrorAlloc")
     @Scope("crossScope.allocate.TestErrorAlloc")  
-    @RunsIn("crossScope.allocate.Handler") 
     class Handler extends PeriodicEventHandler {
 
     	TestErrorAlloc mission;
@@ -44,8 +46,8 @@ public class TestErrorAlloc extends Mission  {
             this.mission = mission;
         }
 
-        public
-        void handleAsyncEvent() {
+        @RunsIn("crossScope.allocate.Handler") 
+        public void handleAsyncEvent() {
         	Foo foo = mission.getCurrentFoo();			//OK, but this should be inferred to be in Mission
         }
 
