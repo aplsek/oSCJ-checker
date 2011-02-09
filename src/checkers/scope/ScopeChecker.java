@@ -64,6 +64,8 @@ public class ScopeChecker extends SourceChecker {
         
         p.put("checker.bug", "Error of the checker, please, report this to the authors of the checker: %s");
         
+        p.put("error.var.and.type.scope.annotation.mismatch", "Variable is annotated with @Scope annotation that does not correspond to @Scope annotation of its type.");
+        
         
         p.put("scope.on.void.method", "A method that returns void cannot have @Scope annotation.");
         p.put("scope.on.method.primitive.return", "A method that returns a primitive type cannot have @Scope annotation.");

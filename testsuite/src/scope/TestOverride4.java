@@ -15,16 +15,16 @@ public class TestOverride4 {
 }
 
 @DefineScope(name="ONE",parent=IMMORTAL)
-class AClass44 {
-      AClass44 a;
+class AClass444 {
+      AClass444 a;
       public void X() { 
-          a = new AClass44();
+          a = new AClass444();
       }
 }
 
 @Scope("ONE")
 @DefineScope(name="TWO",parent="ONE")
-class BClass44 extends AClass44 implements Runnable {
+class BClass444 extends AClass444 implements Runnable {
    
     @RunsIn("TWO")                  // ERROR ??
     public void run() {

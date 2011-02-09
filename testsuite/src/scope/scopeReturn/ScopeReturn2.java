@@ -1,7 +1,13 @@
-//testsuite/src/scope/scopeReturn/ScopeReturn2.java:58: Cannot assign expression in scope MyMission to variable in scope MyHandler.
-//        MyFoo localFoo = mission.getFoo();              // ERROR
+//testsuite/src/scope/scopeReturn/ScopeReturn2.java:70: Cannot assign expression in scope MyMission to variable in scope MyHandler.
+//        MyFoo localFoo = mission.getFoo();                       // ERROR
 //              ^
-//1 error
+//testsuite/src/scope/scopeReturn/ScopeReturn2.java:72: Cannot assign expression in scope UNKNOWN to variable in scope MyHandler.
+//        localFoo = mission.getUNKNOWN();                         // ERROR 
+//                 ^
+//testsuite/src/scope/scopeReturn/ScopeReturn2.java:74: Cannot assign expression in scope UNKNOWN to variable in scope MyHandler.
+//        Mission mission =  Mission.getCurrentMission();                 // ERROR
+//                ^
+//3 errors
 
 package scope.scopeReturn;
 
@@ -63,6 +69,8 @@ class MyPEH extends PeriodicEventHandler {
         
         this.mission = mission;
     }
+    
+    @Scope(UNKNOWN) Mission missionUNK;
 
     @RunsIn("MyHandler") 
     public void handleAsyncEvent() {
@@ -71,10 +79,9 @@ class MyPEH extends PeriodicEventHandler {
         
         localFoo = mission.getUNKNOWN();                         // ERROR 
         
-        
         Mission mission =  Mission.getCurrentMission();                 // ERROR
         
-        @Scope("Mission") Mission missionUNK =  Mission.getCurrentMission();  // OK
+        missionUNK =  Mission.getCurrentMission();  // ERROR
         
         mission.requestSequenceTermination();                        // OK
     }

@@ -7,11 +7,14 @@
 //scope/MyMission.java:65: The Runnable class must have a matching @Scope annotation.
 //        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, aRunnable);  // ERROR  
 //                                                                  ^
+//testsuite/src/scope/MyMission.java:75: The Runnable passed into the enterPrivateMemory() call must have a run() method with a @RunsIn annotation.
+//        mem.enterPrivateMemory(2000, (Runnable) cRun);                 // OK
+//                              ^
 //scope/MyMission.java:70: The Runnable passed into the enterPrivateMemory() call must have a run() method with a @RunsIn annotation.
 //        mem.enterPrivateMemory(2000, runNull);
 //                              ^
 //
-//4 errors
+//5 errors
 
 package scope;
 

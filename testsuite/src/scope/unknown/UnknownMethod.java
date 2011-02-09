@@ -21,7 +21,6 @@ import javax.safetycritical.annotate.Scope;
 @DefineScope(name="MyMission",parent=IMMORTAL)
 @Scope("MyMission")  
 public class UnknownMethod extends Mission {
-
     
     protected void initialize() { 
         new MyHandler(null, null, null, 0,this);
