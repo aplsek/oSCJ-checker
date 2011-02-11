@@ -1,0 +1,69 @@
+CHECKER TODO LIST
+===========================================
+
+
+TODO:
+---------
+
+@Scope on method arguments 
+- check that the scope does not override the @scope on its type
+- check that variables with a correct @Scope is passed into the method invocation
+- infer the scope of the argument in the body of the method 
+
+-getMemoryArea();
+  - newInstance();
+
+@RunsIn(UNKNOWN)
+- for method argumenst, all the arguments whose types that do not have a @Scope annotation must be inferred to @Scope(UNKNOWN)
+
+
+getNextMission() 
+- all the missions in the same sequencer must have the same name.
+
+
+
+- GUARDS
+@Scope(UNKNOWN)/@RunsIn(UNKNOWN)
+--> will need to implement the guards
+
+GetMemoryArea:
+@Scope("MyMission") MemoryArea mem = MemoryArea.getMemoryArea(mission);   
+
+
+- static methods (add some test cases)
+
+
+
+Method Invocation: 
+       @Scope(Mission )Foo foo = mission.getFoo();		// OK
+            foo.method(bar);                //  ---> OK
+            foo.methodErr(bar);				// ERROR: is not @RunsIn(UNKNOWN)
+--> if "foo" is not current, then the method invocation may be only to @RunsIn(UNKNOWN) method!!
+
+
+
+
+DONE:
+-----------------
+@Scope on methods - DONE
+- checking of the scope of returned type - DONE
+- every return expression is now checked that a @Scope that is being returned is really expected by method's @Scope annotation.
+- method invocation, variable assignment - if the method returns @Scope, it must be its return @Scope!!
+
+static fields
+- types in static fields not need to have @Scope(IMMORTAL), this can be implicit - DONE.
+
+@RunsIn(UNKNOWN) on methods  - DONE 
+- checker allows these methods to be invoked from everywhere,  - DONE
+- return type of this method is not defined, user should define @Scope(UNKNOWN) explicitly - DONE
+- invocation of another @RunsIn(UNKNOWN) method - DONE
+
+GUARDS
+- checking that the two variables passed in are "final" - DONE
+
+getCurrent*() methods
+- return @RunsIn(UNKNOWN) 
+
+@Scope on fields and variables
+- this was much easier than we expected. For a variable, the framework allows to retrieve all annotations present on its type definition but also we can easily retrieve variable's declaration and look for @Scope annotations there. I have several basic test-cases for this, I will ass more to excercise this a little bit more. 
+
