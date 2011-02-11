@@ -1,7 +1,13 @@
+//testsuite/src/crossScope/TestConstructor.java:30: @RunsIn annotations not allowed on constructors.
+//                 public Bar(Bar b) {
+//                        ^
 //crossScope/TestInference.java:64: error message.
 //        foo.methodErr(bar); 
 //                      ^
-//1 error
+//crossScope/TestInference.java:64: error message.
+//        foo.methodErr(bar); 
+//                      ^
+//3 errors
 
 package crossScope;
 
@@ -15,7 +21,7 @@ public class TestConstructor {
      public void method(Bar b) {
 		 Bar myBar =new Bar(b); 				 //---> OK if the constructor is @RunsIn(UNKNOWN)
    
-		 Bar bb=new Bar(b,b);				    // ERR
+		 Bar bb=new Bar(b,b);				    // ERROR
      }
 
 	 class Bar{
@@ -26,12 +32,12 @@ public class TestConstructor {
 			 //..
 		 }
 		 
-		 @RunsIn(UNKNOWN)
+		 @RunsIn(UNKNOWN)         // ERROR
 		 public Bar(Bar b) {
 			 this.i = b.i;
-			 this.b = b;    			// ERROR
+			 this.b = b;    			// ERROR ???
 		 }
-		 
+		
 		 public Bar(Bar b, Bar b2) {
 			 this.i = b.i;
 			 this.b = b;   				 // OK but should not be called from "@RunsIn(UNKNOWN)"

@@ -10,6 +10,8 @@ rm -rf sources
 rm -rf SCJChecker.jar
 rm -rf lib/SCJChecker.jar
 mkdir $BUILD
+rm -rf ./lib/scj.jar
+
 
 JAVAC=./localbin/checkers/binary/javac
 
@@ -19,14 +21,12 @@ JAVAC=./localbin/checkers/binary/javac
 
 CLASSPATH=lib/build/:lib/jsr308-all.jar:lib/checkers.jar
 
-if [ -f "../../../../lib/scj.jar" ] 
+if [ ! -f "./lib/scj.jar" ] 
 then 
- 	CLASSPATH=$CLASSPATH:../../../../lib/scj.jar
-	rm -rf ./lib/scj.jar
-	mv ../../../../lib/scj.jar ./lib/
-else
-	CLASSPATH=$CLASSPATH:./lib/scj.jar
+	cp ../../../../lib/scj.jar ./lib/
 fi
+
+CLASSPATH=$CLASSPATH:./lib/scj.jar
 
 echo "Compiling SCJChecker"
 find ./src -name "*.java" > sources 

@@ -1,7 +1,10 @@
 //testsuite/src/scope/unknown/UnknownMethod.java:39: Illegal invocation of method of object in scope MyMission while in scope UNKNOWN.
 //        myMethod();                     // ERROR
 //                ^
-//1 error
+//testsuite/src/scope/unknown/UnknownMethod.java:84: Illegal invocation of method of object in scope MyMission while in scope MyHandler.
+//        mission.regularMethod();
+//                             ^
+//2 errors
 
 package scope.unknown;
 
@@ -56,6 +59,10 @@ public class UnknownMethod extends Mission {
         //
     }
     
+    public void regularMethod() {
+        //
+    }
+    
 }
 
 
@@ -76,6 +83,8 @@ class MyHandler extends PeriodicEventHandler {
     @RunsIn("MyHandler") 
     public void handleAsyncEvent() {
         mission.unknownMethod();
+        
+        mission.regularMethod();
     }
 
     @Override

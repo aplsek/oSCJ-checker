@@ -61,7 +61,7 @@ public class TestCrossScope extends Mission {
         @RunsIn("crossScope.MyHandler") 
         public void handleAsyncEvent() {
         	
-        	Foo foo = mission.getFoo();		// OK
+            @Scope("crossScope.TestCrossScope") Foo foo = mission.getFoo();		// OK
             List bar = new List();
             
             foo.method(bar);                //  ---> OK
@@ -69,6 +69,9 @@ public class TestCrossScope extends Mission {
             
             foo.methodCross();			//  ERROR: foo's methodCross runs in "Mission" so it
              							//   should be annocated with "@RunsIn(UNKNOWN)"
+       
+            Foo foo2 = foo;
+            
         }
 
 
@@ -100,7 +103,6 @@ public class TestCrossScope extends Mission {
     	}
     	
     	
-    	@Allocate({THIS})
         public List method2() {
     		return this.x;
     	}	 
