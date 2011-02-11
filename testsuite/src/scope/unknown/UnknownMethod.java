@@ -1,7 +1,7 @@
-//testsuite/src/scope/unknown/UnknownMethod.java:39: Illegal invocation of method of object in scope MyMission while in scope UNKNOWN.
+//scope/unknown/UnknownMethod.java:39: Illegal invocation of method of object in scope MyMission while in scope UNKNOWN.
 //        myMethod();                     // ERROR
 //                ^
-//testsuite/src/scope/unknown/UnknownMethod.java:84: Illegal invocation of method of object in scope MyMission while in scope MyHandler.
+//scope/unknown/UnknownMethod.java:84: Illegal invocation of method of object in scope MyMission while in scope MyHandler.
 //        mission.regularMethod();
 //                             ^
 //2 errors

@@ -39,7 +39,7 @@ public final class Utils {
     }
     
     public static void debugPrintException(Exception e) {
-        debugPrintln("Exception: " + e.getMessage());
+        System.err.println("\n\n Exception: " + e.getMessage());
     }
 
     public static String annotationValue(Collection<? extends AnnotationMirror> annotations, String annotation) {

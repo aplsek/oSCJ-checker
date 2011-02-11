@@ -10,6 +10,7 @@ package scope.execInArea;
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
+import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
@@ -62,6 +63,10 @@ class MyHandler extends PeriodicEventHandler {
         mem.executeInArea(runA);                    // OK
         
         mem.executeInArea(runB);                    // ERROR
+        
+        
+        ManagedMemory manMem = ManagedMemory.getCurrentManagedMemory();
+        manMem.executeInArea(runA);
         
     }
 

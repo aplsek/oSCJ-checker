@@ -2,8 +2,37 @@ CHECKER TODO LIST
 ===========================================
 
 
-TODO:
+TODO: (move the completed tasks into DONE section)
 ---------
+
+Jan's REQUESTS:
+1) clean the code
+2) Replac all error-names given as Strings with a constant-final variables, eg:
+report(Result.failure("scope.on.method.primitive.return"), node); --> 
+with
+report(Result.failure(SCOPE_ON_METHOD_PRIMITIVE_RETURN), node);
+3) 
+Replace all "method name" comparison with the real comparison - there should not be any string-matching:
+for example this : "getMemoryArea".equals(methodName);
+
+
+Method Declaration Checking
+- we are still checking that a method runs in the same scope or in the child scope of the class (this needs to be removed)
+- for execute in area, we check that the runnable has @Scope annotation that refers to the area that
+is being entered, this is also wrong.
+
+Method Invocation
+-  we check only scope on declaration, not the scope of the type!!
+- see the getVarScope method, this method is used for "foo.method()" to retrieve the scope of "foo". Its implementation
+is not finished yet. 
+
+new Object()
+- check that this works in @RunsIn(UNKNOWN) methods
+
+
+Class/Method Overriding
+- all the test cases for this fail
+
 
 @Scope on method arguments 
 - check that the scope does not override the @scope on its type
@@ -15,7 +44,6 @@ TODO:
 
 @RunsIn(UNKNOWN)
 - for method argumenst, all the arguments whose types that do not have a @Scope annotation must be inferred to @Scope(UNKNOWN)
-
 
 getNextMission() 
 - all the missions in the same sequencer must have the same name.
@@ -30,18 +58,14 @@ GetMemoryArea:
 @Scope("MyMission") MemoryArea mem = MemoryArea.getMemoryArea(mission);   
 
 
-- static methods (add some test cases)
+Static method invocation
+- test that it works
+- add some test cases
 
 
 
-Method Invocation: 
-       @Scope(Mission )Foo foo = mission.getFoo();		// OK
-            foo.method(bar);                //  ---> OK
-            foo.methodErr(bar);				// ERROR: is not @RunsIn(UNKNOWN)
---> if "foo" is not current, then the method invocation may be only to @RunsIn(UNKNOWN) method!!
 
-
-TestUpcast2.
+TestUpcast2
 - fails for no reason,
 - when running the checking of this class separately, all the expected errors are detected
 eg. check.sh /testsuite/src/scope/TestUpcast2.java gives all the errors

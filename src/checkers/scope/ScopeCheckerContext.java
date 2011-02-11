@@ -25,6 +25,10 @@ import checkers.Utils;
 import checkers.scope.ScopeTree;
 import checkers.util.TypesUtils;
 
+
+import static checkers.scope.ScopeChecker.*;
+
+
 public class ScopeCheckerContext {
     private final Elements elements;
 
@@ -35,28 +39,28 @@ public class ScopeCheckerContext {
     //
     // Class @Scope and @RunsIn annotations
     //
-    private final Map<String, ScopeResult> classScopes  = new HashMap<String, ScopeResult>();
+    private final Map<String, ScopeResult> classScopes = new HashMap<String, ScopeResult>();
     private final Map<String, ScopeResult> classRunsIns = new HashMap<String, ScopeResult>();
 
     public String getScope(String clazz) throws ScopeException {
         TypeElement t = elements.getTypeElement(clazz);
         if (t == null) {
-            
+
             Utils.debugPrintln("class is :" + clazz);
             Utils.debugPrintln("t is null :" + t);
-            
+
             if (clazz.equals("")) {
                 Utils.debugPrintln("class is EMPTY!! :" + clazz);
                 return null;
             }
-            
+
             dummyException();
             return null;
         } else {
             return getScope(t);
         }
     }
-    
+
     public String getScope(TypeElement t) throws ScopeException {
         return getScopeInternal(MapType.SCOPE, t);
     }
@@ -68,36 +72,33 @@ public class ScopeCheckerContext {
                 Utils.debugPrintln("class is EMPTY!! :" + clazz);
                 return null;
             }
-            
+
             dummyException();
             return null;
         } else {
             return getRunsIn(t);
         }
     }
-    
+
     public TypeElement getTypeElement(String clazz) {
         return elements.getTypeElement(clazz);
     }
-    
+
     public String getRunsIn(TypeElement t) throws ScopeException {
         return getScopeInternal(MapType.RUNS_IN, t);
     }
 
     private String getScopeInternal(MapType mapType, TypeElement t) throws ScopeException {
-        //System.out.println("  getting scope");
-        //printContext();
-        
-       
-        
+        // System.out.println("  getting scope");
+        // printContext();
+
         Map<String, ScopeResult> map = mapType == MapType.SCOPE ? classScopes : classRunsIns;
         String name = t.getQualifiedName().toString();
-       
-        //System.out.println("  name :" + name);
-        if (name.equals("byte")) 
+
+        // System.out.println("  name :" + name);
+        if (name.equals("byte"))
             return IMMORTAL;
-        
-        
+
         ScopeResult res = map.get(name);
 
         if (res == null) {
@@ -124,9 +125,10 @@ public class ScopeCheckerContext {
                 String superAnno = getScopeValue(s, mapType);
                 if (superAnno != null) {
                     if (nodeAnno != null && !nodeAnno.equals(superAnno)) {
-                        // Child classes must have the same annotation as their parent, or none at all
+                        // Child classes must have the same annotation as their
+                        // parent, or none at all
                         return new ScopeResult(String.format(
-                            "Class %s has a disagreeing @%s annotation from parent class %s", s, mapType, t), true);
+                                "Class %s has a disagreeing @%s annotation from parent class %s", s, mapType, t), true);
                     }
                     nodeAnno = superAnno;
                     break;
@@ -135,7 +137,8 @@ public class ScopeCheckerContext {
             }
         }
         // All interfaces should have the same annotation, if any
-        // TODO: Maybe unnecessary to get parent interfaces, since they'll be visited individually later
+        // TODO: Maybe unnecessary to get parent interfaces, since they'll be
+        // visited individually later
         HashSet<TypeElement> ifaces = Utils.getAllInterfaces(t);
         HashMap<String, ArrayList<TypeElement>> annos = new HashMap<String, ArrayList<TypeElement>>(ifaces.size());
         for (TypeElement iface : ifaces) {
@@ -149,11 +152,15 @@ public class ScopeCheckerContext {
             }
         }
         if (annos.size() > 1
-                || (annos.size() == 1 && nodeAnno != null && !annos.keySet().iterator().next().equals(nodeAnno))) { return new ScopeResult(
-            String.format("One or more interfaces of class %s has a mismatching @%s annotation.", t, mapType), true); }
+                || (annos.size() == 1 && nodeAnno != null && !annos.keySet().iterator().next().equals(nodeAnno))) {
+            return new ScopeResult(String.format(
+                    "One or more interfaces of class %s has a mismatching @%s annotation.", t, mapType), true);
+        }
 
-        if (!scopeExists(nodeAnno)) { return new ScopeResult(String.format(
-            "Class %s has a scope annotation with no matching @DefineScope", t), true); }
+        if (!scopeExists(nodeAnno)) {
+            return new ScopeResult(String.format("Class %s has a scope annotation with no matching @DefineScope", t),
+                    true);
+        }
 
         return new ScopeResult(nodeAnno, false);
     }
@@ -172,20 +179,19 @@ public class ScopeCheckerContext {
             methodKey += var.asType().toString();
         }
         ScopeResult res = methodRunsIns.get(methodKey);
-        //TODO: methodRunsIns.size() is always  0!!!
-        
-        
-        //System.out.println("methodRusnIns size:" + methodRunsIns.size());
-        
-        
-        
+        // TODO: methodRunsIns.size() is always 0!!!
+
+        // System.out.println("methodRusnIns size:" + methodRunsIns.size());
+
         if (res == null) {
             res = getRunsInSlow(m);
         }
-        
-       // System.out.println("ScopeCheckerContext: getRunsIn: " + res.toString());
-        //System.out.println("ScopeCheckerContext: getRunsIn name: " + res.name);
-        
+
+        // System.out.println("ScopeCheckerContext: getRunsIn: " +
+        // res.toString());
+        // System.out.println("ScopeCheckerContext: getRunsIn name: " +
+        // res.name);
+
         if (res.isError) {
             throw new ScopeException(res.name);
         } else {
@@ -199,37 +205,42 @@ public class ScopeCheckerContext {
         String methodEnvScope = getScope(methodEnv);
         String runsIn = getScopeValue(m, MapType.RUNS_IN);
 
-        //System.out.println("\t method:" + methodName);
-        //System.out.println("\t method:" + methodEnv);
-        //System.out.println("\t method:" +  methodEnvScope);
-        //System.out.println("\t runsIn:" + runsIn);
+        // System.out.println("\t method:" + methodName);
+        // System.out.println("\t method:" + methodEnv);
+        // System.out.println("\t method:" + methodEnvScope);
+        // System.out.println("\t runsIn:" + runsIn);
         //
-        //System.out.println("\t method element:" + m);
-        // System.out.println("\t method element ann:" + m.getAnnotationMirrors());
-        
-        //debugIndent("\t method:" + methodName);
-        //debugIndent("\t method:" + methodEnv);
-        //debugIndent("\t method:" +  methodEnvScope);
-        //debugIndent("\t runsIn:" + runsIn);
-        
+        // System.out.println("\t method element:" + m);
+        // System.out.println("\t method element ann:" +
+        // m.getAnnotationMirrors());
+
+        // debugIndent("\t method:" + methodName);
+        // debugIndent("\t method:" + methodEnv);
+        // debugIndent("\t method:" + methodEnvScope);
+        // debugIndent("\t runsIn:" + runsIn);
+
         if (methodName.startsWith("<init>")) {
             return new ScopeResult(methodEnvScope, false);
         } else if (methodName.startsWith("<clinit>")) {
             return new ScopeResult(Scope.IMMORTAL, false);
         } else {
-            if (!scopeExists(runsIn)) { return new ScopeResult(String.format("Scope %s does not exist.", runsIn), true); }
+            if (!scopeExists(runsIn)) {
+                return new ScopeResult(String.format("Scope %s does not exist.", runsIn), true);
+            }
             if (runsIn != null) {
                 if (!ScopeTree.isParentOf(runsIn, methodEnvScope) && !runsIn.equals(UNKNOWN)) {
-                    // A method must run in a child scope (or same scope) as the allocation context of its type
-                    return new ScopeResult("bad.runs.in.method", true);
+                    // A method must run in a child scope (or same scope) as the
+                    // allocation context of its type
+                    return new ScopeResult(BAD_RUNS_IN_METHOD, true);
                 }
 
                 Collection<ExecutableElement> overrides = orderedOverriddenMethods(m);
                 for (ExecutableElement override : overrides) {
                     String overriddenRunsIn = Utils.runsIn(override.getAnnotationMirrors());
                     if (overriddenRunsIn != null && !runsIn.equals(overriddenRunsIn)) {
-                        // A method must have the same @RunsIn as its overrides, or none at all
-                        return new ScopeResult("bad.runs.in.override", true);
+                        // A method must have the same @RunsIn as its overrides,
+                        // or none at all
+                        return new ScopeResult(BAD_RUNS_IN_OVERRIDE, true);
                     }
                 }
                 return new ScopeResult(runsIn, false);
@@ -237,7 +248,7 @@ public class ScopeCheckerContext {
                 for (ExecutableElement override : orderedOverriddenMethods(m)) {
                     String overriddenRunsIn = Utils.runsIn(override.getAnnotationMirrors());
                     if (overriddenRunsIn != null) {
-                        return new ScopeResult("bad.runs.in.override", true);
+                        return new ScopeResult(BAD_RUNS_IN_OVERRIDE, true);
                     }
                 }
                 String methodScope = getRunsIn(methodEnv.getQualifiedName().toString());
@@ -282,11 +293,14 @@ public class ScopeCheckerContext {
         throw new RuntimeException("add a custom exception and message here");
     }
 
-    // Like ats.overriddenMethods(), except not a map and is guaranteed to iterate in hierarchical order.
+    // Like ats.overriddenMethods(), except not a map and is guaranteed to
+    // iterate in hierarchical order.
     private Collection<ExecutableElement> orderedOverriddenMethods(ExecutableElement method) {
         TypeElement enclosing = (TypeElement) method.getEnclosingElement();
 
-        if (enclosing.getKind() == ElementKind.INTERFACE) { return orderedOverriddenMethodsInterface(method, enclosing); }
+        if (enclosing.getKind() == ElementKind.INTERFACE) {
+            return orderedOverriddenMethodsInterface(method, enclosing);
+        }
 
         LinkedList<ExecutableElement> overrides = new LinkedList<ExecutableElement>();
         if (!TypesUtils.isObject(enclosing.asType())) {
@@ -295,7 +309,7 @@ public class ScopeCheckerContext {
                 Utils.debugPrintln("super type null!!!");
                 return overrides;
             }
-            
+
             HashSet<TypeElement> seenIfaces = new HashSet<TypeElement>();
             addInterfaceOverrides(enclosing, method, overrides, seenIfaces);
             while (!TypesUtils.isObject(superType.asType())) {
@@ -311,7 +325,7 @@ public class ScopeCheckerContext {
         }
         return overrides;
     }
-    
+
     private void addInterfaceOverrides(TypeElement t, ExecutableElement m, Collection<ExecutableElement> overrides,
             HashSet<TypeElement> seenIfaces) {
         for (TypeMirror iface : t.getInterfaces()) {
@@ -365,30 +379,28 @@ public class ScopeCheckerContext {
             }
         }
     }
-    
-    
+
     public void printContext() {
         System.out.println("SCope context is:" + classScopes.size());
-        Iterator iterator = classScopes.keySet().iterator();  
-        while (iterator.hasNext()) {  
-            String key = iterator.next().toString();  
-            ScopeResult value = classScopes.get(key);  
-            
-            System.out.println("\t" +key + "\t: " + value.name);  
-        }  
-        
+        Iterator iterator = classScopes.keySet().iterator();
+        while (iterator.hasNext()) {
+            String key = iterator.next().toString();
+            ScopeResult value = classScopes.get(key);
+
+            System.out.println("\t" + key + "\t: " + value.name);
+        }
+
         System.out.println("RUNsIn context is:" + classRunsIns.size());
-        Iterator iterator2 = classRunsIns.keySet().iterator();  
-        while (iterator2.hasNext()) {  
-            String key = iterator2.next().toString();  
-            ScopeResult value = classRunsIns.get(key);  
-            
-            //System.out.println("\t" +key + "\t: " + value.name);  
-        }  
-        
+        Iterator iterator2 = classRunsIns.keySet().iterator();
+        while (iterator2.hasNext()) {
+            String key = iterator2.next().toString();
+            ScopeResult value = classRunsIns.get(key);
+
+            // System.out.println("\t" +key + "\t: " + value.name);
+        }
+
     }
-    
-    
+
     private String indent = "";
 
     private void debugIndentDecrement() {
