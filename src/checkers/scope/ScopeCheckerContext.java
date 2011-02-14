@@ -228,12 +228,6 @@ public class ScopeCheckerContext {
                 return new ScopeResult(String.format("Scope %s does not exist.", runsIn), true);
             }
             if (runsIn != null) {
-                if (!ScopeTree.isParentOf(runsIn, methodEnvScope) && !runsIn.equals(UNKNOWN)) {
-                    // A method must run in a child scope (or same scope) as the
-                    // allocation context of its type
-                    return new ScopeResult(BAD_RUNS_IN_METHOD, true);
-                }
-
                 Collection<ExecutableElement> overrides = orderedOverriddenMethods(m);
                 for (ExecutableElement override : overrides) {
                     String overriddenRunsIn = Utils.runsIn(override.getAnnotationMirrors());

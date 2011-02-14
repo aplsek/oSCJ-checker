@@ -179,13 +179,6 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 throw new ScopeException("Class may not have @RunsIn annotation.");
             }
 
-            // check parent-child relationship between scope/runsIn
-            if (runsIn != null && scope != null)
-                if (!ScopeTree.isParentOf(runsIn, scope))
-                    //TODO: fix the checking of "scope.runs.in.disagreement"
-                    /** TESTED BY: scope/TestRunsIn2.java **/
-                    report(Result.failure("scope.runs.in.disagreement"), node);
-
             if (scope == null) {
                 /**
                  * TODO: The correct behavior for visiting unannotated classes
@@ -596,13 +589,10 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
     private void checkExecuteInArea(MethodInvocationTree node) throws ScopeException {
         ExecutableElement method = TreeUtils.elementFromUse(node);
-
         String methodName = method.getSimpleName().toString();
-
         ExpressionTree e = node.getMethodSelect();
         ExpressionTree arg = node.getArguments().get(0);
         String argRunsIn = null; // runsIn of the Runnable
-        String argScope = null; // @Scope of the Runnable
         String varScope = null; // @Scope of the target
 
         debugIndent("executeInArea Invocation: ");
@@ -610,10 +600,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         switch (arg.getKind()) {
             case IDENTIFIER :
                 VariableElement var = (VariableElement) TreeUtils.elementFromUse((IdentifierTree) arg);
-
                 argRunsIn = getRunsInFromRunnable(var.asType());
-                argScope = scope(var);
-
                 break;
             case MEMBER_SELECT :
                 pln("\tEXEC: Type cast   ::: bad.enter.parameter");
@@ -625,7 +612,6 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                     return;
                 } else {
                     argRunsIn = directRunsIn((VariableElement) tmp);
-                    argScope = context.getScope((TypeElement) tmp.asType());
                 }
                 break;
             case NEW_CLASS :
@@ -633,7 +619,6 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 ExecutableElement ctor = (ExecutableElement) TreeUtils.elementFromUse((NewClassTree) arg);
                 TypeElement el = (TypeElement) ctor.getEnclosingElement();
                 argRunsIn = getRunsInFromRunnable(el.asType());
-                argScope = scope(el);
 
                 break;
             case TYPE_CAST :
@@ -642,7 +627,6 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 break;
             default :
                 // pln("\tEXEC: Type cast + " + arg.getKind());
-
                 report(Result.failure("default.bad.enter.parameter"), arg);
                 return;
         }
