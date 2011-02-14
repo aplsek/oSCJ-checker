@@ -669,7 +669,6 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             } else if ("enter".equals(methodName) && !ScopeTree.isParentOf(varScope, currentAllocScope())) {
                 report(Result.failure(BAD_ENTER_TARGET), node);
             }
-
         }
     }
 
@@ -782,14 +781,11 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             debugIndentIncrement("visitNewClass");
             ExecutableElement ctorElement = TreeUtils.elementFromUse(node);
             String nodeClassScope = context.getScope((TypeElement) ctorElement.getEnclosingElement());
-            if (nodeClassScope != null && !currentAllocScope().equals(nodeClassScope)) {
+            if (nodeClassScope != null && !currentAllocScope().equals(nodeClassScope) && !nodeClassScope.equals(CURRENT)) {
                 // Can't call new unless the type has the same scope as the
                 // current context
                 report(Result.failure("bad.allocation", currentAllocScope(), nodeClassScope), node);
             }
-            // TODO: what is this? (Ales)
-            // System.err.println(nodeClassScope + " =? " +
-            // currentAllocScope());
             return super.visitNewClass(node, p);
         } catch (ScopeException e) {
             Utils.debugPrintException(e);

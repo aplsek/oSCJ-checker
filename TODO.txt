@@ -20,9 +20,6 @@ Method Invocation
 - see the getVarScope method, this method is used for "foo.method()" to retrieve the scope of "foo". Its implementation
 is not finished yet. 
 
-new Object()
-- check that this works in @RunsIn(UNKNOWN) methods
-
 Class/Method Overriding
 - all the test cases for this fail
 
@@ -31,7 +28,7 @@ Class/Method Overriding
 - check that variables with a correct @Scope is passed into the method invocation
 - infer the scope of the argument in the body of the method 
 
--getMemoryArea();
+- getMemoryArea();
   - newInstance();
 
 @RunsIn(UNKNOWN)
@@ -91,3 +88,6 @@ Method Declaration Checking
 - we are still checking that a method runs in the same scope or in the child scope of the class (this needs to be removed)
 - for execute in area, we check that the runnable has @Scope annotation that refers to the area that
 is being entered, this is also wrong.
+
+new Object()
+- check that this works in @RunsIn(UNKNOWN) methods (added a check so CURRENT classes work anywhere)
