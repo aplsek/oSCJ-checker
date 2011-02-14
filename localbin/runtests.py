@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-#  
 #
-# To run the script, execute: 
+#
+# To run the script, execute:
 #	 python runtests.py  --scj-path ./build/src/:./build/spec/
 #	 python runtests.py  --scj-path ./build/src/:/Users/plsek/_work/workspace_RT/Spec-SRC/bin
 #
@@ -18,7 +18,7 @@ import sys
 
 JAVAC='./localbin/checkers/binary/javac'
 
-TEST_DIR = 'tests'
+TEST_DIR = 'testsuite'
 RUN_CMD = JAVAC + ' -proc:only -cp testsuite/build:lib/SCJChecker.jar:%s: -processor checkers.SCJChecker %s'
 
 def get_java_files(test_dir):
@@ -75,8 +75,8 @@ def run_tests(test_dir):
         print 'Actual errors:'
         pprint.pprint(error[2])
         print '\n'
-    
-    
+
+
     print '%d tests total, %d failed, %d succeeded.' % (success + failure,
                                                             failure, success)
 
