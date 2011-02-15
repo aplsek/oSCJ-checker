@@ -1,9 +1,9 @@
 package checkers.scjRestricted;
 
-import static javax.lang.model.util.ElementFilter.methodsIn;
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
-import static checkers.scjAllowed.EscapeMap.isEscaped;
+import static checkers.scjRestricted.SCJRestrictedChecker.*;
+import static javax.lang.model.util.ElementFilter.methodsIn;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,13 +28,13 @@ import checkers.Utils;
 import checkers.source.Result;
 import checkers.source.SourceVisitor;
 import checkers.types.AnnotatedTypeFactory;
-import checkers.types.AnnotatedTypes;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
+import checkers.types.AnnotatedTypes;
 import checkers.util.TreeUtils;
 import checkers.util.TypesUtils;
+
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ArrayAccessTree;
-import com.sun.source.tree.ArrayTypeTree;
 import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
@@ -46,8 +46,8 @@ import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.NewArrayTree;
 import com.sun.source.tree.NewClassTree;
 import com.sun.source.tree.Tree;
-import com.sun.source.tree.VariableTree;
 import com.sun.source.tree.Tree.Kind;
+import com.sun.source.tree.VariableTree;
 
 // Verifies the @BlockFree annotation
 // Currently checked rules:
@@ -88,20 +88,20 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
         if (errorNode != null) {
             if (containsAny(currentRs, whenRestricts)) {
                 if (rs.contains(Phase.CLEANUP) && (currentRs.contains(Phase.INITIALIZATION) || currentRs.contains(Phase.RUN))) {
-                    checker.report(Result.failure("illegal.override", "CLEANUP", "INITIALIZATION or RUN"), errorNode);
+                    checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE, "CLEANUP", "INITIALIZATION or RUN"), errorNode);
                 }
                 if (rs.contains(Phase.RUN) && (currentRs.contains(Phase.CLEANUP) || currentRs.contains(Phase.INITIALIZATION))) {
-                    checker.report(Result.failure("illegal.override", "RUN", "CLEANUP or INITIALIZATION"), errorNode);
+                    checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE, "RUN", "CLEANUP or INITIALIZATION"), errorNode);
                 }
                 if (rs.contains(Phase.INITIALIZATION) && (currentRs.contains(Phase.CLEANUP) || currentRs.contains(Phase.RUN))) {
-                    checker.report(Result.failure("illegal.override", "INITIALIZATION", "CLEANUP or RUN"), errorNode);
+                    checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE, "INITIALIZATION", "CLEANUP or RUN"), errorNode);
                 }
                 if (rs.contains(Phase.ALL) && !currentRs.contains(Phase.ALL)) {
-                    checker.report(Result.failure("illegal.override", "ALL", "CLEANUP, RUN, or INITIALIZATION"), errorNode);
+                    checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE, "ALL", "CLEANUP, RUN, or INITIALIZATION"), errorNode);
                 }
             }
         }
-        
+
         addFirstOrDefault(currentRs, rs, whenRestricts, Phase.ALL);
         return currentRs;
     }
@@ -131,7 +131,7 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
             .contains(Phase.INITIALIZATION);
         // At least two phase restrictions
         if ((anyTime && (cleanup || initialize)) || (cleanup && initialize)) {
-            checker.report(Result.failure("too.many.values", "ALL, CLEANUP, INITIALIZATION"), node);
+            checker.report(Result.failure(ERR_TOO_MANY_VALUES, "ALL, CLEANUP, INITIALIZATION"), node);
         }
     }
 
@@ -168,29 +168,30 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
         // it'll be seen, so just return true for now.
         return true;
     }
-    
+
     /**
      * Just for Debugging...
      */
     @Override
     public R visitClass(ClassTree node, P p) {
         //System.out.println("class:\n" + node);
-        
+
         //System.out.println("class:\n" + node.getMembers());
-        
+
         debugIndentIncrement("\nvisitClass " + node.getSimpleName() );
         if (escapeEnum(node) || escapeAnnotation(node)) {
             debugIndentDecrement();
             return null;
         }
-            
+
         R r = super.visitClass(node, p);
         debugIndentDecrement();
         return r;
     }
-    
-  
-    
+
+
+
+    @Override
     public R visitAnnotation(AnnotationTree node, P p) {
         boolean oldAllocFree = currentAllocFree;
         currentAllocFree = false;
@@ -202,13 +203,13 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
     @Override
     public R visitAssignment(AssignmentTree node, P p) {
         debugIndentIncrement("\n visit assignment " + node );
-        
+
         // TODO: need to check for string concatenation
         if (currentAllocFree) {
-            
+
             //System.out.println("\n visit assignment " + node);
             //System.out.println("\n variable " + node.getVariable());
-            
+
             if (node.getVariable().getKind() == Kind.ARRAY_ACCESS) {
                 //TODO:
                 //System.out.println("\n visit assignment " + node);
@@ -219,24 +220,24 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
                 //Element varElem = null;
                 //if (node.getKind() == Kind.ARRAY_ACCESS)
                 //    varElem = TreeUtils.elementFromUse(lhs.);
-                
+
                 debugIndentDecrement();
                 return super.visitAssignment(node, p);
             }
-            
-            
+
+
             Tree lhs = node.getVariable();
             while (lhs.getKind() == Kind.ARRAY_ACCESS) {
                 lhs = ((ArrayAccessTree) lhs).getExpression();
             }
-            
+
             Element varElem = TreeUtils.elementFromUse(node.getVariable());
-            
+
             if (!isAllocFree(varElem, node.getExpression()))
             /** Tested by tests/allocfree/AutoboxAlloc.java */
-            checker.report(Result.failure("unallowed.allocation"), node.getExpression());
+            checker.report(Result.failure(ERR_UNALLOWED_ALLOCATION), node.getExpression());
         }
-        
+
         debugIndentDecrement();
         return super.visitAssignment(node, p);
     }
@@ -248,7 +249,7 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
             Element varElem = TreeUtils.elementFromUse(node.getVariable());
             if (TypesUtils.isBoxedPrimitive(varElem.asType()))
             /** Tested by the CompoundAssignementTest */
-            checker.report(Result.failure("unallowed.allocation"), node.getExpression());
+            checker.report(Result.failure(ERR_UNALLOWED_ALLOCATION), node.getExpression());
         }
         return super.visitCompoundAssignment(node, p);
     }
@@ -256,21 +257,21 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
     @Override
     public R visitEnhancedForLoop(EnhancedForLoopTree node, P p) {
         /** Tested by tests/allocfree/ForeachAlloc */
-        if (currentAllocFree) checker.report(Result.failure("unallowed.foreach"), node);
+        if (currentAllocFree) checker.report(Result.failure(ERR_UNALLOWED_FOREACH), node);
         return super.visitEnhancedForLoop(node, p);
     }
 
     @Override
     public R visitMethod(MethodTree node, P p) {
         debugIndentIncrement("\n visitMethod " + node);
-        
+
         ExecutableElement m = TreeUtils.elementFromDeclaration(node);
         EnumSet<Phase> rs = getSCJRestrictions(m, node);
         currentBlockFree = !isSelfSuspend(m,node);
         currentAllocFree = !isMayAllocate(m,node);
         currentWhen = Phase.ALL;
-        
-        
+
+
         for (Phase r : rs) {
             if (whenRestricts.contains(r)) {
                 currentWhen = r;
@@ -282,100 +283,100 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
         R r = super.visitMethod(node, p);
         currentBlockFree = currentAllocFree = false;
         currentWhen = null;
-        
+
         debugIndentDecrement();
         return r;
     }
-    
+
     /**
      * Returns if method is selfSuspend
      * - checks that overidden methods have according annotations
-     * - if overriden methods have annotations but this method does not, its an error! 
+     * - if overriden methods have annotations but this method does not, its an error!
      * Inheritance must be restated!
-     * 
+     *
      * @param methodElement
      * @return
      */
     private boolean isSelfSuspend(ExecutableElement methodElement, Tree node) {
         SCJRestricted r;
         boolean result = false;
-        if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null) 
+        if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null)
             if (r.maySelfSuspend())
                 result =  true;
-        
+
         // check overrides:
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
         .overriddenMethods(methodElement);
         for (ExecutableElement override : overrides.values()) {
             //System.out.println("override: " +override);
-            
+
             if (r == null && getSelfSuspend(override)) {
-                checker.report(Result.failure("illegal.override1"), node);
+                checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE1), node);
                 System.out.println("ERROR");
                 break;
             }
-            
+
             if (!result && getSelfSuspend(override)) {
-                checker.report(Result.failure("illegal.override", "maySelfSuspend=true", "maySelfSuspend=false"), node);
+                checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE, "maySelfSuspend=true", "maySelfSuspend=false"), node);
                 System.out.println("ERROR");
                 break;
             }
         }
-            
+
         return result;
     }
-    
+
     private boolean getSelfSuspend(ExecutableElement methodElement) {
         SCJRestricted r;
         boolean result = false;
-        if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null) 
+        if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null)
             if (r.maySelfSuspend())
                 return true;
             else
                 return false;
         return false;
     }
-    
-    
+
+
     /**
      * Returns if method is mayAllocate
      * - checks that overridden methods have according annotations
-     * - if overridden methods have annotations but this method does not, its an error! 
+     * - if overridden methods have annotations but this method does not, its an error!
      * Inheritance must be restated!
-     * 
+     *
      * @param methodElement
      * @return
      */
     private boolean isMayAllocate(ExecutableElement methodElement, Tree node) {
         SCJRestricted r;
         boolean result = true;
-        if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null) 
+        if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null)
             if (!r.mayAllocate())
                 result = false;
-        
+
         //check overrides:
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
         .overriddenMethods(methodElement);
         for (ExecutableElement override : overrides.values()) {
-            
+
             //System.out.println("override: " +override);
             //System.out.println("r: " +r);
             //System.out.println("over alloc: " +getMayAllocate(override));
             if (r == null && !getMayAllocate(override)) {
-                checker.report(Result.failure("illegal.override1"), node);
+                checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE1), node);
                 break;
             }
-            
+
             if (result && !getMayAllocate(override)) {
-                checker.report(Result.failure("illegal.override", "mayAllocate=false", "mayAllocate=true"), node);
+                checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE, "mayAllocate=false", "mayAllocate=true"), node);
                 break;
             }
         }
-        
-        
+
+
         return result;
     }
-    
+
     private boolean getMayAllocate(ExecutableElement methodElement) {
         SCJRestricted r;
         if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null) {
@@ -390,37 +391,37 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
     @Override
     public R visitMethodInvocation(MethodInvocationTree node, P p) {
         debugIndentIncrement("\n visitMethodInvocation " + node);
-        
+
         ExecutableElement methodElement = TreeUtils.elementFromUse(node);
         EnumSet<Phase> rs = getSCJRestrictions(methodElement, null);
-        
+
         if (currentBlockFree && isSelfSuspend(methodElement, node)) {
-            checker.report(Result.failure("unallowed.methodcall", "MAY_BLOCK", "BLOCK_FREE"), node);
+            checker.report(Result.failure(ERR_UNALLOWED_METHODCALL, "MAY_BLOCK", "BLOCK_FREE"), node);
         }
         if (currentAllocFree && isMayAllocate(methodElement, node)) {
-            checker.report(Result.failure("unallowed.methodcall", "MAY_ALLOCATE", "ALLOCATE_FREE"), node);
+            checker.report(Result.failure(ERR_UNALLOWED_METHODCALL, "MAY_ALLOCATE", "ALLOCATE_FREE"), node);
         }
         if (currentWhen == Phase.CLEANUP && (rs.contains(Phase.RUN) || rs.contains(Phase.INITIALIZATION))) {
-            checker.report(Result.failure("unallowed.methodcall", "RUN or INITIALIZATION", "CLEANUP"), node);
+            checker.report(Result.failure(ERR_UNALLOWED_METHODCALL, "RUN or INITIALIZATION", "CLEANUP"), node);
         }
         if (currentWhen == Phase.RUN && (rs.contains(Phase.CLEANUP) || rs.contains(Phase.INITIALIZATION))) {
-            checker.report(Result.failure("unallowed.methodcall", "CLEANUP or INITIALIZATION", "RUN"), node);
+            checker.report(Result.failure(ERR_UNALLOWED_METHODCALL, "CLEANUP or INITIALIZATION", "RUN"), node);
         }
         if (currentWhen == Phase.INITIALIZATION && (rs.contains(Phase.CLEANUP) || rs.contains(Phase.RUN))) {
-            checker.report(Result.failure("unallowed.methodcall", "CLEANUP or RUN", "INITIALIZATION"), node);
+            checker.report(Result.failure(ERR_UNALLOWED_METHODCALL, "CLEANUP or RUN", "INITIALIZATION"), node);
         }
         if (currentWhen == Phase.ALL) {
             if (rs.contains(Phase.CLEANUP) || rs.contains(Phase.RUN) || rs.contains(Phase.INITIALIZATION)) {
-                checker.report(Result.failure("unallowed.methodcall", "CLEANUP, RUN, or INITIALIZATION", "ALL"), node);
+                checker.report(Result.failure(ERR_UNALLOWED_METHODCALL, "CLEANUP, RUN, or INITIALIZATION", "ALL"), node);
             }
         }
         List<? extends VariableElement> parameters = methodElement.getParameters();
         List<? extends ExpressionTree> arguments = node.getArguments();
         for (int i = 0; i < parameters.size(); i++) {
             if (!isAllocFree(parameters.get(i), arguments.get(i))) checker.report(Result
-                .failure("unallowed.allocation"), arguments.get(i));
+                .failure(ERR_UNALLOWED_ALLOCATION), arguments.get(i));
         }
-        
+
         debugIndentDecrement();
         return super.visitMethodInvocation(node, p);
     }
@@ -428,7 +429,7 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
     @Override
     public R visitNewArray(NewArrayTree node, P p) {
         /** Tested by tests/allocfree/NewAlloc.java */
-        if (currentAllocFree) checker.report(Result.failure("unallowed.allocation"), node);
+        if (currentAllocFree) checker.report(Result.failure(ERR_UNALLOWED_ALLOCATION), node);
         return super.visitNewArray(node, p);
     }
 
@@ -438,7 +439,7 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
          * Tested by tests/allocfree/MethodCallsAbstract.java and tests/allocfree/MethodCallsInterface.java and
          * tests/allocfree/NewAlloc.java
          */
-        if (currentAllocFree) checker.report(Result.failure("unallowed.allocation"), node);
+        if (currentAllocFree) checker.report(Result.failure(ERR_UNALLOWED_ALLOCATION), node);
         return super.visitNewClass(node, p);
     }
 
@@ -448,7 +449,7 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
             Element varElem = TreeUtils.elementFromDeclaration(node);
             if (!isAllocFree(varElem, node.getInitializer()))
             /** Tested by tests/allocfree/AutoboxAlloc.java and tests/allocfree/StringAlloc.java */
-            checker.report(Result.failure("unallowed.allocation"), node.getInitializer());
+            checker.report(Result.failure(ERR_UNALLOWED_ALLOCATION), node.getInitializer());
         }
         return super.visitVariable(node, p);
     }
@@ -462,9 +463,9 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
         LinkedList<ExecutableElement> overrides = new LinkedList<ExecutableElement>();
         if (!TypesUtils.isObject(enclosing.asType())) {
             TypeElement superType = Utils.superType(enclosing);
-            if (superType == null)  
+            if (superType == null)
                 return overrides;    // BUG - sometimes super type is null
-                
+
             HashSet<TypeElement> seenIfaces = new HashSet<TypeElement>();
             addInterfaceOverrides(enclosing, method, overrides, seenIfaces);
             while (!TypesUtils.isObject(superType.asType())) {
@@ -521,9 +522,9 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
             }
         }
     }
-    
-    
-    
+
+
+
 
     private void debugIndentDecrement() {
         Utils.decreaseIndent();
@@ -533,9 +534,9 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
         Utils.debugPrintln(method);
         Utils.increaseIndent();
     }
-    
+
     private void debugIndent(String method) {
         Utils.debugPrintln(method);
     }
-    
+
 }

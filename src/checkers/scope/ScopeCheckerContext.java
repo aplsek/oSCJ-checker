@@ -234,7 +234,7 @@ public class ScopeCheckerContext {
                     if (overriddenRunsIn != null && !runsIn.equals(overriddenRunsIn)) {
                         // A method must have the same @RunsIn as its overrides,
                         // or none at all
-                        return new ScopeResult(BAD_RUNS_IN_OVERRIDE, true);
+                        return new ScopeResult(ERR_BAD_RUNS_IN_OVERRIDE, true);
                     }
                 }
                 return new ScopeResult(runsIn, false);
@@ -242,7 +242,7 @@ public class ScopeCheckerContext {
                 for (ExecutableElement override : orderedOverriddenMethods(m)) {
                     String overriddenRunsIn = Utils.runsIn(override.getAnnotationMirrors());
                     if (overriddenRunsIn != null) {
-                        return new ScopeResult(BAD_RUNS_IN_OVERRIDE, true);
+                        return new ScopeResult(ERR_BAD_RUNS_IN_OVERRIDE, true);
                     }
                 }
                 String methodScope = getRunsIn(methodEnv.getQualifiedName().toString());

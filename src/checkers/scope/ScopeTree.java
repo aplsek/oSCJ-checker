@@ -9,6 +9,8 @@ import checkers.source.Result;
 
 import com.sun.source.tree.Tree;
 
+import static checkers.scope.ScopeChecker.*;
+
 public abstract class ScopeTree {
     private static Map<String, String> scopeTree = null;    // maps child <-> parent
     private static Map<String, Tree> scopeMap = null;     // points to a place where each scope is defined
@@ -141,7 +143,7 @@ public abstract class ScopeTree {
         errorsReported = true;
        
         for (Error err: errors) 
-            visitor.report(Result.failure("scope.Tree.not.consistent",err.scope), err.node);
+            visitor.report(Result.failure(ERR_SCOPE_TREE_NOT_CONSISTENT,err.scope), err.node);
         return;
     }
 }

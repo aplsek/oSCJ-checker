@@ -7,11 +7,7 @@ TODO: (move the completed tasks into DONE section)
 
 Jan's REQUESTS:
 1) clean the code
-2) Replac all error-names given as Strings with a constant-final variables, eg:
-report(Result.failure("scope.on.method.primitive.return"), node); --> 
-with
-report(Result.failure(SCOPE_ON_METHOD_PRIMITIVE_RETURN), node);
-3) 
+2) 
 Replace all "method name" comparison with the real comparison - there should not be any string-matching:
 for example this : "getMemoryArea".equals(methodName);
 
@@ -98,3 +94,9 @@ is being entered, this is also wrong.
 
 new Object()
 - check that this works in @RunsIn(UNKNOWN) methods (added a check so CURRENT classes work anywhere)
+
+Jan's requests
+- Replace all error-names given as Strings with a constant-final variables, eg:
+    report(Result.failure("scope.on.method.primitive.return"), node); --> 
+with
+    report(Result.failure(SCOPE_ON_METHOD_PRIMITIVE_RETURN), node);

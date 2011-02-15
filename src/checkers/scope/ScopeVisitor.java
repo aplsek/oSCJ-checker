@@ -113,6 +113,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
     }
 
+    @Override
     public R visitAnnotation(AnnotationTree node, P p) {
         Utils.debugPrintln(indent + "visit annotation:" + node.getAnnotationType().toString());
 
@@ -252,11 +253,11 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 // The field is a reference type with no @Scope and its owner is
                 // not allocated in the same scope
                 // as the current allocation context
-                if (elem.asType().getKind() == TypeKind.DECLARED && scope((VariableElement) elem) == null
+                if (elem.asType().getKind() == TypeKind.DECLARED && scope(elem) == null
                         && typeScope != null && typeScope.equals(currentAllocScope())) {
                     // Can't reference a field that has an unannotated type
                     // unless it's in the same scope
-                    report(Result.failure("escaping.nonannotated.field"), node);
+                    report(Result.failure(ERR_ESCAPING_NONANNOTATED_FIELD), node);
                 }
             }
             return super.visitMemberSelect(node, p);
@@ -356,7 +357,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     public R visitNewArray(NewArrayTree node, P p) {
         try {
             debugIndentIncrement("visitNewArray");
-            AnnotatedArrayType arrayType = atf.getAnnotatedType((NewArrayTree) node);
+            AnnotatedArrayType arrayType = atf.getAnnotatedType(node);
             while (arrayType.getComponentType().getKind() == TypeKind.ARRAY) {
                 arrayType = (AnnotatedArrayType) arrayType.getComponentType();
             }
@@ -365,7 +366,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 TypeElement t = elements.getTypeElement(componentType.getUnderlyingType().toString());
                 String scope = context.getScope(t);
                 if (!(scope == null || scope.equals(currentAllocScope()))) {
-                    report(Result.failure("bad.allocation", currentAllocScope(), scope), node);
+                    report(Result.failure(ERR_BAD_ALLOCATION, currentAllocScope(), scope), node);
                 }
             }
             return super.visitNewArray(node, p);
@@ -390,7 +391,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             if (nodeClassScope != null && !currentAllocScope().equals(nodeClassScope) && !nodeClassScope.equals(CURRENT)) {
                 // Can't call new unless the type has the same scope as the
                 // current context
-                report(Result.failure("bad.allocation", currentAllocScope(), nodeClassScope), node);
+                report(Result.failure(ERR_BAD_ALLOCATION, currentAllocScope(), nodeClassScope), node);
             }
             return super.visitNewClass(node, p);
         } catch (ScopeException e) {
@@ -437,6 +438,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     /**
      * When casting, we must consider also @Scope allocation of each class.
      */
+    @Override
     public R visitTypeCast(TypeCastTree node, P p) {
         // pln("\n\n Visit Typecast: " + node.toString());
 
@@ -472,7 +474,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         Kind exprKind = node.getExpression().getKind();
         if (exprKind == Kind.NEW_CLASS) {
             ExpressionTree expr = node.getExpression();
-            ExecutableElement ctor = (ExecutableElement) TreeUtils.elementFromUse((NewClassTree) expr);
+            ExecutableElement ctor = TreeUtils.elementFromUse((NewClassTree) expr);
             TypeElement expressionType = (TypeElement) ctor.getEnclosingElement();
             exprScope = Utils.annotationValue(expressionType.getAnnotationMirrors(),
             "javax.safetycritical.annotate.Scope");
@@ -528,9 +530,9 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             if (typeScope == null) {
                 debugIndent("curr : " + currentAllocScope());
                 if (!exprScope.equals(currentAllocScope()))
-                    report(Result.failure(SCOPE_CAST, exprScope, currentAllocScope()), node);
+                    report(Result.failure(ERR_SCOPE_CAST, exprScope, currentAllocScope()), node);
             } else if (!exprScope.equals(typeScope))
-                report(Result.failure(SCOPE_CAST, exprScope, typeScope), node);
+                report(Result.failure(ERR_SCOPE_CAST, exprScope, typeScope), node);
 
         debugIndentDecrement();
         return super.visitTypeCast(node, p);
@@ -554,9 +556,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             checkVariable(node, p);
             return super.visitVariable(node, p);
         } catch (ScopeException e) {
-
             report(Result.failure(e.getMessage()), node);
-
             Utils.debugPrintException(e);
             return null;
         } finally {
@@ -625,7 +625,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
              */
             if (currentAllocScope() != null && !currentAllocScope().equals(varScope)) {
                 /* checked by TestScopeCheck2.java */
-                report(Result.failure(BAD_ASSIGNMENT_SCOPE, currentAllocScope(), varScope), errorNode);
+                report(Result.failure(ERR_BAD_ASSIGNMENT_SCOPE, currentAllocScope(), varScope), errorNode);
             }
 
             // Handled by visitNewClass
@@ -661,7 +661,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             VariableElement var2 = lhsToVariable(varTree);
             if (checkPrivateMemAssignmentError(var1, var2)) {
                 /* checked by TestPrivateMemoryAssignment */
-                report(Result.failure(BAD_ASSIGNMENT_PRIVATE_MEM, exprScope, varScope), errorNode);
+                report(Result.failure(ERR_BAD_ASSIGNMENT_PRIVATE_MEM, exprScope, varScope), errorNode);
             }
 
         } else if (exprKind == Kind.IDENTIFIER) {
@@ -685,7 +685,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             VariableElement var2 = lhsToVariable(varTree);
             if (checkPrivateMemAssignmentError(var1, var2)) {
                 /* checked by TestPrivateMemoryAssignment */
-                report(Result.failure(BAD_ASSIGNMENT_PRIVATE_MEM, exprScope, varScope), errorNode);
+                report(Result.failure(ERR_BAD_ASSIGNMENT_PRIVATE_MEM, exprScope, varScope), errorNode);
             }
         }
 
@@ -724,7 +724,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         }
 
         if (!isLegal) {
-            report(Result.failure(BAD_ASSIGNMENT_SCOPE, exprScope, varScope), errorNode);
+            report(Result.failure(ERR_BAD_ASSIGNMENT_SCOPE, exprScope, varScope), errorNode);
         }
 
         return isLegal;
@@ -767,7 +767,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             case MEMBER_SELECT :
                 Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
                 if (tmp.getKind() != ElementKind.FIELD) {
-                    report(Result.failure("bad.enter.parameter"), arg);
+                    report(Result.failure(ERR_BAD_ENTER_PARAM), arg);
                     return;
                 } else {
                     argRunsIn = getRunsInFromRunnable(tmp.asType());
@@ -775,7 +775,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 }
                 break;
             case NEW_CLASS :
-                ExecutableElement ctor = (ExecutableElement) TreeUtils.elementFromUse((NewClassTree) arg);
+                ExecutableElement ctor = TreeUtils.elementFromUse((NewClassTree) arg);
 
                 argRunsIn = getRunsInFromRunnable(ctor.getEnclosingElement().asType());
                 argScope = context.getScope((TypeElement) ctor.getEnclosingElement());
@@ -797,19 +797,19 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
                 break;
             default :
-                report(Result.failure("bad.enter.parameter"), arg);
+                report(Result.failure(ERR_BAD_ENTER_PARAM), arg);
                 return;
         }
 
         if (argRunsIn == null) {
             /* checked by scope.MyMission2.java */
-            report(Result.failure("bad.enterPrivateMem.no.runsIn"), node);
+            report(Result.failure(ERR_BAD_ENTER_PRIVATE_MEM_NO_RUNS_IN), node);
         } else if (argScope == null || !argScope.equals(currentAllocScope())) {
             /* checked by scope.MyMission2.java */
-            report(Result.failure("bad.enterPrivateMem.no.Scope.on.Runnable"), node);
+            report(Result.failure(ERR_BAD_ENTER_PRIVATE_MEM_NO_SCOPE_ON_RUNNABLE), node);
         } else if (!ScopeTree.isParentOf(argRunsIn, currentAllocScope())) {
             /* checked by scope.MyMission2.java */
-            report(Result.failure("bad.enterPrivateMem.runsIn.no.match", argRunsIn, currentAllocScope()), node);
+            report(Result.failure(ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH, argRunsIn, currentAllocScope()), node);
         }
         debugIndent("enterPrivateMemory Invocation: DONE.");
     }
@@ -835,7 +835,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 // TODO:
                 Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
                 if (tmp.getKind() != ElementKind.FIELD) {
-                    report(Result.failure("bad.enter.parameter"), arg);
+                    report(Result.failure(ERR_BAD_ENTER_PARAM), arg);
                     return;
                 } else {
                     argRunsIn = directRunsIn((VariableElement) tmp);
@@ -843,25 +843,25 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 break;
             case NEW_CLASS :
 
-                ExecutableElement ctor = (ExecutableElement) TreeUtils.elementFromUse((NewClassTree) arg);
+                ExecutableElement ctor = TreeUtils.elementFromUse((NewClassTree) arg);
                 TypeElement el = (TypeElement) ctor.getEnclosingElement();
                 argRunsIn = getRunsInFromRunnable(el.asType());
 
                 break;
             case TYPE_CAST :
                 // pln("\tEXEC: Type cast");
-                report(Result.failure("type.cast.bad.enter.parameter"), arg);
+                report(Result.failure(ERR_TYPE_CAST_BAD_ENTER_PARAMETER), arg);
                 break;
             default :
                 // pln("\tEXEC: Type cast + " + arg.getKind());
-                report(Result.failure("default.bad.enter.parameter"), arg);
+                report(Result.failure(ERR_DEFAULT_BAD_ENTER_PARAMETER), arg);
                 return;
         }
 
         if (argRunsIn == null) {
             // All Runnables used with executeInArea/enter should have
             // @RunsIn on "run()" method
-            report(Result.failure("runnable.without.runsin"), node);
+            report(Result.failure(ERR_RUNNABLE_WITHOUT_RUNSIN), node);
         } else {
             switch (e.getKind()) {
                 case IDENTIFIER :
@@ -889,12 +889,12 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             if (varScope == null || !varScope.equals(argRunsIn)) {
                 // The Runnable and the PrivateMemory must have agreeing
                 // scopes
-                report(Result.failure("bad.executeInArea.or.enter"), node);
+                report(Result.failure(ERR_BAD_EXECUTE_IN_AREA_OR_ENTER), node);
             }
             if ("executeInArea".equals(methodName) && !ScopeTree.isAncestorOf(currentAllocScope(), varScope)) {
-                report(Result.failure("bad.executeInArea.target"), node);
+                report(Result.failure(ERR_BAD_EXECUTE_IN_AREA_TARGET), node);
             } else if ("enter".equals(methodName) && !ScopeTree.isParentOf(varScope, currentAllocScope())) {
-                report(Result.failure(BAD_ENTER_TARGET), node);
+                report(Result.failure(ERR_BAD_ENTER_TARGET), node);
             }
         }
     }
@@ -906,11 +906,11 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 var.getModifiers();
 
                 if (!isFinal(var.getModifiers())) {
-                    report(Result.failure("bad.guard.no.final", arg), node);
+                    report(Result.failure(ERR_BAD_GUARD_NO_FINAL, arg), node);
                 }
                 break;
             default :
-                report(Result.failure("bad.guard.argument", arg), node);
+                report(Result.failure(ERR_BAD_GUARD_ARGUMENT, arg), node);
                 return;
         }
 
@@ -966,7 +966,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 if (current.equals(UNKNOWN)) {
                     if (runsIn == null || !runsIn.equals(UNKNOWN)) {
                         /* TEST WITH: scope/unknown/UnknownMethod */
-                        report(Result.failure(BAD_METHOD_INVOKE, CURRENT, UNKNOWN), node);
+                        report(Result.failure(ERR_BAD_METHOD_INVOKE, CURRENT, UNKNOWN), node);
                     }
                 }
                 else if (current.equals(varScope)) {
@@ -976,15 +976,15 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                             /* TEST WITH: scope/unknown/TestCrossScope */
                             // Can only call methods that run in the same scope.
                             // Allows parent scopes as well, if they are marked @AllocFree.
-                            report(Result.failure(BAD_METHOD_INVOKE, runsIn, current), node);
+                            report(Result.failure(ERR_BAD_METHOD_INVOKE, runsIn, current), node);
                         }
                     }
                 } else if (runsIn == null) {
                     /* TEST WITH: scope/unknown/TestCrossScope **/
-                    report(Result.failure(BAD_METHOD_INVOKE, varScope, current), node);
+                    report(Result.failure(ERR_BAD_METHOD_INVOKE, varScope, current), node);
                 } else if (!runsIn.equals(UNKNOWN)) {
                     /* TEST WITH: scope/unknown/TestCrossScope **/
-                    report(Result.failure(BAD_METHOD_INVOKE, runsIn, current), node);
+                    report(Result.failure(ERR_BAD_METHOD_INVOKE, runsIn, current), node);
                 }
             }
         }
@@ -1000,10 +1000,10 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     private void checkMethodWellFormed(MethodTree node) {
         ExecutableElement method = TreeUtils.elementFromDeclaration(node);
         if (TreeUtils.isConstructor(node) && hasRunsIn(method)) {
-            report(Result.failure(BAD_RUNS_IN_ON_CTOR), node);
+            report(Result.failure(ERR_BAD_RUNS_IN_ON_CTOR), node);
         }
         if (TreeUtils.isConstructor(node) && hasRunsIn(method)) {
-            report(Result.failure("define.scope.on.method"), node);
+            report(Result.failure(ERR_DEFINE_SCOPE_ON_METHOD), node);
         }
 
         // check the return type, if its primitive, we dont care about
@@ -1014,13 +1014,13 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         /* on constructors */
         if (node.getReturnType() == null) {
             if (hasScope(node))
-                report(Result.failure(SCOPE_ON_METHOD_PRIMITIVE_RETURN), node);
+                report(Result.failure(ERR_SCOPE_ON_METHOD_PRIMITIVE_RETURN), node);
             else
                 return;
         }
 
         if (node.getReturnType().toString().equals("void") && hasScope(node)) {
-            report(Result.failure(SCOPE_ON_VOID_METHOD), node);
+            report(Result.failure(ERR_SCOPE_ON_VOID_METHOD), node);
             return;
         }
 
@@ -1041,7 +1041,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
         if (node.getReturnType() != null && isPrimitive && hasScope(node)) {
             // TODO: distinguish for the VOID methods!!!
-            report(Result.failure(SCOPE_ON_METHOD_PRIMITIVE_RETURN), node);
+            report(Result.failure(ERR_SCOPE_ON_METHOD_PRIMITIVE_RETURN), node);
         }
     }
 
@@ -1058,7 +1058,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                         .getExpression())).getKind() == ElementKind.CLASS) {
             String instanceScope = context.getScope((TypeElement) newInstanceType);
             if (instanceScope != null && !varScope.equals(instanceScope)) {
-                report(Result.failure("bad.newInstance", ((TypeElement) newInstanceType).getQualifiedName(),
+                report(Result.failure(ERR_BAD_NEW_INSTANCE, ((TypeElement) newInstanceType).getQualifiedName(),
                         varScope), node);
             }
         } else {
@@ -1110,7 +1110,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
              */
             if (currentAllocScope() != null && !currentAllocScope().equals(returnScope)) {
                 /* checked by scope/scopeReturn/ScopeReturn.java */
-                report(Result.failure(BAD_RETURN_SCOPE, currentAllocScope(), returnScope), errorNode);
+                report(Result.failure(ERR_BAD_RETURN_SCOPE, currentAllocScope(), returnScope), errorNode);
             }
 
             // Handled by visitNewClass
@@ -1159,7 +1159,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         }
 
         if (!isLegal) {
-            report(Result.failure(BAD_RETURN_SCOPE, exprScope, returnScope), errorNode);
+            report(Result.failure(ERR_BAD_RETURN_SCOPE, exprScope, returnScope), errorNode);
         }
         return isLegal;
     }
@@ -1209,7 +1209,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 // @Scope(IMMorTAL) or nothing at all
                 // pln("static var: " + varScope);
 
-                report(Result.failure("static.not.immortal"), node);
+                report(Result.failure(ERR_STATIC_NOT_IMMORTAL), node);
             }
             // We need to set this for visiting the variable initializer.
             // Apparently sometimes the static initializer is optimized into
@@ -1240,7 +1240,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                     || ScopeTree.isParentOf(varEnvScope, varScope) || explicitScope != null)) {
                 // Instance fields must be in the same or parent scope as the
                 // instance
-                report(Result.failure("bad.field.scope"), node);
+                report(Result.failure(ERR_BAD_FIELD_SCOPE), node);
             }
 
             currentRunsIn = varScope;
@@ -1261,7 +1261,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             if (varScope != null && !varScope.equals(UNKNOWN) && !ScopeTree.isParentOf(currentAllocScope(), varScope)) {
                 // @Scopes of local variable types should agree with the current
                 // allocation context
-                report(Result.failure(BAD_VARIABLE_SCOPE, atf.fromTypeTree(node.getType()), currentAllocScope()),
+                report(Result.failure(ERR_BAD_VARIABLE_SCOPE, atf.fromTypeTree(node.getType()), currentAllocScope()),
                         node);
                 // but if it doesn't, assume the variable scope is correct.
                 // TODO:
