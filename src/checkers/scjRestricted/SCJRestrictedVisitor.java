@@ -189,8 +189,6 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
         return r;
     }
 
-
-
     @Override
     public R visitAnnotation(AnnotationTree node, P p) {
         boolean oldAllocFree = currentAllocFree;
@@ -328,12 +326,9 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
 
     private boolean getSelfSuspend(ExecutableElement methodElement) {
         SCJRestricted r;
-        boolean result = false;
-        if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null)
-            if (r.maySelfSuspend())
-                return true;
-            else
-                return false;
+        if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null) {
+            return r.maySelfSuspend();
+        }
         return false;
     }
 
@@ -523,9 +518,6 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
         }
     }
 
-
-
-
     private void debugIndentDecrement() {
         Utils.decreaseIndent();
     }
@@ -538,5 +530,4 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
     private void debugIndent(String method) {
         Utils.debugPrintln(method);
     }
-
 }

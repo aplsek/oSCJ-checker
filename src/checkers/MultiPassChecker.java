@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import checkers.source.SourceChecker;
 import checkers.source.SourceVisitor;

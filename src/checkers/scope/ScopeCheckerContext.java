@@ -363,11 +363,13 @@ public class ScopeCheckerContext {
 
     enum MapType {
         SCOPE {
+            @Override
             public String toString() {
                 return "Scope";
             }
         },
         RUNS_IN {
+            @Override
             public String toString() {
                 return "RunsIn";
             }
@@ -375,38 +377,22 @@ public class ScopeCheckerContext {
     }
 
     public void printContext() {
-        System.out.println("SCope context is:" + classScopes.size());
-        Iterator iterator = classScopes.keySet().iterator();
+        System.out.println("Scope context is:" + classScopes.size());
+        Iterator<String> iterator = classScopes.keySet().iterator();
         while (iterator.hasNext()) {
-            String key = iterator.next().toString();
+            String key = iterator.next();
             ScopeResult value = classScopes.get(key);
 
             System.out.println("\t" + key + "\t: " + value.name);
         }
 
-        System.out.println("RUNsIn context is:" + classRunsIns.size());
-        Iterator iterator2 = classRunsIns.keySet().iterator();
+        System.out.println("RunsIn context is:" + classRunsIns.size());
+        Iterator<String> iterator2 = classRunsIns.keySet().iterator();
         while (iterator2.hasNext()) {
-            String key = iterator2.next().toString();
+            String key = iterator2.next();
             ScopeResult value = classRunsIns.get(key);
 
             // System.out.println("\t" +key + "\t: " + value.name);
         }
-
-    }
-
-    private String indent = "";
-
-    private void debugIndentDecrement() {
-        indent = indent.substring(1);
-    }
-
-    private void debugIndentIncrement(String method) {
-        Utils.debugPrintln(indent + method);
-        indent += " ";
-    }
-
-    private void debugIndent(String method) {
-        Utils.debugPrintln(indent + method);
     }
 }

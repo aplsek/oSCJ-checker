@@ -4,11 +4,9 @@ import java.util.Properties;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.SupportedOptions;
 import checkers.Utils;
-import checkers.source.Result;
 import checkers.source.SourceChecker;
 import checkers.source.SourceVisitor;
 import com.sun.source.tree.CompilationUnitTree;
-
 
 
 @SupportedOptions("debug")
