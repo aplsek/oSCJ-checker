@@ -55,10 +55,17 @@ TestUpcast2
 eg. check.sh /testsuite/src/scope/TestUpcast2.java gives all the errors
 - CAUSE : the use of -Awarns
 - the test case need to be split into two, so that all 5 errors are observed
+- Seems the error that was removed may be skipped now. It's not related to
+  upcasts, so I don't think it matters, as long as it's being skipped because
+  of other errors in the child ASTs (the assignment error is skipped because
+  the RHS has an error, perhaps)
 
 AllocFree
 - Still safe to invoke methods in parent scopes that are alloc free? (I think no)
 
+checkAssignment
+- It's no longer sufficient to use visitNewClass to check assignment validity,
+  since we have variable annotations
 
 DONE:
 -----------------
