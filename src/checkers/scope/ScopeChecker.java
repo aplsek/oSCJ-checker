@@ -103,7 +103,6 @@ public class ScopeChecker extends SourceChecker {
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         Utils.DEBUG = processingEnv.getOptions().containsKey("debug");
-        //Utils.DEBUG = true;
         context = new ScopeCheckerContext(this);
     }
 }
