@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -23,12 +22,10 @@ import checkers.types.AnnotatedTypeFactory;
 import checkers.types.AnnotatedTypeMirror;
 import checkers.util.TreeUtils;
 
-import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.MethodInvocationTree;
-import com.sun.source.tree.VariableTree;
 
 import static checkers.scope.DefineScopeChecker.*;
 
@@ -36,18 +33,12 @@ import static checkers.scope.DefineScopeChecker.*;
 
 @SuppressWarnings("restriction")
 public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
-    public static final String DEFINE_SCOPE = "javax.safetycritical.annotate.DefineScope";
     private AnnotatedTypeFactory atf;
 
     public DefineScopeVisitor(SourceChecker checker, CompilationUnitTree root) {
         super(checker, root);
 
         atf = checker.createFactory(root);
-    }
-
-    @Override
-    public R visitAnnotation(AnnotationTree node, P p) {
-        return super.visitAnnotation(node, p);
     }
 
     @Override
@@ -73,10 +64,8 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
             }
         }
 
-
-       //System.out.println("\nScope Visit:");
-       // ScopeTree.printTree();
-
+        //System.out.println("\nScope Visit:");
+        // ScopeTree.printTree();
         return super.visitClass(node, p);
     }
 
@@ -121,104 +110,6 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
             // node);
         }
         return super.visitMethodInvocation(node, p);
-    }
-
-    @Override
-    public R visitVariable(VariableTree node, P p) {
-        /*
-         * VariableElement var = TreeUtils.elementFromDeclaration(node); if
-         * (isPrivateMemory(var.asType())) { boolean found = false; List<?
-         * extends AnnotationMirror> def = var.getAnnotationMirrors(); for
-         * (AnnotationMirror ann : def) { if
-         * (ann.getAnnotationType().toString().
-         * equals("javax.safetycritical.annotate.DefineScope")) {
-         * processDefineScope(node,ann); found = true; } } if (!found)
-         * checker.report( Result.failure("privateMem.no.DefineScope"), node); }
-         *
-         * if (hasDefineScope(var) && !isPrivateMemory(var.asType())) {
-         * System.out.println("has define scope: " + var.asType()); TypeMirror
-         * type = var.asType(); // is runnable // add to define scopes list
-         * runnables... // check with class definition....
-         *
-         * }
-         */
-
-        return super.visitVariable(node, p);
-    }
-
-    private boolean hasDefineScope(Element element) {
-        return element.getAnnotation(DefineScope.class) != null;
-    }
-
-    /**
-     * add Defined scope to the ScopeTree
-     *
-     * @param node
-     * @param def
-     */
-    private void processDefineScope(VariableTree node, AnnotationMirror def) {
-
-        // System.out.println("DEFINE-SCOPE:" + node);
-
-        String name = null, parent = null;
-        for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : def
-                .getElementValues().entrySet()) {
-            if ("name()".equals(entry.getKey().toString())) {
-                name = (String) entry.getValue().getValue();
-            } else if ("parent()".equals(entry.getKey().toString())) {
-                parent = (String) entry.getValue().getValue();
-            }
-        }
-
-        if (name != null && parent != null) {
-            if (IMMORTAL.equals(name)) {
-                checker.report(Result.failure(ERR_BAD_SCOPE_NAME), node);
-            } else if (ScopeTree.hasScope(name)) {
-
-                Utils.debugPrintln("Duplicate is:" + node.toString());
-
-                if (!checkforGetCurrentManMen(node, def))
-                    checker.report(Result.failure(ERR_DUPLICATE_SCOPE_NAME), node);
-
-            } else if (ScopeTree.isParentOf(parent, name)) {
-                checker.report(Result.failure(ERR_CYCLICAL_SCOPES), node);
-            } else
-                ScopeTree.put(name, parent, node);
-            // TODO: doesn't reserve implicitly defined scopes
-        }
-    }
-
-    /**
-     * We have a duplicate in DefineScope, but we need to check for this case:
-     *
-     * @DefineScope(name = "scope.TestGetCurrentManMem.WordHandler", parent =
-     *                   "scope.TestGetCurrentManMem") ManagedMemory mem =
-     *                   ManagedMemory.getCurrentManagedMemory()
-     *
-     *                   --> this is legal!
-     *
-     *                   TODO: what are all the possible combinations of this
-     *                   expression?
-     *
-     * @param node
-     * @param def
-     * @return
-     */
-    private boolean checkforGetCurrentManMen(VariableTree node,
-            AnnotationMirror def) {
-        // TODO: improve this!!!!
-        if (node.toString().contains("ManagedMemory.getCurrentManagedMemory()"))
-            return true;
-
-        return false;
-    }
-
-    private boolean isPrivateMemory(TypeMirror asType) {
-        if (asType.toString().equals("javax.safetycritical.PrivateMemory"))
-            return true;
-        if (asType.toString().equals("javax.safetycritical.ManagedMemory"))
-            return true;
-        return false;
     }
 
     private boolean isSubtype(TypeElement t, String superTypeName) {
