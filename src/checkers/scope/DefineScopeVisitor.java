@@ -58,9 +58,9 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 } else if (ScopeTree.isParentOf(d.parent(), d.name())) {
                     checker.report(Result.failure(ERR_CYCLICAL_SCOPES), node);
                     // TODO: doesn't reserve implicitly defined scopes
-                }
-                else
+                } else {
                     ScopeTree.put(d.name(), d.parent(), node);
+                }
             }
         }
 
