@@ -267,6 +267,8 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
                         errNode);
             }
         }
+        // TODO: Need to check that scopes agree on the method and the return
+        // type
         ctx.setMethodScope(scope, m);
     }
 

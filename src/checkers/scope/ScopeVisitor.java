@@ -41,16 +41,23 @@ import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ArrayAccessTree;
 import com.sun.source.tree.ArrayTypeTree;
 import com.sun.source.tree.AssignmentTree;
+import com.sun.source.tree.BinaryTree;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.CompoundAssignmentTree;
+import com.sun.source.tree.ConditionalExpressionTree;
+import com.sun.source.tree.EnhancedForLoopTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.IfTree;
+import com.sun.source.tree.LiteralTree;
 import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.NewArrayTree;
 import com.sun.source.tree.NewClassTree;
+import com.sun.source.tree.ParenthesizedTree;
 import com.sun.source.tree.ReturnTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
@@ -115,38 +122,46 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitAnnotation(AnnotationTree node, P p) {
-        Utils.debugPrintln(indent + "visit annotation:" + node.getAnnotationType().toString());
+        // Don't check annotations, since they result in assignment ASTs that
+        // shouldn't be checked as normal assignments.
+        return null;
+    }
 
-        if (node.getAnnotationType().toString().equals("DefineScope"))
-            return null;
-        if (node.getAnnotationType().toString().equals("Scope"))
-            return null;
-        if (node.getAnnotationType().toString().equals("RunsIn"))
-            return null;
-
-        // we are escaping @SCJRestricted annotation
-        // it its not the concern of this checker and since it
-        // can have assignments, it brings errors to the regular code
-        // assignnments that we need to check
-        if (node.getAnnotationType().toString().equals("SCJRestricted"))
-            return null;
-        if (node.getAnnotationType().toString().equals("Target"))
-            return null;
-        if (node.getAnnotationType().toString().equals("Retention"))
-            return null;
-
-        return super.visitAnnotation(node, p);
+    @Override
+    public ScopeInfo visitArrayAccess(ArrayAccessTree node, P p) {
+        // Since arrays live in the same scope as their component type, the
+        // scope of the array is the same as the scope of any access to its
+        // elements.
+        ScopeInfo s = node.getExpression().accept(this, p);
+        node.getIndex().accept(this, p);
+        return s;
     }
 
     @Override
     public ScopeInfo visitAssignment(AssignmentTree node, P p) {
         try {
             debugIndentIncrement("visitAssignment : " + node);
+            ScopeInfo lhs = node.getVariable().accept(this, p);
+            ScopeInfo rhs = node.getExpression().accept(this, p);
+            if (lhs.equals(rhs)) {
+                return lhs;
+            }
             checkAssignment(node.getVariable(), node.getExpression(), node);
-            return super.visitAssignment(node, p);
+            return lhs;
         } finally {
             debugIndentDecrement();
         }
+    }
+
+    @Override
+    public ScopeInfo visitBinary(BinaryTree node, P p) {
+        super.visitBinary(node, p);
+        if (TreeUtils.isCompileTimeString(node)) {
+            return new ScopeInfo(IMMORTAL);
+        } else if (TreeUtils.isStringConcatenation(node)) {
+            return new ScopeInfo(CURRENT);
+        }
+        return null; // Primitive expressions have no scope
     }
 
     @Override
@@ -165,11 +180,10 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
     @Override
     public ScopeInfo visitClass(ClassTree node, P p) {
         debugIndentIncrement("\nvisitClass " + node.getSimpleName());
-        debugIndent("\nvisitClass " + node.toString());
         debugIndent("\nvisitClass :" + TreeUtils.elementFromDeclaration(node).getQualifiedName());
 
         if (escapeEnum(node) || escapeAnnotation(node)) {
-            debugIndent("\nvisitClass : escaping hte Class. ");
+            debugIndent("\nvisitClass : escaping the Class. ");
             debugIndentDecrement();
             return null;
         }
@@ -182,24 +196,13 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             debugIndentDecrement();
             return null;
         }
-        // scopeTree.printTree();
 
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         String oldScope = currentScope;
         String oldRunsIn = currentRunsIn;
 
         try {
-            // context.printContext();
             String scope = ctx.getClassScope(t);
-
-            if (scope == null) {
-                /*
-                 * TODO: The correct behavior for visiting unannotated classes
-                 * is to make sure the class doesn't mention any annotated
-                 * classes to ensure that there is no leakage.
-                 */
-                // / pln("NO ANNOTATIONS FOUND!!!");
-            }
 
             // TODO: assume defaults for inner classes?
             Utils.debugPrintln("Seen class " + t.getQualifiedName() + ": @Scope(" + scope + ")");
@@ -216,37 +219,88 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
     }
 
     @Override
+    public ScopeInfo visitCompoundAssignment(CompoundAssignmentTree node, P p) {
+        ScopeInfo lhs = node.getVariable().accept(this, p);
+        if (TreeUtils.isStringCompoundConcatenation(node)) {
+            if (!lhs.getScope().equals(CURRENT)) {
+                // TODO: report error
+            }
+            return lhs;
+        }
+        return null; // Primitives have no scope
+    }
+
+    @Override
+    public ScopeInfo visitConditionalExpression(ConditionalExpressionTree node, P p) {
+        node.getCondition().accept(this, p);
+        ScopeInfo t = node.getTrueExpression().accept(this, p);
+        ScopeInfo f = node.getFalseExpression().accept(this, p);
+        // TODO: Not sure if this is right
+        if (t != null) {
+            if (!t.equals(f)) {
+                // TODO: report error
+            }
+            return t;
+        }
+        return null; // Primitives have no scope
+    }
+
+    @Override
+    public ScopeInfo visitEnhancedForLoop(EnhancedForLoopTree node, P p) {
+        // TODO: Not sure if this needs to be checked. This implicitly does
+        // .iterator() and .next() calls.
+        return super.visitEnhancedForLoop(node, p);
+    }
+
+    @Override
+    public ScopeInfo visitIdentifier(IdentifierTree node, P p) {
+        // TODO
+        return super.visitIdentifier(node, p);
+    }
+
+    @Override
+    public ScopeInfo visitIf(IfTree node, P p) {
+        // TODO: Guards
+        return super.visitIf(node, p);
+    }
+
+    @Override
+    public ScopeInfo visitLiteral(LiteralTree node, P p) {
+        if (node.getValue() instanceof String) {
+            // TODO I foresee much sadness in this later on. Strings can't
+            // really interact between IMMORTAL and other scopes if it's not
+            // RunsIn(UNKNOWN).
+            return new ScopeInfo(IMMORTAL);
+        }
+        return null;
+    }
+
+    @Override
     public ScopeInfo visitMemberSelect(MemberSelectTree node, P p) {
         Element elem = TreeUtils.elementFromUse(node);
-
-        // pln("\n member select:" + node.toString());
-        // pln("element:" + elem);
-        // pln("element:" + elem.getKind());
+        ScopeInfo receiver = node.getExpression().accept(this, p);
 
         try {
-            debugIndentIncrement("visitMemberSelect : " + node.toString());
+            debugIndentIncrement("visitMemberSelect: " + node.toString());
             if (elem.getKind() == ElementKind.FIELD) {
-                // pln("   is field!!:" + elem);
-                TypeElement type = (TypeElement) elem.getEnclosingElement();
-
-                // pln("   type - kind:" +
-                // elem.asType().getKind());
-                String typeScope = ctx.getClassScope(type);
-                // pln("   typ scope :" + typeScope);
-                // pln("   scope elem :" +
-                // scope((VariableElement) elem));
-
-                // The field is a reference type with no @Scope and its owner is
-                // not allocated in the same scope
-                // as the current allocation context
-                if (elem.asType().getKind() == TypeKind.DECLARED && scope(elem) == null
-                        && typeScope != null && typeScope.equals(currentAllocScope())) {
-                    // Can't reference a field that has an unannotated type
-                    // unless it's in the same scope
-                    report(Result.failure(ERR_ESCAPING_NONANNOTATED_FIELD), node);
+                VariableElement f = (VariableElement) elem;
+                String fScope = ctx.getFieldScope(f);
+                TypeElement fType = Utils.getTypeElement(f.asType());
+                String typeScope = ctx.getClassScope(fType);
+                String receiverScope = receiver.getScope();
+                if (!CURRENT.equals(typeScope)) {
+                    return new FieldScopeInfo(typeScope, receiverScope,
+                            fScope);
+                } else if (CURRENT.equals(fScope)) {
+                    return new FieldScopeInfo(receiverScope, receiverScope,
+                            fScope);
+                } else {
+                    // UNKNOWN
+                    return new FieldScopeInfo(fScope, receiverScope, fScope);
                 }
+            } else {
+                throw new RuntimeException("Non-field in MemberSelect");
             }
-            return super.visitMemberSelect(node, p);
         } finally {
             debugIndentDecrement();
         }
@@ -261,60 +315,20 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         debugIndent("RUNS IN: " + currentRunsIn);
         debugIndent("scope: " + currentScope);
 
-        TypeElement type = Utils.getMethodClass(method);
-        checkMethodWellFormed(node);
-
-        // run() requires a @RunsIn annotation on concrete classes that
-        // implement Runnable
-        // TODO: check super class interfaces?
-        if (type.getKind() == ElementKind.CLASS) {
-            boolean isRunnable = false;
-            while (type != null) {
-                for (TypeMirror iface : type.getInterfaces()) {
-                    TypeElement ifaceType = Utils.getTypeElement(iface);
-                    if (TypesUtils.isDeclaredOfName(ifaceType.asType(), "java.lang.Runnable")) {
-                        isRunnable = true;
-                        break;
-                    }
-                }
-                type = Utils.superType(type);
-            }
-            if (isRunnable && "run".equals(method.getSimpleName().toString()) && method.getParameters().size() == 0
-                    && Utils.runsIn(method.getAnnotationMirrors()) != null) {
-
-                // debugIndent("bad.runs.in.override: " +isRunnable);
-                // debugIndent("bad.runs.in.override: " +
-                // method.getAnnotationMirrors());
-
-                // TODO: we need to check the runnable's method its being
-                // called.
-
-                // report(Result.failure("bad.runs.in.override"), node);
-            }
-        }
-
         String oldRunsIn = currentRunsIn;
-        ScopeInfo r = null;
         try {
             String runsIn = ctx.getMethodRunsIn(method);
             debugIndent("@RunsIn(" + runsIn + ") " + method.getSimpleName());
-            // TODO: If we don't have an allocation context, we need to skip the
-            // method?
-            if (runsIn != null)
+            if (runsIn != null) {
                 currentRunsIn = runsIn;
-            if (currentAllocScope() != null)
-                r = super.visitMethod(node, p);
+            }
+            super.visitMethod(node, p);
         } finally {
             currentRunsIn = oldRunsIn;
         }
 
         debugIndentDecrement();
-
-        if (r == null)
-            debugIndent("Skipping the method: " + method.getSimpleName());
-
-        return r;
-        // TODO: Do methods have any restrictions on return types?
+        return null;
     }
 
     @Override
@@ -322,7 +336,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         try {
             debugIndentIncrement("visitMethodInvocation");
             // pln("visit method invocation: " + node);
-
             checkMethodInvocation(node, p);
             return super.visitMethodInvocation(node, p);
         } finally {
@@ -340,13 +353,14 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             }
             AnnotatedTypeMirror componentType = arrayType.getComponentType();
             if (!componentType.getKind().isPrimitive()) {
-                TypeElement t = elements.getTypeElement(componentType.getUnderlyingType().toString());
+                TypeElement t = Utils.getTypeElement(componentType.getUnderlyingType());
                 String scope = ctx.getClassScope(t);
-                if (!(scope == null || scope.equals(currentAllocScope()))) {
+                if (!(scope.equals(CURRENT) || scope.equals(currentAllocScope()))) {
                     report(Result.failure(ERR_BAD_ALLOCATION, currentAllocScope(), scope), node);
                 }
             }
-            return super.visitNewArray(node, p);
+            super.visitNewArray(node, p);
+            return new ScopeInfo(currentAllocScope());
         } finally {
             debugIndentDecrement();
         }
@@ -367,10 +381,16 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
                 // current context
                 report(Result.failure(ERR_BAD_ALLOCATION, currentAllocScope(), nodeClassScope), node);
             }
-            return super.visitNewClass(node, p);
+            super.visitNewClass(node, p);
+            return new ScopeInfo(currentAllocScope());
         } finally {
             debugIndentDecrement();
         }
+    }
+
+    @Override
+    public ScopeInfo visitParenthesized(ParenthesizedTree node, P p) {
+        return node.getExpression().accept(this, p);
     }
 
     @Override
@@ -383,11 +403,9 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             return super.visitReturn(node, p);
 
         MethodTree enclosingMethod = TreeUtils.enclosingMethod(getCurrentPath());
+        String returnScope = ctx.getMethodScope(TreeUtils.elementFromDeclaration(enclosingMethod));
 
-        AnnotatedExecutableType methodType = atypeFactory.getAnnotatedType(enclosingMethod);
-        String returnScope = getReturnScope(enclosingMethod);
-
-        debugIndent("method type : " + methodType);
+        ScopeInfo ret = node.getExpression().accept(this, p);
         debugIndent("return scope is :" + returnScope);
 
         if (returnScope == null || !returnScope.equals(UNKNOWN))
@@ -399,104 +417,41 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         return super.visitReturn(node, p);
     }
 
-    /**
-     * When casting, we must consider also @Scope allocation of each class.
-     */
     @Override
     public ScopeInfo visitTypeCast(TypeCastTree node, P p) {
-        // pln("\n\n Visit Typecast: " + node.toString());
+        ScopeInfo scope = node.getExpression().accept(this, p);
 
         if (isPrimitiveExpression(node)) {
             return null;
         }
 
-        String exprScope = null;
-        String typeScope = null;
-
         debugIndentIncrement("visitTypeCast " + node);
-        // debugIndent("type " + node.getType());
-        // debugIndent("kind : " + node.getExpression().getKind());
-        // debugIndent("type2 : " + node.getType());
-
-        // 1. get type and its scope
-        Kind typeKind = node.getType().getKind();
-        if (typeKind == Kind.IDENTIFIER) {
-            Element var = TreeInfo.symbol((JCTree) node.getType());
-            typeScope = Utils.scope(var.getAnnotationMirrors());
-        } else if (typeKind == Kind.ARRAY_TYPE) {
-            Tree nodeTypeTree = ((ArrayTypeTree) node.getType()).getType();
-            Element var = TreeInfo.symbol((JCTree) nodeTypeTree);
-            typeScope = Utils.scope(var.getAnnotationMirrors());
-        } else {
-            debugIndent("ERROR : kind :" + node.getType().getKind());
-            // typeScope = Utils.scope(type.getAnnotationMirrors());
-
-            // ERROR : no other kind of expression is possible here
+        try {
+            AnnotatedTypeMirror am = atf.fromTypeTree(node.getType());
+            while (am.getKind() == TypeKind.ARRAY) {
+                am = ((AnnotatedArrayType) am).getComponentType();
+            }
+            TypeElement t = Utils.getTypeElement(am.getUnderlyingType());
+            String tScope = ctx.getClassScope(t);
+            if (CURRENT.equals(tScope)) {
+                return scope;
+            } else {
+                return new ScopeInfo(tScope);
+            }
+        } finally {
+            debugIndentDecrement();
         }
-
-        // 2. here is the expression:
-        Kind exprKind = node.getExpression().getKind();
-        if (exprKind == Kind.NEW_CLASS) {
-            ExpressionTree expr = node.getExpression();
-            ExecutableElement ctor = TreeUtils.elementFromUse((NewClassTree) expr);
-            TypeElement expressionType = Utils.getMethodClass(ctor);
-            exprScope = Utils.annotationValue(expressionType.getAnnotationMirrors(),
-            "javax.safetycritical.annotate.Scope");
-
-        } else if (exprKind == Kind.METHOD_INVOCATION) {
-            // debugIndent("kind : " + node.getExpression().getKind());
-            // debugIndent("type2 : " + node.getType());
-
-            MethodInvocationTree methodExpr = (MethodInvocationTree) node.getExpression();
-            ExecutableElement methodElem = TreeUtils.elementFromUse(methodExpr);
-            AnnotatedExecutableType methodType = atf.getAnnotatedType(methodElem);
-            TypeMirror retMirror = methodType.getReturnType().getUnderlyingType();
-            while (retMirror.getKind() == TypeKind.ARRAY) {
-                retMirror = ((ArrayType) retMirror).getComponentType();
-            }
-
-            debugIndent("exec : " + methodElem);
-            // debugIndent("met type : " + methodType);
-            // debugIndent("met mirror : " + retMirror);
-
-            exprScope = ctx.getClassScope(Utils.getTypeElement(retMirror));
-            if (exprScope == null) {
-                exprScope = ctx.getMethodRunsIn(methodElem);
-                // TODO: revisit
-            }
-            if (exprScope == null) {
-                debugIndent("Expression Scope ERROR? : " + methodExpr.getMethodSelect().getKind());
-            }
-        } else if (exprKind == Kind.MEMBER_SELECT || exprKind == Kind.IDENTIFIER) {
-            VariableElement var = (VariableElement) TreeUtils.elementFromUse(node.getExpression());
-            exprScope = scope(var);
-        } else {
-            exprScope = null;
-            debugIndent("ERROR  : kind is : " + exprKind);
-        }
-
-        debugIndent("typescope  " + typeScope);
-        debugIndent("exprScope  " + exprScope);
-
-        if (exprScope != null)
-            if (typeScope == null) {
-                debugIndent("curr : " + currentAllocScope());
-                if (!exprScope.equals(currentAllocScope()))
-                    report(Result.failure(ERR_SCOPE_CAST, exprScope, currentAllocScope()), node);
-            } else if (!exprScope.equals(typeScope))
-                report(Result.failure(ERR_SCOPE_CAST, exprScope, typeScope), node);
-
-        debugIndentDecrement();
-        return super.visitTypeCast(node, p);
     }
 
     /**
-     * - Static variables must always be in the immortal scope. - Instance
-     * variables must make sure that the scope of the enclosing class is a child
-     * scope of the variable type's scope. - Local variables are similar to
-     * instance variables, only it must first use the @RunsIn annotation, if any
-     * exists, before using the @Scope annotation on the class that it belongs
-     * to.
+     * <ul>
+     * <li>Static variables must always be in the immortal scope.
+     * <li>Instance variables must make sure that the scope of the enclosing
+     *     class is a child scope of the variable type's scope.
+     * <li>Local variables are similar to instance variables, only it must
+     *     first use the @RunsIn annotation, if any exists, before using the
+     *     @Scope annotation on the class that it belongs to.
+     * </ul>
      */
     @Override
     public ScopeInfo visitVariable(VariableTree node, P p) {
@@ -937,61 +892,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         }
     }
 
-    /**
-     * Checks that visited method has a well-formed annotations
-     *
-     * RunsIn is not legal on constructors.
-     *
-     * @param node
-     */
-    private void checkMethodWellFormed(MethodTree node) {
-        ExecutableElement method = TreeUtils.elementFromDeclaration(node);
-        if (TreeUtils.isConstructor(node) && hasRunsIn(method)) {
-            report(Result.failure(ERR_BAD_RUNS_IN_ON_CTOR), node);
-        }
-        if (TreeUtils.isConstructor(node) && hasRunsIn(method)) {
-            report(Result.failure(ERR_DEFINE_SCOPE_ON_METHOD), node);
-        }
-
-        // check the return type, if its primitive, we dont care about
-        // the @Scope annotation!!;
-
-        AnnotatedExecutableType methodType = atypeFactory.getAnnotatedType(node);
-
-        /* on constructors */
-        if (node.getReturnType() == null) {
-            if (hasScope(node))
-                report(Result.failure(ERR_SCOPE_ON_METHOD_PRIMITIVE_RETURN), node);
-            else
-                return;
-        }
-
-        if (node.getReturnType().toString().equals("void") && hasScope(node)) {
-            report(Result.failure(ERR_SCOPE_ON_VOID_METHOD), node);
-            return;
-        }
-
-        boolean isPrimitive = false;
-        if (node.getReturnType().getKind() == Kind.PRIMITIVE_TYPE)
-            isPrimitive = true;
-        else if (methodType.getReturnType().getKind() == TypeKind.ARRAY) {
-            ExecutableElement methodElem = TreeUtils.elementFromDeclaration(node);
-            AnnotatedExecutableType methodType2 = atf.getAnnotatedType(methodElem);
-            TypeMirror retMirror = methodType2.getReturnType().getUnderlyingType();
-
-            while (retMirror.getKind() == TypeKind.ARRAY) {
-                retMirror = ((ArrayType) retMirror).getComponentType();
-            }
-            if (retMirror.getKind().isPrimitive())
-                isPrimitive = true;
-        }
-
-        if (node.getReturnType() != null && isPrimitive && hasScope(node)) {
-            // TODO: distinguish for the VOID methods!!!
-            report(Result.failure(ERR_SCOPE_ON_METHOD_PRIMITIVE_RETURN), node);
-        }
-    }
-
     private void checkNewInstance(MethodInvocationTree node) {
         // TODO: revisit checking of the "newInstance"!!!!
         ExpressionTree e = node.getMethodSelect();
@@ -1275,18 +1175,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         return element.getAnnotation(RunsIn.class) != null;
     }
 
-    private boolean hasScope(Element element) {
-        return element.getAnnotation(Scope.class) != null;
-    }
-
-    private boolean hasScope(MethodTree node) {
-        ExecutableElement var = TreeUtils.elementFromDeclaration(node);
-        for (AnnotationMirror ann : var.getAnnotationMirrors())
-            if (ann.getAnnotationType().toString().equals("javax.safetycritical.annotate.Scope"))
-                return true;
-        return false;
-    }
-
     // Doesn't work for interfaces (nor should it)
     private boolean isMemoryAreaType(TypeElement t) {
         if (t.getKind() == ElementKind.INTERFACE)
@@ -1514,16 +1402,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         if (src != null) {
             checker.report(r, src);
         }
-    }
-
-    private String getReturnScope(MethodTree enclosingMethod) {
-        AnnotatedExecutableType methodType = atypeFactory.getAnnotatedType(enclosingMethod);
-
-        if (hasScope(methodType.getElement())) {
-            return getScope(methodType.getElement());
-        }
-
-        return null;
     }
 
     /*

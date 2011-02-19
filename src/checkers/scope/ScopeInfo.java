@@ -17,6 +17,6 @@ public class ScopeInfo {
 
     @Override
     public boolean equals(Object obj) {
-        return scope.equals(((ScopeInfo) obj).scope);
+        return obj != null && scope.equals(((ScopeInfo) obj).scope);
     }
 }
