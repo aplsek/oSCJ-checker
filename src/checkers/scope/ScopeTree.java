@@ -124,7 +124,7 @@ public class ScopeTree {
         return scopeTree.containsKey(entry);
     }
 
-    public void reportErrors(ScopeVisitor<?, ?> visitor) {
+    public void reportErrors(ScopeVisitor<?> visitor) {
         if (errorsReported)
             return;
         errorsReported = true;

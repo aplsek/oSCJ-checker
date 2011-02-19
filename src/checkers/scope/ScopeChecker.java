@@ -60,7 +60,7 @@ public class ScopeChecker extends SourceChecker {
 
     @Override
     protected SourceVisitor<?, ?> createSourceVisitor(CompilationUnitTree root) {
-        return new ScopeVisitor<Void, Void>(this, root, ctx);
+        return new ScopeVisitor<Void>(this, root, ctx);
     }
 
     @Override

@@ -91,7 +91,7 @@ import static checkers.scope.ScopeChecker.*;
  *
  */
 @SuppressWarnings("restriction")
-public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
+public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
 
     static private void pln(String s) {
         System.out.println(s);
@@ -115,7 +115,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     }
 
     @Override
-    public R visitAnnotation(AnnotationTree node, P p) {
+    public ScopeInfo visitAnnotation(AnnotationTree node, P p) {
         Utils.debugPrintln(indent + "visit annotation:" + node.getAnnotationType().toString());
 
         if (node.getAnnotationType().toString().equals("DefineScope"))
@@ -140,7 +140,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     }
 
     @Override
-    public R visitAssignment(AssignmentTree node, P p) {
+    public ScopeInfo visitAssignment(AssignmentTree node, P p) {
         try {
             debugIndentIncrement("visitAssignment : " + node);
 
@@ -155,20 +155,20 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     }
 
     @Override
-    public R visitBlock(BlockTree node, P p) {
+    public ScopeInfo visitBlock(BlockTree node, P p) {
         debugIndentIncrement("visitBlock");
         String oldRunsIn = currentRunsIn;
         if (node.isStatic()) {
             currentRunsIn = IMMORTAL;
         }
-        R r = super.visitBlock(node, p);
+        ScopeInfo r = super.visitBlock(node, p);
         currentRunsIn = oldRunsIn;
         debugIndentDecrement();
         return r;
     }
 
     @Override
-    public R visitClass(ClassTree node, P p) {
+    public ScopeInfo visitClass(ClassTree node, P p) {
         debugIndentIncrement("\nvisitClass " + node.getSimpleName());
         debugIndent("\nvisitClass " + node.toString());
         debugIndent("\nvisitClass :" + TreeUtils.elementFromDeclaration(node).getQualifiedName());
@@ -221,7 +221,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     }
 
     @Override
-    public R visitMemberSelect(MemberSelectTree node, P p) {
+    public ScopeInfo visitMemberSelect(MemberSelectTree node, P p) {
         Element elem = TreeUtils.elementFromUse(node);
 
         // pln("\n member select:" + node.toString());
@@ -261,7 +261,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     }
 
     @Override
-    public R visitMethod(MethodTree node, P p) {
+    public ScopeInfo visitMethod(MethodTree node, P p) {
         debugIndentIncrement("visitMethod " + node.getName());
         ExecutableElement method = TreeUtils.elementFromDeclaration(node);
 
@@ -302,7 +302,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         }
 
         String oldRunsIn = currentRunsIn;
-        R r = null;
+        ScopeInfo r = null;
         try {
             String runsIn = ctx.getMethodRunsIn(method);
             debugIndent("@RunsIn(" + runsIn + ") " + method.getSimpleName());
@@ -326,7 +326,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     }
 
     @Override
-    public R visitMethodInvocation(MethodInvocationTree node, P p) {
+    public ScopeInfo visitMethodInvocation(MethodInvocationTree node, P p) {
         try {
             debugIndentIncrement("visitMethodInvocation");
             // pln("visit method invocation: " + node);
@@ -342,7 +342,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     }
 
     @Override
-    public R visitNewArray(NewArrayTree node, P p) {
+    public ScopeInfo visitNewArray(NewArrayTree node, P p) {
         try {
             debugIndentIncrement("visitNewArray");
             AnnotatedArrayType arrayType = atf.getAnnotatedType(node);
@@ -368,7 +368,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
      * the same scope as what's defined by the class.
      */
     @Override
-    public R visitNewClass(NewClassTree node, P p) {
+    public ScopeInfo visitNewClass(NewClassTree node, P p) {
         try {
             debugIndentIncrement("visitNewClass");
             ExecutableElement ctorElement = TreeUtils.elementFromUse(node);
@@ -385,7 +385,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     }
 
     @Override
-    public R visitReturn(ReturnTree node, P p) {
+    public ScopeInfo visitReturn(ReturnTree node, P p) {
         // enableDebug();
         debugIndentIncrement(indent + "visit Return:" + node.toString());
 
@@ -421,7 +421,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
      * When casting, we must consider also @Scope allocation of each class.
      */
     @Override
-    public R visitTypeCast(TypeCastTree node, P p) {
+    public ScopeInfo visitTypeCast(TypeCastTree node, P p) {
         // pln("\n\n Visit Typecast: " + node.toString());
 
         if (isPrimitiveExpression(node)) {
@@ -522,7 +522,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
      * to.
      */
     @Override
-    public R visitVariable(VariableTree node, P p) {
+    public ScopeInfo visitVariable(VariableTree node, P p) {
         String oldScope = currentScope;
         String oldRunsIn = currentRunsIn;
         try {
