@@ -9,6 +9,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -109,6 +110,17 @@ public final class Utils {
      */
     public static TypeElement getMethodClass(ExecutableElement m) {
         return (TypeElement) m.getEnclosingElement();
+    }
+
+    /**
+     * Get an object representing the declaration of the class that contains
+     * a field.
+     *
+     * @param f the field whose class declaration is needed
+     * @return an object representing the class declaration
+     */
+    public static TypeElement getFieldClass(VariableElement f) {
+        return (TypeElement) f.getEnclosingElement();
     }
 
     /**

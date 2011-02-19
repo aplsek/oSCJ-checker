@@ -57,6 +57,24 @@ public class ScopeCheckerContext {
     }
 
     /**
+     * Get the Scope annotation of a field by its fully qualified class name
+     * and its own name.
+     */
+    public String getFieldScope(String clazz, String field) {
+        ClassScopeInfo csi = classScopes.get(clazz);
+        return csi.fieldScopes.get(field);
+    }
+
+    /**
+     * Get the Scope annotation of a field by its declaration.
+     */
+    public String getFieldScope(VariableElement f) {
+        TypeElement t = Utils.getFieldClass(f);
+        return getFieldScope(t.getQualifiedName().toString(),
+                f.getSimpleName().toString());
+    }
+
+    /**
      * Get the RunsIn annotation of a method given its fully qualified class
      * name, its own name, and the fully qualified names of the types of its
      * parameters.
@@ -147,6 +165,28 @@ public class ScopeCheckerContext {
      */
     public void setClassScope(String scope, TypeElement t) {
         setClassScope(scope, t.getQualifiedName().toString());
+    }
+
+    /**
+     * Store the Scope annotation of a field given its fully qualified class
+     * name and its own name.
+     */
+    public void setFieldScope(String scope, String clazz, String field) {
+        ClassScopeInfo csi = classScopes.get(clazz);
+        String f = csi.fieldScopes.get(field);
+        if (f != null && !f.equals(scope)) {
+            throw new RuntimeException("Field scope already set");
+        }
+        csi.fieldScopes.put(field, scope);
+    }
+
+    /**
+     * Store the Scope annotation of a field, given its declaration.
+     */
+    public void setFieldScope(String scope, VariableElement f) {
+        TypeElement t = Utils.getFieldClass(f);
+        setFieldScope(scope, t.getQualifiedName().toString(),
+                f.getSimpleName().toString());
     }
 
     /**
@@ -271,10 +311,12 @@ public class ScopeCheckerContext {
          * A map of method signatures to method scope information.
          */
         Map<String, MethodScopeInfo> methodScopes;
+        Map<String, String> fieldScopes;
 
         public ClassScopeInfo(String scope) {
             this.scope = scope;
             methodScopes = new HashMap<String, MethodScopeInfo>();
+            fieldScopes = new HashMap<String, String>();
         }
     }
 

@@ -9,6 +9,9 @@ import java.util.Map.Entry;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.safetycritical.annotate.Level;
@@ -56,9 +59,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
     public Void visitClass(ClassTree node, Void p) {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         checkClassScope(t, node, node);
-        // checkClassScope also checks methods through the declaration, so we
-        // don't need to descend further.
-        return null;
+        return super.visitClass(node, p);
     }
 
     /**
@@ -78,7 +79,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
      * If C has no explicit Scope annotation, it is assumed to be annotated as
      * Scope(CURRENT).
      */
-    void checkClassScope(TypeElement t, ClassTree node, ClassTree errNode) {
+    void checkClassScope(TypeElement t, ClassTree node, Tree errNode) {
         Scope scopeAnn = t.getAnnotation(Scope.class);
         String scope = scopeAnn != null ? scopeAnn.value() : Scope.CURRENT;
 
@@ -138,12 +139,75 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
             checkMethodScope(m, mTree, mErr);
             checkMethodRunsIn(m, mTree, mErr);
         }
+
+        List<VariableElement> fields =
+            ElementFilter.fieldsIn(t.getEnclosedElements());
+        for (VariableElement f : fields) {
+            Tree fTree = trees.getTree(f);
+            Tree fErr = null;
+            if (node == errNode) {
+                fErr = fTree;
+            } else if (fTree == null) {
+                fErr = node;
+            }
+            checkFieldScope(f, fTree, fErr);
+        }
         // We don't allow RunsIn annotations on classes anymore. Instead, the
         // default scope is always the same as the Scope annotation and methods
         // may override the default if they so choose.
         RunsIn runsInAnn = t.getAnnotation(RunsIn.class);
         if (runsInAnn != null) {
             report(Result.warning(ERR_RUNS_IN_ON_CLASS), node, errNode);
+        }
+    }
+
+    /**
+     * Check that a field has a valid Scope annotation, if any. Four kinds of
+     * fields are considered:
+     * <ol>
+     * <li>Primitive fields have no scope
+     * <li>Primitive array fields are CURRENT if not annotated, and S if
+     *     annotated Scope(S)
+     * <li>Object fields are CURRENT if not annotated, Scope(S) if the type of
+     *     the field is annotated Scope(S), or S if the type of the field is
+     *     not annotated and the field is annotated Scope(S).
+     * <li>Object arrays follow the same rules as object fields based on the
+     *     type of their basic element type.
+     */
+    void checkFieldScope(VariableElement f, Tree node, Tree errNode) {
+        TypeMirror fMir = f.asType();
+        Scope s = f.getAnnotation(Scope.class);
+        String scope = Scope.CURRENT;
+        if (s != null && s.value() != null) {
+            scope = s.value();
+        }
+        // Arrays reside in the same scope as their element types, so if this
+        // field is an array, reduce it to its base component type.
+        while (fMir.getKind() == TypeKind.ARRAY) {
+            fMir = ((ArrayType) fMir).getComponentType();
+        }
+        if (fMir.getKind() != TypeKind.DECLARED) {
+            // The field type in here is either a primitive or a primitive
+            // array. Only store a field scope if the field was an array.
+            if (fMir != f.asType()) {
+                ctx.setFieldScope(scope, f);
+            }
+        } else {
+            TypeElement t = Utils.getTypeElement(fMir);
+            String tScope = ctx.getClassScope(t);
+            if (scope == null) {
+                checkClassScope(t, trees.getTree(t), errNode);
+            }
+            tScope = ctx.getClassScope(t);
+            if (tScope == Scope.CURRENT) {
+                ctx.setFieldScope(scope, f);
+            } else {
+                ctx.setFieldScope(tScope, f);
+                if (scope != null && !scope.equals(tScope)) {
+                    report(Result.warning(ERR_ILLEGAL_FIELD_SCOPE_OVERRIDE),
+                            node, errNode);
+                }
+            }
         }
     }
 
