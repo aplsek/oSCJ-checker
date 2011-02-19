@@ -34,11 +34,12 @@ import static checkers.scope.DefineScopeChecker.*;
 @SuppressWarnings("restriction")
 public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
     private AnnotatedTypeFactory atf;
+    private ScopeTree scopeTree;
 
-    public DefineScopeVisitor(SourceChecker checker, CompilationUnitTree root) {
+    public DefineScopeVisitor(SourceChecker checker, CompilationUnitTree root, ScopeCheckerContext ctx) {
         super(checker, root);
-
         atf = checker.createFactory(root);
+        scopeTree = ctx.getScopeTree();
     }
 
     @Override
@@ -53,13 +54,13 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
             } else if (d.name() != null && d.parent() != null) {
                 if (IMMORTAL.equals(d.name())) {
                     checker.report(Result.failure(ERR_BAD_SCOPE_NAME), node);
-                } else if (ScopeTree.hasScope(d.name())) {
+                } else if (scopeTree.hasScope(d.name())) {
                     checker.report(Result.failure(ERR_DUPLICATE_SCOPE_NAME), node);
-                } else if (ScopeTree.isParentOf(d.parent(), d.name())) {
+                } else if (scopeTree.isParentOf(d.parent(), d.name())) {
                     checker.report(Result.failure(ERR_CYCLICAL_SCOPES), node);
                     // TODO: doesn't reserve implicitly defined scopes
                 } else {
-                    ScopeTree.put(d.name(), d.parent(), node);
+                    scopeTree.put(d.name(), d.parent(), node);
                 }
             }
         }
@@ -93,13 +94,13 @@ public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
                         checker.report(Result.failure(ERR_BAD_SCOPE_NAME), node);
                         //
                         // TODO: ales, this is disabled, we allow this...
-                    } else if (ScopeTree.hasScope(name)) {
+                    } else if (scopeTree.hasScope(name)) {
                         checker.report(Result.failure(ERR_DUPLICATE_SCOPE_NAME),
                                 node);
-                    } else if (ScopeTree.isParentOf(parent, name)) {
+                    } else if (scopeTree.isParentOf(parent, name)) {
                         checker.report(Result.failure(ERR_CYCLICAL_SCOPES), node);
                     } else {
-                        ScopeTree.put(name, parent, node);
+                        scopeTree.put(name, parent, node);
                         return super.visitMethodInvocation(node, p);
                     }
                     // TODO: doesn't reserve implicitly defined scopes

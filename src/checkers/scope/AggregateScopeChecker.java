@@ -5,7 +5,9 @@ import checkers.MultiPassChecker;
 // Runs both passes for scope checking.
 public class AggregateScopeChecker extends MultiPassChecker {
     public AggregateScopeChecker() {
-        addPass(new DefineScopeChecker());
-        addPass(new ScopeChecker());
+        ScopeCheckerContext ctx = new ScopeCheckerContext();
+        addPass(new DefineScopeChecker(ctx));
+        addPass(new ScopeRunsInChecker(ctx));
+        addPass(new ScopeChecker(ctx));
     }
 }

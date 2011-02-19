@@ -11,35 +11,35 @@ import com.sun.source.tree.Tree;
 
 import static checkers.scope.ScopeChecker.*;
 
-public abstract class ScopeTree {
-    private static Map<String, String> scopeTree = null;    // maps child <-> parent
-    private static Map<String, Tree> scopeMap = null;     // points to a place where each scope is defined
+public class ScopeTree {
+    private Map<String, String> scopeTree = null;    // maps child <-> parent
+    private Map<String, Tree> scopeMap = null;     // points to a place where each scope is defined
 
     /**
-     * we store here the errors in case the ScopeTree is not consistent
+     * We store here the errors in case the ScopeTree is not consistent
      */
-    private static List<Error> errors = new ArrayList<Error>();
-    private static boolean errorsReported = false;
+    private List<Error> errors = new ArrayList<Error>();
+    private boolean errorsReported = false;
 
-    public static String get(String name) {
+    public String get(String name) {
         return scopeTree.get(name);
     }
 
-    public static void initialize() {
+    public void initialize() {
         scopeTree = new HashMap<String, String>();
         scopeMap = new HashMap<String, Tree>();
         put(IMMORTAL, "", null);
     }
 
-    public static boolean isInitialized() {
+    public boolean isInitialized() {
         return scopeTree != null;
     }
 
-    public static boolean hasScope(String name) {
+    public boolean hasScope(String name) {
         return scopeTree.containsKey(name);
     }
 
-    public static boolean isParentOf(String name, String expectedParent) {
+    public boolean isParentOf(String name, String expectedParent) {
         //printTree();
         if (expectedParent == null)
             return false;
@@ -53,7 +53,7 @@ public abstract class ScopeTree {
         return false;
     }
 
-    public static boolean isAncestorOf(String name, String expectedParent) {
+    public boolean isAncestorOf(String name, String expectedParent) {
         if (expectedParent == null)
             return false;
 
@@ -70,12 +70,12 @@ public abstract class ScopeTree {
         return false;
     }
 
-    public static void put(String name, String parent, Tree node) {
+    public void put(String name, String parent, Tree node) {
         scopeTree.put(name, parent);
         scopeMap.put(name, node);
     }
 
-    public static void printTree() {
+    public void printTree() {
         System.out.println("SCOPE TREE : \n" + scopeTree.toString());
     }
 
@@ -84,7 +84,7 @@ public abstract class ScopeTree {
      *
      * @return null if all is ok.
      */
-    public static boolean verifyScopeTree() {
+    public boolean verifyScopeTree() {
         if (errorsReported)
             return true;
 
@@ -120,17 +120,17 @@ public abstract class ScopeTree {
         return errors.isEmpty();
     }
 
-    private static boolean isDefined(String entry) {
+    private boolean isDefined(String entry) {
         return scopeTree.containsKey(entry);
     }
 
-    public static void reportErrors(ScopeVisitor<?, ?> visitor) {
+    public void reportErrors(ScopeVisitor<?, ?> visitor) {
         if (errorsReported)
             return;
         errorsReported = true;
 
         for (Error err: errors)
-            visitor.report(Result.failure(ERR_SCOPE_TREE_NOT_CONSISTENT,err.scope), err.node);
+            visitor.report(Result.failure(ERR_SCOPE_TREE_NOT_CONSISTENT, err.scope), err.node);
     }
 
     static class Error {

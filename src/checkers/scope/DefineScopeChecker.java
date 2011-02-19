@@ -11,13 +11,15 @@ public class DefineScopeChecker extends SourceChecker {
     public static final String ERR_PRIVATE_MEM_NO_DEFINE_SCOPE = "privateMem.no.DefineScope";
     public static final String ERR_BAD_SCOPE_NAME = "bad.scope.name";
 
-    public DefineScopeChecker() {
-        ScopeTree.initialize();
+    private ScopeCheckerContext ctx;
+
+    public DefineScopeChecker(ScopeCheckerContext ctx) {
+        this.ctx = ctx;
     }
 
     @Override
     protected SourceVisitor<?, ?> createSourceVisitor(CompilationUnitTree root) {
-        return new DefineScopeVisitor<Void, Void>(this, root);
+        return new DefineScopeVisitor<Void, Void>(this, root, ctx);
     }
 
     @Override

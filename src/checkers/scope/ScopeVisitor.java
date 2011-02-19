@@ -101,16 +101,17 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     private AnnotatedTypes ats;
     private String currentScope = null;
     private String currentRunsIn = null;
-    private ScopeCheckerContext context;
+    private ScopeCheckerContext ctx;
+    private ScopeTree scopeTree;
     private static EnumSet<ElementKind> classOrInterface = EnumSet.of(ElementKind.CLASS, ElementKind.INTERFACE);
 
-    public ScopeVisitor(SourceChecker checker, CompilationUnitTree root, ScopeCheckerContext context) {
+    public ScopeVisitor(SourceChecker checker, CompilationUnitTree root, ScopeCheckerContext ctx) {
         super(checker, root);
 
         atf = checker.createFactory(root);
         ats = new AnnotatedTypes(checker.getProcessingEnvironment(), atf);
-        this.context = context;
-
+        this.ctx = ctx;
+        scopeTree = ctx.getScopeTree();
     }
 
     @Override
@@ -181,12 +182,12 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         /*
          * Scope tree verification
          */
-        if (!ScopeTree.verifyScopeTree()) {
-            ScopeTree.reportErrors(this);
+        if (!scopeTree.verifyScopeTree()) {
+            scopeTree.reportErrors(this);
             debugIndentDecrement();
             return null;
         }
-        // ScopeTree.printTree();
+        // scopeTree.printTree();
 
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         String oldScope = currentScope;
@@ -194,13 +195,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
         try {
             // context.printContext();
-
-            String scope = context.getScope(t.getQualifiedName().toString());
-            String runsIn = context.getRunsIn(t.getQualifiedName().toString());
-
-            if (runsIn != null) {
-                throw new ScopeException("Class may not have @RunsIn annotation.");
-            }
+            String scope = ctx.getClassScope(t);
 
             if (scope == null) {
                 /*
@@ -212,16 +207,12 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             }
 
             // TODO: assume defaults for inner classes?
-            Utils.debugPrintln("Seen class " + t.getQualifiedName() + ": @Scope(" + scope + ") @RunsIn(" + runsIn + ")");
+            Utils.debugPrintln("Seen class " + t.getQualifiedName() + ": @Scope(" + scope + ")");
 
             currentScope = scope;
-            currentRunsIn = runsIn;
+            currentRunsIn = scope;
 
             return super.visitClass(node, p);
-        } catch (ScopeException e) {
-            Utils.debugPrintException(e);
-            checker.report(Result.failure(e.getMessage()), node);
-            return null;
         } finally {
             currentScope = oldScope;
             currentRunsIn = oldRunsIn;
@@ -245,7 +236,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
                 // pln("   type - kind:" +
                 // elem.asType().getKind());
-                String typeScope = context.getScope(type);
+                String typeScope = ctx.getClassScope(type);
                 // pln("   typ scope :" + typeScope);
                 // pln("   scope elem :" +
                 // scope((VariableElement) elem));
@@ -278,7 +269,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         debugIndent("RUNS IN: " + currentRunsIn);
         debugIndent("scope: " + currentScope);
 
-        TypeElement type = (TypeElement) method.getEnclosingElement();
+        TypeElement type = Utils.getMethodClass(method);
         checkMethodWellFormed(node);
 
         // run() requires a @RunsIn annotation on concrete classes that
@@ -288,7 +279,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             boolean isRunnable = false;
             while (type != null) {
                 for (TypeMirror iface : type.getInterfaces()) {
-                    TypeElement ifaceType = (TypeElement) ((DeclaredType) iface).asElement();
+                    TypeElement ifaceType = Utils.getTypeElement(iface);
                     if (TypesUtils.isDeclaredOfName(ifaceType.asType(), "java.lang.Runnable")) {
                         isRunnable = true;
                         break;
@@ -313,7 +304,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         String oldRunsIn = currentRunsIn;
         R r = null;
         try {
-            String runsIn = context.getRunsIn(method);
+            String runsIn = ctx.getMethodRunsIn(method);
             debugIndent("@RunsIn(" + runsIn + ") " + method.getSimpleName());
             // TODO: If we don't have an allocation context, we need to skip the
             // method?
@@ -321,9 +312,6 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 currentRunsIn = runsIn;
             if (currentAllocScope() != null)
                 r = super.visitMethod(node, p);
-        } catch (ScopeException e) {
-            Utils.debugPrintException(e);
-            report(Result.failure(e.getMessage()), node);
         } finally {
             currentRunsIn = oldRunsIn;
         }
@@ -364,15 +352,12 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             AnnotatedTypeMirror componentType = arrayType.getComponentType();
             if (!componentType.getKind().isPrimitive()) {
                 TypeElement t = elements.getTypeElement(componentType.getUnderlyingType().toString());
-                String scope = context.getScope(t);
+                String scope = ctx.getClassScope(t);
                 if (!(scope == null || scope.equals(currentAllocScope()))) {
                     report(Result.failure(ERR_BAD_ALLOCATION, currentAllocScope(), scope), node);
                 }
             }
             return super.visitNewArray(node, p);
-        } catch (ScopeException e) {
-            Utils.debugPrintException(e);
-            return null;
         } finally {
             debugIndentDecrement();
         }
@@ -387,16 +372,13 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         try {
             debugIndentIncrement("visitNewClass");
             ExecutableElement ctorElement = TreeUtils.elementFromUse(node);
-            String nodeClassScope = context.getScope((TypeElement) ctorElement.getEnclosingElement());
+            String nodeClassScope = ctx.getClassScope(Utils.getMethodClass(ctorElement));
             if (nodeClassScope != null && !currentAllocScope().equals(nodeClassScope) && !nodeClassScope.equals(CURRENT)) {
                 // Can't call new unless the type has the same scope as the
                 // current context
                 report(Result.failure(ERR_BAD_ALLOCATION, currentAllocScope(), nodeClassScope), node);
             }
             return super.visitNewClass(node, p);
-        } catch (ScopeException e) {
-            Utils.debugPrintException(e);
-            return null;
         } finally {
             debugIndentDecrement();
         }
@@ -475,7 +457,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         if (exprKind == Kind.NEW_CLASS) {
             ExpressionTree expr = node.getExpression();
             ExecutableElement ctor = TreeUtils.elementFromUse((NewClassTree) expr);
-            TypeElement expressionType = (TypeElement) ctor.getEnclosingElement();
+            TypeElement expressionType = Utils.getMethodClass(ctor);
             exprScope = Utils.annotationValue(expressionType.getAnnotationMirrors(),
             "javax.safetycritical.annotate.Scope");
 
@@ -495,17 +477,10 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             // debugIndent("met type : " + methodType);
             // debugIndent("met mirror : " + retMirror);
 
-            try {
-                exprScope = context.getScope((TypeElement) ((DeclaredType) retMirror).asElement());
-            } catch (ScopeException e1) {
-                e1.printStackTrace();
-            }
+            exprScope = ctx.getClassScope(Utils.getTypeElement(retMirror));
             if (exprScope == null) {
-                try {
-                    exprScope = context.getRunsIn(methodElem);
-                } catch (ScopeException e) {
-                    e.printStackTrace();
-                } // TODO: revisit
+                exprScope = ctx.getMethodRunsIn(methodElem);
+                // TODO: revisit
             }
             if (exprScope == null) {
                 debugIndent("Expression Scope ERROR? : " + methodExpr.getMethodSelect().getKind());
@@ -599,14 +574,14 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             if (retMirror.getKind().isPrimitive()) {
                 exprScope = varScope; // primitives are always assignable
             } else {
-                exprScope = context.getScope((TypeElement) ((DeclaredType) retMirror).asElement());
+                exprScope = ctx.getClassScope(Utils.getTypeElement(retMirror));
                 if (exprScope == null) {
                     // first, look if the method has @Scope annotation
                     exprScope = getScope(methodElem);
 
                     // second, if its null, then look at its @RunsIn
                     if (exprScope == null)
-                        exprScope = context.getRunsIn(methodElem); // TODO:
+                        exprScope = ctx.getMethodRunsIn(methodElem); // TODO:
                     // revisit
                 }
                 if (exprScope == null) {
@@ -705,7 +680,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             if (castType.getKind().isPrimitive()) {
                 exprScope = varScope;
             } else {
-                exprScope = context.getScope((TypeElement) ((DeclaredType) castType).asElement());
+                exprScope = ctx.getClassScope(Utils.getTypeElement(castType));
             }
 
         } else {
@@ -747,7 +722,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         ExpressionTree arg = node.getArguments().get(1);
 
         ExecutableElement method = TreeUtils.elementFromUse(node);
-        String runsIn = context.getRunsIn(method);
+        String runsIn = ctx.getMethodRunsIn(method);
 
         String argRunsIn = null;
         String argScope = null;
@@ -771,14 +746,14 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                     return;
                 } else {
                     argRunsIn = getRunsInFromRunnable(tmp.asType());
-                    argScope = context.getScope((TypeElement) tmp.asType());
+                    argScope = ctx.getClassScope((TypeElement) tmp.asType());
                 }
                 break;
             case NEW_CLASS :
                 ExecutableElement ctor = TreeUtils.elementFromUse((NewClassTree) arg);
 
                 argRunsIn = getRunsInFromRunnable(ctor.getEnclosingElement().asType());
-                argScope = context.getScope((TypeElement) ctor.getEnclosingElement());
+                argScope = ctx.getClassScope(Utils.getMethodClass(ctor));
 
                 break;
             case TYPE_CAST :
@@ -790,7 +765,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 // exprScope = scope(var);
 
                 TypeMirror castType = atf.fromTypeTree(((TypeCastTree) arg).getType()).getUnderlyingType();
-                argScope = context.getScope((TypeElement) ((DeclaredType) castType).asElement());
+                argScope = ctx.getClassScope(Utils.getTypeElement(castType));
                 argRunsIn = getRunsInFromRunnable(castType);
                 // pln("argScope:" + argScope);
                 // pln("argScope:" + argRunsIn);
@@ -807,7 +782,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         } else if (argScope == null || !argScope.equals(currentAllocScope())) {
             /* checked by scope.MyMission2.java */
             report(Result.failure(ERR_BAD_ENTER_PRIVATE_MEM_NO_SCOPE_ON_RUNNABLE), node);
-        } else if (!ScopeTree.isParentOf(argRunsIn, currentAllocScope())) {
+        } else if (!scopeTree.isParentOf(argRunsIn, currentAllocScope())) {
             /* checked by scope.MyMission2.java */
             report(Result.failure(ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH, argRunsIn, currentAllocScope()), node);
         }
@@ -844,7 +819,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             case NEW_CLASS :
 
                 ExecutableElement ctor = TreeUtils.elementFromUse((NewClassTree) arg);
-                TypeElement el = (TypeElement) ctor.getEnclosingElement();
+                TypeElement el = Utils.getMethodClass(ctor);
                 argRunsIn = getRunsInFromRunnable(el.asType());
 
                 break;
@@ -884,16 +859,16 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             // pln("argScope :" + argScope);
             //pln("varScope :" + varScope);
             // pln("current :" + currentAllocScope());
-            //pln("ancestor :" + ScopeTree.isAncestorOf(currentAllocScope(), varScope));
+            //pln("ancestor :" + scopeTree.isAncestorOf(currentAllocScope(), varScope));
 
             if (varScope == null || !varScope.equals(argRunsIn)) {
                 // The Runnable and the PrivateMemory must have agreeing
                 // scopes
                 report(Result.failure(ERR_BAD_EXECUTE_IN_AREA_OR_ENTER), node);
             }
-            if ("executeInArea".equals(methodName) && !ScopeTree.isAncestorOf(currentAllocScope(), varScope)) {
+            if ("executeInArea".equals(methodName) && !scopeTree.isAncestorOf(currentAllocScope(), varScope)) {
                 report(Result.failure(ERR_BAD_EXECUTE_IN_AREA_TARGET), node);
-            } else if ("enter".equals(methodName) && !ScopeTree.isParentOf(varScope, currentAllocScope())) {
+            } else if ("enter".equals(methodName) && !scopeTree.isParentOf(varScope, currentAllocScope())) {
                 report(Result.failure(ERR_BAD_ENTER_TARGET), node);
             }
         }
@@ -922,8 +897,8 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
     private void checkMethodInvocation(MethodInvocationTree node, P p) throws ScopeException {
         ExecutableElement method = TreeUtils.elementFromUse(node);
-        TypeElement type = (TypeElement) method.getEnclosingElement();
-        String runsIn = context.getRunsIn(method);
+        TypeElement type = Utils.getMethodClass(method);
+        String runsIn = ctx.getMethodRunsIn(method);
         // Ignore constructors, since they should be type checked by the class
         // visitation anyway.
 
@@ -972,7 +947,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 else if (current.equals(varScope)) {
                     if (runsIn != null) {
                         if (!(runsIn.equals(current) || (Utils.isAllocFree(method, ats)
-                                && ScopeTree.isParentOf(current, runsIn)))) {
+                                && scopeTree.isParentOf(current, runsIn)))) {
                             /* TEST WITH: scope/unknown/TestCrossScope */
                             // Can only call methods that run in the same scope.
                             // Allows parent scopes as well, if they are marked @AllocFree.
@@ -1056,7 +1031,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
                 && ((MemberSelectTree) arg).getExpression().getKind() == Kind.IDENTIFIER
                 && (newInstanceType = TreeUtils.elementFromUse((IdentifierTree) ((MemberSelectTree) arg)
                         .getExpression())).getKind() == ElementKind.CLASS) {
-            String instanceScope = context.getScope((TypeElement) newInstanceType);
+            String instanceScope = ctx.getClassScope((TypeElement) newInstanceType);
             if (instanceScope != null && !varScope.equals(instanceScope)) {
                 report(Result.failure(ERR_BAD_NEW_INSTANCE, ((TypeElement) newInstanceType).getQualifiedName(),
                         varScope), node);
@@ -1095,9 +1070,9 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             if (retMirror.getKind().isPrimitive()) {
                 exprScope = null;
             } else {
-                exprScope = context.getScope((TypeElement) ((DeclaredType) retMirror).asElement());
+                exprScope = ctx.getClassScope(Utils.getTypeElement(retMirror));
                 if (exprScope == null) {
-                    exprScope = context.getRunsIn(methodElem); // TODO: revisit
+                    exprScope = ctx.getMethodRunsIn(methodElem); // TODO: revisit
                 }
                 if (exprScope == null) {
                     debugIndent("Expression Scope is NULL, ERR?? :" + methodExpr.getMethodSelect().getKind());
@@ -1141,7 +1116,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             if (castType.getKind().isPrimitive()) {
                 exprScope = returnScope;
             } else {
-                exprScope = context.getScope((TypeElement) ((DeclaredType) castType).asElement());
+                exprScope = ctx.getClassScope(Utils.getTypeElement(castType));
             }
         } else {
             throw new RuntimeException("Need a new case for " + exprKind);
@@ -1230,14 +1205,14 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             /*
              * pln("\n-----\n\t FIELD SCOPE CHECK:" + varScope);
              * pln("\t \t varEnvScope:" + varEnvScope); pln("\t \t node:" +
-             * node); pln("\t \t is parent:" + ScopeTree.isParentOf(varEnvScope,
+             * node); pln("\t \t is parent:" + scopeTree.isParentOf(varEnvScope,
              * varScope)); pln("\t \t varScope:" + varScope);
              * pln("\t \t type Scope:" + varTypeScope);
              * pln("\t \t explicit scope:" + explicitScope);
              */
 
             if (!(var.asType().getKind().isPrimitive() || varEnvScope == null || varScope == null
-                    || ScopeTree.isParentOf(varEnvScope, varScope) || explicitScope != null)) {
+                    || scopeTree.isParentOf(varEnvScope, varScope) || explicitScope != null)) {
                 // Instance fields must be in the same or parent scope as the
                 // instance
                 report(Result.failure(ERR_BAD_FIELD_SCOPE), node);
@@ -1258,7 +1233,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
             Utils.debugPrintln("local @Scope(" + varScope + ")");
             /* LOCAL VARIABLE checking... */
-            if (varScope != null && !varScope.equals(UNKNOWN) && !ScopeTree.isParentOf(currentAllocScope(), varScope)) {
+            if (varScope != null && !varScope.equals(UNKNOWN) && !scopeTree.isParentOf(currentAllocScope(), varScope)) {
                 // @Scopes of local variable types should agree with the current
                 // allocation context
                 report(Result.failure(ERR_BAD_VARIABLE_SCOPE, atf.fromTypeTree(node.getType()), currentAllocScope()),
@@ -1346,7 +1321,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
             return false;
         while (!TypesUtils.isDeclaredOfName(t.asType(), "javax.realtime.MemoryArea")
                 && !TypesUtils.isObject(t.asType())) {
-            t = (TypeElement) ((DeclaredType) t.getSuperclass()).asElement();
+            t = Utils.getTypeElement(t.getSuperclass());
         }
         return TypesUtils.isDeclaredOfName(t.asType(), "javax.realtime.MemoryArea");
     }
@@ -1358,7 +1333,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         }
         while (!TypesUtils.isDeclaredOfName(t.asType(), "javax.safetycritical.ManagedMemory")
                 && !TypesUtils.isObject(t.asType())) {
-            t = (TypeElement) ((DeclaredType) t.getSuperclass()).asElement();
+            t = Utils.getTypeElement(t.getSuperclass());
         }
         return TypesUtils.isDeclaredOfName(t.asType(), "javax.safetycritical.ManagedMemory");
     }
@@ -1399,7 +1374,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
 
         // Variable's type is not annotated, so go by the enclosing environment.
         if (classOrInterface.contains(var.getEnclosingElement().getKind())) { // instance
-            return context.getScope((TypeElement) var.getEnclosingElement());
+            return ctx.getClassScope((TypeElement) var.getEnclosingElement());
         } else { // local
             return currentAllocScope();
         }
@@ -1430,7 +1405,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
         }
         if (exprType.getKind() == TypeKind.DECLARED) {
             // return scope(elements.getTypeElement(exprType.toString()), null);
-            typeScope = context.getScope((TypeElement) ((AnnotatedDeclaredType) exprType).getUnderlyingType()
+            typeScope = ctx.getClassScope((TypeElement) ((AnnotatedDeclaredType) exprType).getUnderlyingType()
                     .asElement());
         }
 
@@ -1483,7 +1458,7 @@ public class ScopeVisitor<R, P> extends SourceVisitor<R, P> {
     private String getRunsInFromRunnable(TypeMirror var) {
         String result = null;
         // TypeElement myType = context.getTypeElement(var.asType().toString());
-        TypeElement myType = context.getTypeElement(var.toString());
+        TypeElement myType = Utils.getTypeElement(elements, var.toString());
         List<? extends Element> elements = myType.getEnclosedElements();
         // search for run() method:
         for (Element el : elements)

@@ -52,11 +52,15 @@ public class ScopeChecker extends SourceChecker {
     public static final String ERR_UNRESOLVED_SCOPEDEF = "unresolvable";
     public static final String ERR_VAR_AND_TYPE_SCOPE_ANNOTATION_MISMATCH = "error.var.and.type.scope.annotation.mismatch";
 
-    private ScopeCheckerContext context;
+    private ScopeCheckerContext ctx;
+
+    public ScopeChecker(ScopeCheckerContext ctx) {
+        this.ctx = ctx;
+    }
 
     @Override
     protected SourceVisitor<?, ?> createSourceVisitor(CompilationUnitTree root) {
-        return new ScopeVisitor<Void, Void>(this, root, context);
+        return new ScopeVisitor<Void, Void>(this, root, ctx);
     }
 
     @Override
@@ -139,6 +143,5 @@ public class ScopeChecker extends SourceChecker {
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         Utils.DEBUG = processingEnv.getOptions().containsKey("debug");
-        context = new ScopeCheckerContext(this);
     }
 }

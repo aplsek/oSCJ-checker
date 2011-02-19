@@ -11,6 +11,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 import javax.safetycritical.annotate.SCJRestricted;
 
 import checkers.types.AnnotatedTypes;
@@ -74,12 +75,12 @@ public final class Utils {
     public static HashSet<TypeElement> getAllInterfaces(TypeElement type) {
         HashSet<TypeElement> ret = new LinkedHashSet<TypeElement>();
         for (TypeMirror iface : type.getInterfaces()) {
-            TypeElement ifaceElement = (TypeElement) ((DeclaredType) iface).asElement();
+            TypeElement ifaceElement = getTypeElement(iface);
             ret.add(ifaceElement);
             ret.addAll(getAllInterfaces(ifaceElement));
         }
         if (type.getKind() == ElementKind.CLASS && !TypesUtils.isObject(type.asType())) {
-            ret.addAll(getAllInterfaces((TypeElement) ((DeclaredType) type.getSuperclass()).asElement()));
+            ret.addAll(getAllInterfaces(getTypeElement(type.getSuperclass())));
         }
         return ret;
     }
@@ -95,6 +96,32 @@ public final class Utils {
         return (TypeElement) ((DeclaredType) type.getSuperclass()).asElement();
     }
 
+    public static TypeElement getTypeElement(Elements elements, String clazz) {
+        return elements.getTypeElement(clazz);
+    }
+
+    /**
+     * Get an object representing the declaration of the class that contains
+     * a method.
+     *
+     * @param m the method whose class declaration is needed
+     * @return an object representing the class declaration
+     */
+    public static TypeElement getMethodClass(ExecutableElement m) {
+        return (TypeElement) m.getEnclosingElement();
+    }
+
+    /**
+     * Convert a TypeMirror object to a TypeElement object. Assumes that the
+     * TypeMirror is actually convertible to a TypeElement (aka is not a
+     * primitive type, etc.)
+     *
+     * @param mirror the TypeMirror to convert
+     * @return the TypeElement representing the TypeMirror's class
+     */
+    public static TypeElement getTypeElement(TypeMirror mirror) {
+        return (TypeElement) ((DeclaredType) mirror).asElement();
+    }
 
     private static String indent = "";
 
