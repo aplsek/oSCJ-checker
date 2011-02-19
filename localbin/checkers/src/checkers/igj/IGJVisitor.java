@@ -1,8 +1,9 @@
 package checkers.igj;
 
-import java.util.Collection;
+import java.util.*;
 
-import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.*;
+import javax.lang.model.type.*;
 
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
@@ -10,12 +11,13 @@ import com.sun.source.tree.Tree;
 import checkers.basetype.BaseTypeVisitor;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
 import checkers.types.AnnotatedTypeMirror.AnnotatedExecutableType;
+import checkers.types.AnnotatedTypeMirror;
 
 /**
  * A type-checking visitor for the IGJ type
  * qualifier that uses the {@link BaseTypeVisitor} implementation. This visitor
  * reports errors or warnings for violations for the following cases:
- * 
+ *
  * <ol>
  * <li value="1">constructing an infeasible type
  * </ol>
@@ -28,6 +30,7 @@ public class IGJVisitor extends BaseTypeVisitor<Void, Void> {
     public IGJVisitor(IGJChecker checker, CompilationUnitTree root) {
         super(checker, root);
         this.checker = checker;
+        checkForAnnotatedJdk();
     }
 
     @Override

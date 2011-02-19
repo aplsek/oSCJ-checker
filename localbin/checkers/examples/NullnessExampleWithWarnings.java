@@ -15,6 +15,9 @@ public class NullnessExampleWithWarnings {
 
   public void example() {
 
+    // This type annotation is redundant -- the Nullness Checker will
+    // infer it, but it is written here in the example for emhpasis.
+    // In general, you do not have to annotate local variables.
     @NonNull String foo = "foo";
     String bar = null;
 
@@ -23,7 +26,7 @@ public class NullnessExampleWithWarnings {
 
   }
 
-  public void exampleGenerics() {
+  public /*@NonNull*/ String exampleGenerics() {
 
     List</*@NonNull*/ String> foo = new LinkedList</*@NonNull*/ String>();
     List<String> bar = foo;
@@ -32,6 +35,7 @@ public class NullnessExampleWithWarnings {
     foo.add(quux);
     foo.add("quux");
     @NonNull String baz = foo.get(0);
+    return baz;
 
   }
 

@@ -1,9 +1,7 @@
 package checkers.nullness;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.lang.model.element.*;
 
@@ -69,51 +67,58 @@ public class NullnessAnnotatedTypeFactory extends AnnotatedTypeFactory {
     private final QualifierPolymorphism poly;
     private final DependentTypes dependentTypes;
     /*package*/ final AnnotatedTypeFactory rawnessFactory;
+    private final AnnotatedTypeFactory plainFactory;
 
     private final AnnotationCompleter completer = new AnnotationCompleter();
 
     /** Represents the Nullness Checker qualifiers */
     protected final AnnotationMirror POLYNULL, NONNULL, RAW, NULLABLE, LAZYNONNULL;
-    Map<String, AnnotationMirror> aliases;
+    protected final AnnotationMirror UNUSED;
 
-    private final MapGetHeauristics mapGetHeauristics;
-    private final CollectionToArrayHeauristics collectionToArrayHeauristics;
+    private final MapGetHeuristics mapGetHeuristics;
+    private final CollectionToArrayHeuristics collectionToArrayHeuristics;
 
     /** Creates a {@link NullnessAnnotatedTypeFactory}. */
     public NullnessAnnotatedTypeFactory(NullnessSubchecker checker,
             CompilationUnitTree root) {
         super(checker, root);
 
+        plainFactory = new AnnotatedTypeFactory(checker.getProcessingEnvironment(), null, root, null);
         typeAnnotator = new NonNullTypeAnnotator(checker);
         treeAnnotator = new NonNullTreeAnnotator(checker);
-        mapGetHeauristics = new MapGetHeauristics(env, this);
+        mapGetHeuristics = new MapGetHeuristics(env, this,
+                new AnnotatedTypeFactory(
+                        checker.getProcessingEnvironment(),
+                        null, root, null));
 
         POLYNULL = this.annotations.fromClass(PolyNull.class);
         NONNULL = this.annotations.fromClass(NonNull.class);
         RAW = this.annotations.fromClass(Raw.class);
         NULLABLE = this.annotations.fromClass(Nullable.class);
         LAZYNONNULL = this.annotations.fromClass(LazyNonNull.class);
+        UNUSED = this.annotations.fromClass(Unused.class);
 
-        aliases = new HashMap<String, AnnotationMirror>();
-
+        // If you update the following, also update ../../../manual/nullness-checker.tex .
         // aliases for nonnull
-        aliases.put(edu.umd.cs.findbugs.annotations.NonNull.class.getCanonicalName(), NONNULL);
-        aliases.put(javax.annotation.Nonnull.class.getCanonicalName(), NONNULL);
-        aliases.put(org.jetbrains.annotations.NotNull.class.getCanonicalName(), NONNULL);
-        aliases.put(org.netbeans.api.annotations.common.NonNull.class.getCanonicalName(), NONNULL);
-
+        addAliasedAnnotation(com.sun.istack.NotNull.class, NONNULL);
+        addAliasedAnnotation(edu.umd.cs.findbugs.annotations.NonNull.class, NONNULL);
+        addAliasedAnnotation(javax.annotation.Nonnull.class, NONNULL);
+        addAliasedAnnotation(javax.validation.constraints.NotNull.class, NONNULL);
+        addAliasedAnnotation(org.jetbrains.annotations.NotNull.class, NONNULL);
+        addAliasedAnnotation(org.netbeans.api.annotations.common.NonNull.class, NONNULL);
         // aliases for nullable
-        aliases.put(edu.umd.cs.findbugs.annotations.CheckForNull.class.getCanonicalName(), NULLABLE);
-        aliases.put(edu.umd.cs.findbugs.annotations.Nullable.class.getCanonicalName(), NULLABLE);
-        aliases.put(edu.umd.cs.findbugs.annotations.UnknownNullness.class.getCanonicalName(), NULLABLE);
-        aliases.put(javax.annotation.CheckForNull.class.getCanonicalName(), NULLABLE);
-        aliases.put(javax.annotation.Nullable.class.getCanonicalName(), NULLABLE);
-        aliases.put(org.jetbrains.annotations.Nullable.class.getCanonicalName(), NULLABLE);
-        aliases.put(org.netbeans.api.annotations.common.CheckForNull.class.getCanonicalName(), NULLABLE);
-        aliases.put(org.netbeans.api.annotations.common.NullAllowed.class.getCanonicalName(), NULLABLE);
-        aliases.put(org.netbeans.api.annotations.common.NullUnknown.class.getCanonicalName(), NULLABLE);
+        addAliasedAnnotation(com.sun.istack.Nullable.class, NULLABLE);
+        addAliasedAnnotation(edu.umd.cs.findbugs.annotations.CheckForNull.class, NULLABLE);
+        addAliasedAnnotation(edu.umd.cs.findbugs.annotations.Nullable.class, NULLABLE);
+        addAliasedAnnotation(edu.umd.cs.findbugs.annotations.UnknownNullness.class, NULLABLE);
+        addAliasedAnnotation(javax.annotation.CheckForNull.class, NULLABLE);
+        addAliasedAnnotation(javax.annotation.Nullable.class, NULLABLE);
+        addAliasedAnnotation(org.jetbrains.annotations.Nullable.class, NULLABLE);
+        addAliasedAnnotation(org.netbeans.api.annotations.common.CheckForNull.class, NULLABLE);
+        addAliasedAnnotation(org.netbeans.api.annotations.common.NullAllowed.class, NULLABLE);
+        addAliasedAnnotation(org.netbeans.api.annotations.common.NullUnknown.class, NULLABLE);
 
-        collectionToArrayHeauristics = new CollectionToArrayHeauristics(env, this);
+        collectionToArrayHeuristics = new CollectionToArrayHeuristics(env, this);
 
         defaults = new QualifierDefaults(this, this.annotations);
         defaults.setAbsoluteDefaults(NONNULL, Collections.singleton(DefaultLocation.ALL_EXCEPT_LOCALS));
@@ -127,6 +132,13 @@ public class NullnessAnnotatedTypeFactory extends AnnotatedTypeFactory {
         rawnessFactory = rawness.createFactory(root);
 
         flow = new NullnessFlow(checker, root, this);
+
+        postInit();
+    }
+
+    @Override
+    protected void postInit() {
+        super.postInit();
         flow.scan(root, null);
     }
 
@@ -151,6 +163,7 @@ public class NullnessAnnotatedTypeFactory extends AnnotatedTypeFactory {
         defaults.annotate(tree, type);
 
         substituteRaw(tree, type);
+        substituteUnused(tree, type);
 
         dependentTypes.handle(tree, type);
         final AnnotationMirror inferred = flow.test(tree);
@@ -201,8 +214,8 @@ public class NullnessAnnotatedTypeFactory extends AnnotatedTypeFactory {
         poly.annotate(tree, method);
 //        poly.annotate(method.getElement(), method);
 
-        mapGetHeauristics.handle(tree, method);
-        collectionToArrayHeauristics.handle(tree, method);
+        mapGetHeuristics.handle(tree, method);
+        collectionToArrayHeuristics.handle(tree, method);
         return method;
     }
 
@@ -211,6 +224,35 @@ public class NullnessAnnotatedTypeFactory extends AnnotatedTypeFactory {
         AnnotatedExecutableType constructor = super.constructorFromUse(tree);
         dependentTypes.handleConstructor(tree, constructor);
         return constructor;
+    }
+
+    private boolean substituteUnused(Tree tree, AnnotatedTypeMirror type) {
+        if (tree.getKind() != Tree.Kind.MEMBER_SELECT
+            && tree.getKind() != Tree.Kind.IDENTIFIER)
+            return false;
+
+        Element field = InternalUtils.symbol(tree);
+        if (field == null || field.getKind() != ElementKind.FIELD)
+            return false;
+
+        Unused unused = field.getAnnotation(Unused.class);
+        if (unused == null)
+            return false;
+
+        try {
+            unused.when();
+            assert false : "Cannot be here";
+            return false;
+        } catch (MirroredTypeException exp) {
+            Name whenName = TypesUtils.getQualifiedName((DeclaredType)exp.getTypeMirror());
+            AnnotatedTypeMirror receiver = plainFactory.getReceiver((ExpressionTree)tree);
+            if (receiver == null || receiver.getAnnotation(whenName) == null) {
+                return false;
+            }
+            type.clearAnnotations();
+            type.addAnnotation(NULLABLE);
+            return true;
+        }
     }
 
     /**
@@ -323,14 +365,6 @@ public class NullnessAnnotatedTypeFactory extends AnnotatedTypeFactory {
             else if (type.hasAnnotation(NONNULL))
                 type.removeAnnotation(NULLABLE);
 
-            // case 13: type of Void is nullable
-            if (TypesUtils.isDeclaredOfName(type.getUnderlyingType(), "java.lang.Void")
-                    // Hack: Special case Void.class
-                    && (type.getElement() == null || !type.getElement().getKind().isClass())) {
-                type.clearAnnotations();
-                type.addAnnotation(NULLABLE);
-            }
-
             assert type.isAnnotated() : type;
 
             return super.scan(type, p);
@@ -372,6 +406,18 @@ public class NullnessAnnotatedTypeFactory extends AnnotatedTypeFactory {
 
             return super.visitExecutable(type, p);
         }
+
+        @Override
+        public Void visitDeclared(AnnotatedDeclaredType type, ElementKind p) {
+            // case 13: type of Void is nullable
+            if (TypesUtils.isDeclaredOfName(type.getUnderlyingType(), "java.lang.Void")
+                    // Hack: Special case Void.class
+                    && (type.getElement() == null || !type.getElement().getKind().isClass())) {
+                type.addAnnotation(NULLABLE);
+            }
+
+            return super.visitDeclared(type, p);
+        }
     }
 
     /**
@@ -382,7 +428,7 @@ public class NullnessAnnotatedTypeFactory extends AnnotatedTypeFactory {
 
         /** Creates a {@link NonNullTreeAnnotator} for the given checker. */
         NonNullTreeAnnotator(BaseTypeChecker checker) {
-            super(checker);
+            super(checker, NullnessAnnotatedTypeFactory.this);
         }
 
         @Override
@@ -452,17 +498,6 @@ public class NullnessAnnotatedTypeFactory extends AnnotatedTypeFactory {
             final VariableElement catchParamElt = TreeUtils.elementFromDeclaration(catchParamTree);
             return elt.equals(catchParamElt);
         }
-    }
-
-    /**
-     * Aliased annotations.
-     *
-     */
-    protected AnnotationMirror aliasedAnnotation(AnnotationMirror a) {
-        TypeElement elem = (TypeElement)a.getAnnotationType().asElement();
-
-        String qualName = elem.getQualifiedName().toString();
-        return aliases == null ? null : aliases.get(qualName);
     }
 
 }

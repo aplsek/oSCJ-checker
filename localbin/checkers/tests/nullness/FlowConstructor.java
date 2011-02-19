@@ -1,5 +1,5 @@
 import checkers.nullness.quals.*;
-
+// @skip-test
 public class FlowConstructor {
 
     String a;
@@ -13,6 +13,7 @@ public class FlowConstructor {
 
     public FlowConstructor(double p) {
         a = "m";
+        //:: (method.invocation.invalid)
         nonRawMethod();  // error
     }
 

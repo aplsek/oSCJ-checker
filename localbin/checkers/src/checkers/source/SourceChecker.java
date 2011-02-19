@@ -11,8 +11,8 @@ import javax.lang.model.element.*;
 import javax.tools.Diagnostic;
 
 import checkers.basetype.BaseTypeChecker;
+import checkers.compilermsgs.quals.CompilerMessageKey;
 import checkers.nullness.quals.*;
-import checkers.quals.DefaultQualifier;
 import checkers.quals.TypeQualifiers;
 import checkers.types.*;
 import checkers.util.*;
@@ -48,7 +48,6 @@ import com.sun.tools.javac.processing.*;
  * {@link AbstractProcessor} (or even this class) as the Checker Framework is
  * not designed for such checkers.
  */
-@DefaultQualifier("checkers.nullness.quals.NonNull")
 public abstract class SourceChecker extends AbstractTypeProcessor {
 
     // TODO checkers should export themselves through a separate interface,
@@ -202,18 +201,33 @@ public abstract class SourceChecker extends AbstractTypeProcessor {
         this.activeLints = createActiveLints(processingEnv.getOptions());
     }
 
+    // Only output the warning about source level at most once
+    private boolean warnedAboutSourceLevel = false;
+
     /**
      * Type-check the code with Java specifications and then runs the Checker
      * Rule Checking visitor on the processed source.
-     *
-     * The {@link Processor} is invoked in the annotation processing phase,
-     * before the code is type-checked by the compiler.  This method ensures
-     * that only Java valid code is processed by the Rule Checking visitor.
      *
      * @see Processor#process(Set, RoundEnvironment)
      */
     @Override
     public void typeProcess(TypeElement e, TreePath p) {
+        if(e==null) {
+                System.err.println("Refusing to process empty TypeElement");
+                return;
+        }
+        if(p==null) {
+                System.err.println("Refusing to process empty TreePath in TypeElement: " + e);
+                return;
+        }
+
+        com.sun.tools.javac.code.Source source = com.sun.tools.javac.code.Source.instance(((com.sun.tools.javac.processing.JavacProcessingEnvironment) env).getContext());
+        if ((! warnedAboutSourceLevel) && (! source.allowTypeAnnotations())) {
+            messager.printMessage(javax.tools.Diagnostic.Kind.WARNING,
+                                  "-source " + source.name + " does not support type annotations");
+            warnedAboutSourceLevel = true;
+        }
+
         currentRoot = p.getCompilationUnit();
         currentPath = p;
         // Visit the attributed tree.
@@ -229,6 +243,40 @@ public abstract class SourceChecker extends AbstractTypeProcessor {
             err.printStackTrace();
             throw err;
         }
+    }
+
+    // Uses private fields, need to rewrite.
+    // public void dumpState() {
+    //     System.out.printf("SourceChecker = %s%n", this);
+    //     System.out.printf("  env = %s%n", env);
+    //     System.out.printf("    env.elementUtils = %s%n", ((JavacProcessingEnvironment) env).elementUtils);
+    //     System.out.printf("      env.elementUtils.types = %s%n", ((JavacProcessingEnvironment) env).elementUtils.types);
+    //     System.out.printf("      env.elementUtils.enter = %s%n", ((JavacProcessingEnvironment) env).elementUtils.enter);
+    //     System.out.printf("    env.typeUtils = %s%n", ((JavacProcessingEnvironment) env).typeUtils);
+    //     System.out.printf("  trees = %s%n", trees);
+    //     System.out.printf("    trees.enter = %s%n", ((com.sun.tools.javac.api.JavacTrees) trees).enter);
+    //     System.out.printf("    trees.elements = %s%n", ((com.sun.tools.javac.api.JavacTrees) trees).elements);
+    //     System.out.printf("      trees.elements.types = %s%n", ((com.sun.tools.javac.api.JavacTrees) trees).elements.types);
+    //     System.out.printf("      trees.elements.enter = %s%n", ((com.sun.tools.javac.api.JavacTrees) trees).elements.enter);
+    // }
+
+    /**
+     * Returns the localized long message corresponding for this key, and
+     * returns the defValue if no localized message is found.
+     *
+     */
+    protected String fullMessageOf(String messageKey, String defValue) {
+        String key = messageKey;
+
+        do {
+            if (messages.containsKey(key)) {
+                return messages.getProperty(key);
+            }
+
+            int dot = key.indexOf('.');
+            if (dot < 0) return defValue;
+            key = key.substring(dot + 1);
+        } while (true);
     }
 
     /**
@@ -248,18 +296,21 @@ public abstract class SourceChecker extends AbstractTypeProcessor {
      *             if {@code source} is neither a {@link Tree} nor an
      *             {@link Element}
      */
-    protected void message(Diagnostic.Kind kind, Object source, Object msgKey,
+    protected void message(Diagnostic.Kind kind, Object source, @CompilerMessageKey String msgKey,
             Object... args) {
 
         assert messages != null : "null messages";
 
-        for (Object arg : args) {
-            arg = (arg == null) ? null :
-                messages.getProperty(arg.toString(), arg.toString());
+        if (args != null) {
+            // look whether we can expand the arguments, too.
+            for (int i = 0; i < args.length; ++i) {
+                args[i] = (args[i] == null) ? null :
+                    messages.getProperty(args[i].toString(), args[i].toString());
+            }
         }
 
         if (kind == Diagnostic.Kind.NOTE) {
-            System.err.println("(NOTE) " + String.format(msgKey.toString(), args));
+            System.err.println("(NOTE) " + String.format(msgKey, args));
             return;
         }
 
@@ -269,11 +320,11 @@ public abstract class SourceChecker extends AbstractTypeProcessor {
                 && this.env.getOptions().containsKey("nomsgtext"))
             fmtString = defaultFormat;
         else
-            fmtString = messages.getProperty(msgKey.toString(), defaultFormat);
+            fmtString = fullMessageOf(msgKey, defaultFormat);
         String messageText = String.format(fmtString, args);
 
         // Replace '\n' with the proper line separator
-        if (LINE_SEPARATOR != "\n")
+        if (LINE_SEPARATOR != "\n") // interned
             messageText = messageText.replaceAll("\n", LINE_SEPARATOR);
 
         if (source instanceof Element)
@@ -287,11 +338,26 @@ public abstract class SourceChecker extends AbstractTypeProcessor {
     }
 
     /**
-     * Determines whether one of the annotations in the given set of {@link
-     * AnnotationMirror}s is a {@link SuppressWarnings} annotation with the
-     * SuppressWarnings key corresponding to this checker.
+     * Determines if an error (whose error key is {@code err}), should
+     * be suppressed according to the user explicitly written
+     * {@code anno} Suppress annotation.
+     *
+     * A suppress warnings value may be of the following pattern:
+     *
+     * <ol>
+     * <li>{@code "suppress-key"}, where suppress-key is a supported warnings key, as
+     * specified by {@link #getSuppressWarningsKey()},
+     * e.g. {@code "nullness"} for nullness, {@code "igj"} for igj
+     * test</li>
+     *
+     * <li>{@code "suppress-key:error-key}, where the suppress-key
+     * is as above, and error-key being the prefix of the errors
+     * that it may suppress.  So "nullness:generic.argument", would
+     * suppress any errors in nullness checker related to
+     * generic.argument.
      *
      * @param annos the annotations to search
+     * @param err   the error key the checker is emitting
      * @return true if one of {@code annos} is a {@link SuppressWarnings}
      *         annotation with the key returned by {@link
      *         SourceChecker#getSuppressWarningsKey}
@@ -368,7 +434,7 @@ public abstract class SourceChecker extends AbstractTypeProcessor {
 
     /**
      * Reports a result. By default, it prints it to the screen via the
-     * compiler's internal messeger if the result is non-success; otherwise,
+     * compiler's internal messenger if the result is non-success; otherwise,
      * the method returns with no side-effects.
      *
      * @param r
@@ -519,7 +585,9 @@ public abstract class SourceChecker extends AbstractTypeProcessor {
         options.add("filenames");
         options.add("showchecks");
         options.add("stubs");
+        options.add("nocheckjdk");
         options.add("warns");
+        options.add("annotatedTypeParams");
         options.addAll(super.getSupportedOptions());
         return Collections.</*@NonNull*/ String>unmodifiableSet(options);
     }
@@ -620,7 +688,12 @@ public abstract class SourceChecker extends AbstractTypeProcessor {
     }
 
     @Override
-    public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.RELEASE_7;
+    public final SourceVersion getSupportedSourceVersion() {
+        try {
+            return SourceVersion.RELEASE_7;
+        } catch (NoSuchFieldError e) {
+            // Running in JDK 6
+            return SourceVersion.latest();
+        }
     }
 }

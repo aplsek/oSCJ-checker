@@ -1,5 +1,6 @@
 import checkers.nullness.quals.*;
 import java.util.Arrays;
+import java.util.List;
 
 public class ArrayRefs {
 
@@ -7,6 +8,7 @@ public class ArrayRefs {
 
         String[] s = null;
 
+        //:: (dereference.of.nullable)
         if (s.length > 0)
             System.out.println("s.length > 0");
 
@@ -20,4 +22,13 @@ public class ArrayRefs {
     <T> void test(T[] a) {
         test(a);
     }
+
+    List<Object> @Nullable [] antecedents_for_suppressors () {
+        return null;
+    }
+
+    public void find_suppressed_invs () {
+        List<Object>[] antecedents = antecedents_for_suppressors ();
+    }
+
 }

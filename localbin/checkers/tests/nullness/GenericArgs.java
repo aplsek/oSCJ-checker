@@ -2,7 +2,7 @@ import checkers.nullness.quals.*;
 import java.io.*;
 import java.util.*;
 
-@checkers.quals.DefaultQualifier("checkers.nullness.quals.Nullable")
+@checkers.quals.DefaultQualifier("Nullable")
 public class GenericArgs {
 
     public @NonNull Set<@NonNull String> strings = new HashSet<@NonNull String>();
@@ -16,11 +16,13 @@ public class GenericArgs {
 
     static class X<T extends @NonNull Object> {
         T value() {
+            //:: (return.type.incompatible)
             return null;
         }
     }
 
     public static void test2() {
+        //:: (generic.argument.invalid)
         Object o = new X<Object>().value();
     }
 
@@ -29,7 +31,9 @@ public class GenericArgs {
     }
 
     void test4() {
+        //:: (generic.argument.invalid)
         GenericArgs.<@Nullable Object>test3(null);
+        //:: (argument.type.incompatible)
         GenericArgs.<@NonNull Object>test3(null);
     }
 
@@ -40,6 +44,7 @@ public class GenericArgs {
     }
 
     void test5() {
+        //:: (argument.type.incompatible)
         new <@NonNull String> GenericConstructor(null);
     }
 

@@ -14,7 +14,6 @@ import javax.lang.model.type.*;
 
 import com.sun.source.tree.*;
 
-import checkers.flow.Flow;
 import checkers.igj.quals.*;
 import checkers.types.*;
 import checkers.types.AnnotatedTypeMirror.*;
@@ -180,6 +179,7 @@ public class IGJAnnotatedTypeFactory extends BasicAnnotatedTypeFactory<IGJChecke
                     // case 9: class or interface declaration
                     type.addAnnotation(BOTTOM_QUAL);
                 else if (p.isField()
+                        && type.getElement() != null // We don't know the field context here
                         && getAnnotatedType(ElementUtils.enclosingClass(type.getElement())).hasAnnotation(IMMUTABLE)) {
                     type.addAnnotation(IMMUTABLE);
                 }
@@ -269,7 +269,7 @@ public class IGJAnnotatedTypeFactory extends BasicAnnotatedTypeFactory<IGJChecke
     private class IGJTreePreAnnotator extends TreeAnnotator {
 
         public IGJTreePreAnnotator(IGJChecker checker) {
-            super(checker);
+            super(checker, IGJAnnotatedTypeFactory.this);
         }
 
         @Override

@@ -7,7 +7,7 @@ import checkers.source.SourceChecker;
 import checkers.util.AggregateChecker;
 
 /**
- * A type-checker that enforces (and finds the violations) two properties:
+ * A type-checker that enforces (and finds the violations of) two properties:
  *
  * <ol>
  * <li value="1">Only localized output gets emitted to the user</li>
@@ -16,7 +16,7 @@ import checkers.util.AggregateChecker;
  * </ol>
  *
  * @see SubI18Checker
- * @see KeyLookupChecker
+ * @see LocalizableKeyChecker
  */
 public class I18nChecker extends AggregateChecker {
 
@@ -25,7 +25,7 @@ public class I18nChecker extends AggregateChecker {
         Collection<Class<? extends SourceChecker>> checkers
             = new ArrayList<Class<? extends SourceChecker>>();
         checkers.add(SubI18Checker.class);
-        checkers.add(KeyLookupChecker.class);
+        checkers.add(LocalizableKeyChecker.class);
         return checkers;
     }
 }

@@ -3,6 +3,8 @@ import checkers.nullness.quals.*;
 import java.util.*;
 import java.io.*;
 
+import org.junit.Ignore;
+
 public class NonNullMapValue {
 
   // Discussion:
@@ -38,11 +40,13 @@ public class NonNullMapValue {
 
   void testMyMap(String key) {
     @NonNull String value;
+    //:: (assignment.type.incompatible)
     value = myMap.get(key);    // should issue warning
     if (myMap.containsKey(key)) {
       value = myMap.get(key);
     }
     for (String keyInMap : myMap.keySet()) {
+      //:: (assignment.type.incompatible)
       value = myMap.get(key); // should issue warning
     }
     for (String keyInMap : myMap.keySet()) {
@@ -122,6 +126,56 @@ public class NonNullMapValue {
   public static Object testAssertGet(Map<Object,Object> map, Object key) {
     assert map.get(key) != null;
     return map.get(key);
+  }
+
+  public static Object testThrow(Map<Object, Object> map, Object key) {
+      if (!map.containsKey(key)) {
+          if (true) {
+              return "m";
+          } else {
+              throw new RuntimeException();
+          }
+      }
+      return map.get(key);
+  }
+
+  public void negateMap(Map<Object, Object> map, Object key) {
+      if (!map.containsKey(key)) {
+      } else {
+          @NonNull Object v = map.get(key);
+      }
+  }
+
+  public void withinElseInvalid(Map<Object, Object> map, Object key) {
+      if (map.containsKey(key)) {
+      } else {
+          //:: (assignment.type.incompatible)
+          @NonNull Object v = map.get(key);
+      }
+  }
+
+  // Map.get should be annotated as @Pure
+  public static int mapGetSize(MyMap<Object, List<Object>> covered, Object file) {
+    return (covered.get(file) == null) ? 0 : covered.get(file).size();
+  }
+
+  interface MyMap<K, V> extends Map<K, V> {
+    @Pure public V get(Object o);
+  }
+
+  private static final String KEY = "key";
+  private static final String KEY2 = "key2";
+  void testAnd() {
+    Map<String, String> map = new HashMap<String, String>();
+    if (map.containsKey(KEY)) {
+      map.get(KEY).toString();
+    }
+    // BUG: this suppression is temporary until the bug fix is done
+    // issue #67:  http://code.google.com/p/checker-framework/issues/detail?id=67
+    //:: (dereference.of.nullable)
+    if (map.containsKey(KEY2) && map.get(KEY2).toString() != null) {
+      // do nothing
+    }
   }
 
 }

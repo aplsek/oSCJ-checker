@@ -33,8 +33,7 @@ abstract public class CheckerTest {
     public CheckerTest(String checkerName, String checkerDir, String... checkerOptions) {
         this.checkerName = checkerName;
         this.checkerDir = "tests" + File.separator + checkerDir;
-        this.checkerOptions = Arrays.copyOf(checkerOptions, checkerOptions.length + 1);
-        this.checkerOptions[checkerOptions.length] = "-XDTAannotationsincomments";
+        this.checkerOptions = Arrays.copyOf(checkerOptions, checkerOptions.length);
     }
 
     /**
@@ -44,6 +43,12 @@ abstract public class CheckerTest {
      * named testZZZ, this method uses an expected outfile called "ZZZ.out"
      * and a Java source file called "ZZZ.java".
      */
+    protected void test(File testFile) {
+        final String expectedFileName = testFile.getPath().replace(".java", ".out");
+        File expectedFile = new File(expectedFileName);
+        runTest(expectedFile, testFile);
+    }
+
     protected void test() {
         StackTraceElement[] stack = Thread.currentThread().getStackTrace();
         assert stack.length >= 3;
@@ -51,13 +56,8 @@ abstract public class CheckerTest {
         if (!method.startsWith("test"))
             throw new AssertionError("caller's name is invalid");
         String[] parts = method.split("test");
-        String test = parts[parts.length - 1];
-
-        final String javaTestFileName = test + ".java";
-        final String expectedFileName = test + ".out";
-        final File expectedFile = new File(checkerDir + File.separator + expectedFileName);
-        boolean shouldSucceed = TestUtilities.shouldSucceed(expectedFile);
-        runTest(expectedFileName, shouldSucceed, javaTestFileName);
+        String testName = parts[parts.length - 1];
+        test(new File(this.checkerDir + File.separator + testName + ".java"));
     }
 
     /**
@@ -106,14 +106,21 @@ abstract public class CheckerTest {
      * Tests that the result of compiling the javaFile matches the expectedFile.
      *
      * @param expectedFile  the expected result for compilation
-     * @param shouldSucceed whether the javaFile should compile successfully
      * @param javaFiles  the Java files to be compiled
      */
-    protected void runTest(String expectedFileName, boolean shouldSucceed, String ... javaFiles) {
+    protected void runTest(File expectedFile, File ... javaFiles) {
         TestRun run = getTest(javaFiles);
-        String expectedPath = this.checkerDir + File.separator + expectedFileName;
-        File expectedFile = new File(expectedPath);
-        checkTestResult(run, expectedFile, shouldSucceed, joinPrefixed(javaFiles, " ", this.checkerDir + File.separator));
+        if (expectedFile.exists()) {
+            checkTestResult(run, expectedFile, TestUtilities.shouldSucceed(expectedFile), joinPrefixed(javaFiles, " ", this.checkerDir + File.separator));
+        } else {
+            List<String> expectedErrors = TestUtilities.expectedDiagnostics(this.checkerDir + File.separator, javaFiles);
+            checkTestResult(run, expectedErrors, expectedErrors.isEmpty(), joinPrefixed(javaFiles, " ", this.checkerDir + File.separator));
+        }
+    }
+
+    protected void runTest(List<String> expectedErrors, boolean shouldSucceed, String ... javaFiles) {
+        TestRun run = getTest(javaFiles);
+        checkTestResult(run, expectedErrors, shouldSucceed, joinPrefixed(javaFiles, " ", this.checkerDir + File.separator));
     }
 
     /**
@@ -150,6 +157,18 @@ abstract public class CheckerTest {
         assertDiagnostics(list, expectedFile, javaFile);
     }
 
+    protected void checkTestResult(TestRun run, List<String> expectedErrors, boolean shouldSucceed, String javaFile) {
+        if (shouldSucceed)
+            assertSuccess(run);
+        else
+            assertFailure(run);
+
+        if (shouldSucceed && expectedErrors.isEmpty())
+            return;
+
+        List<Diagnostic<? extends JavaFileObject>> list = run.getDiagnostics();
+        assertDiagnostics(list, expectedErrors, javaFile);
+    }
 
     /**
      * Asserts that the test compilation completed without failures or
@@ -167,7 +186,7 @@ abstract public class CheckerTest {
      * @param run the test run to check
      */
     protected void assertFailure(/*@ReadOnly*/ TestRun run) {
-        assertFalse("the test run was expected to issue errors/warnings, but it did not", run.getResult());
+        assertFalse("The test run was expected to issue errors/warnings, but it did not.", run.getResult());
     }
 
     /**
@@ -201,7 +220,7 @@ abstract public class CheckerTest {
                     // colon?  Should it always be in the first column?
                 }
             }
-            assertDiagnostics(actualDiagnostics, lines.toArray(new String[lines.size()]), javaFile);
+            assertDiagnostics(actualDiagnostics, lines, javaFile);
         } catch (IOException e) {
             fail(e.getMessage());
         }
@@ -210,7 +229,7 @@ abstract public class CheckerTest {
     /**
      * Compares the result of the compiler against an array of Strings.
      */
-    protected void assertDiagnostics(/*@ReadOnly*/ List</*@ReadOnly*/ Diagnostic<? extends JavaFileObject>> actual_diagnostics, /*@ReadOnly*/ String /*@ReadOnly*/ [] expected_diagnostics, String filename) {
+    protected void assertDiagnostics(/*@ReadOnly*/ List</*@ReadOnly*/ Diagnostic<? extends JavaFileObject>> actual_diagnostics, List</*@ReadOnly*/ String> expected_diagnostics, String filename) {
         String cs = (checkerDir == "" ? "" : checkerDir + File.separator); // "interned"
 
         List<String> expectedList = new LinkedList<String>();
@@ -280,7 +299,7 @@ abstract public class CheckerTest {
 
     }
 
-    // Lifted from utilMDE.UtilMDE
+    // Lifted from plume.UtilMDE
     /**
      * Concatenate the string representations of the objects, placing the
      * delimiter between them.

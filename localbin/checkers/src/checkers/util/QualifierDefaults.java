@@ -32,6 +32,8 @@ public class QualifierDefaults {
     private AnnotationMirror absoluteDefaultAnno;
     private Set<DefaultLocation> absoluteDefaultLocs;
 
+    private Map<String, String> qualifiedNameMap;
+
     /**
      * @param factory the factory for this checker
      * @param annoFactory an annotation factory, used to get annotations by name
@@ -39,6 +41,16 @@ public class QualifierDefaults {
     public QualifierDefaults(AnnotatedTypeFactory factory, AnnotationUtils annoFactory) {
         this.factory = factory;
         this.annoFactory = annoFactory;
+
+        qualifiedNameMap = new HashMap<String, String>();
+        for (Name name : factory.getQualifierHierarchy().getTypeQualifiers()) {
+            if (name == null)
+                continue;
+            String qualified = name.toString();
+            String unqualified = qualified.substring(qualified.lastIndexOf('.') + 1);
+            qualifiedNameMap.put(qualified, qualified);
+            qualifiedNameMap.put(unqualified, qualified);
+        }
     }
 
     /**
@@ -102,10 +114,42 @@ public class QualifierDefaults {
         return null;
     }
 
+    // WMD TODO
+    private Element nearestEnclosingExceptLocal(Tree tree) {
+        TreePath path = factory.getPath(tree);
+        if (path == null) return InternalUtils.symbol(tree);
+
+        Tree prev = null;
+
+        for (Tree t : path) {
+            switch (t.getKind()) {
+            case VARIABLE:
+                VariableTree vtree = (VariableTree)t;
+                ExpressionTree vtreeInit = vtree.getInitializer();
+                if (vtreeInit!=null && prev==vtreeInit) {
+                    Element elt = TreeUtils.elementFromDeclaration((VariableTree)t);
+                    DefaultQualifier d = elt.getAnnotation(DefaultQualifier.class);
+                    DefaultQualifiers ds = elt.getAnnotation(DefaultQualifiers.class);
+
+                    if (d == null && ds == null)
+                        break;
+                }
+                return TreeUtils.elementFromDeclaration((VariableTree)t);
+            case METHOD:
+                return TreeUtils.elementFromDeclaration((MethodTree)t);
+            case CLASS:
+                return TreeUtils.elementFromDeclaration((ClassTree)t);
+            default: // Do nothing.
+            }
+            prev = t;
+        }
+
+        return null;
+    }
+
     /**
-     * Applies default annotations to a type from a {@link Tree} by determining
-     * the appropriate scope for defaults.
-     *
+     * Applies default annotations to a type.
+     * A {@link Tree} that determines the appropriate scope for defaults.
      * <p>
      *
      * For instance, if the tree is associated with a declaration (e.g., it's
@@ -121,6 +165,7 @@ public class QualifierDefaults {
      */
     private void applyDefaults(Tree tree, AnnotatedTypeMirror type) {
 
+        // The location to take defaults from.
         Element elt = null;
         switch (tree.getKind()) {
             case MEMBER_SELECT:
@@ -136,18 +181,24 @@ public class QualifierDefaults {
                 break;
 
             // TODO cases for array access, etc. -- every expression tree
+            // (The above probably means that we should use defaults in the
+            // scope of the declaration of the array.  Is that right?  -MDE)
 
             default:
                 // If no associated symbol was found, use the tree's (lexical)
                 // scope.
-                elt = nearestEnclosing(tree);
+                elt = nearestEnclosingExceptLocal(tree);
+                // elt = nearestEnclosing(tree);
         }
+        // System.out.println("applyDefaults on tree " + tree + " gives elt: " + elt);
         if (elt != null)
             applyDefaults(elt, type);
     }
 
     private Map<Element, List<DefaultQualifier>> qualifierCache =
         new IdentityHashMap<Element, List<DefaultQualifier>>();
+
+    private static AnnotationMirror WMD_localannot;
 
     private List<DefaultQualifier> defaultsAt(final Element elt) {
         if (elt == null)
@@ -183,29 +234,33 @@ public class QualifierDefaults {
     }
 
     /**
-     * Applies default annotations to a type from an {@link Element} by using
-     * the {@link DefaultQualifier} annotation present on the element or any of its
-     * enclosing elements.
+     * Applies default annotations to a type.
+     * The defaults are taken from an {@link Element} by using the
+     * {@link DefaultQualifier} annotation present on the element
+     * or any of its enclosing elements.
      *
-     * @param elt the element representing the nearest enclosing default
-     *        annotation scope for the type
+     * @param annotationScope the element representing the nearest enclosing
+     *        default annotation scope for the type
      * @param type the type to which defaults will be applied
      */
-    private void applyDefaults(final Element elt, final AnnotatedTypeMirror type) {
+    private void applyDefaults(final Element annotationScope, final AnnotatedTypeMirror type) {
 
-        List<DefaultQualifier> defaults = defaultsAt(elt);
+        List<DefaultQualifier> defaults = defaultsAt(annotationScope);
         for (DefaultQualifier dq : defaults)
-            applyDefault(elt, dq, type);
+            applyDefault(annotationScope, dq, type);
 
         if (this.absoluteDefaultAnno != null)
-            new DefaultApplier(elt, this.absoluteDefaultLocs, type).scan(type, absoluteDefaultAnno);
+            new DefaultApplier(annotationScope, this.absoluteDefaultLocs, type).scan(type, absoluteDefaultAnno);
     }
 
-    private void applyDefault(Element elt, DefaultQualifier d, AnnotatedTypeMirror type) {
-        AnnotationMirror anno = annoFactory.fromName(d.value());
+    private void applyDefault(Element annotationScope, DefaultQualifier d, AnnotatedTypeMirror type) {
+        String name = d.value();
+        if (qualifiedNameMap.containsKey(name))
+            name = qualifiedNameMap.get(name);
+        AnnotationMirror anno = annoFactory.fromName(name);
         if (anno == null)
             return;
-        new DefaultApplier(elt, d.locations(), type).scan(type, anno);
+        new DefaultApplier(annotationScope, d.locations(), type).scan(type, anno);
     }
 
     private static class DefaultApplier
@@ -242,9 +297,21 @@ public class QualifierDefaults {
             // - and the type is a raw type
             if (elt.getKind() == ElementKind.LOCAL_VARIABLE
                     && locations.contains(DefaultLocation.ALL_EXCEPT_LOCALS)
-                    && t == type)
-                return super.scan(t, p);
+                    && t == type) {
 
+                // WMD: add the local variable annotation!
+                if (!t.isAnnotated() && WMD_localannot != null) {
+                    t.addAnnotation(WMD_localannot);
+                }
+
+                return super.scan(t, p);
+            }
+
+            if (locations.contains(DefaultLocation.UPPER_BOUNDS)
+                && locations.size() == 1
+                && !this.isTypeVarExtends) {
+                return super.scan(t, p);
+            }
             // Add the default annotation, but only if no other
             // annotation is present.
             if (!t.isAnnotated())
@@ -264,5 +331,47 @@ public class QualifierDefaults {
 //            scanAndReduce(t.getTypeVariables(), p, null);
 //            return null;
         }
+
+        private boolean isTypeVarExtends = false;
+        @Override
+        public Void visitTypeVariable(AnnotatedTypeVariable type, AnnotationMirror p) {
+            if (visitedNodes.containsKey(type)) {
+                return visitedNodes.get(type);
+            }
+            Void r = scan(type.getLowerBound(), p);
+            visitedNodes.put(type, r);
+            boolean prevIsTypeVarExtends = isTypeVarExtends;
+            isTypeVarExtends = true;
+            try {
+                r = scanAndReduce(type.getUpperBound(), p, r);
+            } finally {
+                isTypeVarExtends = prevIsTypeVarExtends;
+            }
+            visitedNodes.put(type, r);
+            return r;
+        }
+
+        @Override
+        public Void visitWildcard(AnnotatedWildcardType type, AnnotationMirror p) {
+            if (visitedNodes.containsKey(type)) {
+                return visitedNodes.get(type);
+            }
+            Void r;
+            boolean prevIsTypeVarExtends = isTypeVarExtends;
+            isTypeVarExtends = true;
+            try {
+                r = scan(type.getExtendsBound(), p);
+            } finally {
+                isTypeVarExtends = prevIsTypeVarExtends;
+            }
+            visitedNodes.put(type, r);
+            r = scanAndReduce(type.getSuperBound(), p, r);
+            visitedNodes.put(type, r);
+            return r;
+        }
+    }
+
+    public void setLocalDefault(AnnotationMirror localannot) {
+        WMD_localannot = localannot;
     }
 }

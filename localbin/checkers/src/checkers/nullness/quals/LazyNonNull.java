@@ -19,7 +19,7 @@ import checkers.quals.TypeQualifier;
  *
  * </ol>
  *
- * When the field is first read withn a method, the field cannot be assumed
+ * When the field is first read within a method, the field cannot be assumed
  * to be non-null.  The benefit of LazyNonNull over Nullable is its
  * different interaction with flow-sensitive type qualifier refinement.
  * After a check of a LazyNonNull field, all subsequent accesses <em>within
@@ -27,7 +27,8 @@ import checkers.quals.TypeQualifier;
  * external method calls that have access to the given field.
  * <p>
  *
- * Note that final fields are treated as LazyNonNull by default.
+ * Note that LazyNonNull is a field declaration annotation, not a type annotation.
+ * Final fields are treated as LazyNonNull by default.
  * <p>
  *
  * This annotation is associated with the {@link NullnessChecker}.

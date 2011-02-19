@@ -1,5 +1,5 @@
 import checkers.nullness.quals.*;
-@checkers.quals.DefaultQualifier("checkers.nullness.quals.Nullable")
+@checkers.quals.DefaultQualifier("Nullable")
 public class FlowField {
 
     public @Nullable String s = null;
@@ -17,6 +17,7 @@ public class FlowField {
     }
 
     void testFields() {
+        //:: (dereference.of.nullable)
         System.out.println(field.length());
     }
 
@@ -63,6 +64,7 @@ public class FlowField {
     }
 
     void testTwoLevels(@NonNull FlowField a, BooleanWrapper bwArg) {
+        //:: (dereference.of.nullable)
         if (!(a.bw.hashCode() == 0)) // warning here
             return;
         Object o = a.bw.b;      // but not here

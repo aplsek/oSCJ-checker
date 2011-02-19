@@ -9,28 +9,32 @@ public class PrintStream extends FilterOutputStream
     implements Appendable, Closeable
 {
 
-    public PrintStream(OutputStream out) { }
+    public PrintStream(OutputStream out) { super(null); }
 
-    public PrintStream(OutputStream out, boolean autoFlush) { }
+    public PrintStream(OutputStream out, boolean autoFlush) { super(null); }
 
     public PrintStream(OutputStream out, boolean autoFlush, String encoding)
-        throws UnsupportedEncodingException {  }
+        throws UnsupportedEncodingException { super(null); }
 
     public PrintStream(String fileName) throws FileNotFoundException {
+	super(null);
         throw new RuntimeException("skeleton method");
     }
 
     public PrintStream(String fileName, String csn)
     throws FileNotFoundException, UnsupportedEncodingException {
+	super(null);
         throw new RuntimeException("skeleton method");
     }
 
     public PrintStream(File file) throws FileNotFoundException {
+	super(null);
         throw new RuntimeException("skeleton method");
     }
 
     public PrintStream(File file, String csn)
     throws FileNotFoundException, UnsupportedEncodingException {
+	super(null);
         throw new RuntimeException("skeleton method");
     }
 
@@ -138,19 +142,19 @@ public class PrintStream extends FilterOutputStream
         throw new RuntimeException("skeleton method");
     }
 
-    public PrintStream printf(String format, @ReadOnly Object ... args) {
+    public PrintStream printf(String format, @ReadOnly Object @ReadOnly ... args) {
         throw new RuntimeException("skeleton method");
     }
 
-    public PrintStream printf(Locale l, String format, @ReadOnly Object ... args) {
+    public PrintStream printf(Locale l, String format, @ReadOnly Object @ReadOnly ... args) {
         throw new RuntimeException("skeleton method");
     }
 
-    public PrintStream format(String format, @ReadOnly Object ... args) {
+    public PrintStream format(String format, @ReadOnly Object @ReadOnly ... args) {
         throw new RuntimeException("skeleton method");
     }
 
-    public PrintStream format(Locale l, String format, @ReadOnly Object ... args) {
+    public PrintStream format(Locale l, String format, @ReadOnly Object @ReadOnly ... args) {
         throw new RuntimeException("skeleton method");
     }
 

@@ -1,10 +1,7 @@
 package checkers.util.stub;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
@@ -23,7 +20,19 @@ import japa.parser.ast.body.*;
 import japa.parser.ast.expr.AnnotationExpr;
 import japa.parser.ast.type.*;
 
+// Main entry points are parse() and parse(Map<Element, AnnotatedTypeMirror>).
+
 public class StubParser {
+
+    /** Whether to print warnings about types/members that were not found. */
+    public static boolean warnIfNotFound = false;
+
+    public static boolean debugStubParser = false;
+
+    /**
+     * This variable records the file being parsed, to make error messages
+     * more informative. */
+    final String filename;
     final IndexUnit index;
     final AnnotatedTypeFactory atypeFactory;
     final AnnotationUtils annoUtils;
@@ -32,7 +41,8 @@ public class StubParser {
 
     final Map<String, AnnotationMirror> annotations;
 
-    public StubParser(InputStream inputStream, AnnotatedTypeFactory factory, ProcessingEnvironment env) {
+    public StubParser(String filename, InputStream inputStream, AnnotatedTypeFactory factory, ProcessingEnvironment env) {
+        this.filename = filename;
         try {
             this.index = JavaParser.parse(inputStream);
         } catch (Exception e) {
@@ -78,24 +88,31 @@ public class StubParser {
             try {
                 if (!importDecl.isAsterisk()) {
                     AnnotationMirror anno = annoUtils.fromName(imported);
-                    Element annoElt = anno.getAnnotationType().asElement();
-                    result.put(annoElt.getSimpleName().toString(), anno);
+                    if (anno != null ) {
+                        Element annoElt = anno.getAnnotationType().asElement();
+                        result.put(annoElt.getSimpleName().toString(), anno);
+                    } else {
+                        if (warnIfNotFound || debugStubParser)
+                            System.err.println("StubParser: Could not load import: " + imported);
+                    }
                 } else {
                     result.putAll(annoWithinPackage(imported));
                 }
             } catch (AssertionError error) {
-                // do nothing
+                System.err.println("StubParser: " + error);
             }
         }
         return result;
     }
 
+    // One of the two main entry points
     public Map<Element, AnnotatedTypeMirror> parse() {
         Map<Element, AnnotatedTypeMirror> result = new HashMap<Element, AnnotatedTypeMirror>();
         parse(result);
         return result;
     }
 
+    // One of the two main entry points
     public void parse(Map<Element, AnnotatedTypeMirror> result) {
         parse(this.index, result);
     }
@@ -117,21 +134,28 @@ public class StubParser {
         }
     }
 
-    private void parse(TypeDeclaration type, String packageName, Map<Element, AnnotatedTypeMirror> result) {
-        String typeName = (packageName == null ? "" : packageName + ".") + type.getName();
+    // typeDecl's name may be a binary name such as "A$B".
+    // That is a hack because the StubParser does not handle nested classes.
+    private void parse(TypeDeclaration typeDecl, String packageName, Map<Element, AnnotatedTypeMirror> result) {
+        String typeName = (packageName == null ? "" : packageName + ".") + typeDecl.getName().replace('$', '.');
         TypeElement typeElt = elements.getTypeElement(typeName);
         // couldn't find type.  not in class path
         // TODO: Should throw exception?!
-        if (typeElt == null
-                || typeElt.getKind() == ElementKind.ENUM
-                || typeElt.getKind() == ElementKind.ANNOTATION_TYPE)
+        if (typeElt == null) {
+            if (warnIfNotFound || debugStubParser)
+                System.err.println("StubParser: Type not found: " + typeName);
             return;
-
-        if (type instanceof ClassOrInterfaceDeclaration) {
-            parseType((ClassOrInterfaceDeclaration)type, typeElt, result);
+        } else if (typeElt.getKind() == ElementKind.ENUM
+                   || typeElt.getKind() == ElementKind.ANNOTATION_TYPE) {
+            if (warnIfNotFound || debugStubParser)
+                System.err.println("StubParser: Skipping enum or annotation type: " + typeName);
         }
 
-        Map<Element, BodyDeclaration> elementsToDecl = mapMembers(typeElt, type);
+        if (typeDecl instanceof ClassOrInterfaceDeclaration) {
+            parseType((ClassOrInterfaceDeclaration)typeDecl, typeElt, result);
+        }
+
+        Map<Element, BodyDeclaration> elementsToDecl = mapMembers(typeElt, typeDecl);
         for (Map.Entry<Element, BodyDeclaration> entry : elementsToDecl.entrySet()) {
             final Element elt = entry.getKey();
             final BodyDeclaration decl = entry.getValue();
@@ -141,7 +165,9 @@ public class StubParser {
                 parseConstructor((ConstructorDeclaration)decl, (ExecutableElement)elt, result);
             else if (elt.getKind() == ElementKind.METHOD)
                 parseMethod((MethodDeclaration)decl, (ExecutableElement)elt, result);
-            else { /* do nothing */ }
+            else { /* do nothing */
+                System.err.println("Ignoring: " + elt);
+            }
         }
     }
 
@@ -173,13 +199,19 @@ public class StubParser {
     private void parseMethod(MethodDeclaration decl, ExecutableElement elt,
             Map<Element, AnnotatedTypeMirror> result) {
         AnnotatedExecutableType methodType = atypeFactory.fromElement(elt);
-        annotateParameters(methodType.getParameterTypes(), decl.getTypeParameters());
+        annotateParameters(methodType.getTypeVariables(), decl.getTypeParameters());
         annotate(methodType.getReturnType(), decl.getType());
 
         for (int i = 0; i < methodType.getParameterTypes().size(); ++i) {
             AnnotatedTypeMirror paramType = methodType.getParameterTypes().get(i);
             Parameter param = decl.getParameters().get(i);
-            annotate(paramType, param.getType());
+            if (param.isVarArgs()) {
+                // workaround
+                assert paramType.getKind() == TypeKind.ARRAY;
+                annotate(((AnnotatedArrayType)paramType).getComponentType(), param.getType());
+            } else {
+                annotate(paramType, param.getType());
+            }
         }
 
         annotate(methodType.getReceiverType(), decl.getReceiverAnnotations());
@@ -288,7 +320,7 @@ public class StubParser {
         }
     }
 
-    private void annotateParameters(List<AnnotatedTypeMirror> typeArguments,
+    private void annotateParameters(List<? extends AnnotatedTypeMirror> typeArguments,
             List<TypeParameter> typeParameters) {
         if (typeParameters == null)
             return;
@@ -303,8 +335,12 @@ public class StubParser {
         }
     }
 
-    public Map<Element, BodyDeclaration> mapMembers(TypeElement typeElt, TypeDeclaration typeDecl) {
-        assert typeElt.getSimpleName().contentEquals(typeDecl.getName());
+    static Set<String> nestedClassWarnings = new HashSet<String>();
+
+    private Map<Element, BodyDeclaration> mapMembers(TypeElement typeElt, TypeDeclaration typeDecl) {
+        assert (typeElt.getSimpleName().contentEquals(typeDecl.getName())
+                || typeDecl.getName().endsWith("$" + typeElt.getSimpleName().toString()))
+            : String.format("%s  %s", typeElt.getSimpleName(), typeDecl.getName());
 
         Map<Element, BodyDeclaration> result = new HashMap<Element, BodyDeclaration>();
 
@@ -319,6 +355,17 @@ public class StubParser {
                 FieldDeclaration fieldDecl = (FieldDeclaration)member;
                 for (VariableDeclarator var : fieldDecl.getVariables())
                     result.put(findElement(typeElt, var), fieldDecl);
+            } else if (member instanceof ClassOrInterfaceDeclaration) {
+                // TODO: handle nested classes
+                ClassOrInterfaceDeclaration ciDecl = (ClassOrInterfaceDeclaration) member;
+                String nestedClass = typeDecl.getName() + "." + ciDecl.getName();
+                if (nestedClassWarnings.add(nestedClass)) { // avoid duplicate warnings
+                    System.err.printf("Warning: ignoring nested class in %s at line %d:%n    class %s { class %s { ... } }%n", filename, ciDecl.getBeginLine(), typeDecl.getName(), ciDecl.getName());
+                    System.err.printf("  Instead, write the nested class as a top-level class:%n    class %s { ... }%n    class %s$%s { ... }%n", typeDecl.getName(), typeDecl.getName(), ciDecl.getName());
+                }
+            } else {
+                if (warnIfNotFound || debugStubParser)
+                    System.out.printf("StubParser: Ignoring element of type %s in mapMembers", member.getClass());
             }
         }
         result.remove(null);
@@ -331,6 +378,11 @@ public class StubParser {
             if (superType.getUnderlyingType().asElement().getSimpleName().contentEquals(typeString))
                 return superType;
         }
+        if (warnIfNotFound || debugStubParser)
+            System.err.println("StubParser: Type " + typeString + " not found");
+        if (debugStubParser)
+            for (AnnotatedDeclaredType superType : types)
+                System.err.printf("  %s%n", superType);
         return null;
     }
     public ExecutableElement findElement(TypeElement typeElt, MethodDeclaration methodDecl) {
@@ -340,12 +392,17 @@ public class StubParser {
                 methodDecl.getParameters().size();
         final String wantedMethodString = StubUtil.toString(methodDecl);
         for (ExecutableElement method : ElementFilter.methodsIn(typeElt.getEnclosedElements())) {
-            // do hearustics first
+            // do heuristics first
             if (wantedMethodParams == method.getParameters().size()
                     && wantedMethodName.contentEquals(method.getSimpleName())
                     && StubUtil.toString(method).equals(wantedMethodString))
                 return method;
         }
+        if (warnIfNotFound || debugStubParser)
+            System.err.println("StubParser: Method " + wantedMethodString + " not found in type " + typeElt);
+        if (debugStubParser)
+            for (ExecutableElement method : ElementFilter.methodsIn(typeElt.getEnclosedElements()))
+                System.err.printf("  %s%n", method);
         return null;
     }
 
@@ -355,11 +412,16 @@ public class StubParser {
                 methodDecl.getParameters().size();
         final String wantedMethodString = StubUtil.toString(methodDecl);
         for (ExecutableElement method : ElementFilter.constructorsIn(typeElt.getEnclosedElements())) {
-            // do hearustics first
+            // do heuristics first
             if (wantedMethodParams == method.getParameters().size()
                     && StubUtil.toString(method).equals(wantedMethodString))
                 return method;
         }
+        if (warnIfNotFound || debugStubParser)
+            System.err.println("StubParser: Constructor " + wantedMethodString + " not found in type " + typeElt);
+        if (debugStubParser)
+            for (ExecutableElement method : ElementFilter.constructorsIn(typeElt.getEnclosedElements()))
+                System.err.printf("  %s%n", method);
         return null;
     }
 
@@ -369,6 +431,11 @@ public class StubParser {
             if (fieldName.contains(field.getSimpleName()))
                 return field;
         }
+        if (warnIfNotFound || debugStubParser)
+            System.err.println("StubParser: Field " + fieldName + " not found in type " + typeElt);
+        if (debugStubParser)
+            for (VariableElement field : ElementFilter.fieldsIn(typeElt.getEnclosedElements()))
+                System.err.printf("  %s%n", field);
         return null;
     }
 }

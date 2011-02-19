@@ -221,7 +221,7 @@ public class Flow {
     }
 
     void empty_makes_no_change() {
-        @Nullable String o1 = "not null!";
+        String o1 = "not null!";
         if (false) {
             // empty branch
         } else {
@@ -230,10 +230,10 @@ public class Flow {
         System.out.println(o1.toString());
     }
 
-    void type_refining() {
-        @Nullable String o1 = "not null!";
-        o1.toString();
-    }
+
+
+
+
 
     public boolean equals(@Nullable Object o) {
         if (!(o instanceof Integer))
@@ -281,15 +281,20 @@ public class Flow {
             String m = s[i];    // fine.. s cannot be null
         }
     }
-}
 
-    // This might be useful: "if this routine has ever returned non-null
-    // before, it will never return null again".  But hold off on the effort
-    // of implementing there is a demostrated need.
-    // @LazyNonNull Object returnLazyNonNull() {
-    //     return null;
-    // }
-    // void testLazyNonNullCall() {
-    //     if (returnLazyNonNull() != null)
-    //         returnLazyNonNull().toString();
-    // }
+    @LazyNonNull
+    private double [] intersect = null;
+
+    public void add_modified(double[] a, int count) {
+        // System.out.println ("common: " + ArraysMDE.toString (a));
+        if (a == null) {
+            return;
+        } else if (intersect==null) {
+            intersect = a;
+            return;
+        }
+
+        double[] tmp = new double[intersect.length];
+    }
+
+}

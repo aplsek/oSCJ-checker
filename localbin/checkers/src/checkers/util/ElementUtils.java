@@ -3,20 +3,13 @@ package checkers.util;
 import checkers.nullness.quals.Nullable;
 import checkers.quals.*;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.Name;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 
 /**
  * A Utility class for analyzing {@code Element}s
  *
  */
-@DefaultQualifier("checkers.nullness.quals.NonNull")
 public class ElementUtils {
 
     // Cannot be instantiated
@@ -36,6 +29,16 @@ public class ElementUtils {
             result = encl;
         }
         return (TypeElement) result;
+    }
+
+    // WMD TODO: document
+    public static PackageElement enclosingPackage(final Element elem) {
+        Element result = elem;
+        while (result != null && result.getKind()!=ElementKind.PACKAGE) {
+            @Nullable Element encl = result.getEnclosingElement();
+            result = encl;
+        }
+        return (PackageElement) result;
     }
 
     /**
@@ -109,4 +112,14 @@ public class ElementUtils {
     public static boolean isObject(TypeElement element) {
         return element.getQualifiedName().contentEquals("java.lang.Object");
     }
+
+    /**
+     * Returns true if the element is a constant time reference
+     */
+    public static boolean isCompileTimeConstant(Element elt) {
+        return elt != null
+            && elt.getKind() == ElementKind.FIELD
+            && ((VariableElement)elt).getConstantValue() != null;
+    }
+
 }

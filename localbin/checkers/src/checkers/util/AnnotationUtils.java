@@ -19,7 +19,6 @@ import javax.lang.model.util.*;
 /**
  * A utility class for working with annotations.
  */
-@DefaultQualifier("checkers.nullness.quals.NonNull")
 public class AnnotationUtils {
 
     private static AnnotationUtils instance;
@@ -893,6 +892,7 @@ public class AnnotationUtils {
         throw new IllegalArgumentException("No element with name " + name + " in annotation " + anno);
     }
 
+    /** Returns true if the given annotation has a @Inherited meta-annotation. */
     public static boolean hasInheritiedMeta(AnnotationMirror anno) {
         return anno.getAnnotationType().asElement().getAnnotation(Inherited.class) != null;
     }

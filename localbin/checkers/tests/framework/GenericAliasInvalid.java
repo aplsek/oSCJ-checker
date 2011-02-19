@@ -8,6 +8,7 @@ public class GenericAliasInvalid {
     }
 
     public void test() {
+        //:: (assignment.type.incompatible)
         Set<Map<@Odd List<@Odd String>, @Odd String>> t = new SuperSetOne();
     }
 }

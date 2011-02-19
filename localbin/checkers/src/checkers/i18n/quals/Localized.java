@@ -2,15 +2,13 @@ package checkers.i18n.quals;
 
 import static com.sun.source.tree.Tree.Kind.*;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.*;
 
 import checkers.quals.*;
 
 /**
  * Indicates that the {@code String} type has been localized and
- * formatted for the target output locale
+ * formatted for the target output locale.
  */
 @TypeQualifier
 @SubtypeOf(Unqualified.class)
@@ -29,4 +27,5 @@ import checkers.quals.*;
 )
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
+//@Target({ElementType.TYPE_USE, ElementType.TYPE_PARAMETER})
 public @interface Localized { }

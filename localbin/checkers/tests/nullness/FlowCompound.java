@@ -29,4 +29,32 @@ class FlowCompound {
   }
 
 
+  public static void testCompoundAssignmentWithString() {
+      String s = "m";
+      s += "n";
+      s.toString();
+  }
+
+  public static void testCompoundAssignmentWithChar() {
+      String s = "m";
+      s += 'n';
+      s.toString();
+  }
+
+  public static void testCompoundAssignWithNull() {
+      String s = "m";
+      s += null;
+      s.toString();
+  }
+
+  public static void testPrimitiveArray() {
+      int[] a = {0};
+      a[0] += 2;
+      System.out.println(a[0]);
+  }
+
+  public static void testPrimitive() {
+      Integer i = 1;
+      i -= 2;
+  }
 }

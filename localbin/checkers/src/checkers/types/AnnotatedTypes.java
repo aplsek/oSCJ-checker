@@ -30,14 +30,23 @@ public class AnnotatedTypes {
     private ProcessingEnvironment env;
     private AnnotatedTypeFactory factory;
 
+    static int uidCounter = 0;
+    int uid;
+
     /**
-     * Constructor for {@code AnnotatedTypeUtils}
+     * Constructor for {@code AnnotatedTypes}
      *
      * @param env  the processing environment for this round
      */
     public AnnotatedTypes(ProcessingEnvironment env, AnnotatedTypeFactory factory) {
         this.env = env;
         this.factory = factory;
+        uid = ++uidCounter;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "#" + uid;
     }
 
     /**
@@ -46,7 +55,7 @@ public class AnnotatedTypes {
      * of {@code superType}.
      *
      * @param t      a type
-     * @param superType   a type that is a supertype of {@code type}
+     * @param superType   a type that is a supertype of {@code t}
      * @return the base type of t of the given element
      */
     public AnnotatedTypeMirror asSuper(AnnotatedTypeMirror t,
@@ -157,13 +166,14 @@ public class AnnotatedTypes {
     }
 
     /*
-     * Helper method that decides whether sup and sub are the same type or that
-     * sub cannot be a subtype of sup.
+     * Returns true if sup and sub are the same type.
+     * Returns false otherwise (including if sub cannot be a subtype of sup).
      */
     private boolean shouldStop(AnnotatedTypeMirror sup, AnnotatedTypeMirror sub) {
         // Check if it's the same type
         // if sup is primitive, but not sub
         if (sup.getKind().isPrimitive() && !sub.getKind().isPrimitive())
+            /// XXX shouldn't this be "return false"?
             return true;
         if (sup.getKind().isPrimitive() && sub.getKind().isPrimitive())
             return sup.getKind() == sub.getKind();
@@ -185,7 +195,7 @@ public class AnnotatedTypes {
             AnnotatedArrayType subat = (AnnotatedArrayType) sub;
             return shouldStop(supat.getComponentType(), subat.getComponentType());
         }
-        // horroble horroble hack
+        // horrible horrible hack
         // Types.isSameType() doesn't work for type variables or wildcards
         return sup.getUnderlyingType().toString().equals(sub.getUnderlyingType().toString());
     }
@@ -226,8 +236,8 @@ public class AnnotatedTypes {
      * @param elem  an element
      */
     public AnnotatedTypeMirror asMemberOf(AnnotatedTypeMirror t, Element elem) {
-        // as Member of is only for fields, variables and methods!
-        // otherwise simply use fromElement
+        // asMemberOf is only for fields, variables, and methods!
+        // Otherwise, simply use fromElement.
         switch (elem.getKind()) {
         case PACKAGE:
         case INSTANCE_INIT:
@@ -252,6 +262,13 @@ public class AnnotatedTypes {
             return asMemberOf(((AnnotatedTypeVariable) t).getUpperBound(),
                     elem);
 
+        if (t.getKind() == TypeKind.ARRAY
+                && elem.getKind() == ElementKind.METHOD
+                && elem.getSimpleName().contentEquals("clone")) {
+                AnnotatedExecutableType method = (AnnotatedExecutableType)factory.getAnnotatedType(elem);
+                return method.substitute(Collections.singletonMap(method.getReturnType(), t));
+        }
+
         // I cannot think of why it wouldn't be a declared type!
         // Defensive Programming
         if (t.getKind() != TypeKind.DECLARED) {
@@ -263,7 +280,7 @@ public class AnnotatedTypes {
         // 1. Find the owner of the element
         // 2. Find the base type of owner (e.g. type of owner as supertype
         //      of passed type)
-        // 3. Subsitute for type variables if any exist
+        // 3. Substitute for type variables if any exist
         TypeElement owner = ElementUtils.enclosingClass(elem);
 
         // TODO: Potential bug if Raw type is used
@@ -297,7 +314,7 @@ public class AnnotatedTypes {
     /**
      * Returns a new type, a copy of the passed {@code t}, with all
      * instances of {@code from} type substituted with their correspondents
-     * in {@code to} and return the substituted in type.
+     * in {@code to}.
      *
      * @param t     the type
      * @param from  the from types
@@ -307,7 +324,6 @@ public class AnnotatedTypes {
     public AnnotatedTypeMirror subst(AnnotatedTypeMirror t,
             List<? extends AnnotatedTypeMirror> from,
             List<? extends AnnotatedTypeMirror> to) {
-        assert from.size() == to.size();
         Map<AnnotatedTypeMirror, AnnotatedTypeMirror> mappings =
             new HashMap<AnnotatedTypeMirror, AnnotatedTypeMirror>();
 
@@ -345,6 +361,12 @@ public class AnnotatedTypes {
             return ((AnnotatedArrayType) iterableType).getComponentType();
         }
 
+        if (iterableType.getKind() == TypeKind.WILDCARD)
+            return getIteratedType(((AnnotatedWildcardType) iterableType).getExtendsBound());
+
+        if (iterableType.getKind() == TypeKind.TYPEVAR)
+            return getIteratedType(((AnnotatedTypeVariable) iterableType).getUpperBound());
+
         if (iterableType.getKind() != TypeKind.DECLARED)
             throw new IllegalArgumentException("Not iterable type: " + iterableType);
 
@@ -359,8 +381,6 @@ public class AnnotatedTypes {
             t.clearAnnotations();
             factory.annotateImplicit(e, t);
             return t;
-            // was erased
-//            return factory.getAnnotatedType(env.getElementUtils().getTypeElement("java.lang.Object"));
         } else {
             return dt.getTypeArguments().get(0);
         }
@@ -428,7 +448,7 @@ public class AnnotatedTypes {
      *            the overriding method
      * @param supertypes
      *            the set of supertypes to check for methods that are
-     *            overriden by {@code method}
+     *            overridden by {@code method}
      * @return an unmodified set of {@link ExecutableElement}s
      *         representing the elements that {@code method} overrides
      *         among {@code supertypes}
@@ -548,11 +568,14 @@ public class AnnotatedTypes {
 
             if (argument == null) {
                 // should really be '? extends typeVar.getUpperBound()'
-                WildcardType wc = env.getTypeUtils().getWildcardType(typeVar.getUpperBound().getUnderlyingType(), null);
+                AnnotatedTypeMirror upperBound = typeVar.getUpperBound();
+                while (upperBound.getKind() == TypeKind.TYPEVAR)
+                    upperBound = ((AnnotatedTypeVariable)upperBound).getUpperBound();
+                WildcardType wc = env.getTypeUtils().getWildcardType(upperBound.getUnderlyingType(), null);
                 @SuppressWarnings("deprecation")
                 AnnotatedWildcardType wctype = new AnnotatedWildcardType(wc, env, factory);
                 wctype.setElement(typeVar.getElement());
-                wctype.setExtendsBound(typeVar.getUpperBound());
+                wctype.setExtendsBound(upperBound);
                 argument = wctype;
             }
 
@@ -615,8 +638,17 @@ public class AnnotatedTypes {
         @Override
         public List<AnnotatedTypeMirror>
         visitArray(AnnotatedArrayType type, AnnotatedTypeMirror p) {
-            if (p.getKind() == TypeKind.NULL)
+            if (p.getKind() == TypeKind.NULL) {
                 return Collections.emptyList();
+            } else if (p.getKind() == TypeKind.WILDCARD) {
+                // WMD was inspired for this test by visitDeclared below.
+                // For an array type, the only legal upper bound is java.lang.Object.
+                AnnotatedTypeMirror bound = ((AnnotatedWildcardType)p).getExtendsBound();
+                if (bound != null) {
+                    assert bound.getUnderlyingType().toString().equals("java.lang.Object");
+                }
+                return Collections.emptyList();
+            }
             assert type.getKind() == p.getKind();
             AnnotatedArrayType pArray = (AnnotatedArrayType) p;
 
@@ -660,8 +692,9 @@ public class AnnotatedTypes {
         public List<AnnotatedTypeMirror>
         visitTypeVariable(AnnotatedTypeVariable type, AnnotatedTypeMirror p) {
             Element elem = type.getUnderlyingType().asElement();
-            if (elem.equals(typeToFind.getUnderlyingType().asElement()))
+            if (elem.equals(typeToFind.getUnderlyingType().asElement())) {
                 return Collections.singletonList(p);
+            }
             return Collections.emptyList();
         }
 
@@ -725,8 +758,7 @@ public class AnnotatedTypes {
             // FIXME: This may cause infinite loop
             AnnotatedTypeMirror type =
                 factory.getAnnotatedType((NewArrayTree)assignmentContext);
-            while (type.getKind() == TypeKind.ARRAY)
-                type = ((AnnotatedArrayType)type).getComponentType();
+            type = AnnotatedTypes.innerMostType(type);
             return type;
         } else if (assignmentContext instanceof NewClassTree) {
             // This need to be basically like MethodTree
@@ -810,7 +842,9 @@ public class AnnotatedTypes {
                 if (type == null)
                     return;
                 if (type.getKind() == TypeKind.WILDCARD)
-                    subtypes[i] = lub;
+                    subtypes[i] = lub.getCopy(true);
+                else if (asSuper(type, lub) == null)
+                    subtypes[i] = lub.getCopy(true);
                 else
                     subtypes[i] = asSuper(type, lub);
             }
@@ -831,6 +865,8 @@ public class AnnotatedTypes {
         // TODO: fix this
         boolean isFirst = true;
         // get rid of wildcards
+        if (alub.getKind() == TypeKind.WILDCARD)
+            alub = ((AnnotatedWildcardType)alub).getExtendsBound();
         for (int i = 0; i < types.length; ++i) {
             if (types[i] == null)
                 continue;     // TODO: fix this
@@ -882,22 +918,6 @@ public class AnnotatedTypes {
             }
             addAnnotations(aat.getComponentType(), compTypes);
         }
-    }
-
-    /**
-     * Returns the depth of the array type of the provided array.
-     *
-     * @param array the type of the array
-     * @return  the depth of the provided array
-     */
-    public int getArrayDepth(AnnotatedArrayType array) {
-        int counter = 0;
-        AnnotatedTypeMirror type = array;
-        while (type.getKind() == TypeKind.ARRAY) {
-            counter++;
-            type = ((AnnotatedArrayType)type).getComponentType();
-        }
-        return counter;
     }
 
     /**
@@ -958,5 +978,29 @@ public class AnnotatedTypes {
 
     public boolean areSame(AnnotatedTypeMirror t1, AnnotatedTypeMirror t2) {
         return t1.toString().equals(t2.toString());
+    }
+
+    /**
+     * Returns the depth of the array type of the provided array.
+     *
+     * @param array the type of the array
+     * @return  the depth of the provided array
+     */
+    public int getArrayDepth(AnnotatedArrayType array) {
+        int counter = 0;
+        AnnotatedTypeMirror type = array;
+        while (type.getKind() == TypeKind.ARRAY) {
+            counter++;
+            type = ((AnnotatedArrayType)type).getComponentType();
+        }
+        return counter;
+    }
+
+    // The innermost *array* type.
+    public static AnnotatedTypeMirror innerMostType(AnnotatedTypeMirror t) {
+        AnnotatedTypeMirror inner = t;
+        while (inner.getKind() == TypeKind.ARRAY)
+            inner = ((AnnotatedArrayType)inner).getComponentType();
+        return inner;
     }
 }

@@ -1,19 +1,18 @@
 package tests;
 
-import org.junit.*;
+import java.io.File;
+import java.util.Collection;
+
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  */
-public class LockTest extends CheckerTest {
+public class LockTest extends ParameterizedCheckerTest {
 
-    public LockTest() {
-        super("checkers.lock.LockChecker", "lock", "-Anomsgtext");
+    public LockTest(File testFile) {
+        super(testFile, "checkers.lock.LockChecker", "lock", "-Anomsgtext");
     }
 
-    @Test public void testConstructors()        { test(); }
-    @Test public void testFields()              { test(); }
-    @Test public void testMethods()             { test(); }
-    @Test public void testOverriding()          { test(); }
-    @Test public void testJCIPAnnotations()     { test(); }
-
+    @Parameters
+    public static Collection<Object[]> data() { return testFiles("lock"); }
 }

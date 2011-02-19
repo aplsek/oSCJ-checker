@@ -11,11 +11,12 @@ class NullnessAssertion {
 
     void test2() {
         Object o = null;
+        //:: (dereference.of.nullable)
         o.toString();
         assertNonNull(o);
     }
 
-    @AssertNonNull
+    @AssertParametersNonNull // the method an throws exception if any argument is null
     void assertNonNull(@Nullable Object o) {
         if (o == null)
             throw new NullPointerException();

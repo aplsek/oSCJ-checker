@@ -81,6 +81,7 @@ public class BasicAnnotatedTypeFactory<Checker extends BaseTypeChecker> extends 
                 break;
             }
         }
+        postInit();
     }
 
     /**
@@ -108,7 +109,7 @@ public class BasicAnnotatedTypeFactory<Checker extends BaseTypeChecker> extends 
      * @return a tree annotator
      */
     protected TreeAnnotator createTreeAnnotator(Checker checker) {
-        return new TreeAnnotator(checker);
+        return new TreeAnnotator(checker, this);
     }
 
     /**
@@ -163,6 +164,7 @@ public class BasicAnnotatedTypeFactory<Checker extends BaseTypeChecker> extends 
             scanned = true;
             // Apply flow-sensitive qualifier inference.
             flow.scan(root, null);
+            super.fromTreeCache.clear();
             finishedScanning = true;
         }
         treeAnnotator.visit(tree, type);

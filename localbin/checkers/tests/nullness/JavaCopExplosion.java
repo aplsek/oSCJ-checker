@@ -1,7 +1,7 @@
 import checkers.nullness.quals.*;
 
 import com.sun.tools.javac.util.List;
-@checkers.quals.DefaultQualifier("checkers.nullness.quals.Nullable")
+@checkers.quals.DefaultQualifier("Nullable")
 class Explosion {
     public static class ExplosiveException extends Exception{
 
@@ -26,10 +26,12 @@ class Explosion {
         String s2;
         s2 = null;
         if (s2 != null || s != null)
+            //:: (assignment.type.incompatible)
             s = s2;
         else
             s = new String("Levitan");
         s2 = args[0];
+        //:: (dereference.of.nullable)
         System.out.println("Possibly cause null pointer with this: " + s2.length());
         if (s2 == null){
             ;//do nothing
@@ -69,6 +71,7 @@ class Explosion {
             //y = z;
             nnz = z;
             z = null;
+            //:: (assignment.type.incompatible)
             nnz = z;
 
             while (z == null){
@@ -100,6 +103,7 @@ class Explosion {
 
     private void bar(List<@NonNull String> ss, String b, String c){
         @NonNull String a;
+        //:: (dereference.of.nullable)
         for(@NonNull String s : ss){
             a = s;
         }
@@ -107,6 +111,7 @@ class Explosion {
             System.out.println("hey");
         }
         if (b != null){
+            //:: (dereference.of.nullable)
             for (; b.length() > 0 ; b = null){
                 System.out.println(b.length());
             }

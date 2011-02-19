@@ -30,10 +30,7 @@ import javax.annotation.processing.*;
  * Most type-checker plug-ins will want to extend this class, instead of
  * {@link SourceChecker}.  Checkers which require annotated types but not
  * subtype checking (e.g. for testing purposes)
- * should extend {@link SourceChecker}.  Non-type checkers (e.g. for enforcing
- * coding styles) should extend {@link AbstractProcessor} (or even
- * {@link SourceChecker}) as the Checker Framework is not designed for such
- * checkers.
+ * should extend {@link SourceChecker}.
  *
  * Non-type checkers (e.g. checkers to enforce coding
  * styles) should extend {@link SourceChecker} or {@link AbstractProcessor}
@@ -175,12 +172,13 @@ public abstract class BaseTypeChecker extends SourceChecker {
                 continue;
             }
             AnnotationMirror typeQualifierAnno = annoFactory.fromClass(typeQualifier);
+            assert typeQualifierAnno!=null : "Loading annotation \"" + typeQualifier + "\" failed!";
             factory.addQualifier(typeQualifierAnno);
             if (typeQualifier.getAnnotation(SubtypeOf.class) == null) {
                 // polymorphic qualifiers don't need to declared their supertypes
                 if (typeQualifier.getAnnotation(PolymorphicQualifier.class) != null)
                     continue;
-                throw new AssertionError(typeQualifier + " does not specify its super qulifiers");
+                throw new AssertionError(typeQualifier + " does not specify its super qualifiers");
             }
             Class<? extends Annotation>[] superQualifiers =
                 typeQualifier.getAnnotation(SubtypeOf.class).value();
@@ -330,8 +328,8 @@ public abstract class BaseTypeChecker extends SourceChecker {
      *
      * The check is shallow, as it does not descend into generic or array
      * types (i.e. only performing the validity check on the raw type or
-     * outmost array dimension).  {@link BaseTypeVisitor#validateTypeOf(Tree)}
-     * would call this for each type argument or array dimention separately.
+     * outermost array dimension).  {@link BaseTypeVisitor#validateTypeOf(Tree)}
+     * would call this for each type argument or array dimension separately.
      *
      * <p>
      *
@@ -390,7 +388,7 @@ public abstract class BaseTypeChecker extends SourceChecker {
      * Invokes the constructor belonging to the class
      * named by {@code name} having the given parameter types on the given
      * arguments. Returns {@code null} if the class cannot be found, or the
-     * constructor does not exist or cannot be invoked on the given arguments,
+     * constructor does not exist or cannot be invoked on the given arguments.
      *
      * @param <T> the type to which the constructor belongs
      * @param name the name of the class to which the constructor belongs
@@ -431,4 +429,5 @@ public abstract class BaseTypeChecker extends SourceChecker {
         // On failure, return null.
         return null;
     }
+
 }

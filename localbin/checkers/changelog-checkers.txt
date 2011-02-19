@@ -1,8 +1,240 @@
+----------------------------------------------------------------------
+Version 1.1.2, 12 Jan 2011
+
+Previously-unannounced checkers:
+
+Fake Enum Checker (new):
+  A "fake enum" is a set of integers rather than a proper Java enum.  They
+  are used in legacy code and for efficiency (e.g., in Android).  The Fake
+  Enum Checker gives them the same safety guarantees as a proper Java enum.
+
+Property File Checker (new):
+  Ensures that valid keys are used for property files and resource bundles.
+  Also includes a checker that code is properly internationalized and a
+  checker for compiler message keys as used in the Checker Framework.
+
+Signature Checker (new):
+  Ensures that different string representations of a Java type (e.g.,
+  "package.Outer.Inner" vs. "package.Outer$Inner" vs. "Lpackage/Outer$Inner;")
+  are not misused.
+
+Interning Checker enhancements:
+  Issues fewer false positives for code like "a==b || a.equals(b)"
+
+Foreign annotations:
+  The Checker Framework supports more non-Checker-Framework annotations.
+  This means that it can check already-annotated code without requiring you
+  to rewrite your annotations.
+    Add as an alias for checkers.interning.quals.Interned:
+      com.sun.istack.Interned
+    Add as aliases for checkers.nullness.quals.NonNull:
+      com.sun.istack.NotNull
+      org.netbeans.api.annotations.common.NonNull
+    Add as aliases for checkers.nullness.quals.Nullable:
+      com.sun.istack.Nullable
+      javax.validation.constraints.NotNull
+      org.netbeans.api.annotations.common.CheckForNull
+      org.netbeans.api.annotations.common.NullAllowed
+      org.netbeans.api.annotations.common.NullUnknown
+
+Manual improvements:
+  Improve installation instructions
+  Rewrite section on generics (thanks to Bert Fernandez and David Cok)
+    Also refactor the generics section into its own chapter
+  Rewrite section on @Unused and @Dependent
+  New manual section: Writing Java expressions as annotation arguments
+  Better explanation of warning suppression
+  JSR 308 is planned for Java 8, not Java 7
+
+Stub files:
+  Support nested classes by expressing them at top level in binary form: A$B
+  Improved error reporting when parsing stub files
+
+Annotated JDK:
+  New way of generating annotated JDK
+  jdk.jar file no longer appears in repository
+  Warning if you are not using the annotated JDK.
+
+Miscellaneous:
+  Warn if -source command-line argument does not support type annotations
+
+Many bug fixes
+  There are too many to list, but some notable ones are to local type
+  inference, generics, pre- and post-conditions (e.g., @NonNullOnEntry,
+  @AssertNonNull*), and map keys (@KeyFor).
+
+----------------------------------------------------------------------
+Version 1.1.1, 18 Sep 2010
+
+Eclipse support:
+  Removed the obsolete Eclipse plug-in from repository.  The new one uses a
+  different repository
+  (http://code.google.com/a/eclipselabs.org/p/checker-plugin/) but a user
+  obtains it from the same URL as before:
+  http://types.cs.washington.edu/checker-framework/eclipse/
+
+Property Key Checker:
+  The property key checker allows multiple resource bundles and the
+  simultaneous use of both resource bundles and property files.
+
+Javari Checker:
+  Added Javari stub classes for more JDK classes.
+
+Distribution:
+  Changed directory structure (top level is "checker-framework"; "checkers"
+  is a under that) for consistency with version control repository.
+
+Many documentation improvements and minor bugfixes.
+
+----------------------------------------------------------------------
+Version 1.1.0b, 16 Jun 2010
+
+Fixed a bug related to runing binary release in JDK 6
+
+----------------------------------------------------------------------
+Version 1.1.0, 13 Jun 2010
+
+Checkers
+  Introduced a new simple mechanism for running the Checkers
+  Added one annotated JDK for all checkers
+
+Nullness Checker
+  Fixed bugs related to map.get() and KeyFor annotation
+  Fixed bugs related to AssertNonNull* and parameters
+  Minor updates to the annotated JDK, especially to java.io.File
+
+Manual
+  Updated installation instructions
+  Clarified section regarding fields and type inference
+
+----------------------------------------------------------------------
+Version 1.0.9, 25 May 2010
+
+Nullness Checker:
+  Improved Javadocs and manual documentation
+  Added two new annotations: AssertNonNullAfter, KeyFor
+  Fixed a bug related to AssertNonNullIfFalse and assert statements
+  Renamed NonNullVariable to NonNullOnEntry
+
+Checkers:
+  Interning: Skipping equality check, if either operands should be skipped
+  Fixed a bug related to annotations targeting array fields found in classfile
+  Fixed a bug related to method invocation generic type inference
+    in static methods
+
+Manual
+  Added a section on nullness method annotations
+  Revised the Nullness Checker section
+  Updated Ant usage instructions
+
+----------------------------------------------------------------------
+Version 1.0.8, 15 May 2010
+
+Checkers
+  Changed behavior of flow type refinement when annotation is explicit
+  Handle array initializer trees (without explicit type)
+  Handle the case of Vector.copyInto
+  Include javax classes in the distributed jdk jar files
+
+Interning Checker
+  Handle interning inference of string concatenation
+  Add 20+ @Interned annotations to the JDK
+  Add an option, checkclass, to validate the interning
+    of specific classes only
+
+Bug fixes
+  Fix a bug related to array implicit types
+  Lock checker: Treat null as a bottom type
+
+Manual
+  Added a new section about Flow inference and fields
+
+----------------------------------------------------------------------
+Version 1.0.7, 12 Apr 2010
+
+Checkers
+  Distributed a Maven repository
+  Updated stub parser project to latest version (javaparser 1.0.8)
+  Fixed bugs related to iterable wildcards and type parameter types
+
+----------------------------------------------------------------------
+Version 1.0.6, 24 Feb 2009
+
+Checkers
+
+Nullness Checker
+  Added support for new annotations:
+    Pure - indicates that the method, given the same parameters, return the
+            same values
+    AssertNonNullIfFalse - indicates that a field is NonNull if the method
+            returns false
+  Renamed AssertNonNull to AssertParametersNonNull
+  Updated the annotated jdk
+
+Javari Checker
+  Fixed many bugs:
+    handle implicit dereferencing of this (e.g. `field` in place of
+      `this.field`)
+    apply default annotations to method parameters
+
+----------------------------------------------------------------------
+Version 1.0.5, 12 Jan 2009
+
+Checkers
+  Added support for annotated jdk jars
+  Improved readability of some failure messages
+  Added AssertNonNullIfTrue support for method parameter references
+  Fixed a bug related to LazyNonNull and array fields
+  Fixed a bug related to inference and compound assignments (e.g. +=)
+  nullness: permit the type of @NonNull Void
+
+Manual
+  Updated annotating-libraries chapter regarding annotated jdk
+
+----------------------------------------------------------------------
+Version 1.0.4, 19 Dec 2009
+
+Bug Fixes
+  wildcards not recognized as subtypes of type variables
+    e.g. '? extends A' and 'A'
+  PolyNull methods not accepting null literal value arguments
+  spurious unexpected Raw warnings
+
+Manual
+  Clarified FAQ item regarding why List's type parameter is
+    "extends @NonNull Object"  
+
+----------------------------------------------------------------------
+Version 1.0.3, 5 Dec 2009
+
+Checkers
+  New location UPPER_BOUND for DefaultQualifier permits setting the default
+    for upper bounds, such as Object in "? extends Object".
+  @DefaultQualifier accepts simple names, like @DefaultQualifier("Nullable"),
+    rather than requiring @DefaultQualifier("checkers.nullness.quals.Nullable").
+  Local variable type inference has improved support for array accesses.
+  The repository contains Eclipse project and launch configuration files.
+    This is helpful too people who want to build a checker, not to people
+    who merely want to run a checker.
+  Many bug fixes, including:
+    handling wildcard subtyping rules
+    stub files and vararg methods being ignored
+    nullness and spurious rawness errors
+    uses of array clone method (e.g. String[].clone())
+    multibound type parameters (e.g. <T extends @A Number & @B Cloneable>)
+
+Manual
+  Documented the behavior of annotations on type parameter declarations.
+  New FAQ item:
+    How to collect warnings from multiple files
+    Why a qualifier shouldn't apply to both types and declarations
+
+----------------------------------------------------------------------
 Version 1.0.2, 16 Nov 2009
 
 Checkers
-  Renamed RegEx ValidRegex to Regex annotation
-  Improved Collection.toArray() heauristics to be more sound
+  Renamed Regex checker's @ValidRegex annotation to @Regex
+  Improved Collection.toArray() heuristics to be more sound
 
 Bug fixes
   Fixed the annotated JDK to match OpenJDK 6
@@ -33,7 +265,7 @@ Bug fixes
   Fixed few bugs in skeleton file generators
 
 Manual
-  Tweak installations instructions
+  Tweak installation instructions
   Reference units checkers
   Added new sections for new checkers
     RegEx checker (S 10)
@@ -73,7 +305,7 @@ Bug fixes
     type parameter and wildcard bounds annotations
 
 Manual
-  Rewrote 'javac implementation survivor guide' (S 13.9)
+  Rewrote 'javac implementation survival guide' (S 13.9)
   Restructured 'Using a checker' (S 2)
   Added 'Integration with external tools' (S 14)
   Added new questions to the FAQ (S 15)

@@ -20,6 +20,7 @@ import checkers.nullness.NullnessChecker;
  * <p>
  *
  * @see NonNull
+ * @see AssertNonNullIfFalse
  * @see NullnessChecker
  * @checker.framework.manual #nullness-checker Nullness Checker
  */
@@ -27,5 +28,10 @@ import checkers.nullness.NullnessChecker;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface AssertNonNullIfTrue {
+
+    /**
+     * Java expression(s) that are non-null after the method returns true.
+     * @see <a href="http://types.cs.washington.edu/checker-framework/#java-expressions-as-arguments">Syntax of Java expressions</a>
+     */
     String[] value();
 }

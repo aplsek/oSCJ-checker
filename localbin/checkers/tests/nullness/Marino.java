@@ -1,6 +1,6 @@
 import checkers.nullness.quals.*;
 // Test cases originally written by Dan Marino, UCLA, 10/8/2007.
-@checkers.quals.DefaultQualifier("checkers.nullness.quals.Nullable")
+@checkers.quals.DefaultQualifier("Nullable")
 public class Marino {
 
     @NonNull String m_str;
@@ -19,8 +19,10 @@ public class Marino {
 
             @NonNull String a = s;  // s cannot be null here
             s = null;
+            //:: (dereference.of.nullable)
             System.out.println("hi" + s.length());
             if (i > 2) break;
+            //:: (assignment.type.incompatible)
             a = null;
         }
         // Checker doesn't catch that m_str not initialized.
@@ -31,8 +33,10 @@ public class Marino {
         // Dereference of any static field is allowed.
         // I suppose this is a design decision
         // for practicality in interacting with libraries...?
+        //:: (dereference.of.nullable)
         System.out.println("Member string has length: " + ms_str.length());
         System.out.println("Everyone should get this error: " +
+                           //:: (dereference.of.nullable)
                            m_nullableStr.length());
 
         s = null;
@@ -43,6 +47,7 @@ public class Marino {
             s = "bye";
         }finally{
             // Checker doesn't catch that s will be null here.
+            //:: (assignment.type.incompatible)
             b = s;
             System.out.println("b has length: " + b.length());
         }

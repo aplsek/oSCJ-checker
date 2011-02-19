@@ -8,16 +8,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
+// Also see file FailedTests, that contains currently-failing tests.
 /**
  * JUnit tests for the IGJ annotation checker.
  */
 public class IGJTest extends CheckerTest {
 
     public IGJTest() {
-        super("checkers.igj.IGJChecker", "igj", "-Anomsgtext");
+        super("checkers.igj.IGJChecker", "igj", "-Anomsgtext", "-Anocheckjdk");
     }
 
-    void runTestWithDefault(String expected, boolean shouldSucceed, String javaFile) {
+    void runTestWithDefault(String expectedFileName, boolean shouldSucceed, String javaFile) {
         try {
             File tempFile = File.createTempFile("Test", ".java");
             FileWriter temp = new FileWriter(tempFile);
@@ -31,7 +32,7 @@ public class IGJTest extends CheckerTest {
                 temp.write('\n');
             }
             temp.flush();
-            runTest(expected, shouldSucceed, tempFile);
+            runTest(expectedFileName, shouldSucceed, tempFile);
             temp.close();
         } catch (IOException exp) {
             assertFalse("Couldn't compile file! ", true);
@@ -159,4 +160,15 @@ public class IGJTest extends CheckerTest {
     @Test public void testGenericClass() { test(); }
     @Test public void testManifestClass()   { test(); }
     @Test public void testMutableClass()    { test(); }
+    @Test public void testUnannoFieldArrayAccess() { test(); }
+
+    // TODO: MDE will add
+    // @Test public void testSubclassing() { test(); }
+
+    // currently failing
+    // @Test public void testFailedTests() { test(); }
+
+    @Test public void testALTest1() {
+        test();
+    }
 }

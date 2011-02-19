@@ -4,6 +4,7 @@ public class AnonymousClasses {
 
     void test() {
         new Object() {
+            //:: (assignment.type.incompatible)
             @Odd Object o = this; // error
         };
 

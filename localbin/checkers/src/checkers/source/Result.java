@@ -1,6 +1,6 @@
 package checkers.source;
 
-import checkers.quals.DefaultQualifier;
+import checkers.compilermsgs.quals.CompilerMessageKey;
 import checkers.nullness.quals.*;
 
 import java.util.*;
@@ -14,7 +14,6 @@ import java.util.*;
  *
  * @see SourceChecker#report
  */
-@DefaultQualifier("checkers.nullness.quals.NonNull")
 public final class Result {
 
     private static enum Type {
@@ -51,7 +50,7 @@ public final class Result {
      *            optional arguments to be included in the message
      * @return the failure result
      */
-    public static Result failure(String messageKey,
+    public static Result failure(@CompilerMessageKey String messageKey,
             /*@Nullable*/ Object... args) {
         return new Result(Type.FAILURE, Collections
                 .singleton(new DiagMessage(messageKey, args)));
@@ -66,7 +65,7 @@ public final class Result {
      *            optional arguments to be included in the message
      * @return the warning result
      */
-    public static Result warning(String messageKey,
+    public static Result warning(@CompilerMessageKey String messageKey,
             /*@Nullable*/ Object... args) {
         return new Result(Type.WARNING, Collections
                 .singleton(new DiagMessage(messageKey, args)));
@@ -172,10 +171,10 @@ public final class Result {
      *
      */
     public static class DiagMessage {
-        private String message;
+        private @CompilerMessageKey String message;
         private Object[] args;
 
-        protected DiagMessage(String message, Object[] args) {
+        protected DiagMessage(@CompilerMessageKey String message, Object[] args) {
             this.message = message;
             if (args == null) {
                 this.args = new Object[0]; /*null->nn*/
@@ -187,7 +186,7 @@ public final class Result {
         /**
          * @return the message key of this DiagMessage
          */
-        public String getMessageKey() {
+        public @CompilerMessageKey String getMessageKey() {
             return this.message;
         }
 

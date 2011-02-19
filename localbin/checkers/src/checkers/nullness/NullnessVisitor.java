@@ -1,7 +1,6 @@
 package checkers.nullness;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
@@ -54,9 +53,10 @@ public class NullnessVisitor extends BaseTypeVisitor<Void, Void> {
         NONNULL = this.annoFactory.fromClass(NonNull.class);
         NULLABLE = this.annoFactory.fromClass(Nullable.class);
         stringType = elements.getTypeElement("java.lang.String").asType();
+        checkForAnnotatedJdk();
     }
 
-    /** Case 1: Check for null dereferecing */
+    /** Case 1: Check for null dereferencing */
     @Override
     public Void visitMemberSelect(MemberSelectTree node, Void p) {
         if (!TreeUtils.isSelfAccess(node))
@@ -90,8 +90,8 @@ public class NullnessVisitor extends BaseTypeVisitor<Void, Void> {
     @Override
     public Void visitSynchronized(SynchronizedTree node, Void p) {
 
-        //checkForNullability(node.getExpression(), "locking.nullable");
-        // raw is suffecient
+        // checkForNullability(node.getExpression(), "locking.nullable");
+        // raw is sufficient
         AnnotatedTypeMirror type = atypeFactory.getAnnotatedType(node.getExpression());
         if (type.hasAnnotation(NULLABLE))
             checker.report(Result.failure("locking.nullable", node), node);
@@ -194,7 +194,7 @@ public class NullnessVisitor extends BaseTypeVisitor<Void, Void> {
 
     @Override
     protected void commonAssignmentCheck(Tree varTree, ExpressionTree valueExp, String errorKey, Void p) {
-        // allow LazyNonNull to be initalized to null at declaration
+        // allow LazyNonNull to be initialized to null at declaration
         if (varTree.getKind() == Tree.Kind.VARIABLE) {
             Element elem = TreeUtils.elementFromDeclaration((VariableTree)varTree);
             if (elem.getAnnotation(LazyNonNull.class) != null)
@@ -214,16 +214,32 @@ public class NullnessVisitor extends BaseTypeVisitor<Void, Void> {
                 && !TreeUtils.containsThisConstructorInvocation(node)) {
             Set<VariableElement> oldFields = nonInitializedFields;
             try {
-                nonInitializedFields = getUninitializedFields(node);
+                nonInitializedFields = getUninitializedFields(TreeUtils.enclosingClass(getCurrentPath()));
                 return super.visitMethod(node, p);
             } finally {
                 if (!nonInitializedFields.isEmpty()) {
-                    // TODO: warn against uninitialized fields
+                    if (checker.getLintOption("uninitialized", false)) {
+                        // warn against uninitialized fields
+                        // TODO: we really only want a warning, but the testing framework doesn't support this
+                        checker.report(Result.failure("fields.uninitialized", nonInitializedFields), node);
+                    }
                 }
                 nonInitializedFields = oldFields;
             }
         }
         return super.visitMethod(node, p);
+    }
+
+    @Override
+    protected void checkDefaultConstructor(ClassTree node) {
+        if (!checker.getLintOption("uninitialized", false))
+            return;
+
+        Set<VariableElement> fields = getUninitializedFields(node);
+        if (!fields.isEmpty()) {
+                // TODO: we really only want a warning, but the testing framework doesn't support this
+            checker.report(Result.failure("fields.uninitialized", fields), node);
+        }
     }
 
     @Override
@@ -233,10 +249,9 @@ public class NullnessVisitor extends BaseTypeVisitor<Void, Void> {
         return super.visitAssignment(node, p);
     }
 
-    private Set<VariableElement> getUninitializedFields(MethodTree node) {
+    private Set<VariableElement> getUninitializedFields(ClassTree classTree) {
         Set<VariableElement> fields = new HashSet<VariableElement>();
 
-        ClassTree classTree = TreeUtils.enclosingClass(getCurrentPath());
         for (Tree member : classTree.getMembers()) {
             if (!(member instanceof VariableTree))
                 continue;

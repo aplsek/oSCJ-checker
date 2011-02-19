@@ -147,7 +147,10 @@ public class TypeFromElement {
             switch(pos.type) {
             case CLASS_TYPE_PARAMETER:
                 if (pos.parameter_index >= 0 && pos.parameter_index < typeParameters.size()) {
-                    typeParameters.get(pos.parameter_index).addAnnotation(anno);
+                    AnnotatedTypeMirror typeParam = typeParameters.get(pos.parameter_index);
+                    typeParam.addAnnotation(anno);
+                    if (typeParam.getKind() == TypeKind.TYPEVAR)
+                        ((AnnotatedTypeVariable)typeParam).getUpperBound().addAnnotation(anno);
                 }
                 break;
             case CLASS_TYPE_PARAMETER_BOUND:
@@ -215,12 +218,12 @@ public class TypeFromElement {
                 annotate(type.getReceiverType(), typeAnno);
                 break;
 
-            //case METHOD_RETURN:
+            case METHOD_RETURN:
             case METHOD_RETURN_GENERIC_OR_ARRAY:
                 annotate(type.getReturnType(), typeAnno);
                 break;
 
-            //case METHOD_PARAMETER:
+            case METHOD_PARAMETER:
             case METHOD_PARAMETER_GENERIC_OR_ARRAY:
                 if (pos.parameter_index >= 0 && pos.parameter_index < params.size())
                     annotate(params.get(pos.parameter_index), typeAnno);
@@ -256,11 +259,11 @@ public class TypeFromElement {
 
     static void addAnnotationsToElt(AnnotatedTypeMirror type,
             List<? extends AnnotationMirror> annotations) {
-        // Annotate the inner most array
-        AnnotatedTypeMirror innerType = type;
-        while (innerType.getKind() == TypeKind.ARRAY)
-            innerType = ((AnnotatedArrayType)innerType).getComponentType();
-        innerType.addAnnotations(annotations);
+        AnnotatedTypes.innerMostType(type).addAnnotations(annotations);
+    }
+
+    static void clearAnnotationsFromElt(AnnotatedTypeMirror type) {
+        AnnotatedTypes.innerMostType(type).clearAnnotations();
     }
 
     /**

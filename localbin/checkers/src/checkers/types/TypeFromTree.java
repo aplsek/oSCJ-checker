@@ -1,9 +1,12 @@
 package checkers.types;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 import java.util.*;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.*;
+import javax.swing.event.ListSelectionEvent;
 
 import checkers.types.AnnotatedTypeMirror.*;
 import checkers.util.*;
@@ -32,10 +35,54 @@ abstract class TypeFromTree extends
     static void addAnnotationsToElt(AnnotatedTypeMirror type,
             List<? extends AnnotationMirror> annotations) {
         // Annotate the inner most array
-        AnnotatedTypeMirror innerType = type;
-        while (innerType.getKind() == TypeKind.ARRAY)
-            innerType = ((AnnotatedArrayType)innerType).getComponentType();
-        innerType.addAnnotations(annotations);
+        AnnotatedTypeMirror innerType = AnnotatedTypes.innerMostType(type);
+        for (AnnotationMirror anno : annotations) {
+            if (isTypeAnnotation(anno))
+                innerType.addAnnotation(anno);
+            else
+                type.addAnnotation(anno);
+        }
+    }
+
+    static void clearAnnotationsFromElt(AnnotatedTypeMirror type) {
+        // Annotate the inner most array
+        AnnotatedTypeMirror innerType = AnnotatedTypes.innerMostType(type);
+        // for non-type annotations
+        type.clearAnnotations();
+        // for type annotations
+        innerType.clearAnnotations();
+        if (innerType.getKind() == TypeKind.TYPEVAR) {
+            AnnotatedTypeMirror.AnnotatedTypeVariable typevar = (AnnotatedTypeMirror.AnnotatedTypeVariable) innerType;
+            typevar.getUpperBound().clearAnnotations();
+            typevar.getLowerBound().clearAnnotations();
+        } else if (innerType.getKind() == TypeKind.WILDCARD) {
+            AnnotatedTypeMirror.AnnotatedWildcardType typevar = (AnnotatedTypeMirror.AnnotatedWildcardType) innerType;
+            typevar.getExtendsBound().clearAnnotations();
+            typevar.getSuperBound().clearAnnotations();
+        }
+    }
+
+    private static Map<TypeElement, Boolean> isTypeCache = new IdentityHashMap<TypeElement, Boolean>();
+    private static boolean isTypeAnnotation(AnnotationMirror anno) {
+        TypeElement elem = (TypeElement)anno.getAnnotationType().asElement();
+        if (isTypeCache.containsKey(elem))
+            return isTypeCache.get(elem);
+
+        boolean result = isTypeAnnotationImpl(elem);
+        isTypeCache.put(elem, result);
+        return result;
+
+    }
+
+    private static boolean isTypeAnnotationImpl(TypeElement type) {
+        Target target = type.getAnnotation(Target.class);
+        if (target == null)
+            return true;
+        for (ElementType et : target.value()) {
+            if (et == ElementType.TYPE_USE)
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -126,7 +173,11 @@ abstract class TypeFromTree extends
             AnnotatedTypeMirror alub = f.type(node);
             TypeMirror lub = alub.getUnderlyingType();
 
-            // It it anonoymous
+            // WMD: method annotateAsLub has a very similar test for anonymous types and also the asSuper calls,
+            // but seems much more general. Is the code below out of date?
+            // Also, what is the difference in using annoTypes vs. f.atypes? Are they aliases?
+
+            // It is anonymous
             if (TypesUtils.isAnonymousType(lub)) {
                 // Find the intersect types
                 f.atypes.annotateAsLub(alub, trueType, falseType);
@@ -153,7 +204,8 @@ abstract class TypeFromTree extends
             AnnotatedTypeMirror selfType = f.getImplicitReceiverType(node);
             if (selfType != null)
                 return f.atypes.asMemberOf(selfType, elt);
-            return f.fromElement(elt);
+            return f.getAnnotatedType(elt);
+//            return f.fromElement(elt);
         }
 
         @Override
@@ -235,7 +287,6 @@ abstract class TypeFromTree extends
                 typeElem = ((AnnotatedArrayType)typeElem).getComponentType();
             }
             // Add all dimension annotations.
-            //int idx = arrayDim(result) - 1;
             int idx = 0;
             AnnotatedTypeMirror level = result;
             while (level.getKind() == TypeKind.ARRAY) {
@@ -247,16 +298,6 @@ abstract class TypeFromTree extends
 
             // Add top-level annotations.
             result.addAnnotations(InternalUtils.annotationsFromArrayCreation(node, -1));
-        }
-
-        private int arrayDim(AnnotatedArrayType array) {
-            AnnotatedTypeMirror type = array;
-            int result = 0;
-            while (type.getKind() == TypeKind.ARRAY) {
-                type = ((AnnotatedArrayType)type).getComponentType();
-                result++;
-            }
-            return result;
         }
 
         private void annotateArrayAsCanonical(AnnotatedArrayType result, NewArrayTree node, AnnotatedTypeFactory f) {
@@ -362,6 +403,17 @@ abstract class TypeFromTree extends
             Element elt = TreeUtils.elementFromDeclaration(node);
             result.setElement(elt);
 
+            // Ordinarily, annotations are cumulative.  But, if they are
+            // added to a use of a generic type variable (as in "@Nullable
+            // T"), they replace existing annotations.
+            // Is this feature ever useful?  Should they only be allowed to
+            // augment existing types (as in "@NonNull T" where T might be
+            // nullable), but not remove annotations?
+            com.sun.tools.javac.tree.JCTree ntype = (com.sun.tools.javac.tree.JCTree) node.getType();
+            if ((ntype.type.getKind() == TypeKind.TYPEVAR)
+                && (! elt.getAnnotationMirrors().isEmpty())) {
+                clearAnnotationsFromElt(result);
+            }
             addAnnotationsToElt(result, elt.getAnnotationMirrors());
             return result;
         }
@@ -545,8 +597,7 @@ abstract class TypeFromTree extends
         public AnnotatedTypeMirror visitTypeParameter(TypeParameterTree node,
                 AnnotatedTypeFactory f) {
 
-            List<AnnotatedTypeMirror> bounds
-                = new LinkedList<AnnotatedTypeMirror>();
+            List<AnnotatedTypeMirror> bounds = new LinkedList<AnnotatedTypeMirror>();
             for (Tree t : node.getBounds()) {
                 AnnotatedTypeMirror bound;
                 if (visitedBounds.containsKey(t) && f == visitedBounds.get(t).typeFactory)
@@ -559,12 +610,23 @@ abstract class TypeFromTree extends
                 bounds.add(bound);
             }
 
-            AnnotatedTypeMirror result = f.type(node);
-            result.addAnnotations(InternalUtils.annotationsFromTree(node));
+            AnnotatedTypeVariable result = (AnnotatedTypeVariable)f.type(node);
+            List<? extends AnnotationMirror> annotations = InternalUtils.annotationsFromTree(node);
+            if (f.canHaveAnnotatedTypeParameters())
+                result.addAnnotations(annotations);
+            result.getUpperBound().addAnnotations(annotations);
             assert result instanceof AnnotatedTypeVariable;
-            if (!bounds.isEmpty()) {
-                // TODO: handle case with multiple bounds
-                ((AnnotatedTypeVariable)result).setUpperBound(bounds.get(0));
+            switch (bounds.size()) {
+            case 0: break;
+            case 1:
+                result.setUpperBound(bounds.get(0));
+                break;
+            default:
+                AnnotatedDeclaredType upperBound = (AnnotatedDeclaredType)result.getUpperBound();
+                assert TypesUtils.isAnonymousType(upperBound.getUnderlyingType());
+                @SuppressWarnings({"unchecked", "rawtypes"})
+                List<AnnotatedDeclaredType> superBounds = (List)bounds;
+                upperBound.setDirectSuperTypes(superBounds);
             }
 
             return result;

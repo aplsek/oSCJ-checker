@@ -1,6 +1,5 @@
 package checkers.util;
 
-import checkers.quals.DefaultQualifier;
 import checkers.nullness.quals.*;
 import checkers.types.AnnotatedTypeMirror;
 
@@ -22,7 +21,6 @@ import com.sun.tools.javac.tree.JCTree.JCTypeApply;
  * A utility class made for helping to analyze a given {@code Tree}.
  */
 // TODO: This class needs significant restructuring
-@DefaultQualifier("checkers.nullness.quals.NonNull")
 public final class TreeUtils {
 
     // Cannot be instantiated
@@ -329,6 +327,17 @@ public final class TreeUtils {
         return TreeInfo.symbol((JCTree)node);
     }
 
+    public static final boolean isUseOfElement(Tree node) {
+        switch (node.getKind()) {
+            case IDENTIFIER:
+            case MEMBER_SELECT:
+            case METHOD_INVOCATION:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public static final Element elementFromUse(ExpressionTree node) {
         switch (node.getKind()) {
         case IDENTIFIER:
@@ -339,7 +348,7 @@ public final class TreeUtils {
             throw new IllegalArgumentException("Tree not use: " + node.getKind());
         }
     }
-    
+
     public static final ExecutableElement elementFromUse(NewClassTree node) {
         return (ExecutableElement)((JCNewClass)node).constructor;
     }
@@ -424,4 +433,86 @@ public final class TreeUtils {
                 && TypesUtils.isDeclaredOfName(InternalUtils.typeOf(tree),
                         String.class.getCanonicalName()));
     }
+
+    /**
+     * Returns true if the compound assignment tree is a string concatenation
+     */
+    public static final boolean isStringCompoundConcatenation(CompoundAssignmentTree tree) {
+        return (tree.getKind() == Tree.Kind.PLUS_ASSIGNMENT
+                && TypesUtils.isDeclaredOfName(InternalUtils.typeOf(tree),
+                        String.class.getCanonicalName()));
+    }
+
+    /**
+     * Returns true if the node is a constant-time expression.
+     *
+     * A tree is a constant-time expression if it is:
+     * <ol>
+     * <li>a literal tree
+     * <li>a reference to a final variable initialized with a compile time
+     *  constant
+     * <li>a String concatination of two compile time constants
+     * </ol>
+     */
+    public static boolean isCompileTimeString(ExpressionTree node) {
+        ExpressionTree tree = TreeUtils.skipParens(node);
+        if (tree instanceof LiteralTree)
+            return true;
+
+        if (TreeUtils.isUseOfElement(tree)) {
+            Element elt = TreeUtils.elementFromUse(tree);
+            return ElementUtils.isCompileTimeConstant(elt);
+        } else if (TreeUtils.isStringConcatenation(tree)) {
+            BinaryTree binOp = (BinaryTree)node;
+            return isCompileTimeString(binOp.getLeftOperand())
+                && isCompileTimeString(binOp.getRightOperand());
+
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Returns the receiver tree of a field access or a method invocation
+     */
+    public static ExpressionTree getReceiverTree(ExpressionTree expression) {
+        if (!(expression.getKind() == Tree.Kind.METHOD_INVOCATION
+                || expression.getKind() == Tree.Kind.MEMBER_SELECT
+                || expression.getKind() == Tree.Kind.IDENTIFIER
+                || expression.getKind() == Tree.Kind.ARRAY_ACCESS))
+            // No receiver type for those
+            return null;
+
+        if (expression.getKind() == Tree.Kind.IDENTIFIER
+            && "this".equals(expression.toString()))
+            return null;
+
+        ExpressionTree receiver = TreeUtils.skipParens(expression);
+        if (receiver.getKind() == Tree.Kind.ARRAY_ACCESS)
+            return ((ArrayAccessTree)receiver).getExpression();
+
+        // Avoid int.class
+        if (expression.getKind() == Tree.Kind.MEMBER_SELECT &&
+                ((MemberSelectTree)expression).getExpression() instanceof PrimitiveTypeTree)
+            return null;
+
+        if (isSelfAccess(expression)) {
+            return null;
+        }
+
+        //
+        // Trying to handle receiver calls to trees of the form
+        // ((m).getArray())
+        // returns the type of 'm' in this case
+
+        if (receiver.getKind() == Tree.Kind.METHOD_INVOCATION)
+            receiver = ((MethodInvocationTree)receiver).getMethodSelect();
+        receiver = TreeUtils.skipParens(receiver);
+        assert receiver.getKind() == Tree.Kind.MEMBER_SELECT;
+        if (receiver.getKind() == Tree.Kind.MEMBER_SELECT)
+            receiver = ((MemberSelectTree)receiver).getExpression();
+
+        return receiver;
+    }
 }
+

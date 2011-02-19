@@ -1,36 +1,43 @@
 
-.SILENT:
-
 # Variables
 CHECKERS ?= ../..
 CHECKERS_JAR ?= $(CHECKERS)/checkers.jar
 
-LANGTOOLS ?= ../../../jsr308-langtools
+LANGTOOLS ?= ../../../../jsr308-langtools
 JAVADOCLIB ?= $(LANGTOOLS)/build/classes
 JAVAC ?= $(LANGTOOLS)/dist/bin/javac -Xlint
 JAVAP ?= $(LANGTOOLS)/dist/bin/javap
 
 RTJAR ?= $(JAVA_HOME)/jre/lib/rt.jar
 
-clean:
-	rm -rf build annotated jdk.jar
+ANNOTATION_TOOLS ?= ../../../../annotation-tools
+AFU_SCRIPTS ?= $(ANNOTATION_TOOLS)/annotation-file-utilities/scripts
 
-build:
-	mkdir -p build
+all: clean classes
+# Separate make command because BUILD_CLASSES needs to be recomputed.
+	$(MAKE) jaifs annotated
+
+clean:
+	rm -rf build
+
+build: classes
 
 
 ############## Validate annotated jdk against missing methods ##############
-SOURCES = $(shell find src/java -name '*.java')
-CLASSES = $(patsubst src/%.java,build/%.class, $(SOURCES))
+
+SOURCES = $(shell find src/java src/javax -name '*.java')
+# CLASSES = $(shell find src/java src/javax -name '*.class')
 DIFFS = $(patsubst src/%.java,build/%.diff, $(SOURCES))
 
 .PHONY: classes
 classes: $(SOURCES)
-	echo "building the jdk..."
 	mkdir -p build
-	$(JAVAC) -cp $(CHECKERS_JAR):$(JAVADOCLIB) -d build $?
+	@echo "Building the JDK..."
+	@$(JAVAC) -cp $(CHECKERS_JAR):$(JAVADOCLIB) -d build $?
 
+# This rule does not seem to be used.
 build/%.class: src/%.java
+	mkdir -p build
 	$(JAVAC) -sourcepath src -cp $(CHECKERS_JAR):$(JAVADOCLIB) -d build $<
 
 build/%.expected: build/%.class
@@ -46,21 +53,30 @@ build/%.diff: build/%.expected build/%.actual
 validate: classes $(DIFFS)
 
 ############## Annotate the annotated jdk file ##############
-JAIFS = $(patsubst src/%.java,build/%.jaif, $(SOURCES))
-ANNOTATED = $(patsubst src/%.java,annotated/%.class, $(SOURCES))
+
+# Problem: build/java doesn't exist until after the "classes" target has
+# run!  This means that a new make process must be started, after the
+# "classes" rule has executed, before any rule that uses these variables.
+# Furthermore, these shell commands may issue errors saying that build/java
+# does not exist.  So long as the variables are not used on such a make
+# invocation, this doesn't cause a problem, but it is irritating (and a bit
+# sloppy).
+BUILD_CLASSES = $(shell find build/java build/javax -name '*.class')
+JAIFS = $(patsubst build/%.class,build/%.jaif, $(BUILD_CLASSES))
+ANNOTATED = $(patsubst build/%.class,annotated/%.class, $(BUILD_CLASSES))
 
 build/%.jaif: build/%.class
-	extract-annotations $<
+	$(AFU_SCRIPTS)/extract-annotations '$<'
 
-stubs: $(JAIFS)
+jaifs: $(JAIFS)
 
 annotated/%.class: build/%.jaif
-	cd annotated; unzip $(RTJAR) $*.class > /dev/null
-	insert-annotations $@ $<
+	$(AFU_SCRIPTS)/insert-annotations '../$@' '$<'
 
 annotated: $(ANNOTATED)
 
-jdk.jar: annotated
-	cd annotated; jar cf ../jdk.jar `find . -name '*.class'`
-
-jdk: jdk.jar
+showvars:
+	pwd
+	@echo BUILD_CLASSES: ${BUILD_CLASSES}
+	@echo JAIFS: ${JAIFS}
+	@echo ANNOTATED: ${ANNOTATED}

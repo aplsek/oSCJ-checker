@@ -32,6 +32,11 @@ public abstract class QualifierHierarchy {
     public abstract AnnotationMirror getRootAnnotation();
 
     /**
+     * @return the bottom type qualifier in the hierarchy
+     */
+    public abstract AnnotationMirror getBottomQualifier();
+
+    /**
      * Returns the names of all type qualifiers in this type qualifier
      * hierarchy
      *
@@ -60,13 +65,13 @@ public abstract class QualifierHierarchy {
      *
      * @return true iff an annotation in lhs is a super of one in rhs
      **/
-    // This method requires more revision
+    // This method requires more revision.
     // The only case were rhs and lhs have more than one qualifier is in IGJ
     // where the type of 'this' is '@AssignsFields @I FOO'.  Subtyping for
-    // this case, requires subtyping with respect to one qualifier only
+    // this case, requires subtyping with respect to one qualifier only.
     public boolean isSubtype(Collection<AnnotationMirror> rhs, Collection<AnnotationMirror> lhs) {
-        Collection<AnnotationMirror> lhsAnnos = wrapCollection(lhs);
         Collection<AnnotationMirror> rhsAnnos = wrapCollection(rhs);
+        Collection<AnnotationMirror> lhsAnnos = wrapCollection(lhs);
 
         for (AnnotationMirror lhsAnno : lhsAnnos)
             for (AnnotationMirror rhsAnno : rhsAnnos)
@@ -76,7 +81,7 @@ public abstract class QualifierHierarchy {
     }
 
     /**
-     * Returns the  least upper bound for a1 and a2 qualifiers.
+     * Returns the  least upper bound for the qualifiers a1 and a2.
      *
      * Examples:
      * For NonNull, leastUpperBound('Nullable', 'NonNull') ==> Nullable
@@ -85,6 +90,15 @@ public abstract class QualifierHierarchy {
      * @return  the least restrictive qualifiers for both types
      */
     public abstract AnnotationMirror leastUpperBound(AnnotationMirror a1, AnnotationMirror a2);
+
+    /**
+     * Returns the greatest lower bound for the qualifiers a1 and a2.
+     *
+     * @param a1 First annotation
+     * @param a2 Second annotation
+     * @return Greatest lower bound of the two annotations
+     */
+    public abstract AnnotationMirror greatestLowerBound(AnnotationMirror a1, AnnotationMirror a2);
 
     /**
      * Returns the type qualifiers that are the least upper bound of

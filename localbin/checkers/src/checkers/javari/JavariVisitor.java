@@ -1,13 +1,15 @@
 package checkers.javari;
 
+import java.util.List;
+
 import javax.lang.model.element.*;
-import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.*;
 
 import com.sun.source.tree.*;
 
 import checkers.source.*;
 import checkers.basetype.*;
-import checkers.javari.quals.Assignable;
+import checkers.javari.quals.*;
 import checkers.types.*;
 import checkers.types.AnnotatedTypeMirror.*;
 import checkers.util.TreeUtils;
@@ -37,6 +39,7 @@ public class JavariVisitor extends BaseTypeVisitor<Void, Void> {
         MUTABLE = checker.MUTABLE;
         POLYREAD = checker.POLYREAD;
         QREADONLY = checker.QREADONLY;
+        checkForAnnotatedJdk();
     }
 
     /**
@@ -75,7 +78,8 @@ public class JavariVisitor extends BaseTypeVisitor<Void, Void> {
         if (variableLocalField && !inConstructor && !mReceiver.hasAnnotation(MUTABLE))
             checker.report(Result.failure("ro.field"), varTree);
 
-        if (varTree.getKind() == Tree.Kind.MEMBER_SELECT) {
+        if (varTree.getKind() == Tree.Kind.MEMBER_SELECT
+            && !TreeUtils.isSelfAccess((ExpressionTree)varTree)) {
             AnnotatedTypeMirror receiver = atypeFactory.getReceiver((ExpressionTree)varTree);
             if (receiver != null && !receiver.hasAnnotation(MUTABLE))
                 checker.report(Result.failure("ro.field"), varTree);
@@ -110,8 +114,7 @@ public class JavariVisitor extends BaseTypeVisitor<Void, Void> {
 
         // Here we simply test for primitive types
         // they can only occur at raw or array most inner component type
-        while (type.getKind() == TypeKind.ARRAY)
-            type = ((AnnotatedArrayType)type).getComponentType();
+        type = AnnotatedTypes.innerMostType(type);
         if (type.getKind().isPrimitive()) {
             if (type.hasAnnotation(QREADONLY)
                     || type.hasAnnotation(READONLY)

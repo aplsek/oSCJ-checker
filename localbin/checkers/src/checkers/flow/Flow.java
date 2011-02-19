@@ -1,6 +1,7 @@
 package checkers.flow;
 
 import checkers.basetype.BaseTypeChecker;
+import checkers.nullness.quals.Pure;
 import checkers.source.SourceChecker;
 import checkers.types.*;
 import checkers.types.AnnotatedTypeMirror.*;
@@ -57,7 +58,7 @@ import javax.lang.model.util.Elements;
 public class Flow extends TreePathScanner<Void, Void> {
 
     /** Where to print debugging messages; set via {@link #setDebug}. */
-    private PrintStream debug = null;
+    protected PrintStream debug = null;
 
     /** The checker to which this instance belongs. */
     protected final SourceChecker checker;
@@ -77,33 +78,32 @@ public class Flow extends TreePathScanner<Void, Void> {
      */
     protected final Set<AnnotationMirror> annotations;
 
-    /** Utility class for getting source positions. */
-    protected final SourcePositions source;
-
     /** Utility class for determining annotated types. */
     protected final AnnotatedTypeFactory factory;
 
     /** Utility class for operations on annotated types. */
     protected final AnnotatedTypes atypes;
 
-    /**
-     * Maps variables to a bit index. This index is also used as the bit index
-     * to determine a variable's annotatedness using
-     * annos/annosWhenTrue/annosWhenFalse.
-     */
-    protected final List<VariableElement> vars;
-
     /** Stores the results of the analysis (source location to qualifier). */
-    protected final Map<Location, AnnotationMirror> flowResults;
+    protected final Map<Tree, AnnotationMirror> flowResults;
+
+    /**
+     * Maps variables to a bit index. This index is also used as the bit
+     * index to determine a variable's annotatedness using
+     * annos/annosWhenTrue/annosWhenFalse.
+     * @see #annos
+     * @see SplitTuple
+     */
+    protected List<VariableElement> vars;
 
     /**
      * Tracks the annotated state of each variable during flow. Bit indices
      * correspond exactly to indices in {@link #vars}. This field is set to
      * null immediately after splitting for a branch, and is set to some
-     * combination (usually boolean "and") of {@link #annosWhenTrue} and
-     * {@link #annosWhenFalse} after merging. Since it is used when visiting the
+     * combination (usually boolean "and") of {@link SplitTuple}'s annosWhenTrue and
+     * annosWhenFalse after merging. Since it is used when visiting the
      * true and false branches, however, it may be non-null concurrently with
-     * {@link #annosWhenTrue} and {@link #annosWhenFalse}.
+     * {@link SplitTuple}'s annosWhenTrue and annosWhenFalse.
      */
     protected GenKillBits<AnnotationMirror> annos;
 
@@ -116,7 +116,7 @@ public class Flow extends TreePathScanner<Void, Void> {
      *
      * @see #annos
      */
-    protected GenKillBits<AnnotationMirror> annosWhenTrue;
+    // protected GenKillBits<AnnotationMirror> annosWhenTrue;
 
     /**
      * Tracks the annotated state of each variable in a false branch. As in
@@ -127,13 +127,19 @@ public class Flow extends TreePathScanner<Void, Void> {
      *
      * @see #annos
      */
-    protected GenKillBits<AnnotationMirror> annosWhenFalse;
+    // protected GenKillBits<AnnotationMirror> annosWhenFalse;
+
+    public static class SplitTuple {
+        public GenKillBits<AnnotationMirror> annosWhenTrue;
+        public GenKillBits<AnnotationMirror> annosWhenFalse;
+    }
+
 
     /**
      * Stores the result of liveness analysis, required by the GEN-KILL analysis
      * for proper handling of jumps (break, return, throw, etc.).
      */
-    private boolean alive = true;
+    protected boolean alive = true;
 
     /** Tracks annotations in try blocks to support exceptions. */
     private final Deque<GenKillBits<AnnotationMirror>> tryBits;
@@ -168,21 +174,21 @@ public class Flow extends TreePathScanner<Void, Void> {
         this.root = root;
         this.annotations = annotations;
 
-        this.source = Trees.instance(env).getSourcePositions();
         if (factory == null)
             this.factory = new AnnotatedTypeFactory(checker, root);
-        else this.factory = factory;
+        else
+            this.factory = factory;
 
         this.atypes = new AnnotatedTypes(env, factory);
 
-        this.visitorState = factory.getVisitorState();
+        this.visitorState = this.factory.getVisitorState();
 
         this.vars = new ArrayList<VariableElement>();
-        this.flowResults = new HashMap<Location, AnnotationMirror>();
+        this.flowResults = new IdentityHashMap<Tree, AnnotationMirror>();
 
         this.annos = new GenKillBits<AnnotationMirror>(this.annotations);
-        this.annosWhenTrue = null;
-        this.annosWhenFalse = null;
+        // this.annosWhenTrue = null;
+        // this.annosWhenFalse = null;
 
         this.tryBits = new LinkedList<GenKillBits<AnnotationMirror>>();
 
@@ -218,13 +224,12 @@ public class Flow extends TreePathScanner<Void, Void> {
     public AnnotationMirror test(Tree tree) {
         while (tree.getKind() == Tree.Kind.ASSIGNMENT)
             tree = ((AssignmentTree)tree).getVariable();
-        long pos = source.getStartPosition(root, tree);
-        final Location loc = new Location(pos, tree);
-        if (!flowResults.containsKey(loc))
+        if (!flowResults.containsKey(tree)) {
             return null;
+        }
         // a hack needs to be fixed
         // always follow variable declarations
-        AnnotationMirror flowResult = flowResults.get(loc);
+        AnnotationMirror flowResult = flowResults.get(tree);
 
         return flowResult;
     }
@@ -333,12 +338,27 @@ public class Flow extends TreePathScanner<Void, Void> {
             // Propagate/clear the annotation if it's annotated or an annotation
             // had been inferred previously.
             if (hasAnnotation(type, annotation)
-                    && annoRelations.isSubtype(type.getAnnotations(), eltType.getAnnotations()))
+                    && annoRelations.isSubtype(type.getAnnotations(), eltType.getAnnotations())) {
                 annos.set(annotation, idx);
-            else if (rIdx >= 0 && annos.get(annotation, rIdx))
+                // to ensure that there is always just one annotation set, we clear the
+                // annotation that was previously used
+                // for (AnnotationMirror oldsuper : eltType.getAnnotations()) {
+                for (AnnotationMirror other : annotations) {
+                        if (!other.equals(annotation) &&
+                                        annos.contains(other)) {
+                                // The get is not necessary and might observe annos in an invalid state.
+                                // annos.get(other, idx)
+                                annos.clear(other, idx);
+                        }
+                }
+            } else if (rIdx >= 0 && annos.get(annotation, rIdx)) {
                 annos.set(annotation, idx);
-            else annos.clear(annotation, idx);
+            } else {
+                annos.clear(annotation, idx);
+            }
         }
+        // just to make sure everything worked correctly
+        annos.valid();
     }
 
     /**
@@ -365,29 +385,13 @@ public class Flow extends TreePathScanner<Void, Void> {
         int idx = vars.indexOf(elt);
         if (idx < 0) return;
 
+        // WMD: if we're setting something, can the GenKillBits invariant be violated?
         for (AnnotationMirror annotation : annotations) {
             if (hasAnnotation(rhs, annotation))
                 annos.set(annotation, idx);
-            else annos.clear(annotation, idx);
+            else
+                annos.clear(annotation, idx);
         }
-    }
-
-    /**
-     * Split the bitset before a conditional branch.
-     */
-    protected void split() {
-        annosWhenFalse = GenKillBits.copy(annos);
-        annosWhenTrue = annos;
-        annos = null;
-    }
-
-    /**
-     * Merge the bitset after a conditional branch.
-     */
-    protected void merge() {
-        annos = GenKillBits.copy(annos);
-        annos.and(annosWhenFalse);
-        annosWhenTrue = annosWhenFalse = null;
     }
 
     /**
@@ -446,25 +450,23 @@ public class Flow extends TreePathScanner<Void, Void> {
         }
 
         if (idx >= 0) {
-            long pos = source.getStartPosition(root, tree);
             for (AnnotationMirror annotation : annotations) {
                 if (debug != null)
-                    debug.println("Flow: recordBits(" + tree + ") @" + pos + " " + annotation + " "
+                    debug.println("Flow: recordBits(" + tree + ") + " + annotation + " "
                             + annos.get(annotation, idx) + " as " + tree.getKind());
-                Location loc = new Location(pos, tree);
                 if (annos.get(annotation, idx)) {
-                    AnnotationMirror existing = flowResults.get(loc);
+                    AnnotationMirror existing = flowResults.get(tree);
 
                     // Don't replace the existing annotation unless the current
                     // annotation is *more* specific than the existing one.
                     if (existing == null || annoRelations.isSubtype(existing, annotation))
-                        flowResults.put(loc, annotation);
-                } else if (flowResults.get(loc) == annotation) {
+                        flowResults.put(tree, annotation);
+                } else if (flowResults.get(tree) == annotation) {
                     // We inferred an annotation in this location that is not
                     // applicable anymore
                     // occurs in loop where an assignment invalidates the
                     // condition in the next round
-                    flowResults.remove(loc);
+                    flowResults.remove(tree);
                 }
             }
         }
@@ -506,13 +508,38 @@ public class Flow extends TreePathScanner<Void, Void> {
      *
      * @param tree the condition being scanned
      */
-    protected void scanCond(Tree tree) {
+    protected SplitTuple scanCond(Tree tree) {
         alive = true;
-        if (tree != null)
+        if (tree != null) {
             scan(tree, null);
-        if (annos != null) split();
-        annos = null;
+        }
+        if (annos != null) {
+                SplitTuple res = split();
+                return res;
+        }
+        return new SplitTuple();
     }
+
+    /**
+     * Split the bitset before a conditional branch.
+     */
+    protected SplitTuple split() {
+        SplitTuple res = new SplitTuple();
+        res.annosWhenFalse = GenKillBits.copy(annos);
+        res.annosWhenTrue = annos;
+        annos = null;
+        return res;
+    }
+
+    /**
+     * Merge the bitset after a conditional branch.
+     *//*
+    protected void merge() {
+        annos = GenKillBits.copy(annosWhenTrue);
+        //annos.and(annosWhenFalse);
+        GenKillBits.andlub(annos, annosWhenFalse, annoRelations);
+        annosWhenTrue = annosWhenFalse = null;
+    }*/
 
     /**
      * Called whenever an expression is scanned.
@@ -522,7 +549,8 @@ public class Flow extends TreePathScanner<Void, Void> {
     protected void scanExpr(ExpressionTree tree) {
         alive = true;
         scan(tree, null);
-        if (annos == null) merge();
+        assert annos != null;
+        // if (annos == null) merge();
     }
 
     // **********************************************************************
@@ -573,10 +601,9 @@ public class Flow extends TreePathScanner<Void, Void> {
         if (factory.fromTypeTree(node.getType()).isAnnotated())
             return null;
         AnnotatedTypeMirror t = factory.getAnnotatedType(node.getExpression());
-        long pos = source.getStartPosition(root, node);
         for (AnnotationMirror a : annotations)
             if (hasAnnotation(t, a))
-                flowResults.put(new Location(pos, node), a);
+                flowResults.put(node, a);
         return null;
     }
 
@@ -606,7 +633,8 @@ public class Flow extends TreePathScanner<Void, Void> {
         if (init != null) {
             scanExpr(init);
             VariableElement elem = TreeUtils.elementFromDeclaration(node);
-            if (!isNonFinalField(elem) /*&& !type.isAnnotated()*/) {
+            AnnotatedTypeMirror type = factory.fromMember(node);
+            if (!isNonFinalField(elem) && !type.isAnnotated()) {
                 propagate(node, init);
                 recordBits(getCurrentPath());
             }
@@ -630,14 +658,50 @@ public class Flow extends TreePathScanner<Void, Void> {
     // This is an exact copy of visitAssignment()
     @Override
     public Void visitCompoundAssignment(CompoundAssignmentTree node, Void p) {
+        // System.err.println("in vCA: " + node);
+
         ExpressionTree var = node.getVariable();
         ExpressionTree expr = node.getExpression();
-        if (!(var instanceof IdentifierTree))
-            scanExpr(var);
+        // if (!(var instanceof IdentifierTree))
+        scanExpr(var);
         scanExpr(expr);
-        propagate(var, expr);
+        propagate(var, node);
+        // if (var instanceof IdentifierTree)
+        //     this.scan(var, p);
+
+        // WMD added this to get (s2 = (s1 += 1)) working.
+        // Is something similar needed for other expressions?
+        // I copied this from visitTypeCast, so maybe it's needed elsewhere, too.
+        AnnotatedTypeMirror t = factory.getAnnotatedType(var);
+        for (AnnotationMirror a : annotations) {
+            if (hasAnnotation(t, a)) {
+                flowResults.put(node, a);
+            }
+        }
+
+        // Clearing out the Annotations is only the correct solution for the
+        // Interning Checker, where the result of a compound assignment is never
+        // interned. For other checkers, this behavior is wrong, e.g. in the Fenum Checker
+        // it leads to FenumTop being determined instead of a FenumUnqualified.
+        // if (var.getKind() != Tree.Kind.ARRAY_ACCESS)
+        //       clearAnnos(var);
+
         return null;
+        }
+
+    /*
+    private void clearAnnos(Tree tree) {
+        Element elt = InternalUtils.symbol(tree);
+        if (elt == null)
+            return;
+        int idx = vars.indexOf(elt);
+        if (idx >= 0) {
+            for (AnnotationMirror anno : annotations) {
+                annos.clear(anno, idx);
+            }
+        }
     }
+    */
 
     @Override
     public Void visitEnhancedForLoop(EnhancedForLoopTree node, Void p) {
@@ -660,7 +724,7 @@ public class Flow extends TreePathScanner<Void, Void> {
         return null;
     }
 
-    private static boolean containsKey(Tree tree, Collection<String> keys) {
+    protected static boolean containsKey(Tree tree, Collection<String> keys) {
         if (tree == null)
             return false;
 
@@ -680,48 +744,65 @@ public class Flow extends TreePathScanner<Void, Void> {
         boolean inferFromAsserts = containsKey(node.getDetail(), checker.getSuppressWarningsKey());
         GenKillBits<AnnotationMirror> annosAfterAssert = GenKillBits.copy(annos);
         pushNewLevel();
-        scanCond(node.getCondition());
+        SplitTuple split = scanCond(node.getCondition());
         if (inferFromAsserts)
-            annosAfterAssert = GenKillBits.copy(annosWhenTrue);
-        annos = GenKillBits.copy(annosWhenFalse);
+            annosAfterAssert = GenKillBits.copy(split.annosWhenTrue);
+        annos = GenKillBits.copy(split.annosWhenFalse);
         scanExpr(node.getDetail());
         annos = annosAfterAssert;
         popLastLevel();
         return null;
     }
 
+    protected void whenConditionFalse(ExpressionTree condition, Void p) {
+    }
+
     @Override
     public Void visitIf(IfTree node, Void p) {
         pushNewLevel();
 
-        scanCond(node.getCondition());
+        SplitTuple split = scanCond(node.getCondition());
 
-        GenKillBits<AnnotationMirror> beforeElse = annosWhenFalse;
-        annos = annosWhenTrue;
+        GenKillBits<AnnotationMirror> annosBeforeElse = split.annosWhenFalse;
+        annos = split.annosWhenTrue;
+        // annosWhenTrue = annosWhenFalse = null;
 
-        boolean aliveBefore = alive;
+        boolean aliveBeforeThen = alive;
 
         scanStat(node.getThenStatement());
         popLastLevel();
+
         pushNewLevel();
         StatementTree elseStmt = node.getElseStatement();
-        if (elseStmt != null) {
-            boolean aliveAfter = alive;
-            alive = aliveBefore;
-            GenKillBits<AnnotationMirror> after = GenKillBits.copy(annos);
-            annos = beforeElse;
+        if (elseStmt != null ) {
+            whenConditionFalse(node.getCondition(), p);
+            boolean aliveAfterThen = alive;
+            alive = aliveBeforeThen;
+            GenKillBits<AnnotationMirror> annosAfterThen = GenKillBits.copy(annos);
+            annos = annosBeforeElse;
             scanStat(elseStmt);
-            alive &= aliveAfter;
-            if (!alive)
-                annos = GenKillBits.copy(after);
-            else
-                annos.and(after);
+
+            if (!alive) {
+                // the else branch is not alive at the end
+                // we use the liveness-result from the then branch
+                alive = aliveAfterThen;
+                // annosAfterThen.or(annos);
+                GenKillBits.orlub(annosAfterThen, annos, annoRelations);
+                annos = GenKillBits.copy(annosAfterThen);
+            } else if (!aliveAfterThen) {
+                // annos = annos;  // NOOP
+                // TODO: what's the point of this branch?
+            } else {
+                // both branches are alive
+                // alive = true;
+                GenKillBits.andlub(annos, annosAfterThen, annoRelations);
+            }
         } else {
-            alive &= aliveBefore;
             if (!alive)
-                annos = GenKillBits.copy(beforeElse);
-            else
-                annos.and(beforeElse);
+                annos = GenKillBits.copy(annosBeforeElse);
+            else {
+                GenKillBits.andlub(annos, annosBeforeElse, annoRelations);
+            }
         }
         popLastLevel();
 
@@ -733,42 +814,52 @@ public class Flow extends TreePathScanner<Void, Void> {
             Void p) {
 
         // Split and merge as for an if/else.
-        scanCond(node.getCondition());
+        SplitTuple split = scanCond(node.getCondition());
 
-        GenKillBits<AnnotationMirror> before = annosWhenFalse;
-        annos = annosWhenTrue;
+        GenKillBits<AnnotationMirror> before = split.annosWhenFalse;
+        annos = split.annosWhenTrue;
 
         scanExpr(node.getTrueExpression());
         GenKillBits<AnnotationMirror> after = GenKillBits.copy(annos);
         annos = before;
 
         scanExpr(node.getFalseExpression());
-        annos.and(after);
+        // annos.and(after);
+        GenKillBits.andlub(annos, after, annoRelations);
 
         return null;
     }
 
     @Override
     public Void visitWhileLoop(WhileLoopTree node, Void p) {
-        boolean pass = false;
         GenKillBits<AnnotationMirror> annoCond;
-        GenKillBits<AnnotationMirror> beforeTrue = GenKillBits.copy(annosWhenTrue);
-        GenKillBits<AnnotationMirror> beforeFalse = GenKillBits.copy(annosWhenFalse);
-        
-        do {
-            GenKillBits<AnnotationMirror> annoEntry = GenKillBits.copy(annos);
-            scanCond(node.getCondition());
-            annoCond = annosWhenFalse;
-            annos = annosWhenTrue;
-            scanStat(node.getStatement());
-            if (pass) break;
-            annosWhenTrue.and(annoEntry);
-            annos.and(annoEntry);
-            pass = true;
-        } while (true);
+        GenKillBits<AnnotationMirror> annoEntry;
+        GenKillBits<AnnotationMirror> annoCondTrue;
+
+                // compare this to the loop implementation in the other loop visitors and decide which is nicer.
+        // 1:
+        annoEntry = GenKillBits.copy(annos);
+        SplitTuple split = scanCond(node.getCondition());
+        annoCond = split.annosWhenFalse;
+        annoCondTrue = split.annosWhenTrue;
+        annos = split.annosWhenTrue;
+        scanStat(node.getStatement());
+
+        // 2:
+        // annosWhenTrue.and(annoEntry);
+        GenKillBits.andlub(annoCondTrue, annoEntry, annoRelations);
+        // annos.and(annoEntry);
+        GenKillBits.andlub(annos, annoEntry, annoRelations);
+
+        // 3 (like 1):
+        annoEntry = GenKillBits.copy(annos);
+        split = scanCond(node.getCondition());
+        annoCond = split.annosWhenFalse;
+        annos = split.annosWhenTrue;
+        scanStat(node.getStatement());
+
+
         annos = annoCond;
-        annosWhenTrue = beforeTrue;
-        annosWhenFalse = beforeFalse;
         return null;
     }
 
@@ -779,11 +870,12 @@ public class Flow extends TreePathScanner<Void, Void> {
         do {
             GenKillBits<AnnotationMirror> annoEntry = GenKillBits.copy(annos);
             scanStat(node.getStatement());
-            scanCond(node.getCondition());
-            annoCond = annosWhenFalse;
-            annos = annosWhenTrue;
+            SplitTuple split = scanCond(node.getCondition());
+            annoCond = split.annosWhenFalse;
+            annos = split.annosWhenTrue;
             if (pass) break;
-            annosWhenTrue.and(annoEntry);
+            // annosWhenTrue.and(annoEntry);
+            GenKillBits.andlub(split.annosWhenTrue, annoEntry, annoRelations);
             pass = true;
         } while (true);
         annos = annoCond;
@@ -796,17 +888,24 @@ public class Flow extends TreePathScanner<Void, Void> {
         for (StatementTree initalizer : node.getInitializer())
             scanStat(initalizer);
         GenKillBits<AnnotationMirror> annoCond;
+        GenKillBits<AnnotationMirror> annoCondTrue;
         do {
             GenKillBits<AnnotationMirror> annoEntry = GenKillBits.copy(annos);
-            scanCond(node.getCondition());
-            annoCond = annosWhenFalse;
-            annos = annosWhenTrue;
+            SplitTuple split = scanCond(node.getCondition());
+            annoCond = split.annosWhenFalse;
+            annos = split.annosWhenTrue;
+            annoCondTrue = split.annosWhenTrue;
+
             scanStat(node.getStatement());
             for (StatementTree tree : node.getUpdate())
                 scanStat(tree);
+
             if (pass) break;
-            annosWhenTrue.and(annoEntry);
-            annos.and(annoEntry);
+
+            // annosWhenTrue.and(annoEntry);
+            GenKillBits.andlub(annoCondTrue, annoEntry, annoRelations);
+            // annos.and(annoEntry);
+            GenKillBits.andlub(annos, annoEntry, annoRelations);
             pass = true;
         } while (true);
         annos = annoCond;
@@ -844,25 +943,26 @@ public class Flow extends TreePathScanner<Void, Void> {
 
     @Override
     public Void visitTry(TryTree node, Void p) {
-    tryBits.push(GenKillBits.copy(annos));
-    scan(node.getBlock(), p);
-    GenKillBits<AnnotationMirror> annoAfterBlock = GenKillBits.copy(annos);
-    pushNewLevel();
-    GenKillBits<AnnotationMirror> result = tryBits.pop();
-    annos.and(result);
-    popLastLevel();
-    if (node.getCatches() != null) {
-        boolean catchAlive = false;
-        for (CatchTree ct : node.getCatches()) {
-            scan(ct, p);
-            catchAlive |= alive;
+        tryBits.push(GenKillBits.copy(annos));
+        scan(node.getBlock(), p);
+        GenKillBits<AnnotationMirror> annoAfterBlock = GenKillBits.copy(annos);
+        pushNewLevel();
+        GenKillBits<AnnotationMirror> result = tryBits.pop();
+        // annos.and(result);
+        GenKillBits.andlub(annos, result, annoRelations);
+        popLastLevel();
+        if (node.getCatches() != null) {
+            boolean catchAlive = false;
+            for (CatchTree ct : node.getCatches()) {
+                scan(ct, p);
+                catchAlive |= alive;
+            }
+            // Conservative: only if there's no finally
+            if (!catchAlive && node.getFinallyBlock() == null)
+                annos = GenKillBits.copy(annoAfterBlock);
         }
-        // Conservative: only if there's no finally
-        if (!catchAlive && node.getFinallyBlock() == null)
-            annos = GenKillBits.copy(annoAfterBlock);
-    }
-    scan(node.getFinallyBlock(), p);
-    return null;
+        scan(node.getFinallyBlock(), p);
+        return null;
     }
 
     @Override
@@ -876,10 +976,11 @@ public class Flow extends TreePathScanner<Void, Void> {
 
         final String methodPackage = elements.getPackageOf(method).getQualifiedName().toString();
         boolean isJDKMethod = methodPackage.startsWith("java") || methodPackage.startsWith("com.sun");
+        boolean isPure = method.getAnnotation(Pure.class) != null;
         for (int i = 0; i < vars.size(); i++) {
             Element var = vars.get(i);
             for (AnnotationMirror a : annotations)
-                if (!isJDKMethod && isNonFinalField(var) && !varDefHasAnnotation(a, var))
+                if (!isJDKMethod && isNonFinalField(var) && !varDefHasAnnotation(a, var) && !isPure)
                     annos.clear(a, i);
         }
 
@@ -888,7 +989,8 @@ public class Flow extends TreePathScanner<Void, Void> {
         if (!thrown.isEmpty()
                 && TreeUtils.enclosingOfKind(getCurrentPath(), Tree.Kind.TRY) != null) {
             if (!tryBits.isEmpty())
-                tryBits.peek().and(annos);
+                // tryBits.peek().and(annos);
+                GenKillBits.andlub(tryBits.peek(), annos, annoRelations);
         }
 
         return null;
@@ -899,11 +1001,13 @@ public class Flow extends TreePathScanner<Void, Void> {
         if (node.isStatic()) {
             pushNewLevel();
             GenKillBits<AnnotationMirror> prev = GenKillBits.copy(annos);
+            List<VariableElement> prevVars = new ArrayList<VariableElement>(this.vars);
             try {
                 super.visitBlock(node, p);
                 return null;
             } finally {
                 annos = prev;
+                vars = prevVars;
                 popLastLevel();
             }
         }
@@ -920,16 +1024,23 @@ public class Flow extends TreePathScanner<Void, Void> {
 
         // Intraprocedural, so save and restore bits.
         GenKillBits<AnnotationMirror> prev = GenKillBits.copy(annos);
-        pushNewLevel();
+        List<VariableElement> prevVars = new ArrayList<VariableElement>(this.vars);
+
         try {
             super.visitMethod(node, p);
             return null;
         } finally {
+                visitMethodEndCallback(node);
             annos = prev;
-            popLastLevel();
+            vars = prevVars;
             visitorState.setMethodReceiver(preMRT);
             visitorState.setMethodTree(preMT);
         }
+    }
+
+    // TODO: documentation.
+    public void visitMethodEndCallback(MethodTree node) {
+
     }
 
     // **********************************************************************

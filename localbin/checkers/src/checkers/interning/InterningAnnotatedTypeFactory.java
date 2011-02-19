@@ -8,6 +8,8 @@ import checkers.javari.quals.Mutable;
 import checkers.quals.DefaultQualifier;
 import checkers.quals.ImplicitFor;
 import checkers.types.*;
+import checkers.util.TreeUtils;
+import checkers.util.ElementUtils;
 import static checkers.types.AnnotatedTypeMirror.*;
 
 import com.sun.source.tree.*;
@@ -48,11 +50,55 @@ public class InterningAnnotatedTypeFactory extends BasicAnnotatedTypeFactory<Int
         CompilationUnitTree root) {
         super(checker, root);
         this.INTERNED = annotations.fromClass(Interned.class);
+
+        // If you update the following, also update ../../../manual/interning-checker.tex .
+        addAliasedAnnotation(com.sun.istack.Interned.class, INTERNED);
+    }
+
+    @Override
+    protected TreeAnnotator createTreeAnnotator(InterningChecker checker) {
+        return new InterningTreeAnnotator(checker);
     }
 
     @Override
     protected TypeAnnotator createTypeAnnotator(InterningChecker checker) {
         return new InterningTypeAnnotator(checker);
+    }
+
+    @Override
+    protected void annotateImplicit(Element element, AnnotatedTypeMirror type) {
+        if (!type.isAnnotated() && ElementUtils.isCompileTimeConstant(element))
+            type.addAnnotation(INTERNED);
+        super.annotateImplicit(element, type);
+    }
+
+    /**
+     * A class for adding annotations based on tree
+     */
+    private class InterningTreeAnnotator  extends TreeAnnotator {
+
+        InterningTreeAnnotator(BaseTypeChecker checker) {
+            super(checker, InterningAnnotatedTypeFactory.this);
+        }
+
+        @Override
+        public Void visitBinary(BinaryTree node, AnnotatedTypeMirror type) {
+            if (TreeUtils.isCompileTimeString(node)) {
+                type.addAnnotation(INTERNED);
+            }
+
+            return super.visitBinary(node, type);
+        }
+
+        /* Compound assignments never result in an interned result.
+         * I expected that I would need to clear some annotations here, but it doesn't seem necessary.
+        @Override
+        public Void visitCompoundAssignment(CompoundAssignmentTree node, AnnotatedTypeMirror type) {
+          System.out.println("InternintATF::visitCompoundAssignment: " + type);
+          // type.clearAnnotations();
+          return super.visitCompoundAssignment(node, type);
+        }
+        */
     }
 
     /**
@@ -71,8 +117,9 @@ public class InterningAnnotatedTypeFactory extends BasicAnnotatedTypeFactory<Int
             // case 3: Enum types, and the Enum class itself, are interned
             Element elt = t.getUnderlyingType().asElement();
             assert elt != null;
-            if (elt.getKind() == ElementKind.ENUM)
+            if (elt.getKind() == ElementKind.ENUM) {
                 t.addAnnotation(INTERNED);
+            }
 
             return super.visitDeclared(t, p);
         }
@@ -87,6 +134,6 @@ public class InterningAnnotatedTypeFactory extends BasicAnnotatedTypeFactory<Int
 
     protected void annotateInheritedFromClass(@Mutable AnnotatedTypeMirror type) {
       InheritedFromClassAnnotator.INSTANCE.visit(type, this);
-  }
+    }
 
 }

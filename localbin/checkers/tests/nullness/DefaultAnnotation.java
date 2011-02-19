@@ -45,7 +45,7 @@ public class DefaultAnnotation {
         }
 
         public <T extends @Nullable Object> T getNull(T t) {
-            return null;                                // valid
+            return null;                                // invalid
         }
 
         public <T extends @NonNull Object> T getNonNull(T t) {
@@ -92,4 +92,13 @@ public class DefaultAnnotation {
         public E get(int i) { throw new RuntimeException(); }
         public boolean add(E e) { throw new RuntimeException(); }
     }
+
+    @DefaultQualifier(value="NonNull")
+    public void testDefaultUnqualified() {
+
+        String s = null;                                // error
+        List<String> lst = new List<String>();    // valid
+        lst.add(null);                                  // error
+    }
+
 }

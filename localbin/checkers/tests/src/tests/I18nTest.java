@@ -1,13 +1,16 @@
 package tests;
 
-import org.junit.Test;
+import java.io.File;
+import java.util.Collection;
 
-public class I18nTest extends CheckerTest {
+import org.junit.runners.Parameterized.Parameters;
 
-    public I18nTest() {
-        super("checkers.i18n.I18nChecker", "i18n", "-Anomsgtext");
+public class I18nTest extends ParameterizedCheckerTest {
+
+    public I18nTest(File testFile) {
+        super(testFile, "checkers.i18n.I18nChecker", "i18n", "-Anomsgtext");
     }
 
-    @Test
-    public void testLocalizedMessage()                 { test(); }
+    @Parameters
+    public static Collection<Object[]> data() { return testFiles("i18n"); }
 }

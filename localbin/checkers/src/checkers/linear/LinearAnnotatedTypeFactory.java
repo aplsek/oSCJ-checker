@@ -18,11 +18,11 @@ import checkers.util.TreeUtils;
 
 /**
  * Adds {@link Unusable} qualifier to a type if it represents:
- * 
+ *
  * <ol>
  * <li value="1">Class declaration tree/element.  Such a construct usually
  * requires the root qualifier.</li>
- * 
+ *
  * <li value="2">{@code Linear} reference once it is "used up"</li>
  * </ol>
  *
@@ -84,7 +84,7 @@ public class LinearAnnotatedTypeFactory extends BasicAnnotatedTypeFactory<Linear
          * If the node is of type {@code Linear}, then transit its type
          * into an {@code Unusable} type.
          *
-         * The method should be called on every every instance of a tree
+         * The method should be called on every instance of a tree
          * that causes the reference to be "used up".
          */
         private void markAsUnusableIfLinear(ExpressionTree node) {

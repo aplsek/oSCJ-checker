@@ -1,8 +1,6 @@
 package checkers.quals;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.*;
 import static java.lang.annotation.ElementType.*;
 import java.lang.annotation.Target;
 
@@ -28,7 +26,9 @@ import java.lang.annotation.Target;
 public @interface DefaultQualifier {
 
     /**
-     * The fully qualified name of the default annotation.
+     * The name of the default annotation.  It may be a short name like
+     * "NonNull", if an appropriate import statement exists.  Otherwise, it
+     * should be fully-qualified, like "checkers.nullness.quals.NonNull".
      * <p>
      *
      * To prevent affecting other type systems, always specify an annotation

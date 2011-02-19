@@ -44,7 +44,7 @@ public class TypeHierarchy {
     /** The hierarchy of qualifiers */
     private final QualifierHierarchy qualifierHierarchy;
     /** Prevent infinite loops in cases of recursive type bound */
-    private final Set<Element> visited;
+    protected final Set<Element> visited;
 
     /**
      * Constructs an instance of {@code TypeHierarchy} for the type system
@@ -74,28 +74,35 @@ public class TypeHierarchy {
      * Private method to be called internally only.
      * It populates the visited field.
      */
-    private final boolean isSubtypeImpl(AnnotatedTypeMirror rhs, AnnotatedTypeMirror lhs) {
-        // If already checked this type (in case of recusive type bound
-        // return true.  if not subtype, we wouldn't have gotten here again
+    protected final boolean isSubtypeImpl(AnnotatedTypeMirror rhs, AnnotatedTypeMirror lhs) {
+        // System.out.printf("isSubtypeImpl(%s (%s, %s), %s (%s, %s))%n", rhs, rhs.getKind(), rhs.getClass(), lhs, lhs.getKind(), lhs.getClass());
+        // If already checked this type (in case of recusive type bound)
+        // return true.  If not subtype, we wouldn't have gotten here again.
         if (visited.contains(lhs.getElement()))
             return true;
         AnnotatedTypeMirror lhsBase = lhs;
         while (lhsBase.getKind() != rhs.getKind()
                 && (lhsBase.getKind() == TypeKind.WILDCARD || lhsBase.getKind() == TypeKind.TYPEVAR)) {
-        if (lhsBase.getKind() == TypeKind.WILDCARD && rhs.getKind() != TypeKind.WILDCARD) {
-            lhsBase = ((AnnotatedWildcardType)lhsBase).getExtendsBound();
-            if (lhsBase == null || !lhsBase.isAnnotated())
-                return true;
-            visited.add(lhsBase.getElement());
-        } else if (lhsBase.getKind() == TypeKind.TYPEVAR && rhs.getKind() != TypeKind.TYPEVAR) {
-            if (!lhsBase.annotations.isEmpty())
-                return qualifierHierarchy.isSubtype(rhs.getAnnotations(), lhsBase.annotations);
-            // I'm not quite sure if these are actually necessary for type variables
-            lhsBase = ((AnnotatedTypeVariable)lhsBase).getUpperBound();
-            if (!lhsBase.isAnnotated())
-                return true;
-            visited.add(lhsBase.getElement());
-        }
+            if (lhsBase.getKind() == TypeKind.WILDCARD && rhs.getKind() != TypeKind.WILDCARD) {
+                AnnotatedWildcardType wildcard = (AnnotatedWildcardType)lhsBase;
+                if (wildcard.getSuperBound() != null
+                    && isSubtypeImpl(rhs, wildcard.getSuperBound()))
+                    return true;
+                lhsBase = ((AnnotatedWildcardType)lhsBase).getExtendsBound();
+                if (lhsBase == null || !lhsBase.isAnnotated())
+                    return true;
+                visited.add(lhsBase.getElement());
+            } else if (rhs.getKind() == TypeKind.WILDCARD) {
+                rhs = ((AnnotatedWildcardType)rhs).getExtendsBound();
+            } else if (lhsBase.getKind() == TypeKind.TYPEVAR && rhs.getKind() != TypeKind.TYPEVAR) {
+                AnnotatedTypeVariable lhsb_atv = (AnnotatedTypeVariable)lhsBase;
+                Set<AnnotationMirror> lAnnos = lhsb_atv.getLowerBoundAnnotations();
+                if (!lAnnos.isEmpty())
+                    return qualifierHierarchy.isSubtype(rhs.getAnnotations(), lAnnos);
+                return qualifierHierarchy.getBottomQualifier() == null ?
+                    rhs.getAnnotations().isEmpty() :
+                    rhs.getAnnotations().contains(qualifierHierarchy.getBottomQualifier());
+            }
         }
 
         if (lhsBase.getKind() == TypeKind.WILDCARD && rhs.getKind() == TypeKind.WILDCARD) {
@@ -108,6 +115,9 @@ public class TypeHierarchy {
         // related to bug tests/framework/OverrideCrash
         if (rhsBase == null) rhsBase = rhs;
 
+        // System.out.printf("lhsBase=%s (%s), rhsBase=%s (%s)%n", lhsBase, lhsBase.getClass(), rhsBase, rhsBase.getClass());
+
+        // Is this test correct in the case of type variables?
         if (!qualifierHierarchy.isSubtype(rhsBase.getAnnotations(), lhsBase.getAnnotations()))
             return false;
 
@@ -117,7 +127,32 @@ public class TypeHierarchy {
             return isSubtypeAsArrayComponent(rhsComponent, lhsComponent);
         } else if (lhsBase.getKind() == TypeKind.DECLARED && rhsBase.getKind() == TypeKind.DECLARED) {
             return isSubtypeTypeArguments((AnnotatedDeclaredType)rhsBase, (AnnotatedDeclaredType)lhsBase);
+        } else if (lhsBase.getKind() == TypeKind.TYPEVAR && rhsBase.getKind() == TypeKind.TYPEVAR) {
+            // System.out.printf("lhsBase (%s underlying=%s), rhsBase (%s underlying=%s), equals=%s%n", lhsBase.hashCode(), lhsBase.getUnderlyingType(), rhsBase.hashCode(), rhsBase.getUnderlyingType(), lhsBase.equals(rhsBase));
+            // Should this logic also appear elsewhere?
+            AnnotatedTypeMirror rhsSuperClass = rhsBase;
+            while (rhsSuperClass.getKind() == TypeKind.TYPEVAR) {
+                if (lhsBase.equals(rhsSuperClass))
+                    return true;
+                if (lhsBase.toString().equals(rhsSuperClass.toString())) // hack
+                    return true;
+                rhsSuperClass = ((AnnotatedTypeVariable) rhsSuperClass).getUpperBound();
+            }
+            // compare lower bound of lhs to upper bound of rhs
+            Set<AnnotationMirror> las = ((AnnotatedTypeVariable) lhsBase).getLowerBoundAnnotations();
+            Set<AnnotationMirror> ras = ((AnnotatedTypeVariable) rhsBase).getUpperBoundAnnotations();
+            if (!las.isEmpty()) {
+                return qualifierHierarchy.isSubtype(ras, las);
+            }
+            // No annotations on lhs lower bound
+            return qualifierHierarchy.getBottomQualifier() == null ?
+                rhs.getAnnotations().isEmpty() :
+                rhs.getAnnotations().contains(qualifierHierarchy.getBottomQualifier());
         }
+
+        // It's probably OK to reach this case, because of the isSubtype test above.
+        // Still, the use of this default fallthrough is troubling.
+        // System.out.printf("isSubtypeImpl(%s, %s):%n  return true via default fallthrough case%n", rhs, lhs);
 
         return true;
     }
