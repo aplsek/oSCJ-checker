@@ -8,7 +8,7 @@ BUILD=./build
 rm -rf $BUILD
 mkdir $BUILD
 
-CP=../lib/my-checkers.jar:../lib/langtools.jar:../lib/SCJChecker.jar:../lib/jsr308-all.jar:../lib/checkers.jar
+CP=../lib/my-checkers.jar:../lib/langtools.jar:../lib/scj-checker.jar:../lib/jsr308-all.jar:../lib/checkers.jar
 if [ -f "../../../../../lib/scj.jar" ]
 then
         CP=$CP:../../../../../lib/scj.jar

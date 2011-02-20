@@ -1,0 +1,28 @@
+<project default="jar">
+  <target name="clean">
+    <delete dir="build"/>
+    <delete file="lib/scj-checker.jar"/>
+  </target>
+
+  <target name="compile">
+    <mkdir dir="build/classes"/>
+    <javac srcdir="src" destdir="build/classes" classpath="lib/scj.jar" includeAntRuntime="yes">
+      <compilerarg value="-Xbootclasspath/p:localbin/jsr308-all.jar:localbin/jdk.jar"/>
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile">
+    <jar destfile="lib/scj-checker.jar" basedir="build/classes">
+    </jar>
+  </target>
+
+  <target name="check-hello" depends="jar">
+    <javac srcdir="src" destdir="build/classes" includeAntRuntime="yes">
+      <classpath>
+        <pathelement path="lib/scj.jar"/>
+        <pathelement path="lib/scj-checker.jar"/>
+      </classpath>
+      <compilerarg value="-Xbootclasspath/p:localbin/jsr308-all.jar:localbin/jdk.jar"/>
+    </javac>
+  </target>
+</project>

@@ -11,8 +11,8 @@ rm -rf SCJChecker.jar
 rm -rf lib/SCJChecker.jar
 mkdir $BUILD
 
-CHECKERS=./localbin/checkers
-JAVAC=$CHECKERS/binary/javac
+CHECKERS=./localbin
+JAVAC=$CHECKERS/javac
 CLASSPATH=lib/build/:$CHECKERS/jsr308-all.jar:$CHECKERS/checkers.jar
 
 if [ ! -f "./lib/scj.jar" ]
@@ -27,7 +27,6 @@ find ./src -name "*.java" > sources
 find ./spec -name "*.java" >> sources
 $JAVAC -cp $CLASSPATH -d $BUILD @sources
 rm -rf sources
-cd $BUILD && find . -name "*.class" | xargs jar cf ../SCJChecker.jar && cd ..
-mv SCJChecker.jar lib/
+cd $BUILD && find . -name "*.class" | xargs jar cf ../lib/scj-checker.jar && cd ..
 
 echo "SCJ-Checker installation completed."
