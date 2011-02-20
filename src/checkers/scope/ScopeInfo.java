@@ -1,5 +1,7 @@
 package checkers.scope;
 
+import javax.safetycritical.annotate.Scope;
+
 public class ScopeInfo {
     private String scope;
 
@@ -13,6 +15,14 @@ public class ScopeInfo {
 
     public void setScope(String scope) {
         this.scope = scope;
+    }
+
+    public boolean isCurrent() {
+        return Scope.CURRENT.equals(scope);
+    }
+
+    public boolean isUnknown() {
+        return Scope.UNKNOWN.equals(scope);
     }
 
     @Override

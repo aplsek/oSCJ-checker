@@ -143,7 +143,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             debugIndentIncrement("visitAssignment : " + node);
             ScopeInfo lhs = node.getVariable().accept(this, p);
             ScopeInfo rhs = node.getExpression().accept(this, p);
-            if (lhs.equals(rhs)) {
+            if (lhs.equals(rhs) && !lhs.isUnknown()) {
                 return lhs;
             }
             checkAssignment(node.getVariable(), node.getExpression(), node);
