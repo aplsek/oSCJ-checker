@@ -282,24 +282,22 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
 
         try {
             debugIndentIncrement("visitMemberSelect: " + node.toString());
-            if (elem.getKind() == ElementKind.FIELD) {
-                VariableElement f = (VariableElement) elem;
-                String fScope = ctx.getFieldScope(f);
-                TypeElement fType = Utils.getTypeElement(f.asType());
-                String typeScope = ctx.getClassScope(fType);
-                String receiverScope = receiver.getScope();
-                if (!CURRENT.equals(typeScope)) {
-                    return new FieldScopeInfo(typeScope, receiverScope,
-                            fScope);
-                } else if (CURRENT.equals(fScope)) {
-                    return new FieldScopeInfo(receiverScope, receiverScope,
-                            fScope);
-                } else {
-                    // UNKNOWN
-                    return new FieldScopeInfo(fScope, receiverScope, fScope);
-                }
+            if (elem.getKind() != ElementKind.FIELD) {
+                return null; // Part of a method invocation
+            }
+            VariableElement f = (VariableElement) elem;
+            String fScope = ctx.getFieldScope(f);
+            TypeElement fType = Utils.getTypeElement(f.asType());
+            String typeScope = ctx.getClassScope(fType);
+            String receiverScope = receiver.getScope();
+            if (!CURRENT.equals(typeScope)) {
+                return new FieldScopeInfo(typeScope, receiverScope, fScope);
+            } else if (CURRENT.equals(fScope)) {
+                return new FieldScopeInfo(receiverScope, receiverScope,
+                        fScope);
             } else {
-                throw new RuntimeException("Non-field in MemberSelect");
+                // UNKNOWN
+                return new FieldScopeInfo(fScope, receiverScope, fScope);
             }
         } finally {
             debugIndentDecrement();
