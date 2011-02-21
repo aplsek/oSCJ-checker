@@ -224,7 +224,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
 
         if (!scopeTree.hasScope(runsIn) && !runsIn.equals(Scope.CURRENT) &&
                 !runsIn.equals(Scope.UNKNOWN)) {
-            report(Result.failure(ERR_BAD_SCOPE_NAME), node, errNode);
+            report(Result.failure(ERR_BAD_SCOPE_NAME, runsIn), node, errNode);
         }
 
         Map<AnnotatedDeclaredType, ExecutableElement> overrides =
@@ -254,7 +254,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
 
         if (!scopeTree.hasScope(scope) && !scope.equals(Scope.CURRENT) &&
                 !scope.equals(Scope.UNKNOWN)) {
-            report(Result.failure(ERR_BAD_SCOPE_NAME), node, errNode);
+            report(Result.failure(ERR_BAD_SCOPE_NAME, scope), node, errNode);
         }
         Map<AnnotatedDeclaredType, ExecutableElement> overrides =
             ats.overriddenMethods(m);
