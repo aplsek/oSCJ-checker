@@ -26,7 +26,6 @@ public class MultiPassChecker extends SourceChecker {
     @Override
     public void typeProcess(TypeElement element, TreePath tree) {
         if (checkers.size() > 0) {
-            checkers.get(0).typeProcess(element, tree);
             types.put(element, tree);
         }
     }
