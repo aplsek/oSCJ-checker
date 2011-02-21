@@ -49,6 +49,7 @@ import com.sun.source.tree.CompoundAssignmentTree;
 import com.sun.source.tree.ConditionalExpressionTree;
 import com.sun.source.tree.EnhancedForLoopTree;
 import com.sun.source.tree.ExpressionTree;
+import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.IfTree;
 import com.sun.source.tree.LiteralTree;
@@ -109,6 +110,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
     private String currentRunsIn = null;
     private ScopeCheckerContext ctx;
     private ScopeTree scopeTree;
+    private VariableScopeTable varScopes = new VariableScopeTable();
     private static EnumSet<ElementKind> classOrInterface = EnumSet.of(ElementKind.CLASS, ElementKind.INTERFACE);
 
     public ScopeVisitor(SourceChecker checker, CompilationUnitTree root, ScopeCheckerContext ctx) {
@@ -171,7 +173,9 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         if (node.isStatic()) {
             currentRunsIn = IMMORTAL;
         }
+        varScopes.pushBlock();
         super.visitBlock(node, p);
+        varScopes.popBlock();
         currentRunsIn = oldRunsIn;
         debugIndentDecrement();
         return null;
@@ -203,6 +207,8 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
 
         try {
             String scope = ctx.getClassScope(t);
+            varScopes.pushBlock();
+            varScopes.addVariableScope("this", scope);
 
             // TODO: assume defaults for inner classes?
             Utils.debugPrintln("Seen class " + t.getQualifiedName() + ": @Scope(" + scope + ")");
@@ -210,7 +216,9 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             currentScope = scope;
             currentRunsIn = scope;
 
-            return super.visitClass(node, p);
+            super.visitClass(node, p);
+            varScopes.popBlock();
+            return null;
         } finally {
             currentScope = oldScope;
             currentRunsIn = oldRunsIn;
@@ -249,12 +257,29 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
     public ScopeInfo visitEnhancedForLoop(EnhancedForLoopTree node, P p) {
         // TODO: Not sure if this needs to be checked. This implicitly does
         // .iterator() and .next() calls.
-        return super.visitEnhancedForLoop(node, p);
+        varScopes.pushBlock();
+        super.visitEnhancedForLoop(node, p);
+        varScopes.popBlock();
+        return null;
+    }
+
+    @Override
+    public ScopeInfo visitForLoop(ForLoopTree node, P p) {
+        varScopes.pushBlock();
+        super.visitForLoop(node, p);
+        varScopes.popBlock();
+        return null;
     }
 
     @Override
     public ScopeInfo visitIdentifier(IdentifierTree node, P p) {
-        // TODO
+        Element elem = TreeUtils.elementFromUse(node);
+        if (elem.getKind() == ElementKind.FIELD ||
+                elem.getKind() == ElementKind.LOCAL_VARIABLE) {
+            String var = node.getName().toString();
+            String scope = varScopes.getVariableScope(var);
+            return new ScopeInfo(scope);
+        }
         return super.visitIdentifier(node, p);
     }
 
