@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry excluding="copyInOut/LinkedList.java" kind="src" path="testsuite/src"/>
 	<classpathentry kind="src" path="spec"/>
-	<classpathentry kind="lib" path="/Users/Dan/Documents/workspace/scj-jsr302/oSCJ/tools/checker/localbin/jsr308-all.jar"/>
+	<classpathentry kind="lib" path="localbin/jsr308-all.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/checkers"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/javaparser"/>
