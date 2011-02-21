@@ -148,7 +148,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             if (lhs.equals(rhs) && !lhs.isUnknown()) {
                 return lhs;
             }
-            checkAssignment(node.getVariable(), node.getExpression(), node);
+            checkAssignment(lhs, rhs, node);
             return lhs;
         } finally {
             debugIndentDecrement();
@@ -482,8 +482,20 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         String oldRunsIn = currentRunsIn;
         try {
             debugIndentIncrement("visitVariable : " + node.toString());
-            checkVariable(node, p);
-            return super.visitVariable(node, p);
+            ScopeInfo lhs = checkVariableScope(node);
+            varScopes.addVariableScope(node.getName().toString(),
+                    lhs.getScope());
+            if (Utils.isStatic(node.getModifiers().getFlags())) {
+                // Static variable, change the context to IMMORTAL while
+                // evaluating the initializer
+                currentRunsIn = IMMORTAL;
+            }
+            ExpressionTree init = node.getInitializer();
+            if (init != null) {
+                ScopeInfo rhs = init.accept(this, p);
+                checkAssignment(lhs, rhs, node);
+            }
+            return null;
         } finally {
             currentScope = oldScope;
             currentRunsIn = oldRunsIn;
@@ -491,168 +503,32 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         }
     }
 
-    private boolean checkAssignment(Tree varTree, ExpressionTree exprTree, Tree errorNode) {
-        debugIndent("check Assignment : ");
-
-        if (isPrimitiveExpression(exprTree)) {
-            return true; // primitive assignments are always allowed
-        }
-
-        VariableElement varElem = lhsToVariable(varTree);
-        if (varElem == null) {
-            return true; // annotation assignments are irrelevant
-        }
-
-        String varName = varElem.getSimpleName().toString();
-        String varScope = scope(varElem), exprScope = null;
-        exprTree = simplify(exprTree);
-        Kind exprKind = exprTree.getKind();
-
-        if (exprKind == Kind.NULL_LITERAL || exprKind == Kind.STRING_LITERAL) {
-            return true;
-        } else if (exprKind == Kind.NEW_ARRAY) {
-            // Handled by visitNewArray
-            return true;
-        } else if (exprKind == Kind.METHOD_INVOCATION) {
-            MethodInvocationTree methodExpr = (MethodInvocationTree) exprTree;
-            ExecutableElement methodElem = TreeUtils.elementFromUse(methodExpr);
-            AnnotatedExecutableType methodType = atf.getAnnotatedType(methodElem);
-            TypeMirror retMirror = methodType.getReturnType().getUnderlyingType();
-            while (retMirror.getKind() == TypeKind.ARRAY) {
-                retMirror = ((ArrayType) retMirror).getComponentType();
-            }
-            if (retMirror.getKind().isPrimitive()) {
-                exprScope = varScope; // primitives are always assignable
-            } else {
-                exprScope = ctx.getClassScope(Utils.getTypeElement(retMirror));
-                if (exprScope == null) {
-                    // first, look if the method has @Scope annotation
-                    exprScope = getScope(methodElem);
-
-                    // second, if its null, then look at its @RunsIn
-                    if (exprScope == null)
-                        exprScope = ctx.getMethodRunsIn(methodElem); // TODO:
-                    // revisit
-                }
-                if (exprScope == null) {
-                    debugIndent("Expression Scope is NULL, ERR?? :" + methodExpr.getMethodSelect().getKind());
-                }
-
-                debugIndent("Assignment, method invoke:" + errorNode);
-                debugIndent("varScope:" + varScope);
-                debugIndent("exprScope:" + exprScope);
-                debugIndent("expr Tree:" + exprTree);
-            }
-        } else if (exprKind == Kind.NEW_CLASS) {
-            /*
-             * checks that @Scope(parent) data = @Scope(child) new Object() <--
-             * this is assignment error while we are in the child
-             */
-            if (currentAllocScope() != null && !currentAllocScope().equals(varScope)) {
-                /* checked by TestScopeCheck2.java */
-                report(Result.failure(ERR_BAD_ASSIGNMENT_SCOPE, currentAllocScope(), varScope), errorNode);
-            }
-
-            // Handled by visitNewClass
-            return true;
-        } else if (exprKind == Kind.PLUS) {
-
-        } else if (exprKind == Kind.MEMBER_SELECT) {
-            /* CHECKING the FIELD */
-
-            // pln("Assignmentm: MEMBER_SELECT ::: " +
-            // errorNode);
-
-            VariableElement var = (VariableElement) TreeUtils.elementFromUse(exprTree);
-            // pln("variable element ::: " + var);
-            // pln("variable element ::: " +
-            // var.getAnnotationMirrors());
-
-            exprScope = scope(var);
-
-            // pln("\t expr element ::: " + var);
-            // pln("\t expr element ::: " +
-            // var.getAnnotationMirrors());
-            // pln("\t expre scope ::: " + exprScope);
-            //
-            // pln("\t var element ::: " + varElem);
-            // pln("\t varScope ::: " + varScope);
-
-            if (var.getSimpleName().toString().equals("cs")) {
-                System.err.println("Assignment: @Scope(" + varScope + ") " + varName + " = @Scope(" + exprScope + ")");
-            }
-
-            VariableElement var1 = (VariableElement) TreeUtils.elementFromUse(exprTree);
-            VariableElement var2 = lhsToVariable(varTree);
-            if (checkPrivateMemAssignmentError(var1, var2)) {
-                /* checked by TestPrivateMemoryAssignment */
-                report(Result.failure(ERR_BAD_ASSIGNMENT_PRIVATE_MEM, exprScope, varScope), errorNode);
-            }
-
-        } else if (exprKind == Kind.IDENTIFIER) {
-            /* CHECKING the LOCAL VARIABLE */
-
-            // pln("Assignmentm: IDENTIFIER :::" + errorNode);
-
-            VariableElement var = (VariableElement) TreeUtils.elementFromUse(exprTree);
-            exprScope = scope(var);
-
-            // pln("\t variable element ::: " + var);
-            // pln("\t variable element ::: " +
-            // var.getAnnotationMirrors());
-            // pln("\t expre scope ::: " + exprScope);
-
-            if (var.getSimpleName().toString().equals("cs")) {
-                System.err.println("Assignment: @Scope(" + varScope + ") " + varName + " = @Scope(" + exprScope + ")");
-            }
-
-            VariableElement var1 = (VariableElement) TreeUtils.elementFromUse(exprTree);
-            VariableElement var2 = lhsToVariable(varTree);
-            if (checkPrivateMemAssignmentError(var1, var2)) {
-                /* checked by TestPrivateMemoryAssignment */
-                report(Result.failure(ERR_BAD_ASSIGNMENT_PRIVATE_MEM, exprScope, varScope), errorNode);
-            }
-        }
-
-        else if (exprKind == Kind.TYPE_CAST) {
-            // VariableElement var = (VariableElement)
-            // TreeUtils.elementFromUse(exprTree);
-
-            Element el = TreeInfo.symbol((JCTree) exprTree);
-            debugIndent("element " + el);
-            debugIndent("expr " + exprTree);
-            // exprScope = scope(var);
-
-            TypeMirror castType = atf.fromTypeTree(((TypeCastTree) exprTree).getType()).getUnderlyingType();
-            while (castType.getKind() == TypeKind.ARRAY) {
-                castType = ((ArrayType) castType).getComponentType();
-            }
-            if (castType.getKind().isPrimitive()) {
-                exprScope = varScope;
-            } else {
-                exprScope = ctx.getClassScope(Utils.getTypeElement(castType));
-            }
-
+    private void checkAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree errorNode) {
+        if (lhs.isFieldScope()) {
+            checkFieldAssignment((FieldScopeInfo) lhs, rhs, errorNode);
         } else {
-            throw new RuntimeException("Need a new case for " + exprKind);
+            // TODO: Do we need an extra case for arrays?
+            checkLocalAssignment(lhs, rhs, errorNode);
         }
+    }
 
-        Utils.debugPrintln("Assignment: @Scope(" + varScope + ") " + varName + " = @Scope(" + exprScope + ")");
-        boolean isLegal;
+    private void checkFieldAssignment(FieldScopeInfo lhs, ScopeInfo rhs, Tree errorNode) {
+        ScopeInfo fScope = new ScopeInfo(lhs.getFieldScope()); // TODO: ugly
+        if (fScope.equals(rhs) && !fScope.isUnknown()) {
 
-        isLegal = varScope == null || varScope.equals(exprScope);
-        if (exprScope != null) {
-            isLegal = varScope == null || varScope.equals(exprScope);
-        } else {
-            // for the variable that has no annotation
-            isLegal = varScope == null || varScope.equals(currentAllocScope());
         }
+    }
 
-        if (!isLegal) {
-            report(Result.failure(ERR_BAD_ASSIGNMENT_SCOPE, exprScope, varScope), errorNode);
+    private void checkLocalAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree errorNode) {
+        if (!concretize(lhs).equals(concretize(rhs))) {
+            report(Result.failure(ERR_BAD_ASSIGNMENT_SCOPE, rhs.getScope(),
+                    lhs.getScope()), errorNode);
         }
+    }
 
-        return isLegal;
+    private ScopeInfo concretize(ScopeInfo scope) {
+        // TODO
+        return scope;
     }
 
     private void checkDynamicGuard(MethodInvocationTree node) {
@@ -1053,100 +929,43 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         return false;
     }
 
-    private void checkVariable(VariableTree node, P p) {
-        // pln("\n\\n \t >>>Visit Variable :" + node);
-
-        // This assumes that the TypeElement for primitives is null, because
-        // primitives have no class bodies.
+    private ScopeInfo checkVariableScope(VariableTree node) {
+        VariableElement var = TreeUtils.elementFromDeclaration(node);
+        if (Utils.isStatic(node.getModifiers().getFlags())) {
+            // TODO:
+            return new ScopeInfo(IMMORTAL);
+        }
+        // TODO: UNKNOWN parameters
         Tree nodeTypeTree = node.getType();
         while (nodeTypeTree.getKind() == Kind.ARRAY_TYPE) {
             nodeTypeTree = ((ArrayTypeTree) nodeTypeTree).getType();
         }
         if (nodeTypeTree.getKind() == Kind.PRIMITIVE_TYPE) {
-            return;
+            if (nodeTypeTree == node.getType()) {
+                return null;
+            } else {
+                // Primitive array
+                return new ScopeInfo(currentAllocScope());
+            }
         }
-        VariableElement var = TreeUtils.elementFromDeclaration(node);
-        String varScope = scope(TreeUtils.elementFromDeclaration(node));
-        Element varEnv = var.getEnclosingElement();
-
-        debugIndent("Variable " + var.getSimpleName() + " is ");
-
-        if (isStatic(var.getModifiers())) {
-            Utils.debugPrintln("static (IMMORTAL)");
-            // Class variable
-            if (varScope != null && !IMMORTAL.equals(varScope)) {
-                // If a variable is static, its type should be
-                // @Scope(IMMorTAL) or nothing at all
-                // pln("static var: " + varScope);
-
-                report(Result.failure(ERR_STATIC_NOT_IMMORTAL), node);
+        TypeElement t = Utils.getTypeElement(var.asType());
+        String tScope = ctx.getClassScope(t);
+        Scope varScope = var.getAnnotation(Scope.class);
+        if (varScope == null) {
+            if (CURRENT.equals(tScope)) {
+                return new ScopeInfo(currentAllocScope());
+            } else {
+                return new ScopeInfo(tScope);
             }
-            // We need to set this for visiting the variable initializer.
-            // Apparently sometimes the static initializer is optimized into
-            // individual initializers?
-            currentRunsIn = IMMORTAL;
-        } else if (classOrInterface.contains(varEnv.getKind())) {
-            // Instance variable
-            /* FIELD OF CLASS checking... */
-            // pln("\n INSTANCE :" + node);
-            // pln("\t  @Scope(" + varScope + ")");
-
-            Utils.debugPrintln("instance @Scope(" + varScope + ")");
-            String varEnvScope = Utils.scope(varEnv.getAnnotationMirrors());
-            String explicitScope = getExplicitScopeOnField(node);
-
-            // pln("\t \t explicit scope:" + explicitScope);
-
-            /*
-             * pln("\n-----\n\t FIELD SCOPE CHECK:" + varScope);
-             * pln("\t \t varEnvScope:" + varEnvScope); pln("\t \t node:" +
-             * node); pln("\t \t is parent:" + scopeTree.isParentOf(varEnvScope,
-             * varScope)); pln("\t \t varScope:" + varScope);
-             * pln("\t \t type Scope:" + varTypeScope);
-             * pln("\t \t explicit scope:" + explicitScope);
-             */
-
-            if (!(var.asType().getKind().isPrimitive() || varEnvScope == null || varScope == null
-                    || scopeTree.isParentOf(varEnvScope, varScope) || explicitScope != null)) {
-                // Instance fields must be in the same or parent scope as the
-                // instance
-                report(Result.failure(ERR_BAD_FIELD_SCOPE), node);
-            }
-
-            currentRunsIn = varScope;
-        } else if (isPrivateMemory(node, p)) {
-            // checkDefineScope(node, p);
-            // TODO: are we sure that we dont need to check this assignment?
-            // TODO: this should implement the getCurrent rules
-            return; // we do not need to check assignement
-
+        } else if (CURRENT.equals(tScope)) {
+            return new ScopeInfo(tScope);
         } else {
-            // pln("\n\n-----\n VARIABLE CHECK:" + node);
-            // pln("\t varScope ::" + varScope );
-            // pln("\t currentAllocScope :: " +
-            // currentAllocScope() );
-
-            Utils.debugPrintln("local @Scope(" + varScope + ")");
-            /* LOCAL VARIABLE checking... */
-            if (varScope != null && !varScope.equals(UNKNOWN) && !scopeTree.isParentOf(currentAllocScope(), varScope)) {
-                // @Scopes of local variable types should agree with the current
-                // allocation context
-                report(Result.failure(ERR_BAD_VARIABLE_SCOPE, atf.fromTypeTree(node.getType()), currentAllocScope()),
-                        node);
-                // but if it doesn't, assume the variable scope is correct.
-                // TODO:
-                currentRunsIn = varScope;
+            if (!tScope.equals(varScope)) {
+                report(Result.failure(ERR_BAD_VARIABLE_SCOPE,
+                        t.getSimpleName(), currentAllocScope()), node);
             }
+            return new ScopeInfo(tScope);
         }
-
-        if (node.getInitializer() != null) {
-            checkAssignment(node, node.getInitializer(), node);
-        }
-    }
-
-    private String getExplicitScopeOnField(VariableTree node) {
-        VariableElement var = TreeUtils.elementFromDeclaration(node);
-        return getScope(var);
     }
 
     private String getScope(Element element) {
@@ -1376,28 +1195,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             }
         }
         return null;
-    }
-
-    // Returns the variable corresponding to the left-hand side of an
-    // assignment. If the LHS is an array access, it
-    // returns the array variable.
-    private VariableElement lhsToVariable(Tree lhs) {
-        while (lhs.getKind() == Kind.ARRAY_ACCESS) {
-            lhs = ((ArrayAccessTree) lhs).getExpression();
-        }
-        if (lhs.getKind() == Kind.VARIABLE) {
-            return TreeUtils.elementFromDeclaration((VariableTree) lhs);
-        } else {
-            // pln("left-hand side: " + lhs);
-
-            Element elem = TreeUtils.elementFromUse((ExpressionTree) lhs);
-            if (elem.getKind() == ElementKind.FIELD || elem.getKind() == ElementKind.LOCAL_VARIABLE
-                    || elem.getKind() == ElementKind.PARAMETER) {
-                return (VariableElement) elem;
-            } else {
-                return null;
-            }
-        }
     }
 
     // Strips out unnecessary parts of the AST in the RHS of an assignment
