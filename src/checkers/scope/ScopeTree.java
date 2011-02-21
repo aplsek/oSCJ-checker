@@ -1,15 +1,17 @@
 package checkers.scope;
 
+import static checkers.scope.ScopeChecker.ERR_SCOPE_TREE_NOT_CONSISTENT;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static javax.safetycritical.annotate.Scope.*;
+
 import checkers.source.Result;
+import checkers.source.SourceChecker;
 
 import com.sun.source.tree.Tree;
-
-import static checkers.scope.ScopeChecker.*;
 
 public class ScopeTree {
     private Map<String, String> scopeTree = null;    // maps child <-> parent
@@ -124,13 +126,13 @@ public class ScopeTree {
         return scopeTree.containsKey(entry);
     }
 
-    public void reportErrors(ScopeVisitor<?> visitor) {
+    public void reportErrors(SourceChecker checker) {
         if (errorsReported)
             return;
         errorsReported = true;
 
         for (Error err: errors)
-            visitor.report(Result.failure(ERR_SCOPE_TREE_NOT_CONSISTENT, err.scope), err.node);
+            checker.report(Result.failure(ERR_SCOPE_TREE_NOT_CONSISTENT, err.scope), err.node);
     }
 
     static class Error {

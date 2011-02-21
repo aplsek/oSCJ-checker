@@ -1,16 +1,19 @@
 package checkers.scope;
 
 import java.util.Properties;
+
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.SupportedOptions;
+
+import checkers.SinglePassChecker;
 import checkers.Utils;
-import checkers.source.SourceChecker;
 import checkers.source.SourceVisitor;
+
 import com.sun.source.tree.CompilationUnitTree;
 
 
 @SupportedOptions("debug")
-public class ScopeChecker extends SourceChecker {
+public class ScopeChecker extends SinglePassChecker {
     // Please keep alphabetized
     public static final String ERR_BAD_ALLOCATION = "bad.allocation";
     public static final String ERR_BAD_ANNOTATION = "bad.annotation";

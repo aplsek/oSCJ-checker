@@ -16,10 +16,10 @@ import com.sun.source.util.TreePath;
 // running each checker on one compilation unit at a time. It accomplishes this by overriding
 // typeProcessingOver to run all but the first checker, while typeProcess runs the first checker alone.
 public class MultiPassChecker extends SourceChecker {
-    private ArrayList<SourceChecker>             checkers = new ArrayList<SourceChecker>();
+    private ArrayList<SinglePassChecker>         checkers = new ArrayList<SinglePassChecker>();
     private LinkedHashMap<TypeElement, TreePath> types    = new LinkedHashMap<TypeElement, TreePath>();
 
-    protected void addPass(SourceChecker checker) {
+    protected void addPass(SinglePassChecker checker) {
         checkers.add(checker);
     }
 
@@ -33,13 +33,14 @@ public class MultiPassChecker extends SourceChecker {
 
     @Override
     public void typeProcessingOver() {
-        for (int i = 1; i < checkers.size(); i++) {
+        for (SinglePassChecker c : checkers) {
             for (Map.Entry<TypeElement, TreePath> e : types.entrySet()) {
-                checkers.get(i).typeProcess(e.getKey(), e.getValue());
+                c.typeProcess(e.getKey(), e.getValue());
             }
-        }
-        for (SourceChecker c : checkers) {
             c.typeProcessingOver();
+            if (c.hasErrors()) {
+                break;
+            }
         }
     }
 

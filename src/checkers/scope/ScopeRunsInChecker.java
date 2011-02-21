@@ -1,11 +1,13 @@
 package checkers.scope;
 
 import java.util.Properties;
-import checkers.source.SourceChecker;
+
+import checkers.SinglePassChecker;
 import checkers.source.SourceVisitor;
+
 import com.sun.source.tree.CompilationUnitTree;
 
-public class ScopeRunsInChecker extends SourceChecker {
+public class ScopeRunsInChecker extends SinglePassChecker {
     public static final String ERR_BAD_LIBRARY_ANNOTATION = "bad.library.annotation";
     public static final String ERR_BAD_SCOPE_NAME = "bad.scope.name";
     public static final String ERR_ILLEGAL_FIELD_SCOPE_OVERRIDE = "illegal.field.scope.override";

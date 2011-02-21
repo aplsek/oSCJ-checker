@@ -1,11 +1,13 @@
 package checkers.scope;
 
 import java.util.Properties;
-import checkers.source.SourceChecker;
+
+import checkers.SinglePassChecker;
 import checkers.source.SourceVisitor;
+
 import com.sun.source.tree.CompilationUnitTree;
 
-public class DefineScopeChecker extends SourceChecker {
+public class DefineScopeChecker extends SinglePassChecker {
     public static final String ERR_CYCLICAL_SCOPES = "cyclical.scopes";
     public static final String ERR_DUPLICATE_SCOPE_NAME = "duplicate.scope.name";
     public static final String ERR_PRIVATE_MEM_NO_DEFINE_SCOPE = "privateMem.no.DefineScope";
@@ -30,5 +32,14 @@ public class DefineScopeChecker extends SourceChecker {
         p.put(ERR_CYCLICAL_SCOPES, "Cyclical scope names detected.");
         p.put(ERR_PRIVATE_MEM_NO_DEFINE_SCOPE, "PrivatemMemory variable must have a @DefineScope annotation.");
         return p;
+    }
+
+    @Override
+    public void typeProcessingOver() {
+        super.typeProcessingOver();
+        ScopeTree scopeTree = ctx.getScopeTree();
+        if (!scopeTree.verifyScopeTree()) {
+            scopeTree.reportErrors(this);
+        }
     }
 }

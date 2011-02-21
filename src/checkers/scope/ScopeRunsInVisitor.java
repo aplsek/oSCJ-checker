@@ -4,8 +4,6 @@ import static checkers.scope.ScopeRunsInChecker.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;

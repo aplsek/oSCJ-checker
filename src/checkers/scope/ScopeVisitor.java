@@ -192,15 +192,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             return null;
         }
 
-        /*
-         * Scope tree verification
-         */
-        if (!scopeTree.verifyScopeTree()) {
-            scopeTree.reportErrors(this);
-            debugIndentDecrement();
-            return null;
-        }
-
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         String oldScope = currentScope;
         String oldRunsIn = currentRunsIn;
@@ -960,7 +951,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         } else if (CURRENT.equals(tScope)) {
             return new ScopeInfo(tScope);
         } else {
-            if (!tScope.equals(varScope)) {
+            if (!tScope.equals(varScope.value())) {
                 report(Result.failure(ERR_BAD_VARIABLE_SCOPE,
                         t.getSimpleName(), currentAllocScope()), node);
             }
