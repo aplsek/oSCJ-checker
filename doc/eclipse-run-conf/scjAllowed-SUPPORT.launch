@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/scj-Checker"/>
+<listEntry value="/scj-checker"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>
@@ -20,5 +20,5 @@
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.sun.tools.javac.Main"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-processor checkers.scjAllowed.SCJAllowedChecker -cp ./build/:./testsuite/build/  ./testsuite/src/scjAllowed/SCJSupport.java"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="scj-Checker"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="scj-checker"/>
 </launchConfiguration>
