@@ -18,5 +18,5 @@ else
     DIRECTORY=$1
 fi
 
-python localbin/runtests.py  --scj-path ./lib/scj.jar --directory $DIRECTORY
+python localbin/runtests.py  --scj-path ./lib/scj.jar:lib/junit-4.7.jar --directory $DIRECTORY
 

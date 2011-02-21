@@ -718,8 +718,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
     }
 
 
-
-
     private void checkMethodInvocation(MethodInvocationTree node, P p) {
         ExecutableElement method = TreeUtils.elementFromUse(node);
 
@@ -762,7 +760,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
      * TODO: perhaps move this method to UTILs? 
      *  - the same for isManagedMemoryType?
      * 
-     * TODO: this needs to be properly tested once the checker will be throwing less exceptions.
      * 
      * @param method
      * @return
@@ -781,6 +778,8 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
                 return ALLOC_IN_SAME; 
             if (Utils.getMethodSignature(method).equals(ALLOC_IN_PARENT.toString()))
                 return ALLOC_IN_PARENT; 
+            if (Utils.getMethodSignature(method).equals(GET_CURRENT_MANAGED_AREA.toString()))
+                return GET_CURRENT_MANAGED_AREA; 
         }
         if (implementsAllocationContext(type)) {
             if (Utils.getMethodSignature(method).equals(NEW_INSTANCE.toString()))  

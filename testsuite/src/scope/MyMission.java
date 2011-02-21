@@ -66,6 +66,7 @@ class MyHandler extends PeriodicEventHandler {
        
         ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
 
+        //:: (argument.type.incompatible)
         ARunnable1 aRunnable = new ARunnable1();                // ERROR
         ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, aRunnable);  // ERROR  
         

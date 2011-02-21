@@ -13,7 +13,7 @@ mkdir $BUILD
 
 CHECKERS=./localbin
 JAVAC=$CHECKERS/javac
-CLASSPATH=lib/build/:$CHECKERS/jsr308-all.jar:$CHECKERS/checkers.jar
+CLASSPATH=lib/build/:$CHECKERS/jsr308-all.jar:$CHECKERS/checkers.jar:lib/junit-4.7.jar
 
 if [ ! -f "./lib/scj.jar" ]
 then
