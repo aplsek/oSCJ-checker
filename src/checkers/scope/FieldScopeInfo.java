@@ -20,6 +20,11 @@ public class FieldScopeInfo extends ScopeInfo {
     }
 
     @Override
+    public boolean isFieldScope() {
+        return true;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;

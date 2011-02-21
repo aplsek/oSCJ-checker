@@ -25,6 +25,10 @@ public class ScopeInfo {
         return Scope.UNKNOWN.equals(scope);
     }
 
+    public boolean isFieldScope() {
+        return false;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj != null && scope.equals(((ScopeInfo) obj).scope);
