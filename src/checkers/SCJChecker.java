@@ -1,21 +1,15 @@
 package checkers;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
 
 import checkers.scjAllowed.SCJAllowedChecker;
 import checkers.scjRestricted.SCJRestrictedChecker;
-import checkers.scope.AggregateScopeChecker;
 import checkers.scope.DefineScopeChecker;
 import checkers.scope.ScopeChecker;
 import checkers.scope.ScopeCheckerContext;
 import checkers.scope.ScopeRunsInChecker;
-import checkers.source.SourceChecker;
-import checkers.util.AggregateChecker;
 
 public class SCJChecker extends MultiPassChecker {
     public SCJChecker() {
