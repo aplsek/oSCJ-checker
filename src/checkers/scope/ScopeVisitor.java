@@ -2,13 +2,39 @@ package checkers.scope;
 
 import static checkers.Utils.isFinal;
 import static checkers.Utils.isStatic;
+import static checkers.Utils.SCJ_METHODS.ALLOC_IN_PARENT;
+import static checkers.Utils.SCJ_METHODS.ALLOC_IN_SAME;
+import static checkers.Utils.SCJ_METHODS.DEFAULT;
+import static checkers.Utils.SCJ_METHODS.ENTER_PRIVATE_MEMORY;
+import static checkers.Utils.SCJ_METHODS.EXECUTE_IN_AREA;
+import static checkers.Utils.SCJ_METHODS.GET_CURRENT_MANAGED_AREA;
+import static checkers.Utils.SCJ_METHODS.GET_MEMORY_AREA;
+import static checkers.Utils.SCJ_METHODS.NEW_ARRAY;
+import static checkers.Utils.SCJ_METHODS.NEW_ARRAY_IN_AREA;
+import static checkers.Utils.SCJ_METHODS.NEW_INSTANCE;
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
-import static javax.safetycritical.annotate.Scope.*;
-
-import static checkers.Utils.isStatic;
-
-import static checkers.Utils.SCJ_METHODS.*;
+import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION;
+import static checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE;
+import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PARAM;
+import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEM_NO_RUNS_IN;
+import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEM_NO_SCOPE_ON_RUNNABLE;
+import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH;
+import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_TARGET;
+import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_OR_ENTER;
+import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_TARGET;
+import static checkers.scope.ScopeChecker.ERR_BAD_GUARD_ARGUMENT;
+import static checkers.scope.ScopeChecker.ERR_BAD_GUARD_NO_FINAL;
+import static checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE;
+import static checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE;
+import static checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE;
+import static checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE;
+import static checkers.scope.ScopeChecker.ERR_DEFAULT_BAD_ENTER_PARAMETER;
+import static checkers.scope.ScopeChecker.ERR_RUNNABLE_WITHOUT_RUNSIN;
+import static checkers.scope.ScopeChecker.ERR_TYPE_CAST_BAD_ENTER_PARAMETER;
+import static javax.safetycritical.annotate.Scope.CURRENT;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -25,15 +51,11 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.RunsIn;
-import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 import checkers.Utils;
 import checkers.Utils.SCJ_METHODS;
-import checkers.scope.ScopeCheckerContext.ClassScopeInfo;
-import checkers.scope.ScopeCheckerContext.MethodScopeInfo;
 import checkers.source.Result;
 import checkers.source.SourceChecker;
 import checkers.source.SourceVisitor;
@@ -75,8 +97,6 @@ import com.sun.source.tree.TypeCastTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeInfo;
-
-import static checkers.scope.ScopeChecker.*;
 
 
 //TODO: Defaults for @RunsIn/@Scope on specific SCJ classes
@@ -381,7 +401,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             debugIndentDecrement();
         }
     }
-    
+
     /**
      * Object allocation is only allowed if the current allocation context is
      * the same scope as what's defined by the class.
@@ -443,7 +463,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         try {
             AnnotatedTypeMirror am = atf.fromTypeTree(node.getType());
             am = getAnnotatedArrayType((AnnotatedArrayType) am);
-            
+
             TypeElement t = Utils.getTypeElement(am.getUnderlyingType());
             String tScope = ctx.getClassScope(t);
             if (CURRENT.equals(tScope)) {
@@ -751,10 +771,10 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
 
 
     /**
-     * TODO: perhaps move this method to UTILs? 
+     * TODO: perhaps move this method to UTILs?
      *  - the same for isManagedMemoryType?
-     * 
-     * 
+     *
+     *
      * @param method
      * @return
      */
@@ -766,30 +786,30 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         //pln("\t signature:" + Utils.getMethodSignature(method));
 
         if (isManagedMemoryType(type)) {
-            if (Utils.getMethodSignature(method).equals(ENTER_PRIVATE_MEMORY.toString())) 
+            if (Utils.getMethodSignature(method).equals(ENTER_PRIVATE_MEMORY.toString()))
                 return ENTER_PRIVATE_MEMORY;
             if (Utils.getMethodSignature(method).equals(ALLOC_IN_SAME.toString()))
-                return ALLOC_IN_SAME; 
+                return ALLOC_IN_SAME;
             if (Utils.getMethodSignature(method).equals(ALLOC_IN_PARENT.toString()))
-                return ALLOC_IN_PARENT; 
+                return ALLOC_IN_PARENT;
             if (Utils.getMethodSignature(method).equals(GET_CURRENT_MANAGED_AREA.toString()))
-                return GET_CURRENT_MANAGED_AREA; 
+                return GET_CURRENT_MANAGED_AREA;
         }
         if (implementsAllocationContext(type)) {
-            if (Utils.getMethodSignature(method).equals(NEW_INSTANCE.toString()))  
+            if (Utils.getMethodSignature(method).equals(NEW_INSTANCE.toString()))
                 return NEW_INSTANCE;
-            if (Utils.getMethodSignature(method).equals(NEW_ARRAY.toString()))  
+            if (Utils.getMethodSignature(method).equals(NEW_ARRAY.toString()))
                 return NEW_ARRAY;
-            if (Utils.getMethodSignature(method).equals(NEW_ARRAY_IN_AREA.toString()))  
+            if (Utils.getMethodSignature(method).equals(NEW_ARRAY_IN_AREA.toString()))
                 return NEW_ARRAY_IN_AREA;
             if (Utils.getMethodSignature(method).equals(EXECUTE_IN_AREA.toString()))   // TODO : why it needs to call toSTring???, should be implicit
-                return EXECUTE_IN_AREA; 
+                return EXECUTE_IN_AREA;
         }
 
         if (isMemoryAreaType(type) && Utils.getMethodSignature(method).equals(GET_MEMORY_AREA) )
             return GET_MEMORY_AREA;
 
-        return DEFAULT;  
+        return DEFAULT;
     }
 
     private void  checkRegularMethodInvocation(MethodInvocationTree node) {
@@ -862,7 +882,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             // TODO: We only accept newInstance(X.class) right now
         }
     }
-    
+
     private boolean checkReturnScope(ExpressionTree exprTree, Tree errorNode, String returnScope) {
         debugIndent("check Assignment : ");
 
@@ -886,7 +906,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             AnnotatedExecutableType methodType = atf.getAnnotatedType(methodElem);
             TypeMirror retMirror = methodType.getReturnType().getUnderlyingType();
             retMirror = getArrayType(retMirror);
-            
+
             if (retMirror.getKind().isPrimitive()) {
                 exprScope = null;
             } else {
@@ -931,7 +951,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
 
             TypeMirror castType = atf.fromTypeTree(((TypeCastTree) exprTree).getType()).getUnderlyingType();
             castType = getArrayType(castType);
-            
+
             if (castType.getKind().isPrimitive()) {
                 exprScope = returnScope;
             } else {
@@ -1080,7 +1100,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
     private final static String PRIVATE_MEMORY = "javax.safetycritical.PrivateMemory";
 
     /**
-     * 
+     *
      * @param t
      * @return true if the type of the element t impelements interface AllocationContext
      */
@@ -1269,7 +1289,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         }
         return null;
     }
-    
+
     // Strips out unnecessary parts of the AST in the RHS of an assignment
     private ExpressionTree simplify(ExpressionTree exprTree) {
         while (true) {
@@ -1296,7 +1316,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             checker.report(r, src);
         }
     }
-    
+
     /**
      * stripping of the arrayType to its true type
      */
@@ -1306,7 +1326,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         }
         return retMirror;
     }
-    
+
     /**
      * stripping of the arrayType to its true type - the same but for AnnotatedArrayType
      */
@@ -1316,7 +1336,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         }
         return arrayType;
     }
-    
+
     private static Tree getArrayTypeTree(Tree nodeTypeTree) {
         while (nodeTypeTree.getKind() == Kind.ARRAY_TYPE) {
             nodeTypeTree = ((ArrayTypeTree) nodeTypeTree).getType();

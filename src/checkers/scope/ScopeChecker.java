@@ -2,11 +2,9 @@ package checkers.scope;
 
 import java.util.Properties;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.SupportedOptions;
 
 import checkers.SinglePassChecker;
-import checkers.Utils;
 import checkers.source.SourceVisitor;
 
 import com.sun.source.tree.CompilationUnitTree;

@@ -1,11 +1,12 @@
 package checkers.scjAllowed;
 
 import java.util.Properties;
+
 import javax.annotation.processing.SupportedOptions;
 
 import checkers.SinglePassChecker;
-import checkers.source.SourceChecker;
 import checkers.source.SourceVisitor;
+
 import com.sun.source.tree.CompilationUnitTree;
 
 /**
