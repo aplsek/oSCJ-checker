@@ -110,8 +110,8 @@ abstract public class CheckerTest {
         if (expectedFile.exists()) {
             checkTestResult(run, expectedFile, TestUtilities.shouldSucceed(expectedFile), joinPrefixed(javaFiles, " ", this.checkerDir + File.separator));
         } else {
-            //List<String> expectedErrors = TestUtilities.expectedDiagnostics(this.checkerDir + File.separator, javaFiles);
-            //checkTestResult(run, expectedErrors, expectedErrors.isEmpty(), joinPrefixed(javaFiles, " ", this.checkerDir + File.separator));
+            List<String> expectedErrors = TestUtilities.expectedDiagnostics(this.checkerDir + File.separator, javaFiles);
+            checkTestResult(run, expectedErrors, expectedErrors.isEmpty(), joinPrefixed(javaFiles, " ", this.checkerDir + File.separator));
         }
     }
 

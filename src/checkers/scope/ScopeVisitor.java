@@ -367,9 +367,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         try {
             debugIndentIncrement("visitNewArray");
             AnnotatedArrayType arrayType = atf.getAnnotatedType(node);
-            while (arrayType.getComponentType().getKind() == TypeKind.ARRAY) {
-                arrayType = (AnnotatedArrayType) arrayType.getComponentType();
-            }
+            arrayType = getAnnotatedArrayType(arrayType);
             AnnotatedTypeMirror componentType = arrayType.getComponentType();
             if (!componentType.getKind().isPrimitive()) {
                 TypeElement t = Utils.getTypeElement(componentType.getUnderlyingType());
@@ -384,7 +382,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             debugIndentDecrement();
         }
     }
-
+    
     /**
      * Object allocation is only allowed if the current allocation context is
      * the same scope as what's defined by the class.
@@ -447,9 +445,8 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         debugIndentIncrement("visitTypeCast " + node);
         try {
             AnnotatedTypeMirror am = atf.fromTypeTree(node.getType());
-            while (am.getKind() == TypeKind.ARRAY) {
-                am = ((AnnotatedArrayType) am).getComponentType();
-            }
+            am = getAnnotatedArrayType((AnnotatedArrayType) am);
+            
             TypeElement t = Utils.getTypeElement(am.getUnderlyingType());
             String tScope = ctx.getClassScope(t);
             if (CURRENT.equals(tScope)) {
@@ -868,7 +865,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             // TODO: We only accept newInstance(X.class) right now
         }
     }
-
+    
     private boolean checkReturnScope(ExpressionTree exprTree, Tree errorNode, String returnScope) {
         debugIndent("check Assignment : ");
 
@@ -891,9 +888,8 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             ExecutableElement methodElem = TreeUtils.elementFromUse(methodExpr);
             AnnotatedExecutableType methodType = atf.getAnnotatedType(methodElem);
             TypeMirror retMirror = methodType.getReturnType().getUnderlyingType();
-            while (retMirror.getKind() == TypeKind.ARRAY) {
-                retMirror = ((ArrayType) retMirror).getComponentType();
-            }
+            retMirror = getArrayType(retMirror);
+            
             if (retMirror.getKind().isPrimitive()) {
                 exprScope = null;
             } else {
@@ -937,9 +933,8 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             // exprScope = scope(var);
 
             TypeMirror castType = atf.fromTypeTree(((TypeCastTree) exprTree).getType()).getUnderlyingType();
-            while (castType.getKind() == TypeKind.ARRAY) {
-                castType = ((ArrayType) castType).getComponentType();
-            }
+            castType = getArrayType(castType);
+            
             if (castType.getKind().isPrimitive()) {
                 exprScope = returnScope;
             } else {
@@ -1187,10 +1182,8 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
          * @Scope("Foo") class Foo {....}
          */
         AnnotatedTypeMirror exprType = atf.getAnnotatedType(var);
-        while (exprType.getKind() == TypeKind.ARRAY) {
-            AnnotatedArrayType arrayType = (AnnotatedArrayType) exprType;
-            exprType = arrayType.getComponentType();
-        }
+        exprType = getAnnotatedArrayType((AnnotatedArrayType) exprType);
+
         if (exprType.getKind() == TypeKind.DECLARED) {
             // return scope(elements.getTypeElement(exprType.toString()), null);
             typeScope = ctx.getClassScope((TypeElement) ((AnnotatedDeclaredType) exprType).getUnderlyingType()
@@ -1282,7 +1275,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         }
         return null;
     }
-
+    
     // Strips out unnecessary parts of the AST in the RHS of an assignment
     private ExpressionTree simplify(ExpressionTree exprTree) {
         while (true) {
@@ -1309,6 +1302,28 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             checker.report(r, src);
         }
     }
+    
+    /**
+     * stripping of the arrayType to its true type
+     */
+    private TypeMirror getArrayType(TypeMirror retMirror) {
+        while (retMirror.getKind() == TypeKind.ARRAY) {
+            retMirror = ((ArrayType) retMirror).getComponentType();
+        }
+        return retMirror;
+    }
+    
+    /**
+     * stripping of the arrayType to its true type - the same but for AnnotatedArrayType
+     */
+    private AnnotatedArrayType getAnnotatedArrayType(AnnotatedArrayType arrayType) {
+        while (arrayType.getComponentType().getKind() == TypeKind.ARRAY) {
+            arrayType = (AnnotatedArrayType) arrayType.getComponentType();
+        }
+        return arrayType;
+    }
+    
+    
 
     /*
      * Debug/helper methods
