@@ -141,10 +141,4 @@ public class ScopeChecker extends SinglePassChecker {
 
         return p;
     }
-
-    @Override
-    public synchronized void init(ProcessingEnvironment processingEnv) {
-        super.init(processingEnv);
-        Utils.DEBUG = processingEnv.getOptions().containsKey("debug");
-    }
 }

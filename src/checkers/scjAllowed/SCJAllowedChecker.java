@@ -2,6 +2,8 @@ package checkers.scjAllowed;
 
 import java.util.Properties;
 import javax.annotation.processing.SupportedOptions;
+
+import checkers.SinglePassChecker;
 import checkers.source.SourceChecker;
 import checkers.source.SourceVisitor;
 import com.sun.source.tree.CompilationUnitTree;
@@ -28,7 +30,7 @@ import com.sun.source.tree.CompilationUnitTree;
  */
 
 @SupportedOptions("scjlevel")
-public class SCJAllowedChecker extends SourceChecker {
+public class SCJAllowedChecker extends SinglePassChecker {
     // Please keep alphabetized
     public static final String ERR_HIDDEN_TO_SCJALLOWED = "hidden.to.scjallowed";
     public static final String ERR_SCJALLOWED_BAD_CONSTRUCTOR_CALL = "scjallowed.badconstructorcall";

@@ -4,11 +4,12 @@ import java.util.Properties;
 
 import com.sun.source.tree.CompilationUnitTree;
 
+import checkers.SinglePassChecker;
 import checkers.source.SourceChecker;
 import checkers.source.SourceVisitor;
 
 @SuppressWarnings("restriction")
-public class SCJRestrictedChecker extends SourceChecker {
+public class SCJRestrictedChecker extends SinglePassChecker {
     // Please keep alphabetized
     public static final String ERR_ILLEGAL_OVERRIDE = "illegal.override";
     public static final String ERR_ILLEGAL_OVERRIDE1 = "illegal.override1";

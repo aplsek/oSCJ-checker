@@ -44,7 +44,7 @@ public class MultiPassChecker extends SourceChecker {
     }
 
     @Override
-    public final void init(ProcessingEnvironment env) {
+    public void init(ProcessingEnvironment env) {
         super.init(env);
         for (SourceChecker checker : checkers) {
             checker.init(env);
@@ -52,7 +52,7 @@ public class MultiPassChecker extends SourceChecker {
     }
 
     @Override
-    public final Set<String> getSupportedOptions() {
+    public Set<String> getSupportedOptions() {
         Set<String> options = new HashSet<String>();
         for (SourceChecker checker : checkers) {
             options.addAll(checker.getSupportedOptions());
