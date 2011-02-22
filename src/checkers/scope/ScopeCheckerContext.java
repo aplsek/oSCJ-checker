@@ -1,5 +1,6 @@
 package checkers.scope;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +74,19 @@ public class ScopeCheckerContext {
                 f.getSimpleName().toString());
     }
 
+    public String[] getParameterScopes(String clazz, String method,
+            String... params) {
+        ClassScopeInfo csi = classScopes.get(clazz);
+        if (csi != null) {
+            String sig = buildSignatureString(method, params);
+            MethodScopeInfo msi = csi.methodScopes.get(sig);
+            if (msi != null) {
+                return Arrays.copyOf(msi.parameters, msi.parameters.length);
+            }
+        }
+        return null;
+    }
+
     /**
      * Get the RunsIn annotation of a method given its fully qualified class
      * name, its own name, and the fully qualified names of the types of its
@@ -124,6 +138,12 @@ public class ScopeCheckerContext {
     public String getMethodScope(ExecutableElement m) {
         TypeElement t = Utils.getMethodClass(m);
         return getMethodScope(t.getQualifiedName().toString(),
+                m.getSimpleName().toString(), getParameterTypeNames(m));
+    }
+
+    public String[] getParameterScopes(ExecutableElement m) {
+        TypeElement t = Utils.getMethodClass(m);
+        return getParameterScopes(t.getQualifiedName().toString(),
                 m.getSimpleName().toString(), getParameterTypeNames(m));
     }
 
@@ -204,7 +224,7 @@ public class ScopeCheckerContext {
                 throw new RuntimeException("Method runsin already set");
             }
         } else {
-            msi = new MethodScopeInfo();
+            msi = new MethodScopeInfo(params.length);
             csi.methodScopes.put(sig, msi);
         }
         msi.runsIn = scope;
@@ -237,7 +257,7 @@ public class ScopeCheckerContext {
                 throw new RuntimeException("Method scope already set");
             }
         } else {
-            msi = new MethodScopeInfo();
+            msi = new MethodScopeInfo(params.length);
             csi.methodScopes.put(sig, msi);
         }
         msi.scope = scope;
@@ -252,6 +272,21 @@ public class ScopeCheckerContext {
         String[] params = getParameterTypeNames(m);
         setMethodScope(scope, t.getQualifiedName().toString(),
                 m.getSimpleName().toString(), params);
+    }
+
+    public void setParameterScope(String scope, int i, String clazz,
+            String method, String... params) {
+        System.out.println("Setting parameter i of " + method + " to " + scope);
+        ClassScopeInfo csi = classScopes.get(clazz);
+        String sig = buildSignatureString(method, params);
+        MethodScopeInfo msi = csi.methodScopes.get(sig);
+        msi.parameters[i] = scope;
+    }
+
+    public void setParameterScope(String scope, int i, ExecutableElement m) {
+        TypeElement t = Utils.getMethodClass(m);
+        setParameterScope(scope, i, t.getQualifiedName().toString(),
+                m.getSimpleName().toString(), getParameterTypeNames(m));
     }
 
     /**
@@ -312,7 +347,7 @@ public class ScopeCheckerContext {
         Map<String, MethodScopeInfo> methodScopes;
         Map<String, String> fieldScopes;
 
-        public ClassScopeInfo(String scope) {
+        ClassScopeInfo(String scope) {
             this.scope = scope;
             methodScopes = new HashMap<String, MethodScopeInfo>();
             fieldScopes = new HashMap<String, String>();
@@ -322,5 +357,10 @@ public class ScopeCheckerContext {
     static class MethodScopeInfo {
         String scope;
         String runsIn;
+        String parameters[];
+
+        MethodScopeInfo(int params) {
+            parameters = new String[params];
+        }
     }
 }
