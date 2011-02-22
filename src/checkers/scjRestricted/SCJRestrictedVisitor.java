@@ -3,7 +3,6 @@ package checkers.scjRestricted;
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
 import static checkers.scjRestricted.SCJRestrictedChecker.*;
-import static javax.lang.model.util.ElementFilter.methodsIn;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -464,7 +463,7 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
             HashSet<TypeElement> seenIfaces = new HashSet<TypeElement>();
             addInterfaceOverrides(enclosing, method, overrides, seenIfaces);
             while (!TypesUtils.isObject(superType.asType())) {
-                for (ExecutableElement superMethod : methodsIn(superType.getEnclosedElements())) {
+                for (ExecutableElement superMethod : Utils.methodsIn(superType)) {
                     if (elements.overrides(method, superMethod, superType)) {
                         overrides.add(superMethod);
                         break;
@@ -492,7 +491,7 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
             }
             // Assuming a method overrides itself, we want to skip iface.
             if (workIface != iface) {
-                for (ExecutableElement workIfaceMethod : methodsIn(workIface.getEnclosedElements())) {
+                for (ExecutableElement workIfaceMethod : Utils.methodsIn(workIface)) {
                     if (elements.overrides(method, workIfaceMethod, workIface)) {
                         overrides.addLast(workIfaceMethod);
                     }
@@ -507,7 +506,7 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
         for (TypeMirror iface : t.getInterfaces()) {
             TypeElement ifaceElem = (TypeElement) ((DeclaredType) iface).asElement();
             if (seenIfaces.add(ifaceElem)) {
-                for (ExecutableElement ifaceMethod : methodsIn(ifaceElem.getEnclosedElements())) {
+                for (ExecutableElement ifaceMethod : Utils.methodsIn(ifaceElem)) {
                     if (elements.overrides(m, ifaceMethod, ifaceElem)) {
                         overrides.add(ifaceMethod);
                         break;
