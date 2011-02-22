@@ -1,14 +1,5 @@
 package checkers;
 
-import static checkers.Utils.SCJ_METHODS.ALLOC_IN_PARENT;
-import static checkers.Utils.SCJ_METHODS.ALLOC_IN_SAME;
-import static checkers.Utils.SCJ_METHODS.DEFAULT;
-import static checkers.Utils.SCJ_METHODS.ENTER_PRIVATE_MEMORY;
-import static checkers.Utils.SCJ_METHODS.EXECUTE_IN_AREA;
-import static checkers.Utils.SCJ_METHODS.GET_MEMORY_AREA;
-import static checkers.Utils.SCJ_METHODS.NEW_ARRAY;
-import static checkers.Utils.SCJ_METHODS.NEW_INSTANCE;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -32,7 +23,7 @@ public final class Utils {
     /**
      * debugging flag
      */
-    public static boolean DEBUG = true;
+    public static boolean DEBUG = false;
 
     public static void debugPrint(String msg) {
         if (DEBUG) System.err.print(indent + msg);
@@ -154,9 +145,7 @@ public final class Utils {
     public static void decreaseIndent() {
         indent = indent.substring(1);
     }
-    
-    
-    
+
     /**
      * Given a method declaration, construct a String that uniquely identifies
      * a method.
@@ -217,70 +206,60 @@ public final class Utils {
      * Get the RunsIn annotation of a method given its declaration.
      */
     public static String getMethodSignature(ExecutableElement m) {
-        TypeElement t = Utils.getMethodClass(m);
-        String sig = buildSignatureString( m.getSimpleName().toString(), getParameterTypeNames(m));
-
+        String sig = buildSignatureString(m.getSimpleName().toString(),
+                getParameterTypeNames(m));
         return sig;
     }
 
     public enum SCJ_METHODS {
         DEFAULT {
-            @Override public String toString() { return null; } 
+            @Override public String toString() { return null; }
         },
-        
+
         /* MemoryArea */
-        
-        NEW_INSTANCE { 
-            @Override public String toString() { return "newInstance(java.lang.Class)"; } 
-        },
-        
-        NEW_ARRAY { 
-            @Override public String toString() { return "newArray(java.lang.Class,int)"; } 
-        },
-        
-        NEW_ARRAY_IN_AREA { 
-            @Override public String toString() { return "newArrayInArea(java.lang.Object,java.lang.Class,int)"; } 
+
+        NEW_INSTANCE {
+            @Override public String toString() { return "newInstance(java.lang.Class)"; }
         },
 
-        ENTER { 
-            @Override public String toString() { return "enter(int,java.lang.Runnable)"; }     
+        NEW_ARRAY {
+            @Override public String toString() { return "newArray(java.lang.Class,int)"; }
         },
 
-        GET_MEMORY_AREA { 
-            @Override public String toString() { return "getMemoryArea(java.lang.Object)"; } 
+        NEW_ARRAY_IN_AREA {
+            @Override public String toString() { return "newArrayInArea(java.lang.Object,java.lang.Class,int)"; }
         },
-        
+
+        ENTER {
+            @Override public String toString() { return "enter(int,java.lang.Runnable)"; }
+        },
+
+        GET_MEMORY_AREA {
+            @Override public String toString() { return "getMemoryArea(java.lang.Object)"; }
+        },
 
         /* AllocationContext */
-        
-        EXECUTE_IN_AREA { 
-            @Override public String toString() { return "executeInArea(java.lang.Runnable)"; } 
+
+        EXECUTE_IN_AREA {
+            @Override public String toString() { return "executeInArea(java.lang.Runnable)"; }
         },
-        
-        
+
         /* ManagedMemory */
-        
-        ENTER_PRIVATE_MEMORY { 
-            @Override public String toString() { return "enterPrivateMemory(long,java.lang.Runnable)"; } 
-        },
-        
-        GET_CURRENT_MANAGED_AREA { 
-            @Override public String toString() { return "getCurrentManagedMemory()"; } 
+
+        ENTER_PRIVATE_MEMORY {
+            @Override public String toString() { return "enterPrivateMemory(long,java.lang.Runnable)"; }
         },
 
-        ALLOC_IN_SAME { 
-            @Override public String toString() { return "allocatedInSame(java.lang.Object,java.lang.Object)"; } 
+        GET_CURRENT_MANAGED_AREA {
+            @Override public String toString() { return "getCurrentManagedMemory()"; }
         },
-       
-        ALLOC_IN_PARENT { 
-            @Override public String toString() { return "allocatedInParent(java.lang.Object,java.lang.Object)"; } 
+
+        ALLOC_IN_SAME {
+            @Override public String toString() { return "allocatedInSame(java.lang.Object,java.lang.Object)"; }
+        },
+
+        ALLOC_IN_PARENT {
+            @Override public String toString() { return "allocatedInParent(java.lang.Object,java.lang.Object)"; }
         };
-        
-        
     }
-    
-    static private void pln(String s) {
-        System.out.println(s);
-    }
-
 }
