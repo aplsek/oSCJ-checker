@@ -1,8 +1,13 @@
 package checkers.scope;
 
-import static checkers.scope.ScopeRunsInChecker.*;
+import static checkers.scope.ScopeRunsInChecker.ERR_BAD_LIBRARY_ANNOTATION;
+import static checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME;
+import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_FIELD_SCOPE_OVERRIDE;
+import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_RUNS_IN_OVERRIDE;
+import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_SCOPE_OVERRIDE;
+import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
+import static javax.safetycritical.annotate.Scope.CURRENT;
 
-import java.util.List;
 import java.util.Map;
 
 import javax.lang.model.element.ExecutableElement;
@@ -30,6 +35,7 @@ import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
+
 
 /**
  * This visitor is responsible for retrieving Scope and RunsIn annotations from
@@ -59,6 +65,25 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
         checkClassScope(t, node, node);
         return super.visitClass(node, p);
     }
+    
+    
+    void fail(String s, ClassTree n, Tree e) { report (Result.failure(s), n, e); } 
+    
+    void warn(String s, ClassTree n, Tree e) { report (Result.warning(s), n, e); } 
+    
+    String scopeOfClassDefinition(TypeElement t) {
+          Scope scopeAnn = t.getAnnotation(Scope.class);
+         return scopeAnn != null ? scopeAnn.value() : CURRENT;
+    }
+    String getParentScopeAndVisit(TypeElement p, ClassTree node) {
+        String parent = ctx.getClassScope(p);
+        if (parent == null) { // check the parent, and ad it's scope to ctx
+            checkClassScope(p, trees.getTree(p), node);
+            parent = ctx.getClassScope(p);
+        }
+        return parent;
+    }
+
 
     /**
      * Check that a class has a valid Scope annotation.
@@ -78,86 +103,50 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
      * Scope(CURRENT).
      */
     void checkClassScope(TypeElement t, ClassTree node, Tree errNode) {
-        Scope scopeAnn = t.getAnnotation(Scope.class);
-        String scope = scopeAnn != null ? scopeAnn.value() : Scope.CURRENT;
+        String scope = scopeOfClassDefinition(t);
+        if (!scopeTree.hasScope(scope) && !scope.equals(CURRENT)) 
+            fail(ERR_BAD_SCOPE_NAME, node, errNode);        
 
-        if (!scopeTree.hasScope(scope) && !scope.equals(Scope.CURRENT)) {
-            report(Result.failure(ERR_BAD_SCOPE_NAME), node, errNode);
-        }
-
-        TypeElement s = Utils.superType(t);
-        if (s != null) {
-            String superScope = ctx.getClassScope(s);
-            if (superScope == null) {
-                checkClassScope(s, trees.getTree(s), node);
-                superScope = ctx.getClassScope(s);
-            }
-            if (Scope.CURRENT.equals(superScope)) {
+        TypeElement p = Utils.superType(t);
+        if (p == null)  ctx.setClassScope(scope, t); // t == java.lang.Object
+        else {          
+            String parent = getParentScopeAndVisit(p, node);            
+            if (parent.equals(CURRENT)) ctx.setClassScope(scope, t);
+            else if (scope.equals(parent)) ctx.setClassScope(parent, t);
+            else {
+                // Set the scope to something, in case processing continues past this class
                 ctx.setClassScope(scope, t);
-            } else if (scope.equals(superScope) || Scope.CURRENT.equals(scope)) {
-                ctx.setClassScope(superScope, t);
-            } else {
-                // Set the scope to something anyway, in case the processing
-                // continues past the current class
-                ctx.setClassScope(scope, t);
-                report(Result.failure(ERR_ILLEGAL_SCOPE_OVERRIDE), node,
-                        errNode);
+               fail(ERR_ILLEGAL_SCOPE_OVERRIDE, node, errNode);
             }
-        } else {
-            // t is java.lang.Object, just add the type in
-            ctx.setClassScope(scope, t);
         }
         // Ensure that the class doesn't change any Scope annotations on its
         // implemented interfaces. This shouldn't require the retrieval of
         // all interfaces implemented by superclasses and interfaces, since
         // they should be visited as well prior to this point.
         for (TypeMirror i : t.getInterfaces()) {
-            TypeElement iElem = Utils.getTypeElement(i);
-            String iScope = ctx.getClassScope(iElem);
-            if (iScope == null) {
-                checkClassScope(iElem, trees.getTree(iElem), node);
-                iScope = ctx.getClassScope(iElem);
-            }
-            if (!Scope.CURRENT.equals(iScope) && !iScope.equals(scope)) {
-                report(Result.failure(ERR_ILLEGAL_SCOPE_OVERRIDE), node,
-                        errNode);
-            }
+            TypeElement ie = Utils.getTypeElement(i);
+            String is = getParentScopeAndVisit(ie,node);
+            if (!is.equals(CURRENT) && !is.equals(scope)) 
+                fail(ERR_ILLEGAL_SCOPE_OVERRIDE, node, errNode);           
         }
 
-        List<ExecutableElement> methods =
-            ElementFilter.methodsIn(t.getEnclosedElements());
-        for (ExecutableElement m : methods) {
+        for (ExecutableElement m : ElementFilter.methodsIn(t.getEnclosedElements())) {
             MethodTree mTree = trees.getTree(m);
-            Tree mErr = null;
-            if (node == errNode) {
-                mErr = mTree;
-            } else if (mTree == null) {
-                mErr = node;
-            }
+            Tree mErr = (node == errNode) ? mTree : ((mTree == null) ? node : null);
             checkMethodScope(m, mTree, mErr);
             checkMethodRunsIn(m, mTree, mErr);
         }
 
-        List<VariableElement> fields =
-            ElementFilter.fieldsIn(t.getEnclosedElements());
-        for (VariableElement f : fields) {
+        for (VariableElement f : ElementFilter.fieldsIn(t.getEnclosedElements())) {
             Tree fTree = trees.getTree(f);
-            Tree fErr = null;
-            if (node == errNode) {
-                fErr = fTree;
-            } else if (fTree == null) {
-                fErr = node;
-            }
+            Tree fErr = (node == errNode) ? fTree : ((fTree == null)? node : null);
             checkFieldScope(f, fTree, fErr);
         }
-        // We don't allow RunsIn annotations on classes anymore. Instead, the
-        // default scope is always the same as the Scope annotation and methods
-        // may override the default if they so choose.
-        RunsIn runsInAnn = t.getAnnotation(RunsIn.class);
-        if (runsInAnn != null) {
-            report(Result.warning(ERR_RUNS_IN_ON_CLASS), node, errNode);
-        }
+        // We don't allow RunsIn annotations on classes anymore. 
+        if (t.getAnnotation(RunsIn.class) != null) 
+            fail(ERR_RUNS_IN_ON_CLASS, node, errNode);
     }
+
 
     /**
      * Check that a field has a valid Scope annotation, if any. Four kinds of
