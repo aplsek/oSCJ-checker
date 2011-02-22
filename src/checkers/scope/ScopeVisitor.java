@@ -354,7 +354,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
     public ScopeInfo visitMethodInvocation(MethodInvocationTree node, P p) {
         try {
             debugIndentIncrement("visitMethodInvocation");
-            // pln("visit method invocation: " + node);
             checkMethodInvocation(node, p);
             return super.visitMethodInvocation(node, p);
         } finally {
@@ -412,7 +411,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitReturn(ReturnTree node, P p) {
-        // enableDebug();
         debugIndentIncrement(indent + "visit Return:" + node.toString());
 
         // Don't try to check return expressions for void methods.
@@ -429,7 +427,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             checkReturnScope(node.getExpression(), node, returnScope);
 
         debugIndent("\n\n");
-        // disableDebug();
         debugIndentDecrement();
         return super.visitReturn(node, p);
     }
@@ -987,10 +984,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             return new ScopeInfo(IMMORTAL);
         }
         // TODO: UNKNOWN parameters
-        Tree nodeTypeTree = node.getType();
-        while (nodeTypeTree.getKind() == Kind.ARRAY_TYPE) {
-            nodeTypeTree = ((ArrayTypeTree) nodeTypeTree).getType();
-        }
+        Tree nodeTypeTree = getArrayTypeTree(node.getType());
         if (nodeTypeTree.getKind() == Kind.PRIMITIVE_TYPE) {
             if (nodeTypeTree == node.getType()) {
                 return null;
@@ -1306,7 +1300,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
     /**
      * stripping of the arrayType to its true type
      */
-    private TypeMirror getArrayType(TypeMirror retMirror) {
+    private static TypeMirror getArrayType(TypeMirror retMirror) {
         while (retMirror.getKind() == TypeKind.ARRAY) {
             retMirror = ((ArrayType) retMirror).getComponentType();
         }
@@ -1316,14 +1310,19 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
     /**
      * stripping of the arrayType to its true type - the same but for AnnotatedArrayType
      */
-    private AnnotatedArrayType getAnnotatedArrayType(AnnotatedArrayType arrayType) {
+    private static AnnotatedArrayType getAnnotatedArrayType(AnnotatedArrayType arrayType) {
         while (arrayType.getComponentType().getKind() == TypeKind.ARRAY) {
             arrayType = (AnnotatedArrayType) arrayType.getComponentType();
         }
         return arrayType;
     }
     
-    
+    private static Tree getArrayTypeTree(Tree nodeTypeTree) {
+        while (nodeTypeTree.getKind() == Kind.ARRAY_TYPE) {
+            nodeTypeTree = ((ArrayTypeTree) nodeTypeTree).getType();
+        }
+        return nodeTypeTree;
+    }
 
     /*
      * Debug/helper methods

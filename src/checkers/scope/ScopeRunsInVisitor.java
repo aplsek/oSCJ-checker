@@ -67,25 +67,6 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
         return super.visitClass(node, p);
     }
     
-    
-    void fail(String s, Tree n, Tree e) { report (Result.failure(s), n, e); } 
-    
-    void warn(String s, ClassTree n, Tree e) { report (Result.warning(s), n, e); } 
-    
-    String scopeOfClassDefinition(TypeElement t) {
-          Scope scopeAnn = t.getAnnotation(Scope.class);
-         return scopeAnn != null ? scopeAnn.value() : CURRENT;
-    }
-    String getParentScopeAndVisit(TypeElement p, ClassTree node) {
-        String parent = ctx.getClassScope(p);
-        if (parent == null) { // check the parent, and ad it's scope to ctx
-            checkClassScope(p, trees.getTree(p), node);
-            parent = ctx.getClassScope(p);
-        }
-        return parent;
-    }
-
-
     /**
      * Check that a class has a valid Scope annotation.
      * <ul>
@@ -292,4 +273,23 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
         // therefore part of the code being compiled. The code will be visited
         // later on and the errors will be reported then.
     }
+    
+    void fail(String s, Tree n, Tree e) { report (Result.failure(s), n, e); } 
+    
+    void warn(String s, ClassTree n, Tree e) { report (Result.warning(s), n, e); } 
+    
+    private static String scopeOfClassDefinition(TypeElement t) {
+          Scope scopeAnn = t.getAnnotation(Scope.class);
+         return scopeAnn != null ? scopeAnn.value() : CURRENT;
+    }
+    private String getParentScopeAndVisit(TypeElement p, ClassTree node) {
+        String parent = ctx.getClassScope(p);
+        if (parent == null) { // check the parent, and ad it's scope to ctx
+            checkClassScope(p, trees.getTree(p), node);
+            parent = ctx.getClassScope(p);
+        }
+        return parent;
+    }
+
+
 }
