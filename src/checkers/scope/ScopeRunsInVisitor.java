@@ -6,7 +6,6 @@ import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_FIELD_SCOPE_OVERRIDE
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_RUNS_IN_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_SCOPE_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
-import static javax.safetycritical.annotate.Scope.CURRENT;
 
 import java.util.Map;
 
@@ -20,7 +19,9 @@ import javax.lang.model.util.ElementFilter;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import static javax.safetycritical.annotate.Level.*;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.*;
 
 import checkers.Utils;
 import checkers.source.Result;
@@ -67,7 +68,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
     }
     
     
-    void fail(String s, ClassTree n, Tree e) { report (Result.failure(s), n, e); } 
+    void fail(String s, Tree n, Tree e) { report (Result.failure(s), n, e); } 
     
     void warn(String s, ClassTree n, Tree e) { report (Result.warning(s), n, e); } 
     
@@ -164,7 +165,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
     void checkFieldScope(VariableElement f, Tree node, Tree errNode) {
         TypeMirror fMir = f.asType();
         Scope s = f.getAnnotation(Scope.class);
-        String scope = Scope.CURRENT;
+        String scope = CURRENT;
         if (s != null && s.value() != null) {
             scope = s.value();
         }
@@ -186,7 +187,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
                 checkClassScope(t, trees.getTree(t), errNode);
             }
             tScope = ctx.getClassScope(t);
-            if (tScope == Scope.CURRENT) {
+            if (tScope == CURRENT) {
                 ctx.setFieldScope(scope, f);
             } else {
                 ctx.setFieldScope(tScope, f);
@@ -207,10 +208,10 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
     void checkMethodRunsIn(ExecutableElement m, MethodTree node,
             Tree errNode) {
         RunsIn ann = m.getAnnotation(RunsIn.class);
-        String runsIn = ann != null ? ann.value() : Scope.CURRENT;
+        String runsIn = ann != null ? ann.value() : CURRENT;
 
-        if (!scopeTree.hasScope(runsIn) && !runsIn.equals(Scope.CURRENT) &&
-                !runsIn.equals(Scope.UNKNOWN)) {
+        if (!scopeTree.hasScope(runsIn) && !runsIn.equals(CURRENT) &&
+                !runsIn.equals(UNKNOWN)) {
             report(Result.failure(ERR_BAD_SCOPE_NAME, runsIn), node, errNode);
         }
 
@@ -220,7 +221,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
             String eRunsIn = ctx.getMethodRunsIn(e);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
-            if (!eRunsIn.equals(runsIn) && eLevel != Level.SUPPORT) {
+            if (!eRunsIn.equals(runsIn) && eLevel != SUPPORT) {
                 report(Result.failure(ERR_ILLEGAL_RUNS_IN_OVERRIDE), node,
                         errNode);
             }
@@ -237,10 +238,10 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
     void checkMethodScope(ExecutableElement m, MethodTree node,
             Tree errNode) {
         Scope ann = m.getAnnotation(Scope.class);
-        String scope = ann != null ? ann.value() : Scope.CURRENT;
+        String scope = ann != null ? ann.value() : CURRENT;
 
-        if (!scopeTree.hasScope(scope) && !scope.equals(Scope.CURRENT) &&
-                !scope.equals(Scope.UNKNOWN)) {
+        if (!scopeTree.hasScope(scope) && !scope.equals(CURRENT) &&
+                !scope.equals(UNKNOWN)) {
             report(Result.failure(ERR_BAD_SCOPE_NAME, scope), node, errNode);
         }
         Map<AnnotatedDeclaredType, ExecutableElement> overrides =
@@ -249,8 +250,8 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
             String eScope = ctx.getMethodScope(e);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
-            if (!eScope.equals(scope) && eLevel != Level.SUPPORT) {
-                report(Result.failure(ERR_ILLEGAL_SCOPE_OVERRIDE), node,
+            if (!eScope.equals(scope) && eLevel != SUPPORT) {
+                fail(ERR_ILLEGAL_SCOPE_OVERRIDE, node,
                         errNode);
             }
         }
