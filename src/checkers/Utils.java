@@ -13,6 +13,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.safetycritical.annotate.SCJRestricted;
 
@@ -261,5 +262,13 @@ public final class Utils {
         ALLOC_IN_PARENT {
             @Override public String toString() { return "allocatedInParent(java.lang.Object,java.lang.Object)"; }
         };
+    }
+
+    public static List<ExecutableElement> methodsIn(TypeElement t) {
+        return ElementFilter.methodsIn(t.getEnclosedElements());
+    }
+
+    public static List<VariableElement> fieldsIn(TypeElement t) {
+        return ElementFilter.fieldsIn(t.getEnclosedElements());
     }
 }

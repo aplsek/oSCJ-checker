@@ -2,11 +2,12 @@ package checkers.scope;
 
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_LIBRARY_ANNOTATION;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME;
-import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_FIELD_SCOPE_OVERRIDE;
-import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_RUNS_IN_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_SCOPE_OVERRIDE;
+import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE;
+import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.lang.model.element.ExecutableElement;
@@ -15,7 +16,6 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.ElementFilter;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
@@ -36,6 +36,7 @@ import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.VariableTree;
 
 /**
  * This visitor is responsible for retrieving Scope and RunsIn annotations from
@@ -85,8 +86,9 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
      */
     void checkClassScope(TypeElement t, ClassTree node, Tree errNode) {
         String scope = scopeOfClassDefinition(t);
-        if (!scopeTree.hasScope(scope) && !scope.equals(CURRENT))
+        if (!scopeTree.hasScope(scope) && !scope.equals(CURRENT)) {
             fail(ERR_BAD_SCOPE_NAME, node, errNode);
+        }
 
         TypeElement p = Utils.superType(t);
         if (p == null) {
@@ -101,7 +103,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
                 // Set the scope to something, in case processing continues past
                 // this class
                 ctx.setClassScope(scope, t);
-                fail(ERR_ILLEGAL_SCOPE_OVERRIDE, node, errNode);
+                fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
             }
         }
         // Ensure that the class doesn't change any Scope annotations on its
@@ -112,61 +114,81 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
             TypeElement ie = Utils.getTypeElement(i);
             String is = getParentScopeAndVisit(ie, node);
             if (!is.equals(CURRENT) && !is.equals(scope)) {
-                fail(ERR_ILLEGAL_SCOPE_OVERRIDE, node, errNode);
+                fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
             }
         }
 
-        for (ExecutableElement m : ElementFilter.methodsIn(t
-                .getEnclosedElements())) {
+        for (ExecutableElement m : Utils.methodsIn(t)) {
             MethodTree mTree = trees.getTree(m);
             Tree mErr = (node == errNode) ? mTree : ((mTree == null) ? node
                     : null);
-            checkMethodScope(m, mTree, mErr);
-            checkMethodRunsIn(m, mTree, mErr);
+            checkMethod(m, mTree, mErr);
         }
 
-        for (VariableElement f : ElementFilter
-                .fieldsIn(t.getEnclosedElements())) {
+        for (VariableElement f : Utils.fieldsIn(t)) {
             Tree fTree = trees.getTree(f);
             Tree fErr = (node == errNode) ? fTree : ((fTree == null) ? node
                     : null);
-            checkFieldScope(f, fTree, fErr);
+            String fScope = checkVariableScopeOverride(f, fTree, fErr);
+            if (fScope != null) {
+                ctx.setFieldScope(fScope, f);
+            }
         }
         // We don't allow RunsIn annotations on classes anymore.
-        if (t.getAnnotation(RunsIn.class) != null)
+        if (t.getAnnotation(RunsIn.class) != null) {
             fail(ERR_RUNS_IN_ON_CLASS, node, errNode);
+        }
+    }
+
+    void checkMethod(ExecutableElement m, MethodTree mTree, Tree mErr) {
+        checkMethodScope(m, mTree, mErr);
+        checkMethodRunsIn(m, mTree, mErr);
+        List<? extends VariableElement> params = m.getParameters();
+        List<? extends VariableTree> paramTrees = mTree != null ? mTree
+                .getParameters() : null;
+        for (int i = 0; i < params.size(); i++) {
+            VariableElement param = params.get(i);
+            VariableTree paramTree = paramTrees != null ? paramTrees.get(i)
+                    : null;
+            String scope = checkVariableScopeOverride(param, paramTree, mErr);
+            if (scope != null) {
+                ctx.setParameterScope(scope, i, m);
+            }
+        }
     }
 
     /**
-     * Check that a field has a valid Scope annotation, if any. Four kinds of
-     * fields are considered:
+     * Check that a variable has a valid Scope annotation, if any. Four kinds of
+     * variables are considered:
      * <ol>
-     * <li>Primitive fields have no scope
-     * <li>Primitive array fields are CURRENT if not annotated, and S if
+     * <li>Primitive variables have no scope
+     * <li>Primitive array variables are CURRENT if not annotated, and S if
      * annotated Scope(S)
-     * <li>Object fields are CURRENT if not annotated, Scope(S) if the type of
-     * the field is annotated Scope(S), or S if the type of the field is not
-     * annotated and the field is annotated Scope(S).
-     * <li>Object arrays follow the same rules as object fields based on the
+     * <li>Object variables are CURRENT if not annotated, Scope(S) if the type
+     * of the variable is annotated Scope(S), or S if the type of the variable
+     * is not annotated and the field is annotated Scope(S).
+     * <li>Object arrays follow the same rules as object variables based on the
      * type of their basic element type.
      */
-    void checkFieldScope(VariableElement f, Tree node, Tree errNode) {
+    String checkVariableScopeOverride(VariableElement f, Tree node, Tree errNode) {
         TypeMirror fMir = f.asType();
         Scope s = f.getAnnotation(Scope.class);
         String scope = CURRENT;
+        String ret;
         if (s != null && s.value() != null) {
             scope = s.value();
         }
         // Arrays reside in the same scope as their element types, so if this
         // field is an array, reduce it to its base component type.
-        while (fMir.getKind() == TypeKind.ARRAY) {
-            fMir = ((ArrayType) fMir).getComponentType();
-        }
+        fMir = getArrayBaseType(fMir);
         if (fMir.getKind() != TypeKind.DECLARED) {
             // The field type in here is either a primitive or a primitive
             // array. Only store a field scope if the field was an array.
             if (fMir != f.asType()) {
+                ret = scope;
                 ctx.setFieldScope(scope, f);
+            } else {
+                ret = null; // Primitives have no scope
             }
         } else {
             TypeElement t = Utils.getTypeElement(fMir);
@@ -176,15 +198,16 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
             }
             tScope = ctx.getClassScope(t);
             if (tScope == CURRENT) {
-                ctx.setFieldScope(scope, f);
+                ret = scope;
             } else {
-                ctx.setFieldScope(tScope, f);
+                ret = tScope;
                 if (scope != null && !scope.equals(tScope)) {
-                    report(Result.warning(ERR_ILLEGAL_FIELD_SCOPE_OVERRIDE),
-                            node, errNode);
+                    report(Result.warning(ERR_ILLEGAL_SCOPE_OVERRIDE), node,
+                            errNode);
                 }
             }
         }
+        return ret;
     }
 
     /**
@@ -209,8 +232,8 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
             if (!eRunsIn.equals(runsIn) && eLevel != SUPPORT) {
-                report(Result.failure(ERR_ILLEGAL_RUNS_IN_OVERRIDE), node,
-                        errNode);
+                report(Result.failure(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE),
+                        node, errNode);
             }
         }
         ctx.setMethodRunsIn(runsIn, m);
@@ -237,7 +260,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
             if (!eScope.equals(scope) && eLevel != SUPPORT) {
-                fail(ERR_ILLEGAL_SCOPE_OVERRIDE, node, errNode);
+                fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
             }
         }
         // TODO: Need to check that scopes agree on the method and the return
@@ -296,5 +319,12 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
             parent = ctx.getClassScope(p);
         }
         return parent;
+    }
+
+    static TypeMirror getArrayBaseType(TypeMirror t) {
+        while (t.getKind() == TypeKind.ARRAY) {
+            t = ((ArrayType) t).getComponentType();
+        }
+        return t;
     }
 }
