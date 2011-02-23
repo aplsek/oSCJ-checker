@@ -6,7 +6,7 @@
 
     <property name="build.reports" value="reports"/>
 	<property name="run.tests.should.fork" value="true"/>
-	<property name="halt.on.test.failure" value="true"/>
+	<property name="halt.on.test.failure" value="false"/>
 
     <target name="clean">
         <delete dir="build"/>
@@ -90,5 +90,11 @@
 	            </fileset>
 	        </batchtest>
 	    </junit>
+        <junitreport todir="${build.reports}">
+            <fileset dir="${build.reports}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report todir="${build.reports}/html"/>
+        </junitreport>
 	</target>
 </project>
