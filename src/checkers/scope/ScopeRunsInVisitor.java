@@ -193,11 +193,6 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
         // field is an array, reduce it to its base component type.
         fMir = getArrayBaseType(fMir);
         if (fMir.getKind() != TypeKind.DECLARED) {
-            debugIndent("set-array :" + fMir);
-            debugIndent("------>>>");
-            debugIndent("ret/tScope :" + f.asType());
-            debugIndent("scope :" + scope);
-            
             // The field type in here is either a primitive or a primitive
             // array. Only store a field scope if the field was an array.
             if (fMir != f.asType()) {
@@ -216,11 +211,6 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
                 ret = scope;
             } else {
                 ret = tScope;
-
-                debugIndent("------>>>");
-                debugIndent("ret/tScope :" + ret);
-                debugIndent("scope :" + scope);
-
                 if (scope != null && !scope.equals(tScope)) {
                     report(Result.warning(ERR_ILLEGAL_SCOPE_OVERRIDE), node,
                             errNode);
@@ -349,8 +339,6 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
         return t;
     }
     
-    
-    
     /*
      * Debug/helper methods
      */
@@ -373,5 +361,4 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
     static private void pln(String s) {
         System.out.println(s);
     }
-    
 }
