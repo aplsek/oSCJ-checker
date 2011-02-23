@@ -361,7 +361,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             if (runsIn != null) {
                 currentRunsIn = runsIn;
             }
+            varScopes.pushBlock();
             super.visitMethod(node, p);
+            varScopes.popBlock();
         } finally {
             currentRunsIn = oldRunsIn;
         }
