@@ -23,7 +23,7 @@ public abstract class ParameterizedCheckerTest extends CheckerTest {
     }
 
     protected static Collection<Object[]> testFiles(String folder) {
-        File dir = new File("tests" + File.separator + folder);
+        File dir = new File("testsuite" + File.separator + "src" + File.separator + folder);
         List<File> javaFiles = TestUtilities.deeplyEnclosedJavaTestFiles(dir);
         Collection<Object[]> arguments = new ArrayList<Object[]>(javaFiles.size());
 

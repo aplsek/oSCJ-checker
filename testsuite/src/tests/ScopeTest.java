@@ -14,6 +14,6 @@ public class ScopeTest extends ParameterizedCheckerTest {
         super(testFile, "checkers.SCJChecker", "framework", "-Anomsgtext");
     }
 
-    //@Parameters
-    //public static Collection<Object[]> data() { return testFiles("framework"); }
+    @Parameters
+    public static Collection<Object[]> data() { return testFiles("scope"); }
 }

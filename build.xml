@@ -1,34 +1,33 @@
 <project default="jar">
+    <property name="checker.classpath" value="localbin/jsr308-all.jar"/>
+	<property name="junit.classpath" value="lib/junit-4.7.jar"/>
+    <property name="scj.classpath" value="lib/scj.jar"/>
+    <property name="scj.checker.classpath" value="lib/scj-checker.jar"/>
+
+	<property name="run.tests.should.fork" value="true"/>
+	<property name="halt.on.test.failure" value="true"/>
+
     <target name="clean">
         <delete dir="build"/>
+        <delete dir="testsuite/build"/>
         <delete file="lib/scj-checker.jar"/>
     </target>
 
     <target name="compile">
         <mkdir dir="build/classes"/>
-        <javac srcdir="src:spec" destdir="build/classes" classpath="lib/scj.jar"
-               includeAntRuntime="yes" debug="true" debuglevel="lines,vars,source">
+        <javac srcdir="src:spec" destdir="build/classes"
+               includeAntRuntime="yes" debug="true"
+               debuglevel="lines,vars,source">
     	    <classpath>
-    	 	    <pathelement path="lib/junit-4.7.jar"/>
+                <pathelement path="${junit.classpath}"/>
+                <pathelement path="${scj.classpath}"/>
     	    </classpath>
-            <compilerarg value="-Xbootclasspath/p:localbin/jsr308-all.jar:localbin/jdk.jar"/>
+            <compilerarg value="-Xbootclasspath/p:${checker.classpath}"/>
         </javac>
     </target>
 
-    <target name="compile-testsuite">
-	    <mkdir dir="testsuite/build"/>
-	    <javac srcdir="testsuite/src" destdir="testsuite/build" classpath="lib/scj.jar:lib/scj-checker.jar"
-	           includeAntRuntime="yes" debug="true" debuglevel="lines,vars,source">
-	    	<classpath>
-	    	    <pathelement path="lib/junit-4.7.jar"/>
-	    	</classpath>
-	    	<compilerarg value="-Xbootclasspath/p:localbin/jsr308-all.jar:localbin/jdk.jar"/>
-	    </javac>
-    </target>
-
     <target name="jar" depends="compile">
-        <jar destfile="lib/scj-checker.jar" basedir="build/classes">
-        </jar>
+        <jar destfile="lib/scj-checker.jar" basedir="build/classes"/>
     </target>
 
     <target name="check-hello" depends="jar">
@@ -39,17 +38,27 @@
                 <pathelement path="lib/scj-checker.jar"/>
       	        <pathelement path="lib/junit-4.7.jar"/>
             </classpath>
-            <compilerarg value="-Xbootclasspath/p:localbin/jsr308-all.jar:localbin/jdk.jar"/>
+            <compilerarg value="-Xbootclasspath/p:{checker.classpath}"/>
         </javac>
     </target>
 
-	<property name="run.tests.should.fork" value="true"/>
-	<property name="halt.on.test.failure" value="true"/>
-	<property name="testsuite" value="testsuite"/>
-	<property name="build.reports" value="${testsuite}/reports"/>
-	<property name="tests.junit" value="lib/junit-4.7.jar"/>
+    <!-- Test Framework -->
 
-	<target name="all-tests" depends="jar,compile,compile-testsuite"
+    <target name="compile-tests" depends="jar">
+	    <mkdir dir="testsuite/build"/>
+	    <javac srcdir="testsuite/src" destdir="testsuite/build" debug="true"
+	           includeAntRuntime="yes" debuglevel="lines,vars,source">
+	    	<classpath>
+	    	    <pathelement path="${junit.classpath}"/>
+	    	    <pathelement path="${scj.classpath}"/>
+	    	    <pathelement path="${scj.checker.classpath}"/>
+	    	</classpath>
+	    	<compilerarg value="-Xbootclasspath/p:${checker.classpath}"/>
+            <include name="tests/*.java"/>
+	    </javac>
+    </target>
+
+	<target name="all-tests" depends="jar,compile-tests"
 	        description="Run tests for all checkers">
 	    <!-- Copied from -run-tests target -->
 		<mkdir dir="${build.reports}"/>
@@ -58,69 +67,27 @@
 	           dir="${basedir}"
 	           printsummary="true"
 	           haltonfailure="${halt.on.test.failure}">
-	        <jvmarg line="-Xbootclasspath/p:localbin/jsr308-all.jar:localbin/jdk.jar"/>
+	        <jvmarg line="-Xbootclasspath/p:${checker.classpath}"/>
 	        <jvmarg line="-ea"/>
 
 	        <classpath>
-	            <pathelement path="lib/scj.jar"/>
-	            <pathelement path="lib/scj-checker.jar"/>
-	            <pathelement path="${tests.junit}"/>
+	            <pathelement path="${scj.classpath}"/>
+	            <pathelement path="${scj.checker.classpath}"/>
+	            <pathelement path="${junit.classpath}"/>
 	          	<pathelement path="testsuite/build"/>
-	          	<pathelement path="lib/junit-4.7.jar"/>
-	          	<!-- <pathelement path="${build.tests}"/>
-	                 <pathelement path="${tests.junit}"/>
-	                 <pathelement path="${build}"/>-->
 	        </classpath>
 
 	        <formatter type="xml"/>
 	        <formatter type="brief" usefile="false"/>
 
 	        <batchtest todir="${build.reports}">
-	            <fileset dir="${testsuite}/src">
-	                <include name="**/scope/TestExecuteInArea2.java"/>
-	                <exclude name="**/AllTests.java"/>
-
+	            <fileset dir="testsuite/src/">
+                    <include name="tests/*Test.java"/>
 	                <!-- Framework classes -->
-	                <exclude name="**/CheckerTest.java"/>
-	                <exclude name="**/ParameterizedCheckerTest.java"/>
+	                <exclude name="tests/CheckerTest.java"/>
+	                <exclude name="tests/ParameterizedCheckerTest.java"/>
 	            </fileset>
 	        </batchtest>
 	    </junit>
-	</target>
-
-	<target name="test-scope" depends="jar,compile"
-		    description="Run tests for all checkers">
-		<!-- Copied from -run-tests target -->
-		<mkdir dir="${build.reports}"/>
-
-		<junit fork="${run.tests.should.fork}"
-		       dir="${basedir}"
-		       printsummary="true"
-		       haltonfailure="${halt.on.test.failure}">
-		    <jvmarg line="-Xbootclasspath/p:localbin/jsr308-all.jar:localbin/jdk.jar"/>
-		    <jvmarg line="-ea"/>
-
-		    <classpath>
-		        <pathelement path="lib/scj.jar"/>
-		        <pathelement path="lib/scj-checker.jar"/>
-		        <pathelement path="${tests.junit}"/>
-		        <!-- <pathelement path="${build.tests}"/>
-		             <pathelement path="${tests.junit}"/>
-		             <pathelement path="${build}"/>-->
-		    </classpath>
-		    <formatter type="xml"/>
-		    <formatter type="brief" usefile="false"/>
-
-		    <batchtest todir="${build.reports}">
-		        <fileset dir="${testsuite}/src/scope">
-		            <include name="**/*.java"/>
-		            <exclude name="**/AllTests.java"/>
-
-		            <!-- Framework classes -->
-		            <exclude name="**/CheckerTest.java"/>
-		            <exclude name="**/ParameterizedCheckerTest.java"/>
-		        </fileset>
-		    </batchtest>
-		</junit>
 	</target>
 </project>
