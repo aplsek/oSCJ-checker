@@ -245,6 +245,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         for (ExecutableElement e : overrides.values()) {
             String eRunsIn = ctx.getMethodRunsIn(e);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
+            if (eRunsIn == null) {
+                checkMethod(e, trees.getTree(e), errNode);
+                eRunsIn = ctx.getMethodRunsIn(e);
+            }
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
             if (!eRunsIn.equals(runsIn) && eLevel != SUPPORT) {
                 report(Result.failure(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE),
@@ -273,6 +277,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         for (ExecutableElement e : overrides.values()) {
             String eScope = ctx.getMethodScope(e);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
+            if (eScope == null) {
+                checkMethod(e, trees.getTree(e), errNode);
+                eScope = ctx.getMethodScope(e);
+            }
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
             if (!eScope.equals(scope) && eLevel != SUPPORT) {
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
