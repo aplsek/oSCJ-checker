@@ -243,12 +243,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(m);
         for (ExecutableElement e : overrides.values()) {
-            String eRunsIn = ctx.getMethodRunsIn(e);
+            String eRunsIn = getOverloadRunsInAndVisit(e, errNode);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
-            if (eRunsIn == null) {
-                checkMethod(e, trees.getTree(e), errNode);
-                eRunsIn = ctx.getMethodRunsIn(e);
-            }
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
             if (!eRunsIn.equals(runsIn) && eLevel != SUPPORT) {
                 report(Result.failure(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE),
@@ -275,12 +271,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(m);
         for (ExecutableElement e : overrides.values()) {
-            String eScope = ctx.getMethodScope(e);
+            String eScope = getOverloadScopeAndVisit(e, errNode);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
-            if (eScope == null) {
-                checkMethod(e, trees.getTree(e), errNode);
-                eScope = ctx.getMethodScope(e);
-            }
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
             if (!eScope.equals(scope) && eLevel != SUPPORT) {
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
@@ -342,6 +334,24 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             parent = ctx.getClassScope(p);
         }
         return parent;
+    }
+
+    private String getOverloadScopeAndVisit(ExecutableElement m, Tree errNode) {
+        String scope = ctx.getMethodScope(m);
+        if (scope != null) {
+            return scope;
+        }
+        checkMethod(m, trees.getTree(m), errNode);
+        return ctx.getMethodScope(m);
+    }
+
+    private String getOverloadRunsInAndVisit(ExecutableElement m, Tree errNode) {
+        String runsIn = ctx.getMethodRunsIn(m);
+        if (runsIn != null) {
+            return runsIn;
+        }
+        checkMethod(m, trees.getTree(m), errNode);
+        return ctx.getMethodRunsIn(m);
     }
 
     static TypeMirror getArrayBaseType(TypeMirror t) {
