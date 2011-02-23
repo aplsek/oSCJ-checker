@@ -122,6 +122,13 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             }
         }
 
+        for (ExecutableElement c : Utils.constructorsIn(t)) {
+            MethodTree mTree = trees.getTree(c);
+            Tree mErr = (node == errNode) ? mTree : ((mTree == null) ? node
+                    : null);
+            checkMethod(c, mTree, mErr);
+        }
+
         for (ExecutableElement m : Utils.methodsIn(t)) {
             MethodTree mTree = trees.getTree(m);
             Tree mErr = (node == errNode) ? mTree : ((mTree == null) ? node

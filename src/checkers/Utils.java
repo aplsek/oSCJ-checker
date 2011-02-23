@@ -268,6 +268,10 @@ public final class Utils {
         };
     }
 
+    public static List<ExecutableElement> constructorsIn(TypeElement t) {
+        return ElementFilter.constructorsIn(t.getEnclosedElements());
+    }
+
     public static List<ExecutableElement> methodsIn(TypeElement t) {
         return ElementFilter.methodsIn(t.getEnclosedElements());
     }
