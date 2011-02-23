@@ -291,7 +291,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeInfo visitIdentifier(IdentifierTree node, P p) {
         Element elem = TreeUtils.elementFromUse(node);
         if (elem.getKind() == ElementKind.FIELD ||
-                elem.getKind() == ElementKind.LOCAL_VARIABLE) {
+                elem.getKind() == ElementKind.LOCAL_VARIABLE ||
+                elem.getKind() == ElementKind.PARAMETER) {
             String var = node.getName().toString();
             String scope = varScopes.getVariableScope(var);
             return new ScopeInfo(scope);
@@ -362,7 +363,14 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 currentRunsIn = runsIn;
             }
             varScopes.pushBlock();
-            super.visitMethod(node, p);
+            List<? extends VariableTree> params = node.getParameters();
+            String[] paramScopes = ctx.getParameterScopes(method);
+            for (int i = 0; i < paramScopes.length; i++) {
+                varScopes.addVariableScope(params.get(i).getName().toString(),
+                        paramScopes[i]);
+            }
+            node.getBody().accept(this, p);
+            // TODO: make sure we don't need to visit more
             varScopes.popBlock();
         } finally {
             currentRunsIn = oldRunsIn;
