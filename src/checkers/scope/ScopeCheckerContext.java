@@ -30,7 +30,6 @@ public class ScopeCheckerContext {
 
     public ScopeCheckerContext() {
         scopeTree = new ScopeTree();
-        scopeTree.initialize();
         classScopes = new HashMap<String, ClassScopeInfo>();
     }
 

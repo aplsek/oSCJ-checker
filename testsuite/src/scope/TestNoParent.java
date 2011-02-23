@@ -1,7 +1,7 @@
-//tests/scope/TestNoParent.java:26: Scope Definitions are not consistent: 
+//tests/scope/TestNoParent.java:26: Scope Definitions are not consistent:
 //         ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
 //                       ^
-//        Scope *TestVariable* is not defined but is parent to other scope.
+//        Scope scope.MyMission has a non-existent parent TestVariable.
 //1 error
 
 package scope;
@@ -36,5 +36,5 @@ public class TestNoParent extends PeriodicEventHandler {
     public StorageParameters getThreadConfigurationParameters() {
         return null;
     }
-    
+
 }

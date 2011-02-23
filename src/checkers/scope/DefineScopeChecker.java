@@ -12,6 +12,7 @@ public class DefineScopeChecker extends SinglePassChecker {
     public static final String ERR_DUPLICATE_SCOPE_NAME = "duplicate.scope.name";
     public static final String ERR_PRIVATE_MEM_NO_DEFINE_SCOPE = "privateMem.no.DefineScope";
     public static final String ERR_BAD_SCOPE_NAME = "bad.scope.name";
+    public static final String ERR_SCOPE_TREE_NOT_CONSISTENT = "scope.tree.not.consistent";
 
     private ScopeCheckerContext ctx;
 
@@ -30,7 +31,8 @@ public class DefineScopeChecker extends SinglePassChecker {
         p.put(ERR_BAD_SCOPE_NAME, "Reserved scope name used in @DefineScope.");
         p.put(ERR_DUPLICATE_SCOPE_NAME, "Duplicate scope name from @DefineScope.");
         p.put(ERR_CYCLICAL_SCOPES, "Cyclical scope names detected.");
-        p.put(ERR_PRIVATE_MEM_NO_DEFINE_SCOPE, "PrivatemMemory variable must have a @DefineScope annotation.");
+        p.put(ERR_PRIVATE_MEM_NO_DEFINE_SCOPE, "PrivateMemory variable must have a @DefineScope annotation.");
+        p.put(ERR_SCOPE_TREE_NOT_CONSISTENT, "Scope %s has a non-existent parent %s.");
         return p;
     }
 
@@ -38,8 +40,6 @@ public class DefineScopeChecker extends SinglePassChecker {
     public void typeProcessingOver() {
         super.typeProcessingOver();
         ScopeTree scopeTree = ctx.getScopeTree();
-        if (!scopeTree.verifyScopeTree()) {
-            scopeTree.reportErrors(this);
-        }
+        scopeTree.checkScopeTree(this);
     }
 }

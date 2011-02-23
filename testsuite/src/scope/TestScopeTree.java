@@ -1,7 +1,7 @@
-//scope/TestScopeTree.java:25: Scope Definitions are not consistent: 
+//scope/TestScopeTree.java:25: Scope Definitions are not consistent:
 //public class TestScopeTree extends PeriodicEventHandler {
 //       ^
-//        Scope *TestVariable* is not defined but is parent to other scope.
+//        Scope MyHandler has a non-existent parent scope TestVariable.
 //1 error
 
 package scope;

@@ -1,6 +1,6 @@
 package checkers.scope;
 
-import static checkers.scope.ScopeChecker.ERR_SCOPE_TREE_NOT_CONSISTENT;
+import static checkers.scope.DefineScopeChecker.ERR_SCOPE_TREE_NOT_CONSISTENT;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import java.util.ArrayList;
@@ -17,24 +17,14 @@ public class ScopeTree {
     private Map<String, String> scopeTree = null;    // maps child <-> parent
     private Map<String, Tree> scopeMap = null;     // points to a place where each scope is defined
 
-    /**
-     * We store here the errors in case the ScopeTree is not consistent
-     */
-    private List<Error> errors = new ArrayList<Error>();
-    private boolean errorsReported = false;
-
-    public String get(String name) {
-        return scopeTree.get(name);
-    }
-
-    public void initialize() {
+    public ScopeTree() {
         scopeTree = new HashMap<String, String>();
         scopeMap = new HashMap<String, Tree>();
         put(IMMORTAL, "", null);
     }
 
-    public boolean isInitialized() {
-        return scopeTree != null;
+    public String get(String name) {
+        return scopeTree.get(name);
     }
 
     public boolean hasScope(String name) {
@@ -59,7 +49,6 @@ public class ScopeTree {
         if (expectedParent == null)
             return false;
 
-        //printTree();
         if (expectedParent.equals(name)) // if they are the same, its not ancestor
             return false;
 
@@ -82,66 +71,17 @@ public class ScopeTree {
     }
 
     /**
-     * Checks that it forms tree
-     *
-     * @return null if all is ok.
+     * Check that the scope tree is indeed a tree.
      */
-    public boolean verifyScopeTree() {
-        if (errorsReported)
-            return true;
-
-        //printTree();
-
+    public void checkScopeTree(DefineScopeChecker checker) {
         // all parents are DefScope
         for (Map.Entry<String, String> entry : scopeTree.entrySet()) {
-            if (!isDefined(entry.getValue())) {
-                if (entry.getValue().equals("")) // for the case "immortal="
-                    continue;
-                errors.add(new Error("Scope *" + entry.getValue()
-                        + "* is not defined but is parent to other scope.",
-                        scopeMap.get(entry.getKey())));
+            String scope = entry.getKey();
+            String parent = entry.getValue();
+            if (!hasScope(parent) && !scope.equals(IMMORTAL)) {
+                checker.report(Result.failure(ERR_SCOPE_TREE_NOT_CONSISTENT,
+                        scope, parent), scopeMap.get(scope));
             }
-        }
-        /*
-        // all scopes are connected with root
-        for(Map.Entry<String,String> entry : scopeTree.entrySet())
-            if(!connectsWithRoot(entry.getKey())) {
-                if (entry.getValue().equals(""))   // for the case "immortal="
-                    continue;
-                //errors.put("Scopes do not form a tree! Scope " + entry.getValue() + " is not reachable from the Immortal memory!",
-                //        scopeMap.get(entry.getKey()));
-                errors.add(new Error("Scopes do not form a tree! Scope " + entry.getValue() + " is not reachable from the Immortal memory!",
-                               scopeMap.get(entry.getKey())));
-
-                System.out.println("error:" + entry.getKey() + " val:" + entry.getValue());
-            }
-        */
-
-        //also, there should not be any cycles, but this is already checked...
-
-        return errors.isEmpty();
-    }
-
-    private boolean isDefined(String entry) {
-        return scopeTree.containsKey(entry);
-    }
-
-    public void reportErrors(SourceChecker checker) {
-        if (errorsReported)
-            return;
-        errorsReported = true;
-
-        for (Error err: errors)
-            checker.report(Result.failure(ERR_SCOPE_TREE_NOT_CONSISTENT, err.scope), err.node);
-    }
-
-    static class Error {
-        public String scope;
-        public Tree node;
-
-        public Error(String sc, Tree n) {
-            scope = sc;
-            node = n;
         }
     }
 }

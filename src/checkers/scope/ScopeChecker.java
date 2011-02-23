@@ -46,7 +46,6 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_SCOPE_ON_METHOD_PRIMITIVE_RETURN = "scope.on.method.primitive.return";
     public static final String ERR_SCOPE_ON_VOID_METHOD = "scope.on.void.method";
     public static final String ERR_SCOPE_RUNS_IN_DISAGREEMENT = "scope.runs.in.disagreement";
-    public static final String ERR_SCOPE_TREE_NOT_CONSISTENT = "scope.Tree.not.consistent";
     public static final String ERR_STATIC_NOT_IMMORTAL = "static.not.immortal";
     public static final String ERR_TYPE_CAST_BAD_ENTER_PARAMETER = "type.cast.bad.enter.parameter";
     public static final String ERR_UNANNOTATED_CLASS = "unannotated.class";
@@ -127,8 +126,6 @@ public class ScopeChecker extends SinglePassChecker {
                 "A method that returns void cannot have @Scope annotation.");
         p.put(ERR_SCOPE_RUNS_IN_DISAGREEMENT,
                 "@RunsIn annotations must be a sub-scope of @Scope annotations.");
-        p.put(ERR_SCOPE_TREE_NOT_CONSISTENT,
-                "Scope Definitions are not consistent: \n\t%s");
         p.put(ERR_STATIC_NOT_IMMORTAL,
                 "Static fields types must be @Scope(IMMORTAL) or nothing at all.");
         p.put(ERR_UNANNOTATED_CLASS, "Class %s has no @Scope annotation.");
