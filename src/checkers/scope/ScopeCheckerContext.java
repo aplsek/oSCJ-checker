@@ -275,7 +275,6 @@ public class ScopeCheckerContext {
 
     public void setParameterScope(String scope, int i, String clazz,
             String method, String... params) {
-        System.out.println("Setting parameter i of " + method + " to " + scope);
         ClassScopeInfo csi = classScopes.get(clazz);
         String sig = buildSignatureString(method, params);
         MethodScopeInfo msi = csi.methodScopes.get(sig);
