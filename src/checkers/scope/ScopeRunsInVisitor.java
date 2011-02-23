@@ -16,7 +16,6 @@ import java.util.Map;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.Level;
@@ -199,7 +198,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         }
         // Arrays reside in the same scope as their element types, so if this
         // field is an array, reduce it to its base component type.
-        fMir = getArrayBaseType(fMir);
+        fMir = Utils.getArrayBaseType(fMir);
         if (fMir.getKind() != TypeKind.DECLARED) {
             // The field type in here is either a primitive or a primitive
             // array. Only store a field scope if the field was an array.
@@ -359,12 +358,5 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         }
         checkMethod(m, trees.getTree(m), errNode);
         return ctx.getMethodRunsIn(m);
-    }
-
-    static TypeMirror getArrayBaseType(TypeMirror t) {
-        while (t.getKind() == TypeKind.ARRAY) {
-            t = ((ArrayType) t).getComponentType();
-        }
-        return t;
     }
 }

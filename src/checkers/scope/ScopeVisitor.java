@@ -48,7 +48,6 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.RunsIn;
@@ -61,10 +60,10 @@ import checkers.source.Result;
 import checkers.source.SourceChecker;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.types.AnnotatedTypeMirror;
-import checkers.types.AnnotatedTypeMirror.AnnotatedArrayType;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
 import checkers.types.AnnotatedTypeMirror.AnnotatedExecutableType;
 import checkers.types.AnnotatedTypes;
+import checkers.util.InternalUtils;
 import checkers.util.TreeUtils;
 import checkers.util.TypesUtils;
 
@@ -372,12 +371,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             node.getBody().accept(this, p);
             // TODO: make sure we don't need to visit more
             varScopes.popBlock();
+            return null;
         } finally {
             currentRunsIn = oldRunsIn;
+            debugIndentDecrement();
         }
-
-        debugIndentDecrement();
-        return null;
     }
 
     @Override
@@ -395,11 +393,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeInfo visitNewArray(NewArrayTree node, P p) {
         try {
             debugIndentIncrement("visitNewArray");
-            AnnotatedArrayType arrayType = atf.getAnnotatedType(node);
-            arrayType = getAnnotatedArrayType(arrayType);
-            AnnotatedTypeMirror componentType = arrayType.getComponentType();
+            TypeMirror arrayType = InternalUtils.typeOf(node);
+            TypeMirror componentType = Utils.getArrayBaseType(arrayType);
             if (!componentType.getKind().isPrimitive()) {
-                TypeElement t = Utils.getTypeElement(componentType.getUnderlyingType());
+                TypeElement t = Utils.getTypeElement(componentType);
                 String scope = ctx.getClassScope(t);
                 if (!(scope.equals(CURRENT) || scope.equals(currentAllocScope()))) {
                     report(Result.failure(ERR_BAD_ALLOCATION, currentAllocScope(), scope), node);
@@ -471,10 +468,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         debugIndentIncrement("visitTypeCast " + node);
         try {
-            AnnotatedTypeMirror am = atf.fromTypeTree(node.getType());
-            am = getAnnotatedArrayType((AnnotatedArrayType) am);
+            TypeMirror m = InternalUtils.typeOf(node);
+            m = Utils.getArrayBaseType(m);
 
-            TypeElement t = Utils.getTypeElement(am.getUnderlyingType());
+            TypeElement t = Utils.getTypeElement(m);
             String tScope = ctx.getClassScope(t);
             if (CURRENT.equals(tScope)) {
                 return scope;
@@ -610,7 +607,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             debugIndent("expr " + arg);
             // exprScope = scope(var);
 
-            TypeMirror castType = atf.fromTypeTree(((TypeCastTree) arg).getType()).getUnderlyingType();
+            TypeMirror castType = InternalUtils.typeOf(arg);
             argScope = ctx.getClassScope(Utils.getTypeElement(castType));
             argRunsIn = getRunsInFromRunnable(castType);
             // pln("argScope:" + argScope);
@@ -732,13 +729,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             report(Result.failure(ERR_BAD_GUARD_ARGUMENT, arg), node);
             return;
         }
-
     }
 
     private void checkGetMemoryArea(MethodInvocationTree node) {
         // TODO: revisit checking of the "getMemoryArea"!!!!
     }
-
 
     private void checkMethodInvocation(MethodInvocationTree node, P p) {
         ExecutableElement method = TreeUtils.elementFromUse(node);
@@ -776,7 +771,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             break;
         }
     }
-
 
     /**
      * TODO: perhaps move this method to UTILs?
@@ -820,7 +814,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return DEFAULT;
     }
 
-    private void  checkRegularMethodInvocation(MethodInvocationTree node) {
+    private void checkRegularMethodInvocation(MethodInvocationTree node) {
         ExecutableElement method = TreeUtils.elementFromUse(node);
         TypeElement type = Utils.getMethodClass(method);
         String runsIn = ctx.getMethodRunsIn(method);
@@ -913,7 +907,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ExecutableElement methodElem = TreeUtils.elementFromUse(methodExpr);
             AnnotatedExecutableType methodType = atf.getAnnotatedType(methodElem);
             TypeMirror retMirror = methodType.getReturnType().getUnderlyingType();
-            retMirror = getArrayType(retMirror);
+            retMirror = Utils.getArrayBaseType(retMirror);
 
             if (retMirror.getKind().isPrimitive()) {
                 exprScope = null;
@@ -957,8 +951,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             debugIndent("expr " + exprTree);
             // exprScope = scope(var);
 
-            TypeMirror castType = atf.fromTypeTree(((TypeCastTree) exprTree).getType()).getUnderlyingType();
-            castType = getArrayType(castType);
+            TypeMirror castType = InternalUtils.typeOf(exprTree);
+            castType = Utils.getArrayBaseType(castType);
 
             if (castType.getKind().isPrimitive()) {
                 exprScope = returnScope;
@@ -1100,7 +1094,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return TypesUtils.isDeclaredOfName(t.asType(), MEMORY_AREA);
     }
 
-
     private final static String ALLOCATION_CONTEXT = "javax.realtime.AllocationContext";
     private final static String MEMORY_AREA = "javax.realtime.MemoryArea";
     private final static String MANAGED_MEMORY = "javax.safetycritical.ManagedMemory";
@@ -1201,24 +1194,17 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
          *
          * @Scope("Foo") class Foo {....}
          */
-        AnnotatedTypeMirror exprType = atf.getAnnotatedType(var);
-        exprType = getAnnotatedArrayType((AnnotatedArrayType) exprType);
+        TypeMirror exprType = atf.getAnnotatedType(var).getUnderlyingType();
+        exprType = Utils.getArrayBaseType(exprType);
 
         if (exprType.getKind() == TypeKind.DECLARED) {
             // return scope(elements.getTypeElement(exprType.toString()), null);
-            typeScope = ctx.getClassScope((TypeElement) ((AnnotatedDeclaredType) exprType).getUnderlyingType()
-                    .asElement());
+            typeScope = ctx.getClassScope(Utils.getTypeElement(exprType));
         }
 
         if (typeScope != null && varScope != null) {
             if (!typeScope.equals(varScope)) {
                 throw new RuntimeException("error.var.and.type.scope.annotation.mismatch");
-
-                // throw new
-                // ScopeException("ERROR: Variable is annotated with @Scope(" +
-                // varScope +") but" +
-                // "its type is anontated with @Scope("+ typeScope
-                // +"). The scopes must correspond!");
             }
         }
         if (varScope != null)
@@ -1321,26 +1307,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (src != null) {
             checker.report(r, src);
         }
-    }
-
-    /**
-     * stripping of the arrayType to its true type
-     */
-    private static TypeMirror getArrayType(TypeMirror retMirror) {
-        while (retMirror.getKind() == TypeKind.ARRAY) {
-            retMirror = ((ArrayType) retMirror).getComponentType();
-        }
-        return retMirror;
-    }
-
-    /**
-     * stripping of the arrayType to its true type - the same but for AnnotatedArrayType
-     */
-    private static AnnotatedArrayType getAnnotatedArrayType(AnnotatedArrayType arrayType) {
-        while (arrayType.getComponentType().getKind() == TypeKind.ARRAY) {
-            arrayType = (AnnotatedArrayType) arrayType.getComponentType();
-        }
-        return arrayType;
     }
 
     private static Tree getArrayTypeTree(Tree nodeTypeTree) {

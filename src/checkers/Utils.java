@@ -11,7 +11,9 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
@@ -278,5 +280,17 @@ public final class Utils {
 
     public static List<VariableElement> fieldsIn(TypeElement t) {
         return ElementFilter.fieldsIn(t.getEnclosedElements());
+    }
+
+    /**
+     * Get the base component type of an array.
+     * <p>
+     * The base component type of int[][][] is int.
+     */
+    public static TypeMirror getArrayBaseType(TypeMirror t) {
+        while (t.getKind() == TypeKind.ARRAY) {
+            t = ((ArrayType) t).getComponentType();
+        }
+        return t;
     }
 }
