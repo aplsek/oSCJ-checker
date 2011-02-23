@@ -3,13 +3,10 @@ package checkers.scope;
 import static checkers.scope.DefineScopeChecker.ERR_SCOPE_TREE_NOT_CONSISTENT;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import checkers.source.Result;
-import checkers.source.SourceChecker;
 
 import com.sun.source.tree.Tree;
 

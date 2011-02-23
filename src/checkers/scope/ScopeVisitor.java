@@ -54,11 +54,11 @@ import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
+import checkers.SCJVisitor;
 import checkers.Utils;
 import checkers.Utils.SCJ_METHODS;
 import checkers.source.Result;
 import checkers.source.SourceChecker;
-import checkers.source.SourceVisitor;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.types.AnnotatedTypeMirror;
 import checkers.types.AnnotatedTypeMirror.AnnotatedArrayType;
@@ -127,7 +127,7 @@ import com.sun.tools.javac.tree.TreeInfo;
  *
  */
 @SuppressWarnings("restriction")
-public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
+public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private AnnotatedTypeFactory atf;
     private AnnotatedTypes ats;
@@ -431,7 +431,7 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitReturn(ReturnTree node, P p) {
-        debugIndentIncrement(indent + "visit Return:" + node.toString());
+        debugIndentIncrement("visit Return:" + node.toString());
 
         // Don't try to check return expressions for void methods.
         if (node.getExpression() == null)
@@ -641,8 +641,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             argRunsIn = getRunsInFromRunnable(var.asType());
             break;
         case MEMBER_SELECT :
-            pln("\tEXEC: Type cast   ::: bad.enter.parameter");
-
             // TODO:
             Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
             if (tmp.getKind() != ElementKind.FIELD) {
@@ -1046,7 +1044,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         String varScope = null;
         switch (e.getKind()) {
         case IDENTIFIER :
-            pln("\t\t IDENTIFIER : " + e);
             //ExpressionTree expTree = ((MethodInvocationTree) e).getExpression();
             Element elem = TreeUtils.elementFromUse((IdentifierTree) e);
             //Element element = TreeUtils.elementFromUse(expTree);
@@ -1113,7 +1110,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
         while (!TypesUtils.isDeclaredOfName(t.asType(), MANAGED_MEMORY)
                 && !TypesUtils.isObject(t.asType())) {
             for (TypeMirror inter : t.getInterfaces()) {
-                pln("\t \t Interfaces: " + inter);
                 if (inter.toString().equals(ALLOCATION_CONTEXT))
                     return true;
             }
@@ -1342,29 +1338,6 @@ public class ScopeVisitor<P> extends SourceVisitor<ScopeInfo, P> {
             nodeTypeTree = ((ArrayTypeTree) nodeTypeTree).getType();
         }
         return nodeTypeTree;
-    }
-
-    /*
-     * Debug/helper methods
-     */
-
-    private String indent = "";
-
-    private void debugIndentDecrement() {
-        indent = indent.substring(1);
-    }
-
-    private void debugIndentIncrement(String method) {
-        Utils.debugPrintln(indent + method);
-        indent += " ";
-    }
-
-    private void debugIndent(String method) {
-        Utils.debugPrintln(indent + method);
-    }
-
-    static private void pln(String s) {
-        System.out.println(s);
     }
 }
 

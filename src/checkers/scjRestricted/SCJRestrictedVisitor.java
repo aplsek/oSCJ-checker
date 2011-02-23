@@ -2,7 +2,12 @@ package checkers.scjRestricted;
 
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
-import static checkers.scjRestricted.SCJRestrictedChecker.*;
+import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_OVERRIDE;
+import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_OVERRIDE1;
+import static checkers.scjRestricted.SCJRestrictedChecker.ERR_TOO_MANY_VALUES;
+import static checkers.scjRestricted.SCJRestrictedChecker.ERR_UNALLOWED_ALLOCATION;
+import static checkers.scjRestricted.SCJRestrictedChecker.ERR_UNALLOWED_FOREACH;
+import static checkers.scjRestricted.SCJRestrictedChecker.ERR_UNALLOWED_METHODCALL;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,9 +28,9 @@ import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.Phase;
 import javax.safetycritical.annotate.SCJRestricted;
 
+import checkers.SCJVisitor;
 import checkers.Utils;
 import checkers.source.Result;
-import checkers.source.SourceVisitor;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
 import checkers.types.AnnotatedTypes;
@@ -53,7 +58,7 @@ import com.sun.source.tree.VariableTree;
 // 1. No method call may be made from a @BlockFree method to a non @BlockFree method
 
 @SuppressWarnings("restriction")
-public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
+public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
     private AnnotatedTypeFactory atf;
     private AnnotatedTypes       ats;
     private boolean              currentBlockFree    = false;
@@ -515,18 +520,5 @@ public class SCJRestrictedVisitor<R, P> extends SourceVisitor<R, P> {
                 overrides.addAll(orderedOverriddenMethodsInterface(m, ifaceElem));
             }
         }
-    }
-
-    private void debugIndentDecrement() {
-        Utils.decreaseIndent();
-    }
-
-    private void debugIndentIncrement(String method) {
-        Utils.debugPrintln(method);
-        Utils.increaseIndent();
-    }
-
-    private void debugIndent(String method) {
-        Utils.debugPrintln(method);
     }
 }

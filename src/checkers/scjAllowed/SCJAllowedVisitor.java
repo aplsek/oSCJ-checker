@@ -1,14 +1,26 @@
 package checkers.scjAllowed;
 
-import static checkers.scjAllowed.EscapeMap.isEscaped;
-
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
+import static checkers.scjAllowed.EscapeMap.isEscaped;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_HIDDEN_TO_SCJALLOWED;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_ENCLOSED;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_FIELD_ACCESS;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_INFRASTRUCTURE_OVERRIDE;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_METHOD_CALL;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_NEW_CALL;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_OVERRIDE;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_PROTECTED;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_PROTECTED_CALL;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_SUBCLASS;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_SUPPORT;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_USER_LEVEL;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
@@ -17,14 +29,16 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.safetycritical.annotate.SCJAllowed;
+
+import checkers.SCJVisitor;
 import checkers.Utils;
 import checkers.source.Result;
 import checkers.source.SourceChecker;
-import checkers.source.SourceVisitor;
 import checkers.types.AnnotatedTypeFactory;
-import checkers.types.AnnotatedTypes;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
+import checkers.types.AnnotatedTypes;
 import checkers.util.TreeUtils;
+
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ExpressionTree;
@@ -37,8 +51,6 @@ import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
 
-import static checkers.scjAllowed.SCJAllowedChecker.*;
-
 /**
  * Questions: if it is not annotated then its HIDDEN. If is is annotated by
  * SCLAllowed, its LEVEL 0
@@ -46,7 +58,7 @@ import static checkers.scjAllowed.SCJAllowedChecker.*;
  * @author dtang, plsek
  */
 @SuppressWarnings("restriction")
-public class SCJAllowedVisitor<R, P> extends SourceVisitor<R, P> {
+public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     private final AnnotatedTypeFactory atf;
     private final AnnotatedTypes ats;
     private final String pkg;
@@ -133,24 +145,6 @@ public class SCJAllowedVisitor<R, P> extends SourceVisitor<R, P> {
 
         debugIndentDecrement();
         return r;
-    }
-
-
-
-
-
-    private void debugPrint(Tree node) {
-        if (!Utils.DEBUG)
-            return;
-
-        if (scjAllowedStack.isEmpty()) {
-            //System.out.println("Node:" + node.toString());
-            return;
-        }
-
-        int level = scjAllowedStack.pop();
-        scjAllowedStack.push(level);
-
     }
 
     @Override
@@ -433,10 +427,6 @@ public class SCJAllowedVisitor<R, P> extends SourceVisitor<R, P> {
             //System.out.println("elements OUT:" + method.getEnclosingElement().getEnclosedElements());
         }
 
-
-
-
-
         if (isSCJAllowed(method))
             return scjAllowedLevel(method.getAnnotationMirrors());
 
@@ -448,8 +438,6 @@ public class SCJAllowedVisitor<R, P> extends SourceVisitor<R, P> {
                 return scjAllowedLevel(override.getAnnotationMirrors());
             }
         }
-
-
         return getEnclosingLevel(method);
     }
 
@@ -679,20 +667,4 @@ public class SCJAllowedVisitor<R, P> extends SourceVisitor<R, P> {
         else
             return false;
     }
-
-
-
-    private void debugIndentDecrement() {
-        Utils.decreaseIndent();
-    }
-
-    private void debugIndentIncrement(String method) {
-        Utils.debugPrintln(method);
-        Utils.increaseIndent();
-    }
-
-    private void debugIndent(String method) {
-        Utils.debugPrintln(method);
-    }
-
 }

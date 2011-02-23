@@ -26,6 +26,20 @@ public final class Utils {
      */
     public static boolean DEBUG = false;
 
+    private static String indent = "";
+
+    public static void increaseIndent() {
+        indent += " ";
+    }
+
+    public static void decreaseIndent() {
+        indent = indent.substring(1);
+    }
+
+    public static void resetIndent() {
+        indent = "";
+    }
+
     public static void debugPrint(String msg) {
         if (DEBUG) System.err.print(indent + msg);
     }
@@ -35,7 +49,7 @@ public final class Utils {
     }
 
     public static void debugPrintException(Exception e) {
-        System.err.println("\n\n Exception: " + e.getMessage());
+        System.err.println("\n\nException: " + e.getMessage());
     }
 
     public static String annotationValue(Collection<? extends AnnotationMirror> annotations, String annotation) {
@@ -135,16 +149,6 @@ public final class Utils {
      */
     public static TypeElement getTypeElement(TypeMirror mirror) {
         return (TypeElement) ((DeclaredType) mirror).asElement();
-    }
-
-    private static String indent = "";
-
-    public static void increaseIndent() {
-        indent += " ";
-    }
-
-    public static void decreaseIndent() {
-        indent = indent.substring(1);
     }
 
     /**

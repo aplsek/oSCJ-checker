@@ -2,10 +2,13 @@ package checkers.scope;
 
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_LIBRARY_ANNOTATION;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME;
-import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_SCOPE_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE;
+import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_SCOPE_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
+import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Scope.CURRENT;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 import java.util.List;
 import java.util.Map;
@@ -19,14 +22,12 @@ import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
-import static javax.safetycritical.annotate.Level.*;
 import javax.safetycritical.annotate.Scope;
-import static javax.safetycritical.annotate.Scope.*;
 
+import checkers.SCJVisitor;
 import checkers.Utils;
 import checkers.source.Result;
 import checkers.source.SourceChecker;
-import checkers.source.SourceVisitor;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
 import checkers.types.AnnotatedTypes;
@@ -45,7 +46,7 @@ import com.sun.source.tree.VariableTree;
  * with retrieving this information.
  */
 @SuppressWarnings("restriction")
-public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
+public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     private ScopeCheckerContext ctx;
     private ScopeTree scopeTree;
     private AnnotatedTypeFactory atf;
@@ -343,30 +344,4 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
         }
         return t;
     }
-
-
-
-    /*
-     * Debug/helper methods
-     */
-
-    private String indent = "";
-
-    private void debugIndentDecrement() {
-        indent = indent.substring(1);
-    }
-
-    private void debugIndentIncrement(String method) {
-        Utils.debugPrintln(indent + method);
-        indent += " ";
-    }
-
-    private void debugIndent(String method) {
-        Utils.debugPrintln(indent + method);
-    }
-
-    static private void pln(String s) {
-        System.out.println(s);
-    }
-
 }

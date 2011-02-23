@@ -13,18 +13,19 @@ public class TraceChecker extends SourceChecker {
     protected SourceVisitor<?, ?> createSourceVisitor(CompilationUnitTree root) {
         return new TraceVisitor<Void, Void>(this, root);
     }
-    
+
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         Utils.DEBUG = processingEnv.getOptions().containsKey("debug");
         super.init(processingEnv);
     }
 
-    public static class TraceVisitor<R, P> extends SourceVisitor<R, P> {
+    public static class TraceVisitor<R, P> extends SCJVisitor<R, P> {
         public TraceVisitor(SourceChecker checker, CompilationUnitTree root) {
             super(checker, root);
         }
-        
+
+        @Override
         public R visitAnnotatedType(com.sun.source.tree.AnnotatedTypeTree node, P p) {
             try {
                 debugIndentIncrement("visitAnnotatedType");
@@ -33,6 +34,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitAnnotation(com.sun.source.tree.AnnotationTree node, P p) {
             try {
                 debugIndentIncrement("visitAnnotation");
@@ -41,6 +43,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitArrayAccess(com.sun.source.tree.ArrayAccessTree node, P p) {
             try {
                 debugIndentIncrement("visitArrayAccess");
@@ -49,6 +52,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitArrayType(com.sun.source.tree.ArrayTypeTree node, P p) {
             try {
                 debugIndentIncrement("visitArrayType");
@@ -57,6 +61,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitAssert(com.sun.source.tree.AssertTree node, P p) {
             try {
                 debugIndentIncrement("visitAssert");
@@ -65,6 +70,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitAssignment(com.sun.source.tree.AssignmentTree node, P p) {
             try {
                 debugIndentIncrement("visitAssignment");
@@ -73,6 +79,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitBinary(com.sun.source.tree.BinaryTree node, P p) {
             try {
                 debugIndentIncrement("visitBinary");
@@ -81,6 +88,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitBlock(com.sun.source.tree.BlockTree node, P p) {
             try {
                 debugIndentIncrement("visitBlock");
@@ -89,6 +97,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitBreak(com.sun.source.tree.BreakTree node, P p) {
             try {
                 debugIndentIncrement("visitBreak");
@@ -97,6 +106,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitCase(com.sun.source.tree.CaseTree node, P p) {
             try {
                 debugIndentIncrement("visitCase");
@@ -105,6 +115,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitCatch(com.sun.source.tree.CatchTree node, P p) {
             try {
                 debugIndentIncrement("visitCatch");
@@ -113,6 +124,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitClass(com.sun.source.tree.ClassTree node, P p) {
             try {
                 debugIndentIncrement("visitClass " + node.getSimpleName());
@@ -121,6 +133,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitCompilationUnit(CompilationUnitTree node, P p) {
             try {
                 debugIndentIncrement("visitCompilationUnit");
@@ -129,6 +142,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitCompoundAssignment(com.sun.source.tree.CompoundAssignmentTree node, P p) {
             try {
                 debugIndentIncrement("visitCompoundAssignment");
@@ -137,6 +151,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitConditionalExpression(com.sun.source.tree.ConditionalExpressionTree node, P p) {
             try {
                 debugIndentIncrement("visitConditionalExpression");
@@ -145,6 +160,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitContinue(com.sun.source.tree.ContinueTree node, P p) {
             try {
                 debugIndentIncrement("visitContinue");
@@ -153,6 +169,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitDoWhileLoop(com.sun.source.tree.DoWhileLoopTree node, P p) {
             try {
                 debugIndentIncrement("visitDoWhileLoop");
@@ -161,6 +178,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitEmptyStatement(com.sun.source.tree.EmptyStatementTree node, P p) {
             try {
                 debugIndentIncrement("visitEmptyStatement");
@@ -169,6 +187,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitEnhancedForLoop(com.sun.source.tree.EnhancedForLoopTree node, P p) {
             try {
                 debugIndentIncrement("visitEnhancedForLoop");
@@ -177,6 +196,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitErroneous(com.sun.source.tree.ErroneousTree node, P p) {
             try {
                 debugIndentIncrement("visitErroneous");
@@ -185,6 +205,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitExpressionStatement(com.sun.source.tree.ExpressionStatementTree node, P p) {
             try {
                 debugIndentIncrement("visitExpressionStatement");
@@ -193,6 +214,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitForLoop(com.sun.source.tree.ForLoopTree node, P p) {
             try {
                 debugIndentIncrement("visitForLoop");
@@ -201,6 +223,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitIdentifier(com.sun.source.tree.IdentifierTree node, P p) {
             try {
                 debugIndentIncrement("visitIdentifier");
@@ -209,6 +232,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitIf(com.sun.source.tree.IfTree node, P p) {
             try {
                 debugIndentIncrement("visitIf");
@@ -217,6 +241,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitImport(com.sun.source.tree.ImportTree node, P p) {
             try {
                 debugIndentIncrement("visitImport");
@@ -225,6 +250,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitInstanceOf(com.sun.source.tree.InstanceOfTree node, P p) {
             try {
                 debugIndentIncrement("visitInstanceOf");
@@ -233,6 +259,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitLabeledStatement(com.sun.source.tree.LabeledStatementTree node, P p) {
             try {
                 debugIndentIncrement("visitLabeledStatement");
@@ -241,6 +268,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitLiteral(com.sun.source.tree.LiteralTree node, P p) {
             try {
                 debugIndentIncrement("visitLiteral");
@@ -249,6 +277,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitMemberSelect(com.sun.source.tree.MemberSelectTree node, P p) {
             try {
                 debugIndentIncrement("visitMemberSelect");
@@ -257,6 +286,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitMethod(com.sun.source.tree.MethodTree node, P p) {
             try {
                 debugIndentIncrement("visitMethod");
@@ -265,6 +295,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitMethodInvocation(com.sun.source.tree.MethodInvocationTree node, P p) {
             try {
                 debugIndentIncrement("visitMethodInvocation");
@@ -273,6 +304,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitModifiers(com.sun.source.tree.ModifiersTree node, P p) {
             try {
                 debugIndentIncrement("visitModifiers");
@@ -281,6 +313,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitNewArray(com.sun.source.tree.NewArrayTree node, P p) {
             try {
                 debugIndentIncrement("visitNewArray");
@@ -289,6 +322,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitNewClass(com.sun.source.tree.NewClassTree node, P p) {
             try {
                 debugIndentIncrement("visitNewClass");
@@ -297,6 +331,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitOther(com.sun.source.tree.Tree node, P p) {
             try {
                 debugIndentIncrement("visitOther");
@@ -305,6 +340,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitParameterizedType(com.sun.source.tree.ParameterizedTypeTree node, P p) {
             try {
                 debugIndentIncrement("visitParameterizedType");
@@ -313,6 +349,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitParenthesized(com.sun.source.tree.ParenthesizedTree node, P p) {
             try {
                 debugIndentIncrement("visitParenthesized");
@@ -321,6 +358,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitPrimitiveType(com.sun.source.tree.PrimitiveTypeTree node, P p) {
             try {
                 debugIndentIncrement("visitPrimitiveType");
@@ -329,6 +367,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitReturn(com.sun.source.tree.ReturnTree node, P p) {
             try {
                 debugIndentIncrement("visitReturn");
@@ -337,6 +376,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitSwitch(com.sun.source.tree.SwitchTree node, P p) {
             try {
                 debugIndentIncrement("visitSwitch");
@@ -345,6 +385,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitSynchronized(com.sun.source.tree.SynchronizedTree node, P p) {
             try {
                 debugIndentIncrement("visitSynchronized");
@@ -353,6 +394,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitThrow(com.sun.source.tree.ThrowTree node, P p) {
             try {
                 debugIndentIncrement("visitThrow");
@@ -361,6 +403,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitTry(com.sun.source.tree.TryTree node, P p) {
             try {
                 debugIndentIncrement("visitTry");
@@ -369,6 +412,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitTypeCast(com.sun.source.tree.TypeCastTree node, P p) {
             try {
                 debugIndentIncrement("visitTypeCast");
@@ -377,6 +421,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitTypeParameter(com.sun.source.tree.TypeParameterTree node, P p) {
             try {
                 debugIndentIncrement("visitTypeParameter");
@@ -385,6 +430,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitUnary(com.sun.source.tree.UnaryTree node, P p) {
             try {
                 debugIndentIncrement("visitUnary");
@@ -393,6 +439,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitVariable(com.sun.source.tree.VariableTree node, P p) {
             try {
                 debugIndentIncrement("visitVariable");
@@ -401,6 +448,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitWhileLoop(com.sun.source.tree.WhileLoopTree node, P p) {
             try {
                 debugIndentIncrement("visitWhileLoop");
@@ -409,6 +457,7 @@ public class TraceChecker extends SourceChecker {
                 debugIndentDecrement();
             }
         }
+        @Override
         public R visitWildcard(com.sun.source.tree.WildcardTree node, P p) {
             try {
                 debugIndentIncrement("visitWildcard");
@@ -416,17 +465,6 @@ public class TraceChecker extends SourceChecker {
             } finally {
                 debugIndentDecrement();
             }
-        }
-
-        private String indent = "";
-
-        private void debugIndentDecrement() {
-            indent = indent.substring(1);
-        }
-
-        private void debugIndentIncrement(String method) {
-            Utils.debugPrintln(indent + method);
-            indent += " ";
         }
     }
 }
