@@ -2,11 +2,10 @@ package checkers.scjRestricted;
 
 import java.util.Properties;
 
-import com.sun.source.tree.CompilationUnitTree;
-
 import checkers.SinglePassChecker;
-import checkers.source.SourceChecker;
 import checkers.source.SourceVisitor;
+
+import com.sun.source.tree.CompilationUnitTree;
 
 @SuppressWarnings("restriction")
 public class SCJRestrictedChecker extends SinglePassChecker {
