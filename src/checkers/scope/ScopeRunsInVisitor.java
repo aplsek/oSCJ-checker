@@ -87,7 +87,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
     void checkClassScope(TypeElement t, ClassTree node, Tree errNode) {
         debugIndentIncrement("checkClassScope : " + node);
         debugIndent("class type: " + t);
-
+        
         String scope = scopeOfClassDefinition(t);
         if (!scopeTree.hasScope(scope) && !scope.equals(CURRENT)) {
             fail(ERR_BAD_SCOPE_NAME, node, errNode);
@@ -141,13 +141,13 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
         if (t.getAnnotation(RunsIn.class) != null) {
             fail(ERR_RUNS_IN_ON_CLASS, node, errNode);
         }
-
+        
         debugIndentDecrement();
     }
 
     void checkMethod(ExecutableElement m, MethodTree mTree, Tree mErr) {
         debugIndentIncrement("checkMethod : " + m);
-
+        
         checkMethodScope(m, mTree, mErr);
         checkMethodRunsIn(m, mTree, mErr);
         List<? extends VariableElement> params = m.getParameters();
@@ -181,7 +181,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
     String checkVariableScopeOverride(VariableElement f, Tree node, Tree errNode) {
         debugIndentIncrement("checkVariableScopeOverride : " + f);
         debugIndent("node : " + node);
-
+        
         TypeMirror fMir = f.asType();
         Scope s = f.getAnnotation(Scope.class);
         String scope = CURRENT;
@@ -193,6 +193,11 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
         // field is an array, reduce it to its base component type.
         fMir = getArrayBaseType(fMir);
         if (fMir.getKind() != TypeKind.DECLARED) {
+            debugIndent("set-array :" + fMir);
+            debugIndent("------>>>");
+            debugIndent("ret/tScope :" + f.asType());
+            debugIndent("scope :" + scope);
+            
             // The field type in here is either a primitive or a primitive
             // array. Only store a field scope if the field was an array.
             if (fMir != f.asType()) {
@@ -343,9 +348,9 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
         }
         return t;
     }
-
-
-
+    
+    
+    
     /*
      * Debug/helper methods
      */
@@ -368,5 +373,5 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
     static private void pln(String s) {
         System.out.println(s);
     }
-
+    
 }
