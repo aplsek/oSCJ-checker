@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -25,12 +26,11 @@ public final class TestUtilities {
     /**
      * Checks if the given file is a java test file not to be ignored.
      *
-     * Returns true if it is a file and does not contain
-     * {@code @skip-test} in the declaration comment of the file.
+     * Returns true if it is a file and does not contain {@code @skip-test} in
+     * the declaration comment of the file.
      */
     public static boolean isJavaTestFile(File file) {
-        if (!isJavaFile(file))
-            return false;
+        if (!isJavaFile(file)) return false;
         Scanner in = null;
         try {
             in = new Scanner(file);
@@ -39,32 +39,27 @@ public final class TestUtilities {
         }
         while (in.hasNext()) {
             String nextLine = in.nextLine();
-            if (nextLine.contains("@skip-test"))
-                return false;
-            if (nextLine.contains("class")
-                    || nextLine.contains("interface")
-                    || nextLine.contains("enum"))
-                break;
+            if (nextLine.contains("@skip-test")) return false;
+            if (nextLine.contains("class") || nextLine.contains("interface")
+                    || nextLine.contains("enum")) break;
         }
         return true;
     }
 
     /**
-     * Returns true if the compilation associated with the given expected
-     * output should succeed without any errors.
+     * Returns true if the compilation associated with the given expected output
+     * should succeed without any errors.
      *
-     * In particular, it returns true if the expected file doesn't exist,
-     * or all the found errors are warnings.
+     * In particular, it returns true if the expected file doesn't exist, or all
+     * the found errors are warnings.
      */
     public static boolean shouldSucceed(File expectedFile) {
-        if (!expectedFile.exists())
-            return true;
+        if (!expectedFile.exists()) return true;
         // Check if expectedFile has any errors
         try {
             Scanner in = new Scanner(new FileReader(expectedFile));
             while (in.hasNextLine()) {
-                if (!in.nextLine().contains("warning"))
-                    return false;
+                if (!in.nextLine().contains("warning")) return false;
             }
             return true;
         } catch (Exception e) {
@@ -78,13 +73,13 @@ public final class TestUtilities {
      */
     public static List<File> enclosedJavaTestFiles(File directory) {
         if (!directory.isDirectory())
-            throw new IllegalArgumentException("file not directory: " + directory);
+            throw new IllegalArgumentException("file not directory: "
+                    + directory);
 
         List<File> javaFiles = new ArrayList<File>();
 
         for (File file : directory.listFiles()) {
-            if (isJavaTestFile(file))
-                javaFiles.add(file);
+            if (isJavaTestFile(file)) javaFiles.add(file);
         }
 
         return javaFiles;
@@ -95,15 +90,15 @@ public final class TestUtilities {
      */
     public static List<File> deeplyEnclosedJavaTestFiles(File directory) {
         if (!directory.isDirectory())
-            throw new IllegalArgumentException("file not directory: " + directory);
+            throw new IllegalArgumentException("file not directory: "
+                    + directory);
 
         List<File> javaFiles = new ArrayList<File>();
 
         for (File file : directory.listFiles()) {
             if (file.isDirectory())
                 javaFiles.addAll(deeplyEnclosedJavaTestFiles(file));
-            else if (isJavaTestFile(file))
-                javaFiles.add(file);
+            else if (isJavaTestFile(file)) javaFiles.add(file);
         }
 
         return javaFiles;
@@ -121,6 +116,24 @@ public final class TestUtilities {
                     int errorLine = reader.getLineNumber() + 1;
                     String msg = line.replace("//::", ":" + errorLine + ":");
                     expected.add(msg);
+                } else if (line.startsWith("//##")) {
+                    int errorLine = reader.getLineNumber() + 1;
+                    String key = line.substring(4).trim();
+                    int fieldSep = key.lastIndexOf(".");
+                    String clazz = key.substring(0, fieldSep);
+                    String field = key.substring(fieldSep + 1);
+                    try {
+                        Class<?> c = Class.forName(clazz);
+                        Field f = c.getField(field);
+                        Object o = f.get(null);
+                        String msg = ":" + errorLine + ": (" + o + ")";
+                        expected.add(msg);
+                    } catch (Exception e) {
+                        String msg = ":" + errorLine + ": "
+                                + e.getClass().getName()
+                                + " occured while loading error message";
+                        expected.add(msg);
+                    }
                 }
             }
         } catch (IOException e) {
