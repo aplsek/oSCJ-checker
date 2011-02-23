@@ -85,6 +85,9 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
      * Scope(CURRENT).
      */
     void checkClassScope(TypeElement t, ClassTree node, Tree errNode) {
+        debugIndentIncrement("checkClassScope : " + node);
+        debugIndent("class type: " + t);
+        
         String scope = scopeOfClassDefinition(t);
         if (!scopeTree.hasScope(scope) && !scope.equals(CURRENT)) {
             fail(ERR_BAD_SCOPE_NAME, node, errNode);
@@ -138,9 +141,13 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
         if (t.getAnnotation(RunsIn.class) != null) {
             fail(ERR_RUNS_IN_ON_CLASS, node, errNode);
         }
+        
+        debugIndentDecrement();
     }
 
     void checkMethod(ExecutableElement m, MethodTree mTree, Tree mErr) {
+        debugIndentIncrement("checkMethod : " + m);
+        
         checkMethodScope(m, mTree, mErr);
         checkMethodRunsIn(m, mTree, mErr);
         List<? extends VariableElement> params = m.getParameters();
@@ -155,6 +162,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
                 ctx.setParameterScope(scope, i, m);
             }
         }
+        debugIndentDecrement();
     }
 
     /**
@@ -171,6 +179,9 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
      * type of their basic element type.
      */
     String checkVariableScopeOverride(VariableElement f, Tree node, Tree errNode) {
+        debugIndentIncrement("checkVariableScopeOverride : " + f);
+        debugIndent("node : " + node);
+        
         TypeMirror fMir = f.asType();
         Scope s = f.getAnnotation(Scope.class);
         String scope = CURRENT;
@@ -193,7 +204,7 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
         } else {
             TypeElement t = Utils.getTypeElement(fMir);
             String tScope = ctx.getClassScope(t);
-            if (scope == null) {
+            if (tScope == null) {
                 checkClassScope(t, trees.getTree(t), errNode);
             }
             tScope = ctx.getClassScope(t);
@@ -201,12 +212,18 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
                 ret = scope;
             } else {
                 ret = tScope;
+                
+                debugIndent("------>>>");
+                debugIndent("ret/tScope :" + ret);
+                debugIndent("scope :" + scope);
+                
                 if (scope != null && !scope.equals(tScope)) {
                     report(Result.warning(ERR_ILLEGAL_SCOPE_OVERRIDE), node,
                             errNode);
                 }
             }
         }
+        debugIndentDecrement();
         return ret;
     }
 
@@ -327,4 +344,30 @@ public class ScopeRunsInVisitor extends SourceVisitor<Void, Void> {
         }
         return t;
     }
+    
+    
+    
+    /*
+     * Debug/helper methods
+     */
+
+    private String indent = "";
+
+    private void debugIndentDecrement() {
+        indent = indent.substring(1);
+    }
+
+    private void debugIndentIncrement(String method) {
+        Utils.debugPrintln(indent + method);
+        indent += " ";
+    }
+
+    private void debugIndent(String method) {
+        Utils.debugPrintln(indent + method);
+    }
+
+    static private void pln(String s) {
+        System.out.println(s);
+    }
+    
 }
