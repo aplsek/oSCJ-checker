@@ -313,12 +313,12 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         }
     }
 
-    void fail(String s, Tree n, Tree e) {
-        report(Result.failure(s), n, e);
+    void fail(String msg, Tree src, Tree err, Object... msgParams) {
+        report(Result.failure(msg, msgParams), src, err);
     }
 
-    void warn(String s, Tree n, Tree e) {
-        report(Result.warning(s), n, e);
+    void warn(String msg, Tree src, Tree err, Object... msgParams) {
+        report(Result.warning(msg, msgParams), src, err);
     }
 
     private static String scopeOfClassDefinition(TypeElement t) {
