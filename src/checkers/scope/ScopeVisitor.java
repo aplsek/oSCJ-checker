@@ -208,11 +208,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitClass(ClassTree node, P p) {
-        debugIndentIncrement("\nvisitClass " + node.getSimpleName());
-        debugIndent("\nvisitClass :" + TreeUtils.elementFromDeclaration(node).getQualifiedName());
+        debugIndentIncrement("visitClass " + node.getSimpleName());
+        debugIndent("visitClass :" + TreeUtils.elementFromDeclaration(node).getQualifiedName());
 
         if (escapeEnum(node) || escapeAnnotation(node)) {
-            debugIndent("\nvisitClass : escaping the Class. ");
+            debugIndent("visitClass : escaping the Class. ");
             debugIndentDecrement();
             return null;
         }
@@ -455,7 +455,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (returnScope == null || !returnScope.equals(UNKNOWN))
             checkReturnScope(node.getExpression(), node, returnScope);
 
-        debugIndent("\n\n");
+        debugIndent("\n");
         debugIndentDecrement();
         return super.visitReturn(node, p);
     }

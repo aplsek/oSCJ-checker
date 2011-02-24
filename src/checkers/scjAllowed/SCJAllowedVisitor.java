@@ -94,7 +94,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      */
     @Override
     public R visitClass(ClassTree node, P p) {
-        debugIndentIncrement("\nvisitClass " + node.getSimpleName());
+        debugIndentIncrement("visitClass " + node.getSimpleName());
 
         TypeElement t = TreeUtils.elementFromDeclaration(node);
 
@@ -171,7 +171,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      */
     @Override
     public R visitMethod(MethodTree node, P p) {
-        debugIndentIncrement("\nvisitMethod " + node.getName());
+        debugIndentIncrement("visitMethod " + node.getName());
 
         ExecutableElement methodElement = TreeUtils
         .elementFromDeclaration(node);
@@ -187,7 +187,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         else
             level = scjAllowedLevel(methodElement, node);
 
-        debugIndent("\nchecking overrides ---------------------");
+        debugIndent("checking overrides ---------------------");
 
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(methodElement);
@@ -258,7 +258,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
     @Override
     public R visitMethodInvocation(MethodInvocationTree node, P p) {
-        debugIndentIncrement("\nvisit method invocation :" + node);
+        debugIndentIncrement("visit method invocation :" + node);
 
         ExecutableElement method = TreeUtils.elementFromUse(node);
 

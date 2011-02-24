@@ -8,7 +8,6 @@ import checkers.source.SourceVisitor;
 public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     public SCJVisitor(SourceChecker checker, CompilationUnitTree root) {
         super(checker, root);
-        Utils.resetIndent();
     }
 
     protected void debugIndentDecrement() {

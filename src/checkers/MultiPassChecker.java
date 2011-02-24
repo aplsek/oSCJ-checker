@@ -33,6 +33,7 @@ public class MultiPassChecker extends SourceChecker {
     @Override
     public void typeProcessingOver() {
         for (SinglePassChecker c : checkers) {
+            Utils.debugPrintln("Checker pass: " + c.getClass().getSimpleName());
             for (Map.Entry<TypeElement, TreePath> e : types.entrySet()) {
                 c.typeProcess(e.getKey(), e.getValue());
             }
@@ -40,6 +41,7 @@ public class MultiPassChecker extends SourceChecker {
             if (c.hasErrors()) {
                 break;
             }
+            Utils.resetDebugIndent();
         }
     }
 

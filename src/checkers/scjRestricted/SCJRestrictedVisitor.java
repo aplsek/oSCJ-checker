@@ -177,11 +177,7 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
      */
     @Override
     public R visitClass(ClassTree node, P p) {
-        //System.out.println("class:\n" + node);
-
-        //System.out.println("class:\n" + node.getMembers());
-
-        debugIndentIncrement("\nvisitClass " + node.getSimpleName() );
+        debugIndentIncrement("visitClass " + node.getSimpleName());
         if (escapeEnum(node) || escapeAnnotation(node)) {
             debugIndentDecrement();
             return null;
@@ -203,14 +199,10 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
 
     @Override
     public R visitAssignment(AssignmentTree node, P p) {
-        debugIndentIncrement("\n visit assignment " + node );
+        debugIndentIncrement("visit assignment " + node);
 
         // TODO: need to check for string concatenation
         if (currentAllocFree) {
-
-            //System.out.println("\n visit assignment " + node);
-            //System.out.println("\n variable " + node.getVariable());
-
             if (node.getVariable().getKind() == Kind.ARRAY_ACCESS) {
                 //TODO:
                 //System.out.println("\n visit assignment " + node);
@@ -264,7 +256,7 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
 
     @Override
     public R visitMethod(MethodTree node, P p) {
-        debugIndentIncrement("\n visitMethod " + node);
+        debugIndentIncrement("visitMethod " + node.getName());
 
         ExecutableElement m = TreeUtils.elementFromDeclaration(node);
         EnumSet<Phase> rs = getSCJRestrictions(m, node);
@@ -388,7 +380,7 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
 
     @Override
     public R visitMethodInvocation(MethodInvocationTree node, P p) {
-        debugIndentIncrement("\n visitMethodInvocation " + node);
+        debugIndentIncrement("visitMethodInvocation " + node);
 
         ExecutableElement methodElement = TreeUtils.elementFromUse(node);
         EnumSet<Phase> rs = getSCJRestrictions(methodElement, null);

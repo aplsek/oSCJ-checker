@@ -38,7 +38,7 @@ public final class Utils {
         indent = indent.substring(1);
     }
 
-    public static void resetIndent() {
+    public static void resetDebugIndent() {
         indent = "";
     }
 
@@ -48,10 +48,6 @@ public final class Utils {
 
     public static void debugPrintln(String msg) {
         if (DEBUG) System.err.println(indent + msg);
-    }
-
-    public static void debugPrintException(Exception e) {
-        System.err.println("\n\nException: " + e.getMessage());
     }
 
     public static String annotationValue(Collection<? extends AnnotationMirror> annotations, String annotation) {
