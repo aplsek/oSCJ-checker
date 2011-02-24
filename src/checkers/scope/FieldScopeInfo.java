@@ -1,8 +1,8 @@
 package checkers.scope;
 
 public class FieldScopeInfo extends ScopeInfo {
-    private String receiverScope;
-    private String fieldScope;
+    private final String receiverScope;
+    private final String fieldScope;
 
     public FieldScopeInfo(String scope, String receiverScope,
             String fieldScope) {

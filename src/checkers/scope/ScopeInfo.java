@@ -3,7 +3,7 @@ package checkers.scope;
 import javax.safetycritical.annotate.Scope;
 
 public class ScopeInfo {
-    private String scope;
+    private final String scope;
 
     public ScopeInfo(String scope) {
         this.scope = scope;
@@ -11,10 +11,6 @@ public class ScopeInfo {
 
     public String getScope() {
         return scope;
-    }
-
-    public void setScope(String scope) {
-        this.scope = scope;
     }
 
     public boolean isCurrent() {
