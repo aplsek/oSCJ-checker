@@ -84,9 +84,12 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      * Scope(CURRENT).
      */
     void checkClassScope(TypeElement t, ClassTree node, Tree errNode) {
-        debugIndentIncrement("checkClassScope : " + node);
-        debugIndent("class type: " + t);
-
+        debugIndentIncrement("checkClassScope: " + t);
+        if (ctx.getClassScope(t) != null) {
+            // Already visited or is in the process of being visited
+            debugIndentDecrement();
+            return;
+        }
         String scope = scopeOfClassDefinition(t);
         if (!scopeTree.hasScope(scope) && !scope.equals(CURRENT)) {
             fail(ERR_BAD_SCOPE_NAME, node, errNode);
@@ -122,22 +125,19 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
         for (ExecutableElement c : Utils.constructorsIn(t)) {
             MethodTree mTree = trees.getTree(c);
-            Tree mErr = (node == errNode) ? mTree : ((mTree == null) ? node
-                    : null);
+            Tree mErr = mTree != null ? mTree : errNode;
             checkMethod(c, mTree, mErr);
         }
 
         for (ExecutableElement m : Utils.methodsIn(t)) {
             MethodTree mTree = trees.getTree(m);
-            Tree mErr = (node == errNode) ? mTree : ((mTree == null) ? node
-                    : null);
+            Tree mErr = mTree != null ? mTree : errNode;
             checkMethod(m, mTree, mErr);
         }
 
         for (VariableElement f : Utils.fieldsIn(t)) {
             Tree fTree = trees.getTree(f);
-            Tree fErr = (node == errNode) ? fTree : ((fTree == null) ? node
-                    : null);
+            Tree fErr = fTree != null ? fTree : errNode;
             String fScope = checkVariableScopeOverride(f, fTree, fErr);
             if (fScope != null) {
                 ctx.setFieldScope(fScope, f);
@@ -151,11 +151,16 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         debugIndentDecrement();
     }
 
-    void checkMethod(ExecutableElement m, MethodTree mTree, Tree mErr) {
-        debugIndentIncrement("checkMethod : " + m);
+    void checkMethod(ExecutableElement m, MethodTree mTree, Tree errNode) {
+        debugIndentIncrement("checkMethod: " + m);
 
-        checkMethodScope(m, mTree, mErr);
-        checkMethodRunsIn(m, mTree, mErr);
+        if (ctx.getMethodRunsIn(m) != null) {
+            // Already visited or in the process of being visited
+            debugIndentDecrement();
+            return;
+        }
+        checkMethodScope(m, mTree, errNode);
+        checkMethodRunsIn(m, mTree, errNode);
         List<? extends VariableElement> params = m.getParameters();
         List<? extends VariableTree> paramTrees = mTree != null ? mTree
                 .getParameters() : null;
@@ -163,7 +168,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             VariableElement param = params.get(i);
             VariableTree paramTree = paramTrees != null ? paramTrees.get(i)
                     : null;
-            String scope = checkVariableScopeOverride(param, paramTree, mErr);
+            String scope = checkVariableScopeOverride(param, paramTree, errNode);
             if (scope != null) {
                 ctx.setParameterScope(scope, i, m);
             }
@@ -185,8 +190,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      * type of their basic element type.
      */
     String checkVariableScopeOverride(VariableElement f, Tree node, Tree errNode) {
-        debugIndentIncrement("checkVariableScopeOverride : " + f);
-        debugIndent("node : " + node);
+        debugIndentIncrement("checkVariableScopeOverride: " + f);
 
         TypeMirror fMir = f.asType();
         Scope s = f.getAnnotation(Scope.class);
@@ -287,40 +291,33 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
     /**
      * Report the proper error from the context of the current check method.
-     * Each check method may be invoked on three categories of methods:
+     * Each check method may be invoked on two categories of items:
      * <ol>
-     * <li>A method in the currently visited class. We analyze this in full and
-     * report any errors we find.
-     * <li>A method in a parent class or interface of the currently visited
-     * class, which is also in user code (aka not a library). We don't report
-     * any errors here, because the class will eventually be visited.
-     * <li>A method in a parent class or interface of the currently visited
-     * class, which is in a library. Since there is no source for these, it is
-     * impossible to report errors on the AST of these classes. Therefore, we
-     * report that a library is badly annotated, rather than the actual error.
+     * <li>A code element that is in the compiled set of files (aka has source).
+     * We analyze this in full and report any errors we find.
+     * <li>A code element that is in a library. Since there is no source for
+     * these, it is impossible to report errors on the AST of these classes.
+     * Therefore, we report that a library is badly annotated, rather than the
+     * actual error.
      * </ol>
      */
     void report(Result r, Tree node, Tree errNode) {
-        if (node == errNode) {
+        if (node != null) {
             // Current item being visited. Report the error as usual.
             checker.report(r, errNode);
-        } else if (node == null) {
+        } else {
             // Current item is something from a library. Can't put an error on
             // it, so put an error on the node being visited stating that
             // something from the parent class or interface is broken.
             checker.report(Result.failure(ERR_BAD_LIBRARY_ANNOTATION), errNode);
         }
-        // The case where node != null is omitted. This is where the current
-        // item is not what we're visiting, but still has an AST and is
-        // therefore part of the code being compiled. The code will be visited
-        // later on and the errors will be reported then.
     }
 
     void fail(String s, Tree n, Tree e) {
         report(Result.failure(s), n, e);
     }
 
-    void warn(String s, ClassTree n, Tree e) {
+    void warn(String s, Tree n, Tree e) {
         report(Result.warning(s), n, e);
     }
 
@@ -331,7 +328,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
     private String getParentScopeAndVisit(TypeElement p, ClassTree node) {
         String parent = ctx.getClassScope(p);
-        if (parent == null) { // check the parent, and ad it's scope to ctx
+        if (parent == null) {
             checkClassScope(p, trees.getTree(p), node);
             parent = ctx.getClassScope(p);
         }
