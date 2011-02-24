@@ -36,6 +36,7 @@ import static javax.safetycritical.annotate.Scope.CURRENT;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -295,6 +296,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             String var = node.getName().toString();
             String scope = varScopes.getVariableScope(var);
             return new ScopeInfo(scope);
+        } else if (elem.getKind() == ElementKind.METHOD) {
+            // If an identifier gets visited and its element is a method, then
+            // it is part of a MethodInvocationTree as the method select. It's
+            // either a static method, in which case there is no receiver
+            // object, or it's an instance method invoked on the current
+            // object, in which case it is implicitly invoked on "this". We
+            // return the scope of "this", which will be discarded if the
+            // method being invoked is static.
+            return new ScopeInfo(varScopes.getVariableScope("this"));
         }
         return super.visitIdentifier(node, p);
     }
@@ -323,8 +333,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         try {
             debugIndentIncrement("visitMemberSelect: " + node.toString());
-            if (elem.getKind() != ElementKind.FIELD) {
-                return null; // Part of a method invocation
+            // TODO: Does Class.this work?
+            if (elem.getKind() == ElementKind.METHOD) {
+                // If a MemberSelectTree is not a field, then it is a method
+                // that is part of a MethodInvocationTree. In this case, we
+                // want to return the scope of the receiver object so that
+                // visitMethodInvocation has its scope.
+                return node.getExpression().accept(this, p);
             }
             VariableElement f = (VariableElement) elem;
             String fScope = ctx.getFieldScope(f);
@@ -363,10 +378,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             }
             varScopes.pushBlock();
             List<? extends VariableTree> params = node.getParameters();
-            String[] paramScopes = ctx.getParameterScopes(method);
-            for (int i = 0; i < paramScopes.length; i++) {
+            List<String> paramScopes = ctx.getParameterScopes(method);
+            for (int i = 0; i < paramScopes.size(); i++) {
                 varScopes.addVariableScope(params.get(i).getName().toString(),
-                        paramScopes[i]);
+                        paramScopes.get(i));
             }
             node.getBody().accept(this, p);
             // TODO: make sure we don't need to visit more
@@ -382,8 +397,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeInfo visitMethodInvocation(MethodInvocationTree node, P p) {
         try {
             debugIndentIncrement("visitMethodInvocation");
-            ScopeInfo scope = checkMethodInvocation(node, p);
-            super.visitMethodInvocation(node, p);
+            ExecutableElement m = TreeUtils.elementFromUse(node);
+            List<? extends ExpressionTree> args = node.getArguments();
+            List<ScopeInfo> argScopes = new ArrayList<ScopeInfo>(args.size());
+            for (int i = 0; i < args.size(); i++) {
+                argScopes.set(i, args.get(i).accept(this, p));
+            }
+            ScopeInfo recvScope = node.getMethodSelect().accept(this, p);
+            ScopeInfo scope = checkMethodInvocation(m, recvScope, argScopes,
+                    node);
             return scope;
         } finally {
             debugIndentDecrement();
@@ -731,20 +753,17 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return scope;
     }
 
-    private ScopeInfo checkMethodInvocation(MethodInvocationTree node, P p) {
-        ExecutableElement method = TreeUtils.elementFromUse(node);
-
+    private ScopeInfo checkMethodInvocation(ExecutableElement m,
+            ScopeInfo recvScope, List<ScopeInfo> argScopes,
+            MethodInvocationTree node) {
         ScopeInfo scope = null;
 
-        // Ignore constructors, since they should be type checked by the class
-        // visitation anyway.
-        if (method.getSimpleName().toString().startsWith("<init>")) {
-            // TODO: ignore constructors!!!
-            return scope;
-        }
+        String ret = ctx.getMethodScope(m);
+        String runsIn = ctx.getMethodRunsIn(m);
+        checkMethodRunsIn(m, recvScope, runsIn, node);
+        checkMethodParameters(m, argScopes, node);
 
-
-        switch(compareName(method)) {
+        switch(compareName(m)) {
         case ENTER_PRIVATE_MEMORY:
             scope = checkEnterPrivateMemory(node);
             break;
@@ -772,6 +791,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         return scope;
+    }
+
+    private void checkMethodParameters(ExecutableElement m,
+            List<ScopeInfo> argScopes, MethodInvocationTree node) {
+
+    }
+
+    private void checkMethodRunsIn(ExecutableElement m, ScopeInfo recvScope,
+            String runsIn, MethodInvocationTree node) {
+        if (UNKNOWN.equals(runsIn)) {
+            // Always legal to call an UNKNOWN method from anywhere
+            return;
+        }
     }
 
     /**
