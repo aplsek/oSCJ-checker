@@ -14,6 +14,8 @@ public class ScopeRunsInChecker extends SinglePassChecker {
     public static final String ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE = "illegal.scope.override";
     public static final String ERR_ILLEGAL_PARAM_SCOPE_OVERRIDE = "illegal.param.scope.override";
     public static final String ERR_ILLEGAL_SCOPE_OVERRIDE = "illegal.field.scope.override";
+    public static final String ERR_ILLEGAL_SCOPE_OVERRIDE_WITH_UNK = "illegal.field.scope.override.with.unk";
+    public static final String ERR_ILLEGAL_FIELD_SCOPE = "illegal.field.scope";
     public static final String ERR_RUNS_IN_ON_CLASS = "err.runs.in.on.class";
 
     private ScopeCheckerContext ctx;
@@ -37,6 +39,8 @@ public class ScopeRunsInChecker extends SinglePassChecker {
         p.put(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, "Illegal Scope annotation override on a method not annotated SUPPORT.");
         p.put(ERR_ILLEGAL_PARAM_SCOPE_OVERRIDE, "Parameters may not override the annotations of their types.");
         p.put(ERR_ILLEGAL_SCOPE_OVERRIDE, "Variable annotations may not override the annotations of their types.");
+        p.put(ERR_ILLEGAL_SCOPE_OVERRIDE_WITH_UNK, "Variable annotation UNKNOWN may not override the annotations of their types.");
+        p.put(ERR_ILLEGAL_FIELD_SCOPE, "Variable references illegal scope. The variable scope %s must be same or parent to class's scope %s.");
         p.put(ERR_RUNS_IN_ON_CLASS, "RunsIn annotations are ignored on classes.");
         return p;
     }

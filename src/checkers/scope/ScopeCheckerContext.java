@@ -159,6 +159,7 @@ public class ScopeCheckerContext {
 
         TypeElement clazz = (TypeElement) m.getEnclosingElement();
         ScopeInfo scope = getClassScope(clazz);
+        
         //TODO: see the getEffectiveMethodScope() for the issue of "enclosing classes"
         return scope;
     }
@@ -178,6 +179,7 @@ public class ScopeCheckerContext {
         TypeElement clazz = (TypeElement) m.getEnclosingElement();
         ScopeInfo scope = getClassScope(clazz);
 
+        //Utils.debugPrintln("clazz :" + clazz);
         /*
          * TODO: enclosing class may change this, see the issue on "enclosing classes"
         while (clazz != null || scope.equals(CURRENT)) {

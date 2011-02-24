@@ -4,6 +4,7 @@ import static checkers.scope.ScopeRunsInChecker.ERR_BAD_LIBRARY_ANNOTATION;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE;
+import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_SCOPE_OVERRIDE_WITH_UNK;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_SCOPE_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
 import static javax.safetycritical.annotate.Level.SUPPORT;
@@ -11,6 +12,7 @@ import static javax.safetycritical.annotate.Level.SUPPORT;
 import java.util.List;
 import java.util.Map;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -219,9 +221,16 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 ret = scope;
             } else {
                 ret = tScope;
-                if (scope != null && !scope.equals(tScope)) {
-                    report(Result.warning(ERR_ILLEGAL_SCOPE_OVERRIDE), node,
-                            errNode);
+                if (scope.isCurrent()) {
+                    ScopeInfo clazzScope = getEnclosingClazzScope(f);
+                    if (!scopeTree.isParentOf(tScope, clazzScope)) 
+                        fail(ERR_ILLEGAL_SCOPE_OVERRIDE_WITH_UNK, node,errNode,tScope,clazzScope);
+                }
+                else if (scope.isUnknown()) {
+                  if (!tScope.isCurrent())  
+                      fail(ERR_ILLEGAL_SCOPE_OVERRIDE_WITH_UNK, node,errNode);
+                } else if (!scope.equals(tScope)) {
+                    fail(ERR_ILLEGAL_SCOPE_OVERRIDE, node,errNode);
                 }
             }
         }
@@ -352,5 +361,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         }
         checkMethod(m, trees.getTree(m), errNode);
         return ctx.getMethodRunsIn(m);
+    }
+    
+    private ScopeInfo getEnclosingClazzScope(VariableElement f) {
+        TypeElement clazz = Utils.getTypeElement(f.getEnclosingElement().asType());
+        return ctx.getClassScope(clazz);
     }
 }
