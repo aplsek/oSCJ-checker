@@ -1,21 +1,21 @@
 package checkers.scope;
 
 public class FieldScopeInfo extends ScopeInfo {
-    private final String receiverScope;
-    private final String fieldScope;
+    private final ScopeInfo receiverScope;
+    private final ScopeInfo fieldScope;
 
-    public FieldScopeInfo(String scope, String receiverScope,
-            String fieldScope) {
-        super(scope);
+    public FieldScopeInfo(ScopeInfo scope, ScopeInfo receiverScope,
+            ScopeInfo fieldScope) {
+        super(scope.getScope());
         this.receiverScope = receiverScope;
         this.fieldScope = fieldScope;
     }
 
-    public String getReceiverScope() {
+    public ScopeInfo getReceiverScope() {
         return receiverScope;
     }
 
-    public String getFieldScope() {
+    public ScopeInfo getFieldScope() {
         return fieldScope;
     }
 
@@ -30,8 +30,8 @@ public class FieldScopeInfo extends ScopeInfo {
             return false;
         } else if (obj instanceof FieldScopeInfo) {
             FieldScopeInfo o = (FieldScopeInfo) obj;
-            return super.equals(obj) && receiverScope == o.receiverScope &&
-                    fieldScope == o.receiverScope;
+            return super.equals(obj) && receiverScope.equals(o.receiverScope)
+                    && fieldScope.equals(o.receiverScope);
         } else if (obj instanceof ScopeInfo) {
             return super.equals(obj);
         }

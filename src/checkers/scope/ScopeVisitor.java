@@ -129,8 +129,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private AnnotatedTypeFactory atf;
     private AnnotatedTypes ats;
-    private String currentScope = null;
-    private String currentRunsIn = null;
+    private ScopeInfo currentScope = null;
+    private ScopeInfo currentRunsIn = null;
     private ScopeCheckerContext ctx;
     private ScopeTree scopeTree;
     private VariableScopeTable varScopes = new VariableScopeTable();
@@ -194,9 +194,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     @Override
     public ScopeInfo visitBlock(BlockTree node, P p) {
         debugIndentIncrement("visitBlock");
-        String oldRunsIn = currentRunsIn;
+        ScopeInfo oldRunsIn = currentRunsIn;
         if (node.isStatic()) {
-            currentRunsIn = IMMORTAL;
+            currentRunsIn = ScopeInfo.IMMORTAL;
         }
         varScopes.pushBlock();
         super.visitBlock(node, p);
@@ -218,11 +218,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         TypeElement t = TreeUtils.elementFromDeclaration(node);
-        String oldScope = currentScope;
-        String oldRunsIn = currentRunsIn;
+        ScopeInfo oldScope = currentScope;
+        ScopeInfo oldRunsIn = currentRunsIn;
 
         try {
-            String scope = ctx.getClassScope(t);
+            ScopeInfo scope = ctx.getClassScope(t);
             varScopes.pushBlock();
             varScopes.addVariableScope("this", scope);
 
@@ -246,7 +246,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeInfo visitCompoundAssignment(CompoundAssignmentTree node, P p) {
         ScopeInfo lhs = node.getVariable().accept(this, p);
         if (TreeUtils.isStringCompoundConcatenation(node)) {
-            if (!lhs.getScope().equals(CURRENT)) {
+            if (!lhs.isCurrent()) {
                 // TODO: report error
             }
             return lhs;
@@ -294,8 +294,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 elem.getKind() == ElementKind.LOCAL_VARIABLE ||
                 elem.getKind() == ElementKind.PARAMETER) {
             String var = node.getName().toString();
-            String scope = varScopes.getVariableScope(var);
-            return new ScopeInfo(scope);
+            ScopeInfo scope = varScopes.getVariableScope(var);
+            return scope;
         } else if (elem.getKind() == ElementKind.METHOD) {
             // If an identifier gets visited and its element is a method, then
             // it is part of a MethodInvocationTree as the method select. It's
@@ -304,7 +304,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // object, in which case it is implicitly invoked on "this". We
             // return the scope of "this", which will be discarded if the
             // method being invoked is static.
-            return new ScopeInfo(varScopes.getVariableScope("this"));
+            return varScopes.getVariableScope("this");
         }
         return super.visitIdentifier(node, p);
     }
@@ -342,18 +342,17 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 return node.getExpression().accept(this, p);
             }
             VariableElement f = (VariableElement) elem;
-            String fScope = ctx.getFieldScope(f);
+            ScopeInfo fScope = ctx.getFieldScope(f);
             TypeElement fType = Utils.getTypeElement(f.asType());
-            String typeScope = ctx.getClassScope(fType);
-            String receiverScope = receiver.getScope();
+            ScopeInfo typeScope = ctx.getClassScope(fType);
             if (!CURRENT.equals(typeScope)) {
-                return new FieldScopeInfo(typeScope, receiverScope, fScope);
+                return new FieldScopeInfo(typeScope, receiver, fScope);
             } else if (CURRENT.equals(fScope)) {
-                return new FieldScopeInfo(receiverScope, receiverScope,
+                return new FieldScopeInfo(receiver, receiver,
                         fScope);
             } else {
                 // UNKNOWN
-                return new FieldScopeInfo(fScope, receiverScope, fScope);
+                return new FieldScopeInfo(fScope, receiver, fScope);
             }
         } finally {
             debugIndentDecrement();
@@ -369,16 +368,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("RUNS IN: " + currentRunsIn);
         debugIndent("scope: " + currentScope);
 
-        String oldRunsIn = currentRunsIn;
+        ScopeInfo oldRunsIn = currentRunsIn;
         try {
-            String runsIn = ctx.getMethodRunsIn(method);
+            ScopeInfo runsIn = ctx.getMethodRunsIn(method);
             debugIndent("@RunsIn(" + runsIn + ") " + method.getSimpleName());
             if (runsIn != null) {
                 currentRunsIn = runsIn;
             }
             varScopes.pushBlock();
             List<? extends VariableTree> params = node.getParameters();
-            List<String> paramScopes = ctx.getParameterScopes(method);
+            List<ScopeInfo> paramScopes = ctx.getParameterScopes(method);
             for (int i = 0; i < paramScopes.size(); i++) {
                 varScopes.addVariableScope(params.get(i).getName().toString(),
                         paramScopes.get(i));
@@ -420,13 +419,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             TypeMirror componentType = Utils.getArrayBaseType(arrayType);
             if (!componentType.getKind().isPrimitive()) {
                 TypeElement t = Utils.getTypeElement(componentType);
-                String scope = ctx.getClassScope(t);
+                ScopeInfo scope = ctx.getClassScope(t);
                 if (!(scope.equals(CURRENT) || scope.equals(currentAllocScope()))) {
                     fail(ERR_BAD_ALLOCATION, node, currentAllocScope(), scope);
                 }
             }
             super.visitNewArray(node, p);
-            return new ScopeInfo(currentAllocScope());
+            return currentAllocScope();
         } finally {
             debugIndentDecrement();
         }
@@ -441,14 +440,14 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         try {
             debugIndentIncrement("visitNewClass");
             ExecutableElement ctorElement = TreeUtils.elementFromUse(node);
-            String nodeClassScope = ctx.getClassScope(Utils.getMethodClass(ctorElement));
+            ScopeInfo nodeClassScope = ctx.getClassScope(Utils.getMethodClass(ctorElement));
             if (nodeClassScope != null && !currentAllocScope().equals(nodeClassScope) && !nodeClassScope.equals(CURRENT)) {
                 // Can't call new unless the type has the same scope as the
                 // current context
                 fail(ERR_BAD_ALLOCATION, node, currentAllocScope(), nodeClassScope);
             }
             super.visitNewClass(node, p);
-            return new ScopeInfo(currentAllocScope());
+            return currentAllocScope();
         } finally {
             debugIndentDecrement();
         }
@@ -468,7 +467,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return super.visitReturn(node, p);
 
         MethodTree enclosingMethod = TreeUtils.enclosingMethod(getCurrentPath());
-        String returnScope = ctx.getMethodScope(TreeUtils.elementFromDeclaration(enclosingMethod));
+        ScopeInfo returnScope = ctx.getMethodScope(TreeUtils.elementFromDeclaration(enclosingMethod));
 
         ScopeInfo ret = node.getExpression().accept(this, p);
         debugIndent("return scope is :" + returnScope);
@@ -495,11 +494,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             m = Utils.getArrayBaseType(m);
 
             TypeElement t = Utils.getTypeElement(m);
-            String tScope = ctx.getClassScope(t);
-            if (CURRENT.equals(tScope)) {
+            ScopeInfo tScope = ctx.getClassScope(t);
+            if (tScope.isCurrent()) {
                 return scope;
             } else {
-                return new ScopeInfo(tScope);
+                return tScope;
             }
         } finally {
             debugIndentDecrement();
@@ -518,17 +517,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      */
     @Override
     public ScopeInfo visitVariable(VariableTree node, P p) {
-        String oldScope = currentScope;
-        String oldRunsIn = currentRunsIn;
+        ScopeInfo oldScope = currentScope;
+        ScopeInfo oldRunsIn = currentRunsIn;
         try {
             debugIndentIncrement("visitVariable : " + node.toString());
             ScopeInfo lhs = checkVariableScope(node);
-            varScopes.addVariableScope(node.getName().toString(),
-                    lhs.getScope());
+            varScopes.addVariableScope(node.getName().toString(), lhs);
             if (Utils.isStatic(node.getModifiers().getFlags())) {
                 // Static variable, change the context to IMMORTAL while
                 // evaluating the initializer
-                currentRunsIn = IMMORTAL;
+                currentRunsIn = ScopeInfo.IMMORTAL;
             }
             ExpressionTree init = node.getInitializer();
             if (init != null) {
@@ -553,7 +551,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private void checkFieldAssignment(FieldScopeInfo lhs, ScopeInfo rhs, Tree errorNode) {
-        ScopeInfo fScope = new ScopeInfo(lhs.getFieldScope()); // TODO: ugly
+        ScopeInfo fScope = lhs.getFieldScope();
         if (fScope.equals(rhs) && !fScope.isUnknown()) {
 
         }
@@ -561,8 +559,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private void checkLocalAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree errorNode) {
         if (!concretize(lhs).equals(concretize(rhs))) {
-            fail(ERR_BAD_ASSIGNMENT_SCOPE, errorNode, rhs.getScope(),
-                    lhs.getScope());
+            fail(ERR_BAD_ASSIGNMENT_SCOPE, errorNode, rhs, lhs);
         }
     }
 
@@ -591,10 +588,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ExpressionTree arg = node.getArguments().get(1);
 
         ExecutableElement method = TreeUtils.elementFromUse(node);
-        String runsIn = ctx.getMethodRunsIn(method);
+        ScopeInfo runsIn = ctx.getMethodRunsIn(method);
 
-        String argRunsIn = null;
-        String argScope = null;
+        ScopeInfo argRunsIn = null;
+        ScopeInfo argScope = null;
 
         // TODO: Single exit point sure would be nicer
         switch (arg.getKind()) {
@@ -661,8 +658,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         String methodName = method.getSimpleName().toString();
         ExpressionTree e = node.getMethodSelect();
         ExpressionTree arg = node.getArguments().get(0);
-        String argRunsIn = null; // runsIn of the Runnable
-        String varScope = null; // @Scope of the target
+        ScopeInfo argRunsIn = null; // runsIn of the Runnable
+        ScopeInfo varScope = null; // @Scope of the target
 
         debugIndent("executeInArea Invocation: ");
         // TODO: Single exit point sure would be nicer
@@ -758,8 +755,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             MethodInvocationTree node) {
         ScopeInfo scope = null;
 
-        String ret = ctx.getMethodScope(m);
-        String runsIn = ctx.getMethodRunsIn(m);
+        ScopeInfo ret = ctx.getMethodScope(m);
+        ScopeInfo runsIn = ctx.getMethodRunsIn(m);
         checkMethodRunsIn(m, recvScope, runsIn, node);
         checkMethodParameters(m, argScopes, node);
 
@@ -799,7 +796,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private void checkMethodRunsIn(ExecutableElement m, ScopeInfo recvScope,
-            String runsIn, MethodInvocationTree node) {
+            ScopeInfo runsIn, MethodInvocationTree node) {
         if (UNKNOWN.equals(runsIn)) {
             // Always legal to call an UNKNOWN method from anywhere
             return;
@@ -861,13 +858,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         // TODO: static methods will probably fail here!!
         ExecutableElement method = TreeUtils.elementFromUse(node);
 
-        String returnScope = ctx.getMethodScope(method);
-        String runsInScope = ctx.getMethodRunsIn(method);
-        String current = currentAllocScope();
-        String varScope = null;
+        ScopeInfo returnScope = ctx.getMethodScope(method);
+        ScopeInfo runsInScope = ctx.getMethodRunsIn(method);
+        ScopeInfo current = currentAllocScope();
+        ScopeInfo varScope = null;
 
         //TypeElement type = Utils.getMethodClass(method);
-        String runsIn = ctx.getMethodRunsIn(method);
+        ScopeInfo runsIn = ctx.getMethodRunsIn(method);
 
         // TODO: retrieve the var!!
 
@@ -908,7 +905,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             /* TEST WITH: scope/unknown/TestCrossScope **/
             fail(ERR_BAD_METHOD_INVOKE, node, runsIn, current);
         }
-        return new ScopeInfo(returnScope);
+        return returnScope;
     }
 
     private ScopeInfo checkNewInstance(MethodInvocationTree node) {
@@ -916,7 +913,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         // TODO: revisit checking of the "newInstance"!!!!
         ExpressionTree e = node.getMethodSelect();
         ExpressionTree arg = node.getArguments().get(0);
-        String varScope = getVarScope(node);
+        ScopeInfo varScope = getVarScope(node);
         Element newInstanceType;
 
         if (arg.getKind() == Kind.MEMBER_SELECT
@@ -924,7 +921,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 && (newInstanceType = TreeUtils.elementFromUse((IdentifierTree) ((MemberSelectTree) arg)
                         .getExpression())).getKind() == ElementKind.CLASS) {
             TypeElement newInstanceTypeElement = (TypeElement) newInstanceType;
-            String instanceScope = ctx.getClassScope(newInstanceTypeElement);
+            ScopeInfo instanceScope = ctx.getClassScope(newInstanceTypeElement);
             if (instanceScope != null && !varScope.equals(instanceScope)) {
                 fail(ERR_BAD_NEW_INSTANCE, node, newInstanceTypeElement,
                         varScope);
@@ -935,14 +932,14 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return scope;
     }
 
-    private boolean checkReturnScope(ExpressionTree exprTree, Tree errorNode, String returnScope) {
+    private boolean checkReturnScope(ExpressionTree exprTree, Tree errorNode, ScopeInfo returnScope) {
         debugIndent("check Assignment: ");
 
         if (isPrimitiveExpression(exprTree)) {
             return true; // primitive assignments are always allowed
         }
 
-        String exprScope = null;
+        ScopeInfo exprScope = null;
         exprTree = simplify(exprTree);
         Kind exprKind = exprTree.getKind();
 
@@ -1061,40 +1058,40 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 return null;
             } else {
                 // Primitive array
-                return new ScopeInfo(currentAllocScope());
+                return currentAllocScope();
             }
         }
         TypeElement t = Utils.getTypeElement(var.asType());
-        String tScope = ctx.getClassScope(t);
+        ScopeInfo tScope = ctx.getClassScope(t);
         Scope varScope = var.getAnnotation(Scope.class);
         if (varScope == null) {
             if (CURRENT.equals(tScope)) {
-                return new ScopeInfo(currentAllocScope());
+                return currentAllocScope();
             } else {
-                return new ScopeInfo(tScope);
+                return tScope;
             }
         } else if (CURRENT.equals(tScope)) {
-            return new ScopeInfo(tScope);
+            return tScope;
         } else {
             if (!tScope.equals(varScope.value())) {
                 fail(ERR_BAD_VARIABLE_SCOPE, node, t.getSimpleName(),
                         currentAllocScope());
             }
-            return new ScopeInfo(tScope);
+            return tScope;
         }
     }
 
-    private String getScope(Element element) {
+    private ScopeInfo getScope(Element element) {
         Scope scope = element.getAnnotation(Scope.class);
         if (scope == null)
             return null;
 
-        return scope.value();
+        return new ScopeInfo(scope.value());
     }
 
-    private String getVarScope(MethodInvocationTree node) {
+    private ScopeInfo getVarScope(MethodInvocationTree node) {
         ExpressionTree e = node.getMethodSelect();
-        String varScope = null;
+        ScopeInfo varScope = null;
         switch (e.getKind()) {
         case IDENTIFIER :
             //ExpressionTree expTree = ((MethodInvocationTree) e).getExpression();
@@ -1195,16 +1192,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         || asType.toString().equals(MANAGED_MEMORY);
     }
 
-    private String currentAllocScope() {
+    private ScopeInfo currentAllocScope() {
         return currentRunsIn != null ? currentRunsIn : currentScope;
     }
 
-    private String scope(Element var) {
-        String varScope = varScope(var);
+    private ScopeInfo scope(Element var) {
+        ScopeInfo varScope = varScope(var);
 
         if (isStatic(var.getModifiers())) // static
-            if (varScope == null || varScope.equals(IMMORTAL)) {
-                return IMMORTAL;
+            if (varScope == null || varScope.isImmortal()) {
+                return ScopeInfo.IMMORTAL;
             } else {
                 return varScope; // this is ERROR and should fail
             }
@@ -1221,18 +1218,18 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
     }
 
-    private String varScope(Element var) {
+    private ScopeInfo varScope(Element var) {
         /*
          * 1. Look for the @Scope annotation on the variable. For example
          *
          * @Scope(UNKNOWN) Foo foo;
          */
-        String varScope = getScope(var);
+        ScopeInfo varScope = getScope(var);
         // if (varScope != null) {
         // return varScope;
         // }
 
-        String typeScope = null;
+        ScopeInfo typeScope = null;
         /*
          * 2. Look for the @Scope annotation on the variable's type. For example
          *
@@ -1257,7 +1254,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return typeScope;
     }
 
-    private String directRunsIn(VariableElement var) {
+    private ScopeInfo directRunsIn(VariableElement var) {
         AnnotatedTypeMirror exprType = atf.getAnnotatedType(var);
         // TODO: since the exprType sometimes does not contains the annotations
         // if this does not work, we use the loop below...
@@ -1268,7 +1265,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         while (!TypesUtils.isObject(exprType.getUnderlyingType())) {
-            String exprScope = Utils.runsIn(exprType.getAnnotations());
+            ScopeInfo exprScope = Utils.runsIn(exprType.getAnnotations());
             if (exprScope != null) {
                 return exprScope;
             } else {
@@ -1286,9 +1283,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      *            - the variable passed into the
      *            enterPrivateMemory/executeInArea call as parameter
      */
-    private String getRunsInFromRunnable(TypeMirror var) {
-        String result = null;
-        // TypeElement myType = context.getTypeElement(var.asType().toString());
+    private ScopeInfo getRunsInFromRunnable(TypeMirror var) {
+        ScopeInfo result = null;
         TypeElement myType = Utils.getTypeElement(elements, var.toString());
         List<? extends Element> elements = myType.getEnclosedElements();
         // search for run() method:
@@ -1298,13 +1294,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return result;
     }
 
-    private String runsIn(Element type) {
+    private ScopeInfo runsIn(Element type) {
         for (AnnotationMirror mirror : type.getAnnotationMirrors()) {
             if (TypesUtils.isDeclaredOfName(mirror.getAnnotationType(), "javax.safetycritical.annotate.RunsIn")) {
                 Map<? extends ExecutableElement, ? extends AnnotationValue> vals = mirror.getElementValues();
                 for (Entry<? extends ExecutableElement, ? extends AnnotationValue> e : vals.entrySet()) {
                     if ("value".equals(e.getKey().getSimpleName().toString())) {
-                        return e.getValue().getValue().toString();
+                        return new ScopeInfo(e.getValue().getValue().toString());
                     }
                 }
             }
@@ -1312,13 +1308,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return null;
     }
 
-    private String scopeDef(VariableElement var) {
+    private ScopeInfo scopeDef(VariableElement var) {
         for (AnnotationMirror mirror : var.getAnnotationMirrors()) {
             if (TypesUtils.isDeclaredOfName(mirror.getAnnotationType(), "javax.safetycritical.annotate.DefineScope")) {
                 Map<? extends ExecutableElement, ? extends AnnotationValue> vals = mirror.getElementValues();
                 for (Entry<? extends ExecutableElement, ? extends AnnotationValue> e : vals.entrySet()) {
                     if ("name".equals(e.getKey().getSimpleName().toString())) {
-                        return e.getValue().getValue().toString();
+                        return new ScopeInfo(e.getValue().getValue().toString());
                     }
                 }
             }

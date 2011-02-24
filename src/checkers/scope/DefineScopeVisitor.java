@@ -47,19 +47,21 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
 
         DefineScope d = t.getAnnotation(DefineScope.class);
         if (d != null) {
+            ScopeInfo name = new ScopeInfo(d.name());
+            ScopeInfo parent = new ScopeInfo(d.parent());
             //System.out.println("scope def: " + d.name() + " par:" + d.parent());
             if (d.name() == null || d.parent() == null) {
                 fail(ERR_BAD_SCOPE_NAME, node);
             } else if (d.name() != null && d.parent() != null) {
                 if (IMMORTAL.equals(d.name())) {
                     fail(ERR_BAD_SCOPE_NAME, node);
-                } else if (scopeTree.hasScope(d.name())) {
+                } else if (scopeTree.hasScope(name)) {
                     fail(ERR_DUPLICATE_SCOPE_NAME, node);
-                } else if (scopeTree.isParentOf(d.parent(), d.name())) {
+                } else if (scopeTree.isParentOf(parent, name)) {
                     fail(ERR_CYCLICAL_SCOPES, node);
                     // TODO: doesn't reserve implicitly defined scopes
                 } else {
-                    scopeTree.put(d.name(), d.parent(), node);
+                    scopeTree.put(name, parent, node);
                 }
             }
         }
@@ -79,13 +81,13 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
             AnnotatedTypeMirror t2 = atf.getAnnotatedType(runnable);
             AnnotationMirror def = t2.getAnnotation(DefineScope.class);
             if (def != null) {
-                String name = null, parent = null;
+                ScopeInfo name = null, parent = null;
                 for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : def
                         .getElementValues().entrySet()) {
                     if ("name()".equals(entry.getKey().toString())) {
-                        name = (String) entry.getValue().getValue();
+                        name = new ScopeInfo((String) entry.getValue().getValue());
                     } else if ("parent()".equals(entry.getKey().toString())) {
-                        parent = (String) entry.getValue().getValue();
+                        parent = new ScopeInfo((String) entry.getValue().getValue());
                     }
                 }
                 if (name != null && parent != null) {
