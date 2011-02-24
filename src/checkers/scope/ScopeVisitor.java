@@ -852,16 +852,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      * @return
      */
     private ScopeInfo checkRegularMethodInvocation(MethodInvocationTree n) {
-        enableDebug();
         debugIndent("method Invocation:" + n);
-        
+
         // TODO: static methods will probably fail here!!
         ExecutableElement method = TreeUtils.elementFromUse(n);
         ScopeInfo returnScope = ctx.getEffectiveMethodScope(method);
-        
+
         // String returnScope = ctx.getMethodScope(method);
         ScopeInfo runsInScope = ctx.getEffectiveMethodRunsIn(method);
-        
+
         ScopeInfo current = currentAllocScope();
         ScopeInfo varScope = null;
 
@@ -882,12 +881,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             varScope =  ctx.getFieldScope(var);
             break;
         }
-        
+
         debugIndent("\t runsInScope : " +  runsInScope);
         debugIndent("\t returnScope : " +  returnScope);
         debugIndent("\t current : " +  current);
         debugIndent("\t varScope : " +  varScope);
-        
+
         if (current.isUnknown()) {
             if (runsInScope == null || !runsInScope.isUnknown()) {
                 /* TEST WITH: scope/unknown/UnknownMethod */
@@ -911,8 +910,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             /* TEST WITH: scope/unknown/TestCrossScope **/
             fail(ERR_BAD_METHOD_INVOKE, n, runsInScope, current);
         }
-        
-        disableDebug();
+
         return returnScope;
     }
 
