@@ -156,28 +156,28 @@ public class ScopeCheckerContext {
         ScopeInfo methodRunsIn = getMethodRunsIn(m);
         if (!methodRunsIn.isCurrent())
             return methodRunsIn;
-        
+
         TypeElement clazz = (TypeElement) m.getEnclosingElement();
         ScopeInfo scope = getClassScope(clazz);
         //TODO: see the getEffectiveMethodScope() for the issue of "enclosing classes"
-        return scope; 
+        return scope;
     }
 
     /**
      * Get the effective Scope of a method. This translates a CURRENT
      * annotation to something more concrete, if available.
-     * 
+     *
      * TODO: enclosing classes
-     * 
+     *
      * @return - CURRENT if the enclosing classes are not annotated.
      */
     public ScopeInfo getEffectiveMethodScope(ExecutableElement m) {
         if (!getMethodScope(m).isCurrent())
             return getMethodScope(m);
-        
+
         TypeElement clazz = (TypeElement) m.getEnclosingElement();
         ScopeInfo scope = getClassScope(clazz);
-        
+
         /*
          * TODO: enclosing class may change this, see the issue on "enclosing classes"
         while (clazz != null || scope.equals(CURRENT)) {
@@ -188,8 +188,8 @@ public class ScopeCheckerContext {
             else
                 break;
         }*/
-        
-        return scope;          
+
+        return scope;
     }
 
     /**
@@ -382,7 +382,7 @@ public class ScopeCheckerContext {
             methodScopes = new HashMap<String, MethodScopeInfo>();
             fieldScopes = new HashMap<String, ScopeInfo>();
         }
-        
+
         public void dumpCSI() {
             System.out.println("\n\n\t size : " + methodScopes.size());
             for( String key: methodScopes.keySet() ){
@@ -398,6 +398,9 @@ public class ScopeCheckerContext {
 
         MethodScopeInfo(int params) {
             parameters = new ArrayList<ScopeInfo>(params);
+            for (int i = 0; i < params; i++) {
+                parameters.add(null);
+            }
         }
     }
 }
