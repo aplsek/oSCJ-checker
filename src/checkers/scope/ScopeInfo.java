@@ -5,6 +5,7 @@ import javax.safetycritical.annotate.Scope;
 public class ScopeInfo {
     public static final ScopeInfo CURRENT = new ScopeInfo(Scope.CURRENT);
     public static final ScopeInfo IMMORTAL = new ScopeInfo(Scope.IMMORTAL);
+    public static final ScopeInfo NULL = new ScopeInfo("null");
     public static final ScopeInfo UNKNOWN = new ScopeInfo(Scope.UNKNOWN);
     private final String scope;
 
@@ -22,6 +23,10 @@ public class ScopeInfo {
 
     public boolean isImmortal() {
         return equals(IMMORTAL);
+    }
+
+    public boolean isNull() {
+        return equals(NULL);
     }
 
     public boolean isUnknown() {
