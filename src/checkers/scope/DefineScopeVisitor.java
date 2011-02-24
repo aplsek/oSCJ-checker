@@ -3,7 +3,6 @@ package checkers.scope;
 import static checkers.scope.DefineScopeChecker.ERR_BAD_SCOPE_NAME;
 import static checkers.scope.DefineScopeChecker.ERR_CYCLICAL_SCOPES;
 import static checkers.scope.DefineScopeChecker.ERR_DUPLICATE_SCOPE_NAME;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import java.util.LinkedList;
 import java.util.Map.Entry;
@@ -53,7 +52,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
             if (d.name() == null || d.parent() == null) {
                 fail(ERR_BAD_SCOPE_NAME, node);
             } else if (d.name() != null && d.parent() != null) {
-                if (IMMORTAL.equals(d.name())) {
+                if (name.isImmortal()) {
                     fail(ERR_BAD_SCOPE_NAME, node);
                 } else if (scopeTree.hasScope(name)) {
                     fail(ERR_DUPLICATE_SCOPE_NAME, node);
@@ -91,7 +90,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
                     }
                 }
                 if (name != null && parent != null) {
-                    if (IMMORTAL.equals(name)) {
+                    if (name.isImmortal()) {
                         fail(ERR_BAD_SCOPE_NAME, node);
                         // TODO: ales, this is disabled, we allow this...
                     } else if (scopeTree.hasScope(name)) {

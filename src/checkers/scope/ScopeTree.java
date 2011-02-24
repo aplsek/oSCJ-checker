@@ -1,7 +1,6 @@
 package checkers.scope;
 
 import static checkers.scope.DefineScopeChecker.ERR_SCOPE_TREE_NOT_CONSISTENT;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,7 +74,7 @@ public class ScopeTree {
         for (Map.Entry<ScopeInfo, ScopeInfo> entry : scopeTree.entrySet()) {
             ScopeInfo scope = entry.getKey();
             ScopeInfo parent = entry.getValue();
-            if (!hasScope(parent) && !scope.equals(IMMORTAL)) {
+            if (!hasScope(parent) && !scope.isImmortal()) {
                 checker.report(Result.failure(ERR_SCOPE_TREE_NOT_CONSISTENT,
                         scope, parent), scopeMap.get(scope));
             }

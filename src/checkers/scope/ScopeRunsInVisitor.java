@@ -7,8 +7,6 @@ import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_SCOPE_OVERRID
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_SCOPE_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
 import static javax.safetycritical.annotate.Level.SUPPORT;
-import static javax.safetycritical.annotate.Scope.CURRENT;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 import java.util.List;
 import java.util.Map;
@@ -194,10 +192,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
         TypeMirror fMir = f.asType();
         Scope s = f.getAnnotation(Scope.class);
-        String scope = CURRENT;
+        ScopeInfo scope = ScopeInfo.CURRENT;
         ScopeInfo ret;
         if (s != null && s.value() != null) {
-            scope = s.value();
+            scope = new ScopeInfo(s.value());
         }
         // Arrays reside in the same scope as their element types, so if this
         // field is an array, reduce it to its base component type.
@@ -206,7 +204,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             // The field type in here is either a primitive or a primitive
             // array. Only store a field scope if the field was an array.
             if (fMir != f.asType()) {
-                ret = new ScopeInfo(scope);
+                ret = scope;
             } else {
                 ret = null; // Primitives have no scope
             }
@@ -218,7 +216,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             }
             tScope = ctx.getClassScope(t);
             if (tScope.isCurrent()) {
-                ret = new ScopeInfo(scope);
+                ret = scope;
             } else {
                 ret = tScope;
                 if (scope != null && !scope.equals(tScope)) {
@@ -239,7 +237,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      */
     void checkMethodRunsIn(ExecutableElement m, MethodTree node, Tree errNode) {
         RunsIn ann = m.getAnnotation(RunsIn.class);
-        ScopeInfo runsIn = new ScopeInfo(ann != null ? ann.value() : CURRENT);
+        ScopeInfo runsIn = ann != null ? new ScopeInfo(ann.value())
+                : ScopeInfo.CURRENT;
 
         if (!scopeTree.hasScope(runsIn) && !runsIn.isCurrent()
                 && !runsIn.isUnknown()) {
@@ -268,7 +267,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      */
     void checkMethodScope(ExecutableElement m, MethodTree node, Tree errNode) {
         Scope ann = m.getAnnotation(Scope.class);
-        ScopeInfo scope = new ScopeInfo(ann != null ? ann.value() : CURRENT);
+        ScopeInfo scope = ann != null ? new ScopeInfo(ann.value())
+                : ScopeInfo.CURRENT;
 
         if (!scopeTree.hasScope(scope) && !scope.isCurrent()
                 && !scope.isUnknown()) {
@@ -323,7 +323,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
     private static ScopeInfo scopeOfClassDefinition(TypeElement t) {
         Scope scopeAnn = t.getAnnotation(Scope.class);
-        return new ScopeInfo(scopeAnn != null ? scopeAnn.value() : CURRENT);
+        return scopeAnn != null ? new ScopeInfo(scopeAnn.value())
+                : ScopeInfo.CURRENT;
     }
 
     private ScopeInfo getParentScopeAndVisit(TypeElement p, ClassTree node) {

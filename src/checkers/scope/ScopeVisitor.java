@@ -32,9 +32,6 @@ import static checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_DEFAULT_BAD_ENTER_PARAMETER;
 import static checkers.scope.ScopeChecker.ERR_RUNNABLE_WITHOUT_RUNSIN;
 import static checkers.scope.ScopeChecker.ERR_TYPE_CAST_BAD_ENTER_PARAMETER;
-import static javax.safetycritical.annotate.Scope.CURRENT;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -184,9 +181,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeInfo visitBinary(BinaryTree node, P p) {
         super.visitBinary(node, p);
         if (TreeUtils.isCompileTimeString(node)) {
-            return new ScopeInfo(IMMORTAL);
+            return ScopeInfo.IMMORTAL;
         } else if (TreeUtils.isStringConcatenation(node)) {
-            return new ScopeInfo(CURRENT);
+            return ScopeInfo.CURRENT;
         }
         return null; // Primitive expressions have no scope
     }
@@ -321,7 +318,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // TODO I foresee much sadness in this later on. Strings can't
             // really interact between IMMORTAL and other scopes if it's not
             // RunsIn(UNKNOWN).
-            return new ScopeInfo(IMMORTAL);
+            return ScopeInfo.IMMORTAL;
         }
         return null;
     }
@@ -345,9 +342,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ScopeInfo fScope = ctx.getFieldScope(f);
             TypeElement fType = Utils.getTypeElement(f.asType());
             ScopeInfo typeScope = ctx.getClassScope(fType);
-            if (!CURRENT.equals(typeScope)) {
+            if (!typeScope.isCurrent()) {
                 return new FieldScopeInfo(typeScope, receiver, fScope);
-            } else if (CURRENT.equals(fScope)) {
+            } else if (fScope.isCurrent()) {
                 return new FieldScopeInfo(receiver, receiver,
                         fScope);
             } else {
@@ -420,7 +417,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             if (!componentType.getKind().isPrimitive()) {
                 TypeElement t = Utils.getTypeElement(componentType);
                 ScopeInfo scope = ctx.getClassScope(t);
-                if (!(scope.equals(CURRENT) || scope.equals(currentAllocScope()))) {
+                if (!(scope.isCurrent() || scope.equals(currentAllocScope()))) {
                     fail(ERR_BAD_ALLOCATION, node, currentAllocScope(), scope);
                 }
             }
@@ -441,7 +438,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             debugIndentIncrement("visitNewClass");
             ExecutableElement ctorElement = TreeUtils.elementFromUse(node);
             ScopeInfo nodeClassScope = ctx.getClassScope(Utils.getMethodClass(ctorElement));
-            if (nodeClassScope != null && !currentAllocScope().equals(nodeClassScope) && !nodeClassScope.equals(CURRENT)) {
+            if (nodeClassScope != null && !currentAllocScope().equals(nodeClassScope) && !nodeClassScope.isCurrent()) {
                 // Can't call new unless the type has the same scope as the
                 // current context
                 fail(ERR_BAD_ALLOCATION, node, currentAllocScope(), nodeClassScope);
@@ -472,7 +469,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo ret = node.getExpression().accept(this, p);
         debugIndent("return scope is :" + returnScope);
 
-        if (returnScope == null || !returnScope.equals(UNKNOWN))
+        if (returnScope == null || !returnScope.isUnknown())
             checkReturnScope(node.getExpression(), node, returnScope);
 
         debugIndent("\n");
@@ -797,7 +794,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private void checkMethodRunsIn(ExecutableElement m, ScopeInfo recvScope,
             ScopeInfo runsIn, MethodInvocationTree node) {
-        if (UNKNOWN.equals(runsIn)) {
+        if (runsIn.isUnknown()) {
             // Always legal to call an UNKNOWN method from anywhere
             return;
         }
@@ -882,10 +879,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             break;
         }
 
-        if (current.equals(UNKNOWN)) {
-            if (runsIn == null || !runsIn.equals(UNKNOWN)) {
+        if (current.isUnknown()) {
+            if (runsIn == null || !runsIn.isUnknown()) {
                 /* TEST WITH: scope/unknown/UnknownMethod */
-                fail(ERR_BAD_METHOD_INVOKE, node, CURRENT, UNKNOWN);
+                fail(ERR_BAD_METHOD_INVOKE, node, ScopeInfo.CURRENT, ScopeInfo.UNKNOWN);
             }
         }
         else if (current.equals(varScope)) {
@@ -901,7 +898,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         } else if (runsIn == null) {
             /* TEST WITH: scope/unknown/TestCrossScope **/
             fail(ERR_BAD_METHOD_INVOKE, node, varScope, current);
-        } else if (!runsIn.equals(UNKNOWN)) {
+        } else if (!runsIn.isUnknown()) {
             /* TEST WITH: scope/unknown/TestCrossScope **/
             fail(ERR_BAD_METHOD_INVOKE, node, runsIn, current);
         }
@@ -1049,7 +1046,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         VariableElement var = TreeUtils.elementFromDeclaration(node);
         if (Utils.isStatic(node.getModifiers().getFlags())) {
             // TODO:
-            return new ScopeInfo(IMMORTAL);
+            return ScopeInfo.IMMORTAL;
         }
         // TODO: UNKNOWN parameters
         Tree nodeTypeTree = getArrayTypeTree(node.getType());
@@ -1065,15 +1062,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo tScope = ctx.getClassScope(t);
         Scope varScope = var.getAnnotation(Scope.class);
         if (varScope == null) {
-            if (CURRENT.equals(tScope)) {
+            if (tScope.isCurrent()) {
                 return currentAllocScope();
             } else {
                 return tScope;
             }
-        } else if (CURRENT.equals(tScope)) {
+        } else if (tScope.isCurrent()) {
             return tScope;
         } else {
-            if (!tScope.equals(varScope.value())) {
+            if (!tScope.equals(new ScopeInfo(varScope.value()))) {
                 fail(ERR_BAD_VARIABLE_SCOPE, node, t.getSimpleName(),
                         currentAllocScope());
             }
