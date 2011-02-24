@@ -315,7 +315,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitLiteral(LiteralTree node, P p) {
-        if (node.getValue() instanceof String) {
+        if (node.getValue() == null) {
+            return ScopeInfo.NULL;
+        } else if (node.getValue() instanceof String) {
             // TODO I foresee much sadness in this later on. Strings can't
             // really interact between IMMORTAL and other scopes if it's not
             // RunsIn(UNKNOWN).
@@ -458,24 +460,21 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitReturn(ReturnTree node, P p) {
-        debugIndentIncrement("visit Return:" + node.toString());
+        debugIndentIncrement("visitReturn:" + node.toString());
 
         // Don't try to check return expressions for void methods.
         if (node.getExpression() == null)
             return super.visitReturn(node, p);
 
         MethodTree enclosingMethod = TreeUtils.enclosingMethod(getCurrentPath());
-        ScopeInfo returnScope = ctx.getMethodScope(TreeUtils.elementFromDeclaration(enclosingMethod));
-
-        ScopeInfo ret = node.getExpression().accept(this, p);
-        debugIndent("return scope is :" + returnScope);
-
-        if (returnScope == null || !returnScope.isUnknown())
-            checkReturnScope(node.getExpression(), node, returnScope);
-
-        debugIndent("\n");
+        ExecutableElement m = TreeUtils.elementFromDeclaration(enclosingMethod);
+        ScopeInfo returnScope = ctx.getMethodScope(m);
+        ScopeInfo exprScope = node.getExpression().accept(this, p);
+        debugIndent("expected return scope is: " + returnScope);
+        debugIndent("actual return scope is:" + exprScope);
+        checkReturnScope(exprScope, returnScope, node);
         debugIndentDecrement();
-        return super.visitReturn(node, p);
+        return null;
     }
 
     @Override
@@ -941,99 +940,14 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return scope;
     }
 
-    private boolean checkReturnScope(ExpressionTree exprTree, Tree errorNode, ScopeInfo returnScope) {
-        debugIndent("check Assignment: ");
-
-        if (isPrimitiveExpression(exprTree)) {
-            return true; // primitive assignments are always allowed
+    private void checkReturnScope(ScopeInfo exprScope, ScopeInfo expectedScope,
+            ReturnTree node) {
+        debugIndent("checkReturnScope");
+        if (expectedScope.isUnknown() || expectedScope.equals(exprScope)
+                || exprScope.isNull()) {
+            return;
         }
-
-        ScopeInfo exprScope = null;
-        exprTree = simplify(exprTree);
-        Kind exprKind = exprTree.getKind();
-
-        if (exprKind == Kind.NULL_LITERAL || exprKind == Kind.STRING_LITERAL) {
-            return true;
-        } else if (exprKind == Kind.NEW_ARRAY) {
-            // TODO:
-            // Handled by visitNewArray
-            return true;
-        } else if (exprKind == Kind.METHOD_INVOCATION) {
-            MethodInvocationTree methodExpr = (MethodInvocationTree) exprTree;
-            ExecutableElement methodElem = TreeUtils.elementFromUse(methodExpr);
-            AnnotatedExecutableType methodType = atf.getAnnotatedType(methodElem);
-            TypeMirror retMirror = methodType.getReturnType().getUnderlyingType();
-            retMirror = Utils.getArrayBaseType(retMirror);
-
-            if (retMirror.getKind().isPrimitive()) {
-                exprScope = null;
-            } else {
-                exprScope = ctx.getClassScope(Utils.getTypeElement(retMirror));
-                if (exprScope == null) {
-                    exprScope = ctx.getMethodRunsIn(methodElem); // TODO: revisit
-                }
-                if (exprScope == null) {
-                    debugIndent("Expression Scope is NULL, ERR?? :" + methodExpr.getMethodSelect().getKind());
-                }
-            }
-        } else if (exprKind == Kind.NEW_CLASS) {
-            /*
-             * checks that @Scope(parent) data = @Scope(child) new Object() <--
-             * this is assignment error while we are in the child
-             */
-            if (currentAllocScope() != null && !currentAllocScope().equals(returnScope)) {
-                /* checked by scope/scopeReturn/ScopeReturn.java */
-                fail(ERR_BAD_RETURN_SCOPE, errorNode, currentAllocScope(), returnScope);
-            }
-
-            // Handled by visitNewClass
-            return true;
-        } else if (exprKind == Kind.PLUS) {
-
-        } else if (exprKind == Kind.MEMBER_SELECT || exprKind == Kind.IDENTIFIER) {
-            VariableElement var = (VariableElement) TreeUtils.elementFromUse(exprTree);
-            exprScope = scope(var);
-
-            if (var.getSimpleName().toString().equals("cs")) {
-                System.err.println("Assignment: @Scope(" + returnScope + ") " + returnScope + " = @Scope(" + exprScope
-                        + ")");
-            }
-        } else if (exprKind == Kind.TYPE_CAST) {
-            // VariableElement var = (VariableElement)
-            // TreeUtils.elementFromUse(exprTree);
-
-            Element el = TreeInfo.symbol((JCTree) exprTree);
-            debugIndent("element " + el);
-            debugIndent("expr " + exprTree);
-            // exprScope = scope(var);
-
-            TypeMirror castType = InternalUtils.typeOf(exprTree);
-            castType = Utils.getArrayBaseType(castType);
-
-            if (castType.getKind().isPrimitive()) {
-                exprScope = returnScope;
-            } else {
-                exprScope = ctx.getClassScope(Utils.getTypeElement(castType));
-            }
-        } else {
-            throw new RuntimeException("Need a new case for " + exprKind);
-        }
-
-        Utils.debugPrintln("Return SCOPES: @Scope(" + returnScope + ") " + " = @Scope(" + exprScope + ")");
-        boolean isLegal;
-
-        isLegal = returnScope == null || returnScope.equals(exprScope);
-        if (exprScope != null) {
-            isLegal = returnScope == null || returnScope.equals(exprScope);
-        } else {
-            // for the variable that has no annotation
-            isLegal = returnScope == null || returnScope.equals(currentAllocScope());
-        }
-
-        if (!isLegal) {
-            fail(ERR_BAD_RETURN_SCOPE, errorNode, exprScope, returnScope);
-        }
-        return isLegal;
+        fail(ERR_BAD_RETURN_SCOPE, node, exprScope, expectedScope);
     }
 
     /**
