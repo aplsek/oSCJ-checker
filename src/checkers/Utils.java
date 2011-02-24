@@ -19,6 +19,7 @@ import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.safetycritical.annotate.SCJRestricted;
 
+import checkers.scope.ScopeInfo;
 import checkers.types.AnnotatedTypes;
 import checkers.util.TypesUtils;
 
@@ -83,12 +84,12 @@ public final class Utils {
         return false;
     }
 
-    public static String scope(Collection<? extends AnnotationMirror> annotations) {
-        return annotationValue(annotations, "javax.safetycritical.annotate.Scope");
+    public static ScopeInfo scope(Collection<? extends AnnotationMirror> annotations) {
+        return new ScopeInfo(annotationValue(annotations, "javax.safetycritical.annotate.Scope"));
     }
 
-    public static String runsIn(Collection<? extends AnnotationMirror> annotations) {
-        return annotationValue(annotations, "javax.safetycritical.annotate.RunsIn");
+    public static ScopeInfo runsIn(Collection<? extends AnnotationMirror> annotations) {
+        return new ScopeInfo(annotationValue(annotations, "javax.safetycritical.annotate.RunsIn"));
     }
 
     public static HashSet<TypeElement> getAllInterfaces(TypeElement type) {

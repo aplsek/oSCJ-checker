@@ -1,6 +1,7 @@
 package checkers.scope;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import static javax.safetycritical.annotate.Scope.CURRENT;
 
 import checkers.Utils;
 
@@ -42,7 +42,7 @@ public class ScopeCheckerContext {
     /**
      * Get the Scope annotation of a class by its fully qualified name.
      */
-    public String getClassScope(String clazz) {
+    public ScopeInfo getClassScope(String clazz) {
         ClassScopeInfo csi = classScopes.get(clazz);
         if (csi != null) {
             return csi.scope;
@@ -53,7 +53,7 @@ public class ScopeCheckerContext {
     /**
      * Get the Scope annotation of a class by its declaration.
      */
-    public String getClassScope(TypeElement t) {
+    public ScopeInfo getClassScope(TypeElement t) {
         return getClassScope(t.getQualifiedName().toString());
     }
 
@@ -61,7 +61,7 @@ public class ScopeCheckerContext {
      * Get the Scope annotation of a field by its fully qualified class name
      * and its own name.
      */
-    public String getFieldScope(String clazz, String field) {
+    public ScopeInfo getFieldScope(String clazz, String field) {
         ClassScopeInfo csi = classScopes.get(clazz);
         return csi.fieldScopes.get(field);
     }
@@ -69,20 +69,20 @@ public class ScopeCheckerContext {
     /**
      * Get the Scope annotation of a field by its declaration.
      */
-    public String getFieldScope(VariableElement f) {
+    public ScopeInfo getFieldScope(VariableElement f) {
         TypeElement t = Utils.getFieldClass(f);
         return getFieldScope(t.getQualifiedName().toString(),
                 f.getSimpleName().toString());
     }
 
-    public String[] getParameterScopes(String clazz, String method,
+    public List<ScopeInfo> getParameterScopes(String clazz, String method,
             String... params) {
         ClassScopeInfo csi = classScopes.get(clazz);
         if (csi != null) {
             String sig = buildSignatureString(method, params);
             MethodScopeInfo msi = csi.methodScopes.get(sig);
             if (msi != null) {
-                return Arrays.copyOf(msi.parameters, msi.parameters.length);
+                return Collections.unmodifiableList(msi.parameters);
             }
         }
         return null;
@@ -93,7 +93,7 @@ public class ScopeCheckerContext {
      * name, its own name, and the fully qualified names of the types of its
      * parameters.
      */
-    public String getMethodRunsIn(String clazz, String method,
+    public ScopeInfo getMethodRunsIn(String clazz, String method,
             String... params) {
         ClassScopeInfo csi = classScopes.get(clazz);
         if (csi != null) {
@@ -109,7 +109,7 @@ public class ScopeCheckerContext {
     /**
      * Get the RunsIn annotation of a method given its declaration.
      */
-    public String getMethodRunsIn(ExecutableElement m) {
+    public ScopeInfo getMethodRunsIn(ExecutableElement m) {
         TypeElement t = Utils.getMethodClass(m);
         return getMethodRunsIn(t.getQualifiedName().toString(),
                 m.getSimpleName().toString(), getParameterTypeNames(m));
@@ -120,7 +120,7 @@ public class ScopeCheckerContext {
      * name, its own name, and the fully qualified names of the types of its
      * parameters.
      */
-    public String getMethodScope(String clazz, String method,
+    public ScopeInfo getMethodScope(String clazz, String method,
             String... params) {
         ClassScopeInfo csi = classScopes.get(clazz);
         if (csi != null) {
@@ -136,13 +136,13 @@ public class ScopeCheckerContext {
     /**
      * Get the Scope annotation of a method given its declaration.
      */
-    public String getMethodScope(ExecutableElement m) {
+    public ScopeInfo getMethodScope(ExecutableElement m) {
         TypeElement t = Utils.getMethodClass(m);
         return getMethodScope(t.getQualifiedName().toString(),
                 m.getSimpleName().toString(), getParameterTypeNames(m));
     }
 
-    public String[] getParameterScopes(ExecutableElement m) {
+    public List<ScopeInfo> getParameterScopes(ExecutableElement m) {
         TypeElement t = Utils.getMethodClass(m);
         return getParameterScopes(t.getQualifiedName().toString(),
                 m.getSimpleName().toString(), getParameterTypeNames(m));
@@ -152,13 +152,13 @@ public class ScopeCheckerContext {
      * Get the effective RunsIn of a method. This translates a CURRENT
      * annotation to something more concrete, if available.
      */
-    public String getEffectiveMethodRunsIn(ExecutableElement m) {
-        String methodRunsIn = getMethodRunsIn(m);
-        if (!methodRunsIn.equals(CURRENT))
+    public ScopeInfo getEffectiveMethodRunsIn(ExecutableElement m) {
+        ScopeInfo methodRunsIn = getMethodRunsIn(m);
+        if (!methodRunsIn.isCurrent())
             return methodRunsIn;
         
         TypeElement clazz = (TypeElement) m.getEnclosingElement();
-        String scope = getClassScope(clazz);
+        ScopeInfo scope = getClassScope(clazz);
         //TODO: see the getEffectiveMethodScope() for the issue of "enclosing classes"
         return scope; 
     }
@@ -171,12 +171,12 @@ public class ScopeCheckerContext {
      * 
      * @return - CURRENT if the enclosing classes are not annotated.
      */
-    public String getEffectiveMethodScope(ExecutableElement m) {
-        if (!getMethodScope(m).equals(CURRENT))
+    public ScopeInfo getEffectiveMethodScope(ExecutableElement m) {
+        if (!getMethodScope(m).isCurrent())
             return getMethodScope(m);
         
         TypeElement clazz = (TypeElement) m.getEnclosingElement();
-        String scope = getClassScope(clazz);
+        ScopeInfo scope = getClassScope(clazz);
         
         /*
          * TODO: enclosing class may change this, see the issue on "enclosing classes"
@@ -196,9 +196,9 @@ public class ScopeCheckerContext {
      * Store the Scope annotation of a class, given its fully qualified class
      * name. Does not work if a different Scope annotation is already stored.
      */
-    public void setClassScope(String scope, String clazz) {
+    public void setClassScope(ScopeInfo scope, String clazz) {
         ClassScopeInfo csi = classScopes.get(clazz);
-        if (csi != null && !scope.equals(csi.scope)) {
+        if (csi != null && !csi.scope.equals(scope)) {
             throw new RuntimeException("Class scope already set");
         }
         csi = new ClassScopeInfo(scope);
@@ -209,7 +209,7 @@ public class ScopeCheckerContext {
      * Store the Scope annotation of a class, given its class declaration. Does
      * not work if a different Scope annotation is already stored.
      */
-    public void setClassScope(String scope, TypeElement t) {
+    public void setClassScope(ScopeInfo scope, TypeElement t) {
         setClassScope(scope, t.getQualifiedName().toString());
     }
 
@@ -217,9 +217,9 @@ public class ScopeCheckerContext {
      * Store the Scope annotation of a field given its fully qualified class
      * name and its own name.
      */
-    public void setFieldScope(String scope, String clazz, String field) {
+    public void setFieldScope(ScopeInfo scope, String clazz, String field) {
         ClassScopeInfo csi = classScopes.get(clazz);
-        String f = csi.fieldScopes.get(field);
+        ScopeInfo f = csi.fieldScopes.get(field);
         if (f != null && !f.equals(scope)) {
             throw new RuntimeException("Field scope already set");
         }
@@ -229,7 +229,7 @@ public class ScopeCheckerContext {
     /**
      * Store the Scope annotation of a field, given its declaration.
      */
-    public void setFieldScope(String scope, VariableElement f) {
+    public void setFieldScope(ScopeInfo scope, VariableElement f) {
         TypeElement t = Utils.getFieldClass(f);
         setFieldScope(scope, t.getQualifiedName().toString(),
                 f.getSimpleName().toString());
@@ -241,13 +241,13 @@ public class ScopeCheckerContext {
      * parameters. Does not work if a different RunsIn annotation is already
      * stored.
      */
-    public void setMethodRunsIn(String scope, String clazz, String method,
+    public void setMethodRunsIn(ScopeInfo scope, String clazz, String method,
             String... params) {
         ClassScopeInfo csi = classScopes.get(clazz);
         String sig = buildSignatureString(method, params);
         MethodScopeInfo msi = csi.methodScopes.get(sig);
         if (msi != null) {
-            if (!scope.equals(msi.runsIn) && msi.runsIn != null) {
+            if (msi.runsIn != null && !msi.runsIn.equals(scope)) {
                 throw new RuntimeException("Method runsin already set");
             }
         } else {
@@ -261,7 +261,7 @@ public class ScopeCheckerContext {
      * Store the RunsIn annotation of a class, given its class declaration.
      * Does not work if a different RunsIn annotation is already stored.
      */
-    public void setMethodRunsIn(String scope, ExecutableElement m) {
+    public void setMethodRunsIn(ScopeInfo scope, ExecutableElement m) {
         TypeElement t = Utils.getMethodClass(m);
         String[] params = getParameterTypeNames(m);
         setMethodRunsIn(scope, t.getQualifiedName().toString(),
@@ -274,13 +274,13 @@ public class ScopeCheckerContext {
      * parameters. Does not work if a different Scope annotation is already
      * stored.
      */
-    public void setMethodScope(String scope, String clazz, String method,
+    public void setMethodScope(ScopeInfo scope, String clazz, String method,
             String... params) {
         ClassScopeInfo csi = classScopes.get(clazz);
         String sig = buildSignatureString(method, params);
         MethodScopeInfo msi = csi.methodScopes.get(sig);
         if (msi != null) {
-            if (!scope.equals(msi.scope) && msi.scope != null) {
+            if (msi.scope != null && !msi.scope.equals(scope)) {
                 throw new RuntimeException("Method scope already set");
             }
         } else {
@@ -294,22 +294,26 @@ public class ScopeCheckerContext {
      * Store the Scope annotation of a class, given its class declaration.
      * Does not work if a different Scope annotation is already stored.
      */
-    public void setMethodScope(String scope, ExecutableElement m) {
+    public void setMethodScope(ScopeInfo scope, ExecutableElement m) {
         TypeElement t = Utils.getMethodClass(m);
         String[] params = getParameterTypeNames(m);
         setMethodScope(scope, t.getQualifiedName().toString(),
                 m.getSimpleName().toString(), params);
     }
 
-    public void setParameterScope(String scope, int i, String clazz,
+    public void setParameterScope(ScopeInfo scope, int i, String clazz,
             String method, String... params) {
         ClassScopeInfo csi = classScopes.get(clazz);
         String sig = buildSignatureString(method, params);
         MethodScopeInfo msi = csi.methodScopes.get(sig);
-        msi.parameters[i] = scope;
+        ScopeInfo psi = msi.parameters.get(i);
+        if (psi != null && !psi.equals(scope)) {
+            throw new RuntimeException("Parameter scope already set");
+        }
+        msi.parameters.set(i, scope);
     }
 
-    public void setParameterScope(String scope, int i, ExecutableElement m) {
+    public void setParameterScope(ScopeInfo scope, int i, ExecutableElement m) {
         TypeElement t = Utils.getMethodClass(m);
         setParameterScope(scope, i, t.getQualifiedName().toString(),
                 m.getSimpleName().toString(), getParameterTypeNames(m));
@@ -366,17 +370,17 @@ public class ScopeCheckerContext {
     }
 
     static class ClassScopeInfo {
-        String scope;
+        ScopeInfo scope;
         /**
          * A map of method signatures to method scope information.
          */
         Map<String, MethodScopeInfo> methodScopes;
-        Map<String, String> fieldScopes;
+        Map<String, ScopeInfo> fieldScopes;
 
-        ClassScopeInfo(String scope) {
+        ClassScopeInfo(ScopeInfo scope) {
             this.scope = scope;
             methodScopes = new HashMap<String, MethodScopeInfo>();
-            fieldScopes = new HashMap<String, String>();
+            fieldScopes = new HashMap<String, ScopeInfo>();
         }
         
         public void dumpCSI() {
@@ -388,12 +392,12 @@ public class ScopeCheckerContext {
     }
 
     static class MethodScopeInfo {
-        String scope;
-        String runsIn;
-        String parameters[];
+        ScopeInfo scope;
+        ScopeInfo runsIn;
+        List<ScopeInfo> parameters;
 
         MethodScopeInfo(int params) {
-            parameters = new String[params];
+            parameters = new ArrayList<ScopeInfo>(params);
         }
     }
 }

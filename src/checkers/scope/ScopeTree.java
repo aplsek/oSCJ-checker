@@ -1,7 +1,6 @@
 package checkers.scope;
 
 import static checkers.scope.DefineScopeChecker.ERR_SCOPE_TREE_NOT_CONSISTENT;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,24 +10,24 @@ import checkers.source.Result;
 import com.sun.source.tree.Tree;
 
 public class ScopeTree {
-    private Map<String, String> scopeTree = null;    // maps child <-> parent
-    private Map<String, Tree> scopeMap = null;     // points to a place where each scope is defined
+    private Map<ScopeInfo, ScopeInfo> scopeTree = null;    // maps child <-> parent
+    private Map<ScopeInfo, Tree> scopeMap = null;     // points to a place where each scope is defined
 
     public ScopeTree() {
-        scopeTree = new HashMap<String, String>();
-        scopeMap = new HashMap<String, Tree>();
-        put(IMMORTAL, "", null);
+        scopeTree = new HashMap<ScopeInfo, ScopeInfo>();
+        scopeMap = new HashMap<ScopeInfo, Tree>();
+        put(ScopeInfo.IMMORTAL, new ScopeInfo(""), null);
     }
 
-    public String get(String name) {
+    public ScopeInfo get(ScopeInfo name) {
         return scopeTree.get(name);
     }
 
-    public boolean hasScope(String name) {
+    public boolean hasScope(ScopeInfo name) {
         return scopeTree.containsKey(name);
     }
 
-    public boolean isParentOf(String name, String expectedParent) {
+    public boolean isParentOf(ScopeInfo name, ScopeInfo expectedParent) {
         //printTree();
         if (expectedParent == null)
             return false;
@@ -42,7 +41,7 @@ public class ScopeTree {
         return false;
     }
 
-    public boolean isAncestorOf(String name, String expectedParent) {
+    public boolean isAncestorOf(ScopeInfo name, ScopeInfo expectedParent) {
         if (expectedParent == null)
             return false;
 
@@ -58,7 +57,7 @@ public class ScopeTree {
         return false;
     }
 
-    public void put(String name, String parent, Tree node) {
+    public void put(ScopeInfo name, ScopeInfo parent, Tree node) {
         scopeTree.put(name, parent);
         scopeMap.put(name, node);
     }
@@ -72,10 +71,10 @@ public class ScopeTree {
      */
     public void checkScopeTree(DefineScopeChecker checker) {
         // all parents are DefScope
-        for (Map.Entry<String, String> entry : scopeTree.entrySet()) {
-            String scope = entry.getKey();
-            String parent = entry.getValue();
-            if (!hasScope(parent) && !scope.equals(IMMORTAL)) {
+        for (Map.Entry<ScopeInfo, ScopeInfo> entry : scopeTree.entrySet()) {
+            ScopeInfo scope = entry.getKey();
+            ScopeInfo parent = entry.getValue();
+            if (!hasScope(parent) && !scope.isImmortal()) {
                 checker.report(Result.failure(ERR_SCOPE_TREE_NOT_CONSISTENT,
                         scope, parent), scopeMap.get(scope));
             }
