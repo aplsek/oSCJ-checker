@@ -76,7 +76,7 @@ public final class Utils {
         return modifiers.contains(Modifier.FINAL);
     }
 
-    public static boolean isAllocFree(ExecutableElement methodElement, AnnotatedTypes ats) {
+    public static boolean isAllocFree(ExecutableElement methodElement) {
         SCJRestricted r;
         if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null && r.value() != null) {
             return !r.mayAllocate();
