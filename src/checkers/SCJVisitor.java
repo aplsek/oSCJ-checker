@@ -1,7 +1,9 @@
 package checkers;
 
 import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.Tree;
 
+import checkers.source.Result;
 import checkers.source.SourceChecker;
 import checkers.source.SourceVisitor;
 
@@ -21,5 +23,13 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
 
     protected void debugIndent(String s) {
         Utils.debugPrintln(s);
+    }
+
+    protected void fail(String msg, Tree src, Object... msgParams) {
+        checker.report(Result.failure(msg, msgParams), src);
+    }
+
+    protected void warn(String msg, Tree src, Object... msgParams) {
+        checker.report(Result.warning(msg, msgParams), src);
     }
 }

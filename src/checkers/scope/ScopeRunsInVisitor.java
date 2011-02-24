@@ -309,7 +309,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             // Current item is something from a library. Can't put an error on
             // it, so put an error on the node being visited stating that
             // something from the parent class or interface is broken.
-            checker.report(Result.failure(ERR_BAD_LIBRARY_ANNOTATION), errNode);
+            fail(ERR_BAD_LIBRARY_ANNOTATION, errNode);
         }
     }
 

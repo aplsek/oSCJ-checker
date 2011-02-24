@@ -56,7 +56,6 @@ import javax.safetycritical.annotate.Scope;
 import checkers.SCJVisitor;
 import checkers.Utils;
 import checkers.Utils.SCJ_METHODS;
-import checkers.source.Result;
 import checkers.source.SourceChecker;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.types.AnnotatedTypeMirror;
@@ -401,7 +400,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 TypeElement t = Utils.getTypeElement(componentType);
                 String scope = ctx.getClassScope(t);
                 if (!(scope.equals(CURRENT) || scope.equals(currentAllocScope()))) {
-                    report(Result.failure(ERR_BAD_ALLOCATION, currentAllocScope(), scope), node);
+                    fail(ERR_BAD_ALLOCATION, node, currentAllocScope(), scope);
                 }
             }
             super.visitNewArray(node, p);
@@ -424,7 +423,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             if (nodeClassScope != null && !currentAllocScope().equals(nodeClassScope) && !nodeClassScope.equals(CURRENT)) {
                 // Can't call new unless the type has the same scope as the
                 // current context
-                report(Result.failure(ERR_BAD_ALLOCATION, currentAllocScope(), nodeClassScope), node);
+                fail(ERR_BAD_ALLOCATION, node, currentAllocScope(), nodeClassScope);
             }
             super.visitNewClass(node, p);
             return new ScopeInfo(currentAllocScope());
@@ -540,8 +539,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private void checkLocalAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree errorNode) {
         if (!concretize(lhs).equals(concretize(rhs))) {
-            report(Result.failure(ERR_BAD_ASSIGNMENT_SCOPE, rhs.getScope(),
-                    lhs.getScope()), errorNode);
+            fail(ERR_BAD_ASSIGNMENT_SCOPE, errorNode, rhs.getScope(),
+                    lhs.getScope());
         }
     }
 
@@ -588,7 +587,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         case MEMBER_SELECT :
             Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
             if (tmp.getKind() != ElementKind.FIELD) {
-                report(Result.failure(ERR_BAD_ENTER_PARAM), arg);
+                fail(ERR_BAD_ENTER_PARAM, arg);
                 return null;
             } else {
                 argRunsIn = getRunsInFromRunnable(tmp.asType());
@@ -615,19 +614,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             argRunsIn = getRunsInFromRunnable(castType);
             break;
         default :
-            report(Result.failure(ERR_BAD_ENTER_PARAM), arg);
+            fail(ERR_BAD_ENTER_PARAM, arg);
             return null;
         }
 
         if (argRunsIn == null) {
             /* checked by scope.MyMission2.java */
-            report(Result.failure(ERR_BAD_ENTER_PRIVATE_MEM_NO_RUNS_IN), node);
+            fail(ERR_BAD_ENTER_PRIVATE_MEM_NO_RUNS_IN, node);
         } else if (argScope == null || !argScope.equals(currentAllocScope())) {
             /* checked by scope.MyMission2.java */
-            report(Result.failure(ERR_BAD_ENTER_PRIVATE_MEM_NO_SCOPE_ON_RUNNABLE), node);
+            fail(ERR_BAD_ENTER_PRIVATE_MEM_NO_SCOPE_ON_RUNNABLE, node);
         } else if (!scopeTree.isParentOf(argRunsIn, currentAllocScope())) {
             /* checked by scope.MyMission2.java */
-            report(Result.failure(ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH, argRunsIn, currentAllocScope()), node);
+            fail(ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH, node, argRunsIn, currentAllocScope());
         }
         debugIndent("enterPrivateMemory Invocation: DONE.");
 
@@ -654,7 +653,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // TODO:
             Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
             if (tmp.getKind() != ElementKind.FIELD) {
-                report(Result.failure(ERR_BAD_ENTER_PARAM), arg);
+                fail(ERR_BAD_ENTER_PARAM, arg);
                 return null;
             } else {
                 argRunsIn = directRunsIn((VariableElement) tmp);
@@ -668,17 +667,17 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
             break;
         case TYPE_CAST :
-            report(Result.failure(ERR_TYPE_CAST_BAD_ENTER_PARAMETER), arg);
+            fail(ERR_TYPE_CAST_BAD_ENTER_PARAMETER, arg);
             break;
         default :
-            report(Result.failure(ERR_DEFAULT_BAD_ENTER_PARAMETER), arg);
+            fail(ERR_DEFAULT_BAD_ENTER_PARAMETER, arg);
             return null;
         }
 
         if (argRunsIn == null) {
             // All Runnables used with executeInArea/enter should have
             // @RunsIn on "run()" method
-            report(Result.failure(ERR_RUNNABLE_WITHOUT_RUNSIN), node);
+            fail(ERR_RUNNABLE_WITHOUT_RUNSIN, node);
         } else {
             switch (e.getKind()) {
             case IDENTIFIER :
@@ -699,12 +698,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             if (varScope == null || !varScope.equals(argRunsIn)) {
                 // The Runnable and the PrivateMemory must have agreeing
                 // scopes
-                report(Result.failure(ERR_BAD_EXECUTE_IN_AREA_OR_ENTER), node);
+                fail(ERR_BAD_EXECUTE_IN_AREA_OR_ENTER, node);
             }
             if ("executeInArea".equals(methodName) && !scopeTree.isAncestorOf(currentAllocScope(), varScope)) {
-                report(Result.failure(ERR_BAD_EXECUTE_IN_AREA_TARGET), node);
+                fail(ERR_BAD_EXECUTE_IN_AREA_TARGET, node);
             } else if ("enter".equals(methodName) && !scopeTree.isParentOf(varScope, currentAllocScope())) {
-                report(Result.failure(ERR_BAD_ENTER_TARGET), node);
+                fail(ERR_BAD_ENTER_TARGET, node);
             }
         }
         return scope;
@@ -717,11 +716,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             var.getModifiers();
 
             if (!isFinal(var.getModifiers())) {
-                report(Result.failure(ERR_BAD_GUARD_NO_FINAL, arg), node);
+                fail(ERR_BAD_GUARD_NO_FINAL, node, arg);
             }
             break;
         default :
-            report(Result.failure(ERR_BAD_GUARD_ARGUMENT, arg), node);
+            fail(ERR_BAD_GUARD_ARGUMENT, node, arg);
             return;
         }
     }
@@ -857,7 +856,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (current.equals(UNKNOWN)) {
             if (runsIn == null || !runsIn.equals(UNKNOWN)) {
                 /* TEST WITH: scope/unknown/UnknownMethod */
-                report(Result.failure(ERR_BAD_METHOD_INVOKE, CURRENT, UNKNOWN), node);
+                fail(ERR_BAD_METHOD_INVOKE, node, CURRENT, UNKNOWN);
             }
         }
         else if (current.equals(varScope)) {
@@ -867,15 +866,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                     /* TEST WITH: scope/unknown/TestCrossScope */
                     // Can only call methods that run in the same scope.
                     // Allows parent scopes as well, if they are marked @AllocFree.
-                    report(Result.failure(ERR_BAD_METHOD_INVOKE, runsIn, current), node);
+                    fail(ERR_BAD_METHOD_INVOKE, node, runsIn, current);
                 }
             }
         } else if (runsIn == null) {
             /* TEST WITH: scope/unknown/TestCrossScope **/
-            report(Result.failure(ERR_BAD_METHOD_INVOKE, varScope, current), node);
+            fail(ERR_BAD_METHOD_INVOKE, node, varScope, current);
         } else if (!runsIn.equals(UNKNOWN)) {
             /* TEST WITH: scope/unknown/TestCrossScope **/
-            report(Result.failure(ERR_BAD_METHOD_INVOKE, runsIn, current), node);
+            fail(ERR_BAD_METHOD_INVOKE, node, runsIn, current);
         }
         return new ScopeInfo(returnScope);
     }
@@ -892,10 +891,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 && ((MemberSelectTree) arg).getExpression().getKind() == Kind.IDENTIFIER
                 && (newInstanceType = TreeUtils.elementFromUse((IdentifierTree) ((MemberSelectTree) arg)
                         .getExpression())).getKind() == ElementKind.CLASS) {
-            String instanceScope = ctx.getClassScope((TypeElement) newInstanceType);
+            TypeElement newInstanceTypeElement = (TypeElement) newInstanceType;
+            String instanceScope = ctx.getClassScope(newInstanceTypeElement);
             if (instanceScope != null && !varScope.equals(instanceScope)) {
-                report(Result.failure(ERR_BAD_NEW_INSTANCE, ((TypeElement) newInstanceType).getQualifiedName(),
-                        varScope), node);
+                fail(ERR_BAD_NEW_INSTANCE, node, newInstanceTypeElement,
+                        varScope);
             }
         } else {
             // TODO: We only accept newInstance(X.class) right now
@@ -904,7 +904,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private boolean checkReturnScope(ExpressionTree exprTree, Tree errorNode, String returnScope) {
-        debugIndent("check Assignment : ");
+        debugIndent("check Assignment: ");
 
         if (isPrimitiveExpression(exprTree)) {
             return true; // primitive assignments are always allowed
@@ -945,7 +945,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
              */
             if (currentAllocScope() != null && !currentAllocScope().equals(returnScope)) {
                 /* checked by scope/scopeReturn/ScopeReturn.java */
-                report(Result.failure(ERR_BAD_RETURN_SCOPE, currentAllocScope(), returnScope), errorNode);
+                fail(ERR_BAD_RETURN_SCOPE, errorNode, currentAllocScope(), returnScope);
             }
 
             // Handled by visitNewClass
@@ -993,7 +993,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         if (!isLegal) {
-            report(Result.failure(ERR_BAD_RETURN_SCOPE, exprScope, returnScope), errorNode);
+            fail(ERR_BAD_RETURN_SCOPE, errorNode, exprScope, returnScope);
         }
         return isLegal;
     }
@@ -1045,8 +1045,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return new ScopeInfo(tScope);
         } else {
             if (!tScope.equals(varScope.value())) {
-                report(Result.failure(ERR_BAD_VARIABLE_SCOPE,
-                        t.getSimpleName(), currentAllocScope()), node);
+                fail(ERR_BAD_VARIABLE_SCOPE, node, t.getSimpleName(),
+                        currentAllocScope());
             }
             return new ScopeInfo(tScope);
         }
@@ -1312,12 +1312,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             default :
                 return exprTree;
             }
-        }
-    }
-
-    public void report(Result r, Object src) {
-        if (src != null) {
-            checker.report(r, src);
         }
     }
 

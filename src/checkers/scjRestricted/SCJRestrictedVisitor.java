@@ -30,7 +30,6 @@ import javax.safetycritical.annotate.SCJRestricted;
 
 import checkers.SCJVisitor;
 import checkers.Utils;
-import checkers.source.Result;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
 import checkers.types.AnnotatedTypes;
@@ -91,16 +90,16 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         if (errorNode != null) {
             if (containsAny(currentRs, whenRestricts)) {
                 if (rs.contains(Phase.CLEANUP) && (currentRs.contains(Phase.INITIALIZATION) || currentRs.contains(Phase.RUN))) {
-                    checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE, "CLEANUP", "INITIALIZATION or RUN"), errorNode);
+                    fail(ERR_ILLEGAL_OVERRIDE, errorNode, "CLEANUP", "INITIALIZATION or RUN");
                 }
                 if (rs.contains(Phase.RUN) && (currentRs.contains(Phase.CLEANUP) || currentRs.contains(Phase.INITIALIZATION))) {
-                    checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE, "RUN", "CLEANUP or INITIALIZATION"), errorNode);
+                    fail(ERR_ILLEGAL_OVERRIDE, errorNode, "RUN", "CLEANUP or INITIALIZATION");
                 }
                 if (rs.contains(Phase.INITIALIZATION) && (currentRs.contains(Phase.CLEANUP) || currentRs.contains(Phase.RUN))) {
-                    checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE, "INITIALIZATION", "CLEANUP or RUN"), errorNode);
+                    fail(ERR_ILLEGAL_OVERRIDE, errorNode, "INITIALIZATION", "CLEANUP or RUN");
                 }
                 if (rs.contains(Phase.ALL) && !currentRs.contains(Phase.ALL)) {
-                    checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE, "ALL", "CLEANUP, RUN, or INITIALIZATION"), errorNode);
+                    fail(ERR_ILLEGAL_OVERRIDE, errorNode, "ALL", "CLEANUP, RUN, or INITIALIZATION");
                 }
             }
         }
@@ -134,7 +133,7 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
             .contains(Phase.INITIALIZATION);
         // At least two phase restrictions
         if ((anyTime && (cleanup || initialize)) || (cleanup && initialize)) {
-            checker.report(Result.failure(ERR_TOO_MANY_VALUES, "ALL, CLEANUP, INITIALIZATION"), node);
+            fail(ERR_TOO_MANY_VALUES, node, "ALL, CLEANUP, INITIALIZATION");
         }
     }
 
@@ -228,7 +227,7 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
 
             if (!isAllocFree(varElem, node.getExpression()))
             /** Tested by tests/allocfree/AutoboxAlloc.java */
-            checker.report(Result.failure(ERR_UNALLOWED_ALLOCATION), node.getExpression());
+            fail(ERR_UNALLOWED_ALLOCATION, node.getExpression());
         }
 
         debugIndentDecrement();
@@ -242,7 +241,7 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
             Element varElem = TreeUtils.elementFromUse(node.getVariable());
             if (TypesUtils.isBoxedPrimitive(varElem.asType()))
             /** Tested by the CompoundAssignementTest */
-            checker.report(Result.failure(ERR_UNALLOWED_ALLOCATION), node.getExpression());
+            fail(ERR_UNALLOWED_ALLOCATION, node.getExpression());
         }
         return super.visitCompoundAssignment(node, p);
     }
@@ -250,7 +249,7 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
     @Override
     public R visitEnhancedForLoop(EnhancedForLoopTree node, P p) {
         /** Tested by tests/allocfree/ForeachAlloc */
-        if (currentAllocFree) checker.report(Result.failure(ERR_UNALLOWED_FOREACH), node);
+        if (currentAllocFree) fail(ERR_UNALLOWED_FOREACH, node);
         return super.visitEnhancedForLoop(node, p);
     }
 
@@ -304,13 +303,13 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
             //System.out.println("override: " +override);
 
             if (r == null && getSelfSuspend(override)) {
-                checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE1), node);
+                fail(ERR_ILLEGAL_OVERRIDE1, node);
                 System.out.println("ERROR");
                 break;
             }
 
             if (!result && getSelfSuspend(override)) {
-                checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE, "maySelfSuspend=true", "maySelfSuspend=false"), node);
+                fail(ERR_ILLEGAL_OVERRIDE, node, "maySelfSuspend=true", "maySelfSuspend=false");
                 System.out.println("ERROR");
                 break;
             }
@@ -348,17 +347,13 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
         .overriddenMethods(methodElement);
         for (ExecutableElement override : overrides.values()) {
-
-            //System.out.println("override: " +override);
-            //System.out.println("r: " +r);
-            //System.out.println("over alloc: " +getMayAllocate(override));
             if (r == null && !getMayAllocate(override)) {
-                checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE1), node);
+                fail(ERR_ILLEGAL_OVERRIDE1, node);
                 break;
             }
 
             if (result && !getMayAllocate(override)) {
-                checker.report(Result.failure(ERR_ILLEGAL_OVERRIDE, "mayAllocate=false", "mayAllocate=true"), node);
+                fail(ERR_ILLEGAL_OVERRIDE, node, "mayAllocate=false", "mayAllocate=true");
                 break;
             }
         }
@@ -386,30 +381,30 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         EnumSet<Phase> rs = getSCJRestrictions(methodElement, null);
 
         if (currentBlockFree && isSelfSuspend(methodElement, node)) {
-            checker.report(Result.failure(ERR_UNALLOWED_METHODCALL, "MAY_BLOCK", "BLOCK_FREE"), node);
+            fail(ERR_UNALLOWED_METHODCALL, node, "MAY_BLOCK", "BLOCK_FREE");
         }
         if (currentAllocFree && isMayAllocate(methodElement, node)) {
-            checker.report(Result.failure(ERR_UNALLOWED_METHODCALL, "MAY_ALLOCATE", "ALLOCATE_FREE"), node);
+            fail(ERR_UNALLOWED_METHODCALL, node, "MAY_ALLOCATE", "ALLOCATE_FREE");
         }
         if (currentWhen == Phase.CLEANUP && (rs.contains(Phase.RUN) || rs.contains(Phase.INITIALIZATION))) {
-            checker.report(Result.failure(ERR_UNALLOWED_METHODCALL, "RUN or INITIALIZATION", "CLEANUP"), node);
+            fail(ERR_UNALLOWED_METHODCALL, node, "RUN or INITIALIZATION", "CLEANUP");
         }
         if (currentWhen == Phase.RUN && (rs.contains(Phase.CLEANUP) || rs.contains(Phase.INITIALIZATION))) {
-            checker.report(Result.failure(ERR_UNALLOWED_METHODCALL, "CLEANUP or INITIALIZATION", "RUN"), node);
+            fail(ERR_UNALLOWED_METHODCALL, node, "CLEANUP or INITIALIZATION", "RUN");
         }
         if (currentWhen == Phase.INITIALIZATION && (rs.contains(Phase.CLEANUP) || rs.contains(Phase.RUN))) {
-            checker.report(Result.failure(ERR_UNALLOWED_METHODCALL, "CLEANUP or RUN", "INITIALIZATION"), node);
+            fail(ERR_UNALLOWED_METHODCALL, node, "CLEANUP or RUN", "INITIALIZATION");
         }
         if (currentWhen == Phase.ALL) {
             if (rs.contains(Phase.CLEANUP) || rs.contains(Phase.RUN) || rs.contains(Phase.INITIALIZATION)) {
-                checker.report(Result.failure(ERR_UNALLOWED_METHODCALL, "CLEANUP, RUN, or INITIALIZATION", "ALL"), node);
+                fail(ERR_UNALLOWED_METHODCALL, node, "CLEANUP, RUN, or INITIALIZATION", "ALL");
             }
         }
         List<? extends VariableElement> parameters = methodElement.getParameters();
         List<? extends ExpressionTree> arguments = node.getArguments();
         for (int i = 0; i < parameters.size(); i++) {
-            if (!isAllocFree(parameters.get(i), arguments.get(i))) checker.report(Result
-                .failure(ERR_UNALLOWED_ALLOCATION), arguments.get(i));
+            if (!isAllocFree(parameters.get(i), arguments.get(i)))
+                fail(ERR_UNALLOWED_ALLOCATION, arguments.get(i));
         }
 
         debugIndentDecrement();
@@ -419,7 +414,7 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
     @Override
     public R visitNewArray(NewArrayTree node, P p) {
         /** Tested by tests/allocfree/NewAlloc.java */
-        if (currentAllocFree) checker.report(Result.failure(ERR_UNALLOWED_ALLOCATION), node);
+        if (currentAllocFree) fail(ERR_UNALLOWED_ALLOCATION, node);
         return super.visitNewArray(node, p);
     }
 
@@ -429,7 +424,7 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
          * Tested by tests/allocfree/MethodCallsAbstract.java and tests/allocfree/MethodCallsInterface.java and
          * tests/allocfree/NewAlloc.java
          */
-        if (currentAllocFree) checker.report(Result.failure(ERR_UNALLOWED_ALLOCATION), node);
+        if (currentAllocFree) fail(ERR_UNALLOWED_ALLOCATION, node);
         return super.visitNewClass(node, p);
     }
 
@@ -439,7 +434,7 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
             Element varElem = TreeUtils.elementFromDeclaration(node);
             if (!isAllocFree(varElem, node.getInitializer()))
             /** Tested by tests/allocfree/AutoboxAlloc.java and tests/allocfree/StringAlloc.java */
-            checker.report(Result.failure(ERR_UNALLOWED_ALLOCATION), node.getInitializer());
+            fail(ERR_UNALLOWED_ALLOCATION, node.getInitializer());
         }
         return super.visitVariable(node, p);
     }

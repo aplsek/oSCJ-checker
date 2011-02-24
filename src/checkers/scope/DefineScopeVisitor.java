@@ -19,7 +19,6 @@ import javax.safetycritical.annotate.DefineScope;
 
 import checkers.SCJVisitor;
 import checkers.Utils;
-import checkers.source.Result;
 import checkers.source.SourceChecker;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.types.AnnotatedTypeMirror;
@@ -50,14 +49,14 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         if (d != null) {
             //System.out.println("scope def: " + d.name() + " par:" + d.parent());
             if (d.name() == null || d.parent() == null) {
-                checker.report(Result.failure(ERR_BAD_SCOPE_NAME), node);
+                fail(ERR_BAD_SCOPE_NAME, node);
             } else if (d.name() != null && d.parent() != null) {
                 if (IMMORTAL.equals(d.name())) {
-                    checker.report(Result.failure(ERR_BAD_SCOPE_NAME), node);
+                    fail(ERR_BAD_SCOPE_NAME, node);
                 } else if (scopeTree.hasScope(d.name())) {
-                    checker.report(Result.failure(ERR_DUPLICATE_SCOPE_NAME), node);
+                    fail(ERR_DUPLICATE_SCOPE_NAME, node);
                 } else if (scopeTree.isParentOf(d.parent(), d.name())) {
-                    checker.report(Result.failure(ERR_CYCLICAL_SCOPES), node);
+                    fail(ERR_CYCLICAL_SCOPES, node);
                     // TODO: doesn't reserve implicitly defined scopes
                 } else {
                     scopeTree.put(d.name(), d.parent(), node);
@@ -91,14 +90,12 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
                 }
                 if (name != null && parent != null) {
                     if (IMMORTAL.equals(name)) {
-                        checker.report(Result.failure(ERR_BAD_SCOPE_NAME), node);
-                        //
+                        fail(ERR_BAD_SCOPE_NAME, node);
                         // TODO: ales, this is disabled, we allow this...
                     } else if (scopeTree.hasScope(name)) {
-                        checker.report(Result.failure(ERR_DUPLICATE_SCOPE_NAME),
-                                node);
+                        fail(ERR_DUPLICATE_SCOPE_NAME, node);
                     } else if (scopeTree.isParentOf(parent, name)) {
-                        checker.report(Result.failure(ERR_CYCLICAL_SCOPES), node);
+                        fail(ERR_CYCLICAL_SCOPES, node);
                     } else {
                         scopeTree.put(name, parent, node);
                         return super.visitMethodInvocation(node, p);
