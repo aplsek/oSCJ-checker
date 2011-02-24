@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import static javax.safetycritical.annotate.Scope.CURRENT;
 
 import checkers.Utils;
 
@@ -151,17 +153,43 @@ public class ScopeCheckerContext {
      * annotation to something more concrete, if available.
      */
     public String getEffectiveMethodRunsIn(ExecutableElement m) {
-        // TODO
-        return null;
+        String methodRunsIn = getMethodRunsIn(m);
+        if (!methodRunsIn.equals(CURRENT))
+            return methodRunsIn;
+        
+        TypeElement clazz = (TypeElement) m.getEnclosingElement();
+        String scope = getClassScope(clazz);
+        //TODO: see the getEffectiveMethodScope() for the issue of "enclosing classes"
+        return scope; 
     }
 
     /**
      * Get the effective Scope of a method. This translates a CURRENT
      * annotation to something more concrete, if available.
+     * 
+     * TODO: enclosing classes
+     * 
+     * @return - CURRENT if the enclosing classes are not annotated.
      */
     public String getEffectiveMethodScope(ExecutableElement m) {
-        // TODO
-        return null;
+        if (!getMethodScope(m).equals(CURRENT))
+            return getMethodScope(m);
+        
+        TypeElement clazz = (TypeElement) m.getEnclosingElement();
+        String scope = getClassScope(clazz);
+        
+        /*
+         * TODO: enclosing class may change this, see the issue on "enclosing classes"
+        while (clazz != null || scope.equals(CURRENT)) {
+            scope = getClassScope(clazz);
+            Element cl = clazz.getEnclosingElement();
+            if (cl instanceof TypeElement)
+                clazz = (TypeElement) clazz.getEnclosingElement();
+            else
+                break;
+        }*/
+        
+        return scope;          
     }
 
     /**
@@ -349,6 +377,13 @@ public class ScopeCheckerContext {
             this.scope = scope;
             methodScopes = new HashMap<String, MethodScopeInfo>();
             fieldScopes = new HashMap<String, String>();
+        }
+        
+        public void dumpCSI() {
+            System.out.println("\n\n\t size : " + methodScopes.size());
+            for( String key: methodScopes.keySet() ){
+                System.out.println("\t key:" + key + "  - " + methodScopes.get(key));
+            }
         }
     }
 

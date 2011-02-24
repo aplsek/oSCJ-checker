@@ -113,7 +113,7 @@ class MyHandler extends PeriodicEventHandler {
 class Foo {
 }
 
-class Bar {}
+class BarBarBar {}
 
 @Scope("MyHandler")
 class BarScope {}

@@ -351,12 +351,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ExecutableElement method = TreeUtils.elementFromDeclaration(node);
 
         debugIndent("Seen method " + method.getSimpleName());
-        debugIndent("RUNS IN: " + currentRunsIn);
-        debugIndent("scope: " + currentScope);
+        debugIndent("RunsIn: " + currentRunsIn);
+        debugIndent("Scope: " + currentScope);
 
         String oldRunsIn = currentRunsIn;
         try {
-            String runsIn = ctx.getMethodRunsIn(method);
+            //String runsIn = ctx.getMethodRunsIn(method);
+            String runsIn = ctx.getEffectiveMethodRunsIn(method);
             debugIndent("@RunsIn(" + runsIn + ") " + method.getSimpleName());
             if (runsIn != null) {
                 currentRunsIn = runsIn;
@@ -822,60 +823,71 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      *     for arguments
      *         - arguments must match - their types, also the arguments themselfs may be annotated.
      *
-     * @param node
+     * @param n
      * @return
      */
-    private ScopeInfo checkRegularMethodInvocation(MethodInvocationTree node) {
+    private ScopeInfo checkRegularMethodInvocation(MethodInvocationTree n) {
+        enableDebug();
+        debugIndent("method Invocation:" + n);
+        
         // TODO: static methods will probably fail here!!
-        ExecutableElement method = TreeUtils.elementFromUse(node);
-
-        String returnScope = ctx.getMethodScope(method);
-        String runsInScope = ctx.getMethodRunsIn(method);
+        ExecutableElement method = TreeUtils.elementFromUse(n);
+        String returnScope = ctx.getEffectiveMethodScope(method);
+        
+        // String returnScope = ctx.getMethodScope(method);
+        String runsInScope = ctx.getEffectiveMethodRunsIn(method);
+        
         String current = currentAllocScope();
         String varScope = null;
 
-        //TypeElement type = Utils.getMethodClass(method);
-        String runsIn = ctx.getMethodRunsIn(method);
-
-        // TODO: retrieve the var!!
-
-        ExpressionTree e = node.getMethodSelect();
-        Element el =TreeUtils.elementFromUse(e);
-
-        switch (e.getKind()) {
+        ExpressionTree target = n.getMethodSelect();
+        debugIndent("method expression: " + target);
+        // TODO: Replace the switch with : visit the expression to get the ScopeInfo
+        // eg. ScopeInfo target = node.getExpression().accept(this, p);
+        switch (target.getKind()) {
         case IDENTIFIER :
-            Element elem = TreeUtils.elementFromUse((IdentifierTree) e);
-            //Element elem = TreeUtils.elementFromUse((IdentifierTree) e);
+            // TODO: retrieve the varScope!!
+            Element elem = TreeUtils.elementFromUse((IdentifierTree) target);
+            debugIndent("\t identifier !!! TODO:" + elem);
             break;
         case MEMBER_SELECT :
-            //ExpressionTree ee = ((MemberSelectTree) e).getExpression();
-            //Element el = TreeUtils.elementFromUse(ee);
+            // TODO: visit the expression to get the ScopeInfo
+            ExpressionTree ee = ((MemberSelectTree) target).getExpression();
+            VariableElement var = (VariableElement) TreeUtils.elementFromUse(ee);
+            varScope =  ctx.getFieldScope(var);
             break;
         }
-
+        
+        debugIndent("\t runsInScope : " +  runsInScope);
+        debugIndent("\t returnScope : " +  returnScope);
+        debugIndent("\t current : " +  current);
+        debugIndent("\t varScope : " +  varScope);
+        
         if (current.equals(UNKNOWN)) {
-            if (runsIn == null || !runsIn.equals(UNKNOWN)) {
+            if (runsInScope == null || !runsInScope.equals(UNKNOWN)) {
                 /* TEST WITH: scope/unknown/UnknownMethod */
-                fail(ERR_BAD_METHOD_INVOKE, node, CURRENT, UNKNOWN);
+                fail(ERR_BAD_METHOD_INVOKE, n, CURRENT, UNKNOWN);
             }
         }
         else if (current.equals(varScope)) {
-            if (runsIn != null) {
-                if (!(runsIn.equals(current) || (Utils.isAllocFree(method, ats)
-                        && scopeTree.isParentOf(current, runsIn)))) {
+            if (runsInScope != null) {
+                if (!(runsInScope.equals(current) || (Utils.isAllocFree(method, ats)
+                        && scopeTree.isParentOf(current, runsInScope)))) {
                     /* TEST WITH: scope/unknown/TestCrossScope */
                     // Can only call methods that run in the same scope.
                     // Allows parent scopes as well, if they are marked @AllocFree.
-                    fail(ERR_BAD_METHOD_INVOKE, node, runsIn, current);
+                    fail(ERR_BAD_METHOD_INVOKE, n, runsInScope, current);
                 }
             }
-        } else if (runsIn == null) {
+        } else if (runsInScope == null) {
             /* TEST WITH: scope/unknown/TestCrossScope **/
-            fail(ERR_BAD_METHOD_INVOKE, node, varScope, current);
-        } else if (!runsIn.equals(UNKNOWN)) {
+            fail(ERR_BAD_METHOD_INVOKE, n, varScope, current);
+        } else if (!runsInScope.equals(UNKNOWN)) {
             /* TEST WITH: scope/unknown/TestCrossScope **/
-            fail(ERR_BAD_METHOD_INVOKE, node, runsIn, current);
+            fail(ERR_BAD_METHOD_INVOKE, n, runsInScope, current);
         }
+        
+        disableDebug();
         return new ScopeInfo(returnScope);
     }
 
