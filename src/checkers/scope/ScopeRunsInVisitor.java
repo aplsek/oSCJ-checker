@@ -44,7 +44,6 @@ import com.sun.source.tree.VariableTree;
  * stored into a context object so that the ScopeVisitor doesn't have to deal
  * with retrieving this information.
  */
-@SuppressWarnings("restriction")
 public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     private ScopeCheckerContext ctx;
     private ScopeTree scopeTree;

@@ -125,7 +125,6 @@ import com.sun.tools.javac.tree.TreeInfo;
  *                          (which it may, I have not thought about it much).
  *
  */
-@SuppressWarnings("restriction")
 public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private AnnotatedTypeFactory atf;

@@ -67,6 +67,10 @@ public final class Utils {
         return null;
     }
 
+    public static boolean isPublic(Collection<Modifier> modifiers) {
+        return modifiers.contains(Modifier.PUBLIC);
+    }
+
     public static boolean isStatic(Collection<Modifier> modifiers) {
         return modifiers.contains(Modifier.STATIC);
     }

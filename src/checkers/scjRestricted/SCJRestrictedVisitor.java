@@ -57,7 +57,6 @@ import com.sun.source.tree.VariableTree;
 // Currently checked rules:
 // 1. No method call may be made from a @BlockFree method to a non @BlockFree method
 
-@SuppressWarnings("restriction")
 public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
     private AnnotatedTypeFactory atf;
     private AnnotatedTypes       ats;

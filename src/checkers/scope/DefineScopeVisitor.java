@@ -1,5 +1,8 @@
 package checkers.scope;
 
+import static checkers.scope.DefineScopeChecker.ERR_BAD_SCOPE_NAME;
+import static checkers.scope.DefineScopeChecker.ERR_CYCLICAL_SCOPES;
+import static checkers.scope.DefineScopeChecker.ERR_DUPLICATE_SCOPE_NAME;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import java.util.LinkedList;
@@ -14,10 +17,10 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.DefineScope;
 
+import checkers.SCJVisitor;
 import checkers.Utils;
 import checkers.source.Result;
 import checkers.source.SourceChecker;
-import checkers.source.SourceVisitor;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.types.AnnotatedTypeMirror;
 import checkers.util.TreeUtils;
@@ -27,12 +30,9 @@ import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.MethodInvocationTree;
 
-import static checkers.scope.DefineScopeChecker.*;
-
 // TODO: Verify tree structure after construction
 
-@SuppressWarnings("restriction")
-public class DefineScopeVisitor<R, P> extends SourceVisitor<R, P> {
+public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
     private AnnotatedTypeFactory atf;
     private ScopeTree scopeTree;
 
