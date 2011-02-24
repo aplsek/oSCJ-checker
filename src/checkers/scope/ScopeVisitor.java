@@ -167,8 +167,17 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeInfo visitAssignment(AssignmentTree node, P p) {
         try {
             debugIndentIncrement("visitAssignment : " + node);
+            //pln("assignment:" + node);
+            
             ScopeInfo lhs = node.getVariable().accept(this, p);
             ScopeInfo rhs = node.getExpression().accept(this, p);
+            
+            //pln("\t lhs :" + lhs.getScope());
+            //if (rhs != null)
+            //    pln("\t rhs :" + rhs.getScope());
+            //else 
+            //    pln("\t rhs : null");
+                
             if (lhs.equals(rhs) && !lhs.isUnknown()) {
                 return lhs;
             }
@@ -382,8 +391,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeInfo visitMethodInvocation(MethodInvocationTree node, P p) {
         try {
             debugIndentIncrement("visitMethodInvocation");
-            checkMethodInvocation(node, p);
-            return super.visitMethodInvocation(node, p);
+            ScopeInfo scope = checkMethodInvocation(node, p);
+            super.visitMethodInvocation(node, p);
+            return scope;
         } finally {
             debugIndentDecrement();
         }
@@ -449,7 +459,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         ScopeInfo ret = node.getExpression().accept(this, p);
         debugIndent("return scope is :" + returnScope);
-
+        //pln("return scope:" + returnScope);
+        
         if (returnScope == null || !returnScope.equals(UNKNOWN))
             checkReturnScope(node.getExpression(), node, returnScope);
 
@@ -548,7 +559,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return scope;
     }
 
-    private void checkDynamicGuard(MethodInvocationTree node) {
+    private ScopeInfo checkDynamicGuard(MethodInvocationTree node) {
         ExpressionTree arg1 = node.getArguments().get(0);
         ExpressionTree arg2 = node.getArguments().get(1);
 
@@ -556,11 +567,14 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         checkFinal(arg2, node);
 
         // TODO : finish the checking of the guard
+        
+        return null;
     }
 
-    private void checkEnterPrivateMemory(MethodInvocationTree node) {
+    private ScopeInfo checkEnterPrivateMemory(MethodInvocationTree node) {
         debugIndent("enterPrivateMemory Invocation");
-
+        ScopeInfo scope = null;
+        
         ExpressionTree e = node.getMethodSelect();
         ExpressionTree arg = node.getArguments().get(1);
 
@@ -586,7 +600,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
             if (tmp.getKind() != ElementKind.FIELD) {
                 report(Result.failure(ERR_BAD_ENTER_PARAM), arg);
-                return;
+                return null;
             } else {
                 argRunsIn = getRunsInFromRunnable(tmp.asType());
                 argScope = ctx.getClassScope((TypeElement) tmp.asType());
@@ -616,7 +630,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             break;
         default :
             report(Result.failure(ERR_BAD_ENTER_PARAM), arg);
-            return;
+            return null;
         }
 
         if (argRunsIn == null) {
@@ -630,9 +644,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             report(Result.failure(ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH, argRunsIn, currentAllocScope()), node);
         }
         debugIndent("enterPrivateMemory Invocation: DONE.");
+        
+        return scope;
     }
 
-    private void checkExecuteInArea(MethodInvocationTree node) {
+    private ScopeInfo checkExecuteInArea(MethodInvocationTree node) {
+        ScopeInfo scope = null;
         ExecutableElement method = TreeUtils.elementFromUse(node);
         String methodName = method.getSimpleName().toString();
         ExpressionTree e = node.getMethodSelect();
@@ -652,7 +669,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
             if (tmp.getKind() != ElementKind.FIELD) {
                 report(Result.failure(ERR_BAD_ENTER_PARAM), arg);
-                return;
+                return null;
             } else {
                 argRunsIn = directRunsIn((VariableElement) tmp);
             }
@@ -671,7 +688,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         default :
             // pln("\tEXEC: Type cast + " + arg.getKind());
             report(Result.failure(ERR_DEFAULT_BAD_ENTER_PARAMETER), arg);
-            return;
+            return null;
         }
 
         if (argRunsIn == null) {
@@ -713,6 +730,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 report(Result.failure(ERR_BAD_ENTER_TARGET), node);
             }
         }
+        return scope;
     }
 
     private void checkFinal(ExpressionTree arg, MethodInvocationTree node) {
@@ -731,45 +749,53 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
     }
 
-    private void checkGetMemoryArea(MethodInvocationTree node) {
+    private ScopeInfo checkGetMemoryArea(MethodInvocationTree node) {
         // TODO: revisit checking of the "getMemoryArea"!!!!
+        ScopeInfo scope = null;
+        return scope;
     }
 
-    private void checkMethodInvocation(MethodInvocationTree node, P p) {
+    private ScopeInfo checkMethodInvocation(MethodInvocationTree node, P p) {
         ExecutableElement method = TreeUtils.elementFromUse(node);
 
+        ScopeInfo scope = null;
+        
         // Ignore constructors, since they should be type checked by the class
         // visitation anyway.
         if (method.getSimpleName().toString().startsWith("<init>")) {
             // TODO: ignore constructors!!!
+            return scope;
         }
 
+        
         switch(compareName(method)) {
         case ENTER_PRIVATE_MEMORY:
-            checkEnterPrivateMemory(node);
+            scope = checkEnterPrivateMemory(node);
             break;
         case EXECUTE_IN_AREA:
-            checkExecuteInArea(node);
+            scope = checkExecuteInArea(node);
             break;
         case ENTER:
-            checkExecuteInArea(node);       // TODO: how to check the enter()?
+            scope = checkExecuteInArea(node);       // TODO: how to check the enter()?
             break;
         case NEW_INSTANCE:
-            checkNewInstance(node);
+            scope = checkNewInstance(node);
             break;
         case GET_MEMORY_AREA:
-            checkGetMemoryArea(node);
+            scope = checkGetMemoryArea(node);
             break;
         case ALLOC_IN_SAME:
-            checkDynamicGuard(node);
+            scope = checkDynamicGuard(node);
             break;
         case ALLOC_IN_PARENT:
-            checkDynamicGuard(node);
+            scope = checkDynamicGuard(node);
             break;
         default:
-            checkRegularMethodInvocation(node);
+            scope = checkRegularMethodInvocation(node);
             break;
         }
+        
+        return scope;
     }
 
     /**
@@ -813,32 +839,61 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         return DEFAULT;
     }
+    
+    private void pln(String str) {System.out.println(str);}
 
-    private void checkRegularMethodInvocation(MethodInvocationTree node) {
-        ExecutableElement method = TreeUtils.elementFromUse(node);
-        TypeElement type = Utils.getMethodClass(method);
-        String runsIn = ctx.getMethodRunsIn(method);
-
-        /*
-         * Method Invocation:
-         *   @Scope(Mission )Foo foo = mission.getFoo();      // OK
-         *           foo.method(bar);                //  ---> OK
-         *           foo.methodErr(bar);             // ERROR: is not @RunsIn(UNKNOWN)
-         *      --> if "foo" is not current, then the method invocation may be only to @RunsIn(UNKNOWN) method!!
-         */
-
+    /**
+     * Method invocation rules:
+     *     foo.method(bar);
+     *         - if method is @UNK then OK
+     *         - if foo is not current then method must be @UNK, otherwise ERROR
+     *         - if method has @RunsIn, it must be the same as the current active scope
+     *         
+     *     for arguments
+     *         - arguments must match - their types, also the arguments themselfs may be annotated.
+     * 
+     * @param node
+     * @return
+     */
+    private ScopeInfo checkRegularMethodInvocation(MethodInvocationTree node) {
         // TODO: static methods will probably fail here!!
+        ExecutableElement method = TreeUtils.elementFromUse(node);
 
-        // TODO: we check only scope on declaration, not the scope of the type!!
-        String varScope = getVarScope(node);
+        String returnScope = ctx.getMethodScope(method);
+        String runsInScope = ctx.getMethodRunsIn(method);
         String current = currentAllocScope();
-
+        String varScope = null;
+        
+        //TypeElement type = Utils.getMethodClass(method);
+        String runsIn = ctx.getMethodRunsIn(method);
+       
+        // TODO: retrieve the var!!
+        
+        ExpressionTree e = node.getMethodSelect();
+        Element el =TreeUtils.elementFromUse(e);
+        //pln("el : " + el);
+        
+        switch (e.getKind()) {
+        case IDENTIFIER :
+            //pln("identifier!!: "  + e);
+            Element elem = TreeUtils.elementFromUse((IdentifierTree) e);
+            //pln("identifier!!: "  + elem);
+            //Element elem = TreeUtils.elementFromUse((IdentifierTree) e);
+            break;
+        case MEMBER_SELECT :
+            //ExpressionTree ee = ((MemberSelectTree) e).getExpression();
+            //Element el = TreeUtils.elementFromUse(ee);
+            //pln("member_select: " + e);
+            break;
+        }
+        
         //pln("\n========: ");
         //pln("\t method : " + method);
-        //pln("\t varScope : " + varScope);
+        //pln("\t returnScope : " + returnScope);
         //pln("\t current: " + currentAllocScope());
-        //pln("\t runsIn: " + runsIn);
-
+        //pln("\t runsIn: " + runsInScope);
+        //pln("\t varScope: " + varScope);
+        
         if (current.equals(UNKNOWN)) {
             if (runsIn == null || !runsIn.equals(UNKNOWN)) {
                 /* TEST WITH: scope/unknown/UnknownMethod */
@@ -862,9 +917,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             /* TEST WITH: scope/unknown/TestCrossScope **/
             report(Result.failure(ERR_BAD_METHOD_INVOKE, runsIn, current), node);
         }
+        return new ScopeInfo(returnScope);
     }
 
-    private void checkNewInstance(MethodInvocationTree node) {
+    private ScopeInfo checkNewInstance(MethodInvocationTree node) {
+        ScopeInfo scope = null;
         // TODO: revisit checking of the "newInstance"!!!!
         ExpressionTree e = node.getMethodSelect();
         ExpressionTree arg = node.getArguments().get(0);
@@ -883,6 +940,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         } else {
             // TODO: We only accept newInstance(X.class) right now
         }
+        return scope;
     }
 
     private boolean checkReturnScope(ExpressionTree exprTree, Tree errorNode, String returnScope) {
@@ -1075,7 +1133,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // 2.2 if this is local var, look at enclosing method
 
         }
-
         return varScope;
     }
 

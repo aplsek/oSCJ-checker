@@ -218,9 +218,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 ret = scope;
             } else {
                 ret = tScope;
-                debugIndent("------>>>");
-                debugIndent("ret/tScope :" + ret);
-                debugIndent("scope :" + scope);
                 if (scope != null && !scope.equals(tScope)) {
                     report(Result.warning(ERR_ILLEGAL_SCOPE_OVERRIDE), node,
                             errNode);
