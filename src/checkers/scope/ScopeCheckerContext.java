@@ -1,6 +1,7 @@
 package checkers.scope;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,14 +74,15 @@ public class ScopeCheckerContext {
                 f.getSimpleName().toString());
     }
 
-    public String[] getParameterScopes(String clazz, String method,
+    public List<String> getParameterScopes(String clazz, String method,
             String... params) {
         ClassScopeInfo csi = classScopes.get(clazz);
         if (csi != null) {
             String sig = buildSignatureString(method, params);
             MethodScopeInfo msi = csi.methodScopes.get(sig);
             if (msi != null) {
-                return Arrays.copyOf(msi.parameters, msi.parameters.length);
+                List<String> scopes = Arrays.asList(msi.parameters);
+                return Collections.unmodifiableList(scopes);
             }
         }
         return null;
@@ -140,7 +142,7 @@ public class ScopeCheckerContext {
                 m.getSimpleName().toString(), getParameterTypeNames(m));
     }
 
-    public String[] getParameterScopes(ExecutableElement m) {
+    public List<String> getParameterScopes(ExecutableElement m) {
         TypeElement t = Utils.getMethodClass(m);
         return getParameterScopes(t.getQualifiedName().toString(),
                 m.getSimpleName().toString(), getParameterTypeNames(m));
