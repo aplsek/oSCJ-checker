@@ -28,7 +28,6 @@ public final class Utils {
      * debugging flag
      */
     public static boolean DEBUG = false;
-    public static boolean DEBUG_OLD = false;
     
 
     private static String indent = "";
