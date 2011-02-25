@@ -21,14 +21,13 @@ import checkers.Utils;
 import checkers.source.SourceChecker;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.types.AnnotatedTypeMirror;
+import checkers.util.InternalUtils;
 import checkers.util.TreeUtils;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.MethodInvocationTree;
-
-// TODO: Verify tree structure after construction
 
 public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
     private AnnotatedTypeFactory atf;
@@ -43,8 +42,8 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
     @Override
     public R visitClass(ClassTree node, P p) {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
-
         DefineScope d = t.getAnnotation(DefineScope.class);
+
         if (d != null) {
             ScopeInfo name = new ScopeInfo(d.name());
             ScopeInfo parent = new ScopeInfo(d.parent());
@@ -64,9 +63,6 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
                 }
             }
         }
-
-        //System.out.println("\nScope Visit:");
-        // ScopeTree.printTree();
         return super.visitClass(node, p);
     }
 
@@ -74,34 +70,29 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
     public R visitMethodInvocation(MethodInvocationTree node, P p) {
         ExecutableElement m = TreeUtils.elementFromUse(node);
         TypeElement t = (TypeElement) m.getEnclosingElement();
+
         if (isSubtype(t, "javax.safetycritical.ManagedMemory")
                 && m.getSimpleName().toString().equals("enterPrivateMemory")) {
             ExpressionTree runnable = node.getArguments().get(1);
-            AnnotatedTypeMirror t2 = atf.getAnnotatedType(runnable);
-            AnnotationMirror def = t2.getAnnotation(DefineScope.class);
-            if (def != null) {
-                ScopeInfo name = null, parent = null;
-                for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : def
-                        .getElementValues().entrySet()) {
-                    if ("name()".equals(entry.getKey().toString())) {
-                        name = new ScopeInfo((String) entry.getValue().getValue());
-                    } else if ("parent()".equals(entry.getKey().toString())) {
-                        parent = new ScopeInfo((String) entry.getValue().getValue());
-                    }
-                }
-                if (name != null && parent != null) {
-                    if (name.isImmortal()) {
+            TypeElement t2 = Utils.getTypeElement(InternalUtils.typeOf(runnable));
+            DefineScope ds = t2.getAnnotation(DefineScope.class);
+
+            if (ds != null) {
+                if (ds.name() == null || ds.parent() == null) {
+                    fail(ERR_BAD_SCOPE_NAME, node);
+                } else {
+                    ScopeInfo name = new ScopeInfo(ds.name());
+                    ScopeInfo parent = new ScopeInfo(ds.parent());
+
+                    if (name.isReservedScope()) {
                         fail(ERR_BAD_SCOPE_NAME, node);
-                        // TODO: ales, this is disabled, we allow this...
                     } else if (scopeTree.hasScope(name)) {
                         fail(ERR_DUPLICATE_SCOPE_NAME, node);
                     } else if (scopeTree.isParentOf(parent, name)) {
                         fail(ERR_CYCLICAL_SCOPES, node);
                     } else {
                         scopeTree.put(name, parent, node);
-                        return super.visitMethodInvocation(node, p);
                     }
-                    // TODO: doesn't reserve implicitly defined scopes
                 }
             }
             // checker.report(

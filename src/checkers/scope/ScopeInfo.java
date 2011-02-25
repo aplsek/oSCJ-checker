@@ -33,6 +33,10 @@ public class ScopeInfo {
         return equals(UNKNOWN);
     }
 
+    public boolean isReservedScope() {
+        return isCurrent() || isImmortal() || isNull() || isUnknown();
+    }
+
     public boolean isFieldScope() {
         return false;
     }
