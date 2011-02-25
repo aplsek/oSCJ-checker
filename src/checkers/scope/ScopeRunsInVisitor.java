@@ -12,6 +12,8 @@ import static javax.safetycritical.annotate.Level.SUPPORT;
 import java.util.List;
 import java.util.Map;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -29,10 +31,13 @@ import checkers.source.SourceChecker;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
 import checkers.types.AnnotatedTypes;
+import checkers.util.InternalUtils;
 import checkers.util.TreeUtils;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
@@ -63,6 +68,35 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         checkClassScope(t, node, node);
         return super.visitClass(node, p);
+    }
+
+    @Override
+    public Void visitIdentifier(IdentifierTree node, Void p) {
+        // Visiting the types and super types of the provided sources is not
+        // enough. Therefore, if we see any type names in the source, we
+        // should check them out.
+        Element elem = TreeUtils.elementFromUse(node);
+        if (elem.getKind() == ElementKind.CLASS
+                || elem.getKind() == ElementKind.INTERFACE) {
+            TypeElement t = (TypeElement) elem;
+            checkClassScope(t, trees.getTree(t), node);
+        }
+        return super.visitIdentifier(node, p);
+    }
+
+    @Override
+    public Void visitMethodInvocation(MethodInvocationTree node, Void p) {
+        // Visiting the types and super types of the provided sources is not
+        // enough. In addition to visitIdentifier, we need to check the
+        // return types of method invocations, because it's possible to use
+        // a type without ever having its type name mentioned through method
+        // chaining.
+        TypeMirror mirror = InternalUtils.typeOf(node);
+        if (mirror.getKind() == TypeKind.DECLARED) {
+            TypeElement t = Utils.getTypeElement(mirror);
+            checkClassScope(t, trees.getTree(t), node);
+        }
+        return super.visitMethodInvocation(node, p);
     }
 
     /**
