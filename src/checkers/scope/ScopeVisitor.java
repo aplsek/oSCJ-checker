@@ -38,11 +38,7 @@ import static checkers.scope.ScopeInfo.UNKNOWN;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -61,8 +57,6 @@ import checkers.source.SourceChecker;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.types.AnnotatedTypeMirror;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
-import checkers.types.AnnotatedTypeMirror.AnnotatedExecutableType;
-import checkers.types.AnnotatedTypes;
 import checkers.util.InternalUtils;
 import checkers.util.TreeUtils;
 import checkers.util.TypesUtils;
@@ -752,13 +746,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             MethodInvocationTree n) {
         // TODO: static methods ?
         debugIndent("\n\t checkMethodInvocation : " + n);
-        
+
         ExecutableElement method = TreeUtils.elementFromUse(n);
-        
-        if (isObjectConstructor(method,n)) 
+
+        if (isObjectConstructor(method,n))
             // if this is java.lang.Object.<init>() then we allow this.
             return currentAllocScope();
-        
+
         ScopeInfo returnScope = null;
         switch(compareName(m)) {
         case ENTER_PRIVATE_MEMORY:
@@ -788,23 +782,23 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
         return returnScope;
     }
-    
+
     private ScopeInfo checkRegularMethodInvocation(ExecutableElement m,
             ScopeInfo recvScope, List<ScopeInfo> argScopes,
             MethodInvocationTree node) {
-        
+
         ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m);
         checkMethodRunsIn(m, recvScope, runsIn, node);
         checkMethodParameters(m, argScopes, node);
         return ctx.getEffectiveMethodScope(m);
-    } 
+    }
 
     private void checkMethodParameters(ExecutableElement m,
             List<ScopeInfo> argScopes, MethodInvocationTree node) {
         List<ScopeInfo> paramScopes = ctx.getParameterScopes(m);
         for (int i = 0; i < paramScopes.size(); i++) {
             checkLocalAssignment(paramScopes.get(i), argScopes.get(i), node);
-        } 
+        }
     }
 
     private void checkMethodRunsIn(ExecutableElement m, ScopeInfo recvScope,
@@ -824,7 +818,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         } else if (!runsInScope.isUnknown()) {
             /* TEST WITH: scope/unknown/TestCrossScope **/
             fail(ERR_BAD_METHOD_INVOKE, n, runsInScope, current);
-        } 
+        }
     }
 
     /**
@@ -1140,10 +1134,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
         return nodeTypeTree;
     }
-    
+
     private static final String JAVA_LANG_OBJECT = "java.lang.Object";
     private static final String SUPER = "super()";
-    
+
     private boolean isObjectConstructor(ExecutableElement method,
             MethodInvocationTree n) {
         if (method.toString().equals(SUPER) && method.getEnclosingElement().toString().equals(JAVA_LANG_OBJECT));

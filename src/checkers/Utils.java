@@ -20,7 +20,6 @@ import javax.lang.model.util.Elements;
 import javax.safetycritical.annotate.SCJRestricted;
 
 import checkers.scope.ScopeInfo;
-import checkers.types.AnnotatedTypes;
 import checkers.util.TypesUtils;
 
 public final class Utils {
@@ -28,8 +27,6 @@ public final class Utils {
      * debugging flag
      */
     public static boolean DEBUG = false;
-    
-
     private static String indent = "";
 
     public static void increaseIndent() {
