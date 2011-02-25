@@ -576,58 +576,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("enterPrivateMemory Invocation");
         ScopeInfo scope = null;
 
-        ExpressionTree e = node.getMethodSelect();
         ExpressionTree arg = node.getArguments().get(1);
-
-        ExecutableElement method = TreeUtils.elementFromUse(node);
-        ScopeInfo runsIn = ctx.getMethodRunsIn(method);
-
-        ScopeInfo argRunsIn = null;
-        ScopeInfo argScope = null;
-
-        // TODO: Single exit point sure would be nicer
-        switch (arg.getKind()) {
-        case IDENTIFIER :
-
-            VariableElement var = (VariableElement) TreeUtils.elementFromUse((IdentifierTree) arg);
-
-            argRunsIn = getRunsInFromRunnable(var.asType());
-            argScope = scope(var);
-
-            break;
-        case MEMBER_SELECT :
-            Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
-            if (tmp.getKind() != ElementKind.FIELD) {
-                fail(ERR_BAD_ENTER_PARAM, arg);
-                return null;
-            } else {
-                argRunsIn = getRunsInFromRunnable(tmp.asType());
-                argScope = ctx.getClassScope((TypeElement) tmp.asType());
-            }
-            break;
-        case NEW_CLASS :
-            ExecutableElement ctor = TreeUtils.elementFromUse((NewClassTree) arg);
-
-            argRunsIn = getRunsInFromRunnable(ctor.getEnclosingElement().asType());
-            argScope = ctx.getClassScope(Utils.getMethodClass(ctor));
-
-            break;
-        case TYPE_CAST :
-            // e.g. enterPrivateMemory(...,(Runnable) myRun)
-
-            Element el = TreeInfo.symbol((JCTree) arg);
-            debugIndent("element " + el);
-            debugIndent("expr " + arg);
-            // exprScope = scope(var);
-
-            TypeMirror castType = InternalUtils.typeOf(arg);
-            argScope = ctx.getClassScope(Utils.getTypeElement(castType));
-            argRunsIn = getRunsInFromRunnable(castType);
-            break;
-        default :
-            fail(ERR_BAD_ENTER_PARAM, arg);
-            return null;
-        }
+        TypeMirror runnableType = InternalUtils.typeOf(arg);
+        ScopeInfo argRunsIn = getRunsInFromRunnable(runnableType);
+        ScopeInfo argScope = ctx.getClassScope(Utils.getTypeElement(runnableType));
 
         if (argRunsIn == null) {
             /* checked by scope.MyMission2.java */
