@@ -571,7 +571,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return null;
     }
 
-    private ScopeInfo checkEnterPrivateMemory(MethodInvocationTree node) {
+    private ScopeInfo checkEnterPrivateMemory(ExecutableElement m,
+            ScopeInfo recvScope, MethodInvocationTree node) {
         debugIndent("enterPrivateMemory Invocation");
         ScopeInfo scope = null;
 
@@ -756,7 +757,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo returnScope = null;
         switch(compareName(m)) {
         case ENTER_PRIVATE_MEMORY:
-            returnScope = checkEnterPrivateMemory(n);
+            returnScope = checkEnterPrivateMemory(m, recvScope,n);
             break;
         case EXECUTE_IN_AREA:
             returnScope = checkExecuteInArea(n);
