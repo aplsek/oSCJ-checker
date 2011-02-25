@@ -744,41 +744,41 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private ScopeInfo checkMethodInvocation(ExecutableElement m,
             ScopeInfo recvScope, List<ScopeInfo> argScopes,
-            MethodInvocationTree n) {
+            MethodInvocationTree node) {
         // TODO: static methods ?
-        debugIndent("\n\t checkMethodInvocation : " + n);
+        debugIndent("\n\t checkMethodInvocation : " + node);
 
-        ExecutableElement method = TreeUtils.elementFromUse(n);
+        ExecutableElement method = TreeUtils.elementFromUse(node);
 
-        if (isObjectConstructor(method,n))
+        if (isObjectConstructor(method,node))
             // if this is java.lang.Object.<init>() then we allow this.
             return currentAllocScope();
 
         ScopeInfo returnScope = null;
         switch(compareName(m)) {
         case ENTER_PRIVATE_MEMORY:
-            returnScope = checkEnterPrivateMemory(m, recvScope,n);
+            returnScope = checkEnterPrivateMemory(m, recvScope,node);
             break;
         case EXECUTE_IN_AREA:
-            returnScope = checkExecuteInArea(n);
+            returnScope = checkExecuteInArea(node);
             break;
         case ENTER:
-            returnScope = checkExecuteInArea(n);       // TODO: how to check the enter()?
+            returnScope = checkExecuteInArea(node);       // TODO: how to check the enter()?
             break;
         case NEW_INSTANCE:
-            returnScope = checkNewInstance(n);
+            returnScope = checkNewInstance(node);
             break;
         case GET_MEMORY_AREA:
-            returnScope = checkGetMemoryArea(n);
+            returnScope = checkGetMemoryArea(node);
             break;
         case ALLOC_IN_SAME:
-            returnScope = checkDynamicGuard(n);
+            returnScope = checkDynamicGuard(node);
             break;
         case ALLOC_IN_PARENT:
-            returnScope = checkDynamicGuard(n);
+            returnScope = checkDynamicGuard(node);
             break;
         default:
-            returnScope = checkRegularMethodInvocation(m, recvScope, argScopes, n);
+            returnScope = checkRegularMethodInvocation(m, recvScope, argScopes, node);
             break;
         }
         return returnScope;
