@@ -393,8 +393,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ExecutableElement m = TreeUtils.elementFromUse(node);
             List<? extends ExpressionTree> args = node.getArguments();
             List<ScopeInfo> argScopes = new ArrayList<ScopeInfo>(args.size());
-            for (int i = 0; i < args.size(); i++) {
-                argScopes.set(i, args.get(i).accept(this, p));
+            for (ExpressionTree arg : args) {
+                argScopes.add(arg.accept(this, p));
             }
             ScopeInfo recvScope = node.getMethodSelect().accept(this, p);
             ScopeInfo scope = checkMethodInvocation(m, recvScope, argScopes,
