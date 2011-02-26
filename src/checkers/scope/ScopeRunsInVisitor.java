@@ -5,7 +5,7 @@ import static checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_FIELD_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE;
-import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_SCOPE_OVERRIDE;
+import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
@@ -275,7 +275,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             } else {
                 ret = tScope;
                 if (scope.isUnknown() || !scope.equals(tScope)) {
-                    fail(ERR_ILLEGAL_SCOPE_OVERRIDE, node, errNode, scope,
+                    fail(ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE, node, errNode, scope,
                             tScope);
                 }
             }
