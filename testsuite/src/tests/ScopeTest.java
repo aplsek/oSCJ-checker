@@ -5,9 +5,6 @@ import java.util.Collection;
 
 import org.junit.runners.Parameterized.Parameters;
 
-/**
- * JUnit tests for the Checker Framework, using the {@link TestChecker}.
- */
 public class ScopeTest extends ParameterizedCheckerTest {
 
     public ScopeTest(File testFile) {

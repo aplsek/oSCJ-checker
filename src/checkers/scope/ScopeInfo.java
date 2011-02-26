@@ -41,6 +41,10 @@ public class ScopeInfo {
         return false;
     }
 
+    public boolean isValidParentScope() {
+        return !(isCurrent() || isNull() || isUnknown());
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj != null && scope.equals(((ScopeInfo) obj).scope);

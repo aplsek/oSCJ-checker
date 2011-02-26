@@ -1,8 +1,8 @@
 package checkers.scope;
 
-import static checkers.scope.DefineScopeChecker.ERR_BAD_SCOPE_NAME;
 import static checkers.scope.DefineScopeChecker.ERR_CYCLICAL_SCOPES;
 import static checkers.scope.DefineScopeChecker.ERR_DUPLICATE_SCOPE_NAME;
+import static checkers.scope.DefineScopeChecker.ERR_RESERVED_SCOPE_NAME;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -63,15 +63,25 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         return super.visitMethodInvocation(node, p);
     }
 
+    /**
+     * Ensure that a DefineScope annotation is valid.
+     */
     void checkNewScope(String child, String parent, Tree node) {
-        if (child == null || parent == null) {
-            fail(ERR_BAD_SCOPE_NAME, node);
-        } else {
-            ScopeInfo childScope = new ScopeInfo(child);
-            ScopeInfo parentScope = new ScopeInfo(parent);
-            if (childScope.isReservedScope()) {
-                fail(ERR_BAD_SCOPE_NAME, node);
-            } else if (scopeTree.hasScope(childScope)) {
+        // Null scope checks aren't necessary since Java apparently doesn't
+        // consider "null" to be a constant expression.
+        ScopeInfo childScope = new ScopeInfo(child);
+        ScopeInfo parentScope = new ScopeInfo(parent);
+        boolean reservedChild = childScope.isReservedScope();
+        boolean reservedParent = !parentScope.isValidParentScope();
+
+        if (reservedChild) {
+            fail(ERR_RESERVED_SCOPE_NAME, node, childScope);
+        }
+        if (reservedParent) {
+            fail(ERR_RESERVED_SCOPE_NAME, node, parentScope);
+        }
+        if (!(reservedChild || reservedParent)) {
+            if (scopeTree.hasScope(childScope)) {
                 fail(ERR_DUPLICATE_SCOPE_NAME, node);
             } else if (scopeTree.isParentOf(parentScope, childScope)) {
                 fail(ERR_CYCLICAL_SCOPES, node);
