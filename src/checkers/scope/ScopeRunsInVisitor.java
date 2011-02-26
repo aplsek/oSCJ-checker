@@ -2,6 +2,7 @@ package checkers.scope;
 
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_LIBRARY_ANNOTATION;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME;
+import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_FIELD_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_SCOPE_OVERRIDE;
@@ -171,7 +172,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         for (VariableElement f : Utils.fieldsIn(t)) {
             Tree fTree = trees.getTree(f);
             Tree fErr = fTree != null ? fTree : errNode;
-            ScopeInfo fScope = checkVariableScopeOverride(f, fTree, fErr);
+            ScopeInfo fScope = checkField(f, fTree, fErr);
             if (fScope != null) {
                 ctx.setFieldScope(fScope, f);
             }
@@ -201,12 +202,23 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             VariableElement param = params.get(i);
             VariableTree paramTree = paramTrees != null ? paramTrees.get(i)
                     : null;
-            ScopeInfo scope = checkVariableScopeOverride(param, paramTree, errNode);
+            ScopeInfo scope = checkVariableScopeOverride(param, paramTree,
+                    errNode);
             if (scope != null) {
                 ctx.setParameterScope(scope, i, m);
             }
         }
         debugIndentDecrement();
+    }
+
+    ScopeInfo checkField(VariableElement f, Tree node, Tree errNode) {
+        ScopeInfo scope = checkVariableScopeOverride(f, node, errNode);
+        ScopeInfo clazzScope = getEnclosingClassScope(f);
+
+        if (!isValidFieldScope(scope, clazzScope)) {
+            fail(ERR_ILLEGAL_FIELD_SCOPE, node, errNode, scope, clazzScope);
+        }
+        return scope;
     }
 
     /**
@@ -222,11 +234,12 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      * <li>Object arrays follow the same rules as object variables based on the
      * type of their basic element type.
      */
-    ScopeInfo checkVariableScopeOverride(VariableElement f, Tree node, Tree errNode) {
-        debugIndentIncrement("checkVariableScopeOverride: " + f);
+    ScopeInfo checkVariableScopeOverride(VariableElement v, Tree node,
+            Tree errNode) {
+        debugIndentIncrement("checkVariableScopeOverride: " + v);
 
-        TypeMirror fMir = f.asType();
-        Scope s = f.getAnnotation(Scope.class);
+        TypeMirror vMirror = v.asType();
+        Scope s = v.getAnnotation(Scope.class);
         ScopeInfo scope = ScopeInfo.CURRENT;
         ScopeInfo ret;
         if (s != null && s.value() != null) {
@@ -234,17 +247,17 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         }
         // Arrays reside in the same scope as their element types, so if this
         // field is an array, reduce it to its base component type.
-        fMir = Utils.getArrayBaseType(fMir);
-        if (fMir.getKind() != TypeKind.DECLARED) {
+        vMirror = Utils.getArrayBaseType(vMirror);
+        if (vMirror.getKind() != TypeKind.DECLARED) {
             // The field type in here is either a primitive or a primitive
             // array. Only store a field scope if the field was an array.
-            if (fMir != f.asType()) {
+            if (vMirror != v.asType()) {
                 ret = scope;
             } else {
                 ret = null; // Primitives have no scope
             }
         } else {
-            TypeElement t = Utils.getTypeElement(fMir);
+            TypeElement t = Utils.getTypeElement(vMirror);
             ScopeInfo tScope = ctx.getClassScope(t);
             if (tScope == null) {
                 checkClassScope(t, trees.getTree(t), errNode);
@@ -254,16 +267,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 ret = scope;
             } else {
                 ret = tScope;
-                if (scope.isCurrent()) {
-                    ScopeInfo clazzScope = getEnclosingClassScope(f);
-                    if (!scopeTree.isParentOf(tScope, clazzScope))
-                        fail(ERR_ILLEGAL_SCOPE_OVERRIDE_WITH_UNK, node,errNode,tScope,clazzScope);
-                }
-                else if (scope.isUnknown()) {
-                  if (!tScope.isCurrent())
-                      fail(ERR_ILLEGAL_SCOPE_OVERRIDE_WITH_UNK, node,errNode);
+                if (scope.isUnknown() && !tScope.isCurrent()) {
+                    fail(ERR_ILLEGAL_SCOPE_OVERRIDE_WITH_UNK, node, errNode);
                 } else if (!scope.equals(tScope)) {
-                    fail(ERR_ILLEGAL_SCOPE_OVERRIDE, node,errNode);
+                    fail(ERR_ILLEGAL_SCOPE_OVERRIDE, node, errNode);
                 }
             }
         }
@@ -380,24 +387,33 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
     private ScopeInfo getOverloadScopeAndVisit(ExecutableElement m, Tree errNode) {
         ScopeInfo scope = ctx.getMethodScope(m);
-        if (scope != null) {
-            return scope;
-        }
+        if (scope != null) { return scope; }
         checkMethod(m, trees.getTree(m), errNode);
         return ctx.getMethodScope(m);
     }
 
-    private ScopeInfo getOverloadRunsInAndVisit(ExecutableElement m, Tree errNode) {
+    private ScopeInfo getOverloadRunsInAndVisit(ExecutableElement m,
+            Tree errNode) {
         ScopeInfo runsIn = ctx.getMethodRunsIn(m);
-        if (runsIn != null) {
-            return runsIn;
-        }
+        if (runsIn != null) { return runsIn; }
         checkMethod(m, trees.getTree(m), errNode);
         return ctx.getMethodRunsIn(m);
     }
 
     private ScopeInfo getEnclosingClassScope(VariableElement f) {
-        TypeElement clazz = Utils.getTypeElement(f.getEnclosingElement().asType());
-        return ctx.getClassScope(clazz);
+        TypeElement t = Utils.getTypeElement(f.getEnclosingElement().asType());
+        return ctx.getClassScope(t);
+    }
+
+    /**
+     * Check that a field has a valid Scope annotation.
+     * <p>
+     * Fields must live in the same scope or parent scope of the objects which
+     * refer to them. UNKNOWN annotations are accepted, since assignments to
+     * UNKNOWN fields are checked by a dynamic guard.
+     */
+    boolean isValidFieldScope(ScopeInfo scope, ScopeInfo clazzScope) {
+        return scope == null || scope.isCurrent() || scope.isUnknown()
+                || scopeTree.isParentOf(scope, clazzScope);
     }
 }
