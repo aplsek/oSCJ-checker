@@ -17,10 +17,6 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_ASSIGNMENT_SCOPE = "bad.assignment.scope";
     public static final String ERR_BAD_ASSIGNMENT_PRIVATE_MEM = "bad.assignment.private.mem";
     public static final String ERR_BAD_ENTER_PARAM = "bad.enter.param";
-    // TODO: Remove
-    public static final String ERR_BAD_ENTER_PRIVATE_MEM_NO_RUNS_IN = "bad.enterPrivateMem.no.runsIn";
-    // TODO: Remove
-    public static final String ERR_BAD_ENTER_PRIVATE_MEM_NO_SCOPE_ON_RUNNABLE = "bad.enterPrivateMem.no.Scope.on.Runnable";
     public static final String ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH = "bad.enterPrivateMem.runsIn.no.match";
     public static final String ERR_BAD_ENTER_TARGET = "bad.enter.target";
     public static final String ERR_BAD_EXECUTE_IN_AREA_OR_ENTER = "bad.executeInArea.or.enter";
@@ -63,10 +59,6 @@ public class ScopeChecker extends SinglePassChecker {
         p.put(ERR_BAD_ASSIGNMENT_SCOPE,
                 "Cannot assign expression in scope %s to variable in scope %s.");
         p.put(ERR_BAD_ENTER_TARGET, "enter() must target a child scope.");
-        p.put(ERR_BAD_ENTER_PRIVATE_MEM_NO_RUNS_IN,
-                "The Runnable passed into the enterPrivateMemory() call must have a run() method with a @RunsIn annotation.");
-        p.put(ERR_BAD_ENTER_PRIVATE_MEM_NO_SCOPE_ON_RUNNABLE,
-                "The Runnable class must have a matching @Scope annotation.");
         p.put(ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH,
                 "The Runnable's @RunsIn must be a child scope of the CurrentScope\n\t @RunsIn: %s\n\t Current Scope: %s");
         p.put(ERR_BAD_EXECUTE_IN_AREA_OR_ENTER,

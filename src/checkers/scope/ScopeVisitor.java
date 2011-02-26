@@ -17,8 +17,6 @@ import static checkers.scjAllowed.EscapeMap.escapeEnum;
 import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION;
 import static checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PARAM;
-import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEM_NO_RUNS_IN;
-import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEM_NO_SCOPE_ON_RUNNABLE;
 import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH;
 import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_TARGET;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_OR_ENTER;
@@ -572,7 +570,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     /**
-     * 
+     *
      * @param m - unused TODO
      * @param recvScope - managedMemory instance, the target of the invocation
      * @param node
@@ -581,7 +579,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private void checkEnterPrivateMemory(MethodInvocationTree node) {
         TypeMirror runnableType = InternalUtils.typeOf(node.getArguments().get(1));
         ScopeInfo argRunsIn = getRunsInFromRunnable(runnableType);
-      
+
         if (!scopeTree.isParentOf(argRunsIn, currentScope()))
             fail(ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH, node, argRunsIn, currentScope());
     }
@@ -847,7 +845,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     void pln(String str) {System.out.println(str);}
-    
+
     private ScopeInfo checkVariableScope(VariableTree node) {
         VariableElement var = TreeUtils.elementFromDeclaration(node);
         if (Utils.isStatic(node.getModifiers().getFlags())) {
@@ -866,11 +864,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
         TypeElement t = Utils.getTypeElement(var.asType());
         ScopeInfo tScope = ctx.getClassScope(t);
-        
-        
+
+
         pln(" \t class :" + t);
         pln(" \t tScope :" + tScope);
-        
+
         Scope varScope = var.getAnnotation(Scope.class);
         if (varScope == null) {
             if (tScope.isCurrent()) {
