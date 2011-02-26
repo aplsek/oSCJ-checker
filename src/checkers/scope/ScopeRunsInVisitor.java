@@ -267,6 +267,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 checkClassScope(t, trees.getTree(t), errNode);
             }
             tScope = ctx.getClassScope(t);
+            if (s == null) {
+                scope = tScope;
+            }
             if (tScope.isCurrent()) {
                 ret = scope;
             } else {
