@@ -10,6 +10,7 @@ import com.sun.source.tree.CompilationUnitTree;
 public class DefineScopeChecker extends SinglePassChecker {
     public static final String ERR_CYCLICAL_SCOPES = "cyclical.scopes";
     public static final String ERR_DUPLICATE_SCOPE_NAME = "duplicate.scope.name";
+    public static final String ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE = "epm.no.ds";
     public static final String ERR_PRIVATE_MEM_NO_DEFINE_SCOPE = "privateMem.no.define.scope";
     public static final String ERR_RESERVED_SCOPE_NAME = "reserved.scope.name";
     public static final String ERR_SCOPE_HAS_NO_PARENT = "scope.has.no.parent";
@@ -29,6 +30,7 @@ public class DefineScopeChecker extends SinglePassChecker {
     public Properties getMessages() {
         Properties p = new Properties();
         p.put(ERR_DUPLICATE_SCOPE_NAME, "Duplicate scope name from @DefineScope.");
+        p.put(ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE, "Runnable used in enterPrivateMemory() must have a @DefineScope annotation.");
         p.put(ERR_CYCLICAL_SCOPES, "Cyclical scope names detected.");
         p.put(ERR_PRIVATE_MEM_NO_DEFINE_SCOPE, "PrivateMemory variable must have a @DefineScope annotation.");
         p.put(ERR_RESERVED_SCOPE_NAME, "Invalid use of a reserved scope name %s used in @DefineScope.");
