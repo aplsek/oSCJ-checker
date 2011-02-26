@@ -29,7 +29,7 @@ public class ScopeTree {
 
     public boolean isParentOf(ScopeInfo child, ScopeInfo parent) {
         if (child.isCurrent())
-            return false;
+            return parent.isImmortal();
 
         while (child != null) {
             if (child.equals(parent))
