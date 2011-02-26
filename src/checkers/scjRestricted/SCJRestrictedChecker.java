@@ -7,7 +7,6 @@ import checkers.source.SourceVisitor;
 
 import com.sun.source.tree.CompilationUnitTree;
 
-@SuppressWarnings("restriction")
 public class SCJRestrictedChecker extends SinglePassChecker {
     // Please keep alphabetized
     public static final String ERR_ILLEGAL_OVERRIDE = "illegal.override";
