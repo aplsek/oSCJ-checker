@@ -416,8 +416,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      * refer to them. UNKNOWN annotations are accepted, since assignments to
      * UNKNOWN fields are checked by a dynamic guard.
      */
-    boolean isValidFieldScope(ScopeInfo scope, ScopeInfo clazzScope) {
-        return scope == null || scope.isCurrent() || scope.isUnknown()
-                || scopeTree.isParentOf(scope, clazzScope);
+    boolean isValidFieldScope(ScopeInfo fieldScope, ScopeInfo clazzScope) {
+        return fieldScope == null || fieldScope.isCurrent()
+                || fieldScope.isUnknown()
+                || scopeTree.isParentOf(clazzScope, fieldScope);
     }
 }
