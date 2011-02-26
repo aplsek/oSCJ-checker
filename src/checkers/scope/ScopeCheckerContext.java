@@ -156,6 +156,8 @@ public class ScopeCheckerContext {
         if (!methodRunsIn.isCurrent())
             return methodRunsIn;
 
+        // TODO: this needs to consider also the scope from where we invoke this method.
+        
         TypeElement clazz = (TypeElement) m.getEnclosingElement();
         ScopeInfo scope = getClassScope(clazz);
 

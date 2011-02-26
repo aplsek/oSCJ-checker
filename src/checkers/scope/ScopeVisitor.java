@@ -414,12 +414,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             if (!componentType.getKind().isPrimitive()) {
                 TypeElement t = Utils.getTypeElement(componentType);
                 ScopeInfo scope = ctx.getClassScope(t);
-                if (!(scope.isCurrent() || scope.equals(currentAllocScope()))) {
-                    fail(ERR_BAD_ALLOCATION, node, currentAllocScope(), scope);
+                if (!(scope.isCurrent() || scope.equals(currentScope()))) {
+                    fail(ERR_BAD_ALLOCATION, node, currentScope(), scope);
                 }
             }
             super.visitNewArray(node, p);
-            return currentAllocScope();
+            return currentScope();
         } finally {
             debugIndentDecrement();
         }
@@ -435,13 +435,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             debugIndentIncrement("visitNewClass");
             ExecutableElement ctorElement = TreeUtils.elementFromUse(node);
             ScopeInfo nodeClassScope = ctx.getClassScope(Utils.getMethodClass(ctorElement));
-            if (nodeClassScope != null && !currentAllocScope().equals(nodeClassScope) && !nodeClassScope.isCurrent()) {
+            if (nodeClassScope != null && !currentScope().equals(nodeClassScope) && !nodeClassScope.isCurrent()) {
                 // Can't call new unless the type has the same scope as the
                 // current context
-                fail(ERR_BAD_ALLOCATION, node, currentAllocScope(), nodeClassScope);
+                fail(ERR_BAD_ALLOCATION, node, currentScope(), nodeClassScope);
             }
             super.visitNewClass(node, p);
-            return currentAllocScope();
+            return currentScope();
         } finally {
             debugIndentDecrement();
         }
@@ -571,29 +571,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return null;
     }
 
-    private ScopeInfo checkEnterPrivateMemory(ExecutableElement m,
-            ScopeInfo recvScope, MethodInvocationTree node) {
-        debugIndent("enterPrivateMemory Invocation");
-        ScopeInfo scope = null;
-
-        ExpressionTree arg = node.getArguments().get(1);
-        TypeMirror runnableType = InternalUtils.typeOf(arg);
+    /**
+     * 
+     * @param m - unused TODO
+     * @param recvScope - managedMemory instance, the target of the invocation
+     * @param node
+     * @return
+     */
+    private void checkEnterPrivateMemory(MethodInvocationTree node) {
+        TypeMirror runnableType = InternalUtils.typeOf(node.getArguments().get(1));
         ScopeInfo argRunsIn = getRunsInFromRunnable(runnableType);
-        ScopeInfo argScope = ctx.getClassScope(Utils.getTypeElement(runnableType));
-
-        if (argRunsIn == null) {
-            /* checked by scope.MyMission2.java */
-            fail(ERR_BAD_ENTER_PRIVATE_MEM_NO_RUNS_IN, node);
-        } else if (argScope == null || !argScope.equals(currentAllocScope())) {
-            /* checked by scope.MyMission2.java */
-            fail(ERR_BAD_ENTER_PRIVATE_MEM_NO_SCOPE_ON_RUNNABLE, node);
-        } else if (!scopeTree.isParentOf(argRunsIn, currentAllocScope())) {
-            /* checked by scope.MyMission2.java */
-            fail(ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH, node, argRunsIn, currentAllocScope());
-        }
-        debugIndent("enterPrivateMemory Invocation: DONE.");
-
-        return scope;
+      
+        if (!scopeTree.isParentOf(argRunsIn, currentScope()))
+            fail(ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH, node, argRunsIn, currentScope());
     }
 
     private ScopeInfo checkExecuteInArea(MethodInvocationTree node) {
@@ -663,9 +653,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 // scopes
                 fail(ERR_BAD_EXECUTE_IN_AREA_OR_ENTER, node);
             }
-            if ("executeInArea".equals(methodName) && !scopeTree.isAncestorOf(currentAllocScope(), varScope)) {
+            if ("executeInArea".equals(methodName) && !scopeTree.isAncestorOf(currentScope(), varScope)) {
                 fail(ERR_BAD_EXECUTE_IN_AREA_TARGET, node);
-            } else if ("enter".equals(methodName) && !scopeTree.isParentOf(varScope, currentAllocScope())) {
+            } else if ("enter".equals(methodName) && !scopeTree.isParentOf(varScope, currentScope())) {
                 fail(ERR_BAD_ENTER_TARGET, node);
             }
         }
@@ -703,37 +693,33 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ExecutableElement method = TreeUtils.elementFromUse(node);
 
         if (isObjectConstructor(method,node))
+            // TODO: this is OK, we need to update the "ctx.getEffectiveMethodRunsIn(m)"
             // if this is java.lang.Object.<init>() then we allow this.
-            return currentAllocScope();
+            return currentScope();
 
-        ScopeInfo returnScope = null;
         switch(compareName(m)) {
         case ENTER_PRIVATE_MEMORY:
-            returnScope = checkEnterPrivateMemory(m, recvScope,node);
-            break;
+            checkEnterPrivateMemory(node);
+            return null;  // void methods don't return a scope
         case EXECUTE_IN_AREA:
-            returnScope = checkExecuteInArea(node);
-            break;
+            checkExecuteInArea(node);
+            return null;
         case ENTER:
-            returnScope = checkExecuteInArea(node);       // TODO: how to check the enter()?
-            break;
+            checkExecuteInArea(node);       // TODO: how to check the enter()?
+            return null;
         case NEW_INSTANCE:
-            returnScope = checkNewInstance(node);
-            break;
+            return checkNewInstance(node);
         case GET_MEMORY_AREA:
-            returnScope = checkGetMemoryArea(node);
-            break;
+            return checkGetMemoryArea(node);
         case ALLOC_IN_SAME:
-            returnScope = checkDynamicGuard(node);
-            break;
+            checkDynamicGuard(node);
+            return null;
         case ALLOC_IN_PARENT:
-            returnScope = checkDynamicGuard(node);
-            break;
+            checkDynamicGuard(node);
+            return null;
         default:
-            returnScope = checkRegularMethodInvocation(m, recvScope, argScopes, node);
-            break;
+            return checkRegularMethodInvocation(m, recvScope, argScopes, node);
         }
-        return returnScope;
     }
 
     private ScopeInfo checkRegularMethodInvocation(ExecutableElement m,
@@ -756,21 +742,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private void checkMethodRunsIn(ExecutableElement m, ScopeInfo recvScope,
             ScopeInfo runsInScope, MethodInvocationTree n) {
-        ScopeInfo current = currentAllocScope();
-        if (current.isUnknown() && !runsInScope.isUnknown()) {
-            /* TEST WITH: scope/unknown/UnknownMethod */
+        if (currentScope().isUnknown() && !runsInScope.isUnknown()) {
             fail(ERR_BAD_METHOD_INVOKE, n, CURRENT, UNKNOWN);
-        } else if (current.equals(recvScope)) {
-            if (!(runsInScope.equals(current) || (Utils.isAllocFree(m)
-                    && scopeTree.isParentOf(current, runsInScope)))) {
-                /* TEST WITH: scope/unknown/TestCrossScope */
+        } else if (currentScope().equals(recvScope)) {
+            if (!(runsInScope.equals(currentScope()))) {
                 // Can only call methods that run in the same scope.
                 // Allows parent scopes as well, if they are marked @AllocFree.
-                fail(ERR_BAD_METHOD_INVOKE, n, runsInScope, current);
+                fail(ERR_BAD_METHOD_INVOKE, n, runsInScope, currentScope());
             }
         } else if (!runsInScope.isUnknown()) {
-            /* TEST WITH: scope/unknown/TestCrossScope **/
-            fail(ERR_BAD_METHOD_INVOKE, n, runsInScope, current);
+            fail(ERR_BAD_METHOD_INVOKE, n, runsInScope, currentScope());
         }
     }
 
@@ -865,6 +846,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return false;
     }
 
+    void pln(String str) {System.out.println(str);}
+    
     private ScopeInfo checkVariableScope(VariableTree node) {
         VariableElement var = TreeUtils.elementFromDeclaration(node);
         if (Utils.isStatic(node.getModifiers().getFlags())) {
@@ -878,15 +861,20 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 return null;
             } else {
                 // Primitive array
-                return currentAllocScope();
+                return currentScope();
             }
         }
         TypeElement t = Utils.getTypeElement(var.asType());
         ScopeInfo tScope = ctx.getClassScope(t);
+        
+        
+        pln(" \t class :" + t);
+        pln(" \t tScope :" + tScope);
+        
         Scope varScope = var.getAnnotation(Scope.class);
         if (varScope == null) {
             if (tScope.isCurrent()) {
-                return currentAllocScope();
+                return currentScope();
             } else {
                 return tScope;
             }
@@ -895,7 +883,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         } else {
             if (!tScope.equals(new ScopeInfo(varScope.value()))) {
                 fail(ERR_BAD_VARIABLE_SCOPE, node, t.getSimpleName(),
-                        currentAllocScope());
+                        currentScope());
             }
             return tScope;
         }
@@ -969,7 +957,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return atf.fromExpression(expr).getKind().isPrimitive();
     }
 
-    private ScopeInfo currentAllocScope() {
+    private ScopeInfo currentScope() {
         return currentRunsIn != null ? currentRunsIn : currentScope;
     }
 
@@ -991,7 +979,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (classOrInterface.contains(var.getEnclosingElement().getKind())) { // instance
             return ctx.getClassScope((TypeElement) var.getEnclosingElement());
         } else { // local
-            return currentAllocScope();
+            return currentScope();
         }
     }
 
