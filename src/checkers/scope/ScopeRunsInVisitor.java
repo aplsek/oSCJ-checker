@@ -255,7 +255,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             } else {
                 ret = tScope;
                 if (scope.isCurrent()) {
-                    ScopeInfo clazzScope = getEnclosingClazzScope(f);
+                    ScopeInfo clazzScope = getEnclosingClassScope(f);
                     if (!scopeTree.isParentOf(tScope, clazzScope))
                         fail(ERR_ILLEGAL_SCOPE_OVERRIDE_WITH_UNK, node,errNode,tScope,clazzScope);
                 }
@@ -396,7 +396,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         return ctx.getMethodRunsIn(m);
     }
 
-    private ScopeInfo getEnclosingClazzScope(VariableElement f) {
+    private ScopeInfo getEnclosingClassScope(VariableElement f) {
         TypeElement clazz = Utils.getTypeElement(f.getEnclosingElement().asType());
         return ctx.getClassScope(clazz);
     }
