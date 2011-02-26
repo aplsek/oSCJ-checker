@@ -242,8 +242,12 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         Scope s = v.getAnnotation(Scope.class);
         ScopeInfo scope = ScopeInfo.CURRENT;
         ScopeInfo ret;
-        if (s != null && s.value() != null) {
+        if (s != null) {
             scope = new ScopeInfo(s.value());
+        }
+        if (!scopeTree.hasScope(scope) && !scope.isCurrent()
+                && !scope.isUnknown()) {
+            report(Result.failure(ERR_BAD_SCOPE_NAME, scope), node, errNode);
         }
         // Arrays reside in the same scope as their element types, so if this
         // field is an array, reduce it to its base component type.
