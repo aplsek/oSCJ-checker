@@ -1,6 +1,6 @@
 package checkers.scope;
 
-import static checkers.scope.DefineScopeChecker.ERR_SCOPE_TREE_NOT_CONSISTENT;
+import static checkers.scope.DefineScopeChecker.ERR_SCOPE_HAS_NO_PARENT;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,9 +30,9 @@ public class ScopeTree {
     public boolean isParentOf(ScopeInfo child, ScopeInfo parent) {
         if (child.isCurrent())
             return false;
-        
+
         while (child != null) {
-            if (child.equals(parent)) 
+            if (child.equals(parent))
                 return true;
             child = get(child);
         }
@@ -68,12 +68,11 @@ public class ScopeTree {
      * Check that the scope tree is indeed a tree.
      */
     public void checkScopeTree(DefineScopeChecker checker) {
-        // all parents are DefScope
         for (Map.Entry<ScopeInfo, ScopeInfo> entry : scopeTree.entrySet()) {
             ScopeInfo scope = entry.getKey();
             ScopeInfo parent = entry.getValue();
             if (!hasScope(parent) && !scope.isImmortal()) {
-                checker.report(Result.failure(ERR_SCOPE_TREE_NOT_CONSISTENT,
+                checker.report(Result.failure(ERR_SCOPE_HAS_NO_PARENT,
                         scope, parent), scopeMap.get(scope));
             }
         }
