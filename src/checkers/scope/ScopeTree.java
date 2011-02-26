@@ -27,16 +27,14 @@ public class ScopeTree {
         return scopeTree.containsKey(name);
     }
 
-    public boolean isParentOf(ScopeInfo name, ScopeInfo expectedParent) {
-        //printTree();
-        if (expectedParent == null)
+    public boolean isParentOf(ScopeInfo child, ScopeInfo parent) {
+        if (child.isCurrent())
             return false;
-
-        while (name != null) {
-            if (name.equals(expectedParent)) {
+        
+        while (child != null) {
+            if (child.equals(parent)) 
                 return true;
-            }
-            name = get(name);
+            child = get(child);
         }
         return false;
     }
