@@ -29,11 +29,11 @@ public class DefineScopeChecker extends SinglePassChecker {
     @Override
     public Properties getMessages() {
         Properties p = new Properties();
-        p.put(ERR_DUPLICATE_SCOPE_NAME, "Duplicate scope name from @DefineScope.");
-        p.put(ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE, "Runnable used in enterPrivateMemory() must have a @DefineScope annotation.");
-        p.put(ERR_CYCLICAL_SCOPES, "Cyclical scope names detected.");
+        p.put(ERR_DUPLICATE_SCOPE_NAME, "Duplicate scope definition for %s.");
+        p.put(ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE, "SCJRunnables used in enterPrivateMemory() must have a @DefineScope annotation.");
+        p.put(ERR_CYCLICAL_SCOPES, "Cyclical scope names detected (%s is a parent of %s).");
         p.put(ERR_PRIVATE_MEM_NO_DEFINE_SCOPE, "PrivateMemory variable must have a @DefineScope annotation.");
-        p.put(ERR_RESERVED_SCOPE_NAME, "Invalid use of a reserved scope name %s used in @DefineScope.");
+        p.put(ERR_RESERVED_SCOPE_NAME, "Invalid use of reserved scope name %s used in @DefineScope.");
         p.put(ERR_SCOPE_HAS_NO_PARENT, "Scope %s has a non-existent parent %s.");
         return p;
     }
