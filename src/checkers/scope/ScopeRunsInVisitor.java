@@ -6,7 +6,6 @@ import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_FIELD_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_SCOPE_OVERRIDE;
-import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_SCOPE_OVERRIDE_WITH_UNK;
 import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
@@ -199,6 +198,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         List<? extends VariableTree> paramTrees = mTree != null ? mTree
                 .getParameters() : null;
         for (int i = 0; i < params.size(); i++) {
+            // TODO: Check overridden annotations
             VariableElement param = params.get(i);
             VariableTree paramTree = paramTrees != null ? paramTrees.get(i)
                     : null;
@@ -271,10 +271,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 ret = scope;
             } else {
                 ret = tScope;
-                if (scope.isUnknown() && !tScope.isCurrent()) {
-                    fail(ERR_ILLEGAL_SCOPE_OVERRIDE_WITH_UNK, node, errNode);
-                } else if (!scope.equals(tScope)) {
-                    fail(ERR_ILLEGAL_SCOPE_OVERRIDE, node, errNode);
+                if (scope.isUnknown() || !scope.equals(tScope)) {
+                    fail(ERR_ILLEGAL_SCOPE_OVERRIDE, node, errNode, scope,
+                            tScope);
                 }
             }
         }
