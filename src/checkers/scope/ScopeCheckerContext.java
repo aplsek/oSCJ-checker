@@ -151,15 +151,20 @@ public class ScopeCheckerContext {
      * Get the effective RunsIn of a method. This translates a CURRENT
      * annotation to something more concrete, if available.
      */
-    public ScopeInfo getEffectiveMethodRunsIn(ExecutableElement m) {
+    public ScopeInfo getEffectiveMethodRunsIn(ExecutableElement m, ScopeInfo currentScope) {
         ScopeInfo methodRunsIn = getMethodRunsIn(m);
         if (!methodRunsIn.isCurrent())
             return methodRunsIn;
 
         // TODO: this needs to consider also the scope from where we invoke this method.
-        
+
         TypeElement clazz = (TypeElement) m.getEnclosingElement();
         ScopeInfo scope = getClassScope(clazz);
+
+        // if the scope is CURRENT, we need to consider the Scope of the place
+        // from where this is invoked
+        if (scope.isCurrent() && !currentScope.isCurrent())
+            return currentScope;
 
         //TODO: see the getEffectiveMethodScope() for the issue of "enclosing classes"
         return scope;
@@ -173,7 +178,7 @@ public class ScopeCheckerContext {
      *
      * @return - CURRENT if the enclosing classes are not annotated.
      */
-    public ScopeInfo getEffectiveMethodScope(ExecutableElement m) {
+    public ScopeInfo getEffectiveMethodScope(ExecutableElement m, ScopeInfo currentScope) {
         if (!getMethodScope(m).isCurrent())
             return getMethodScope(m);
 
@@ -191,6 +196,11 @@ public class ScopeCheckerContext {
             else
                 break;
         }*/
+
+        // if the scope is CURRENT, we need to consider the Scope of the place
+        // from where this is invoked
+        if (scope.isCurrent() && !currentScope.isCurrent())
+            return currentScope;
 
         return scope;
     }

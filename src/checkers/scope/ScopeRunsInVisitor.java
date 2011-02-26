@@ -400,6 +400,12 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         return ctx.getMethodRunsIn(m);
     }
 
+
+    /**
+     *
+     * @param f - field under consideration
+     * @return - returns the Scope of the class enclosing the field
+     */
     private ScopeInfo getEnclosingClassScope(VariableElement f) {
         TypeElement t = Utils.getTypeElement(f.getEnclosingElement().asType());
         return ctx.getClassScope(t);

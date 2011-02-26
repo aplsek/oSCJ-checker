@@ -360,8 +360,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         ScopeInfo oldRunsIn = currentRunsIn;
         try {
-            ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(method);
+            ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(method, currentScope());
             debugIndent("@RunsIn(" + runsIn + ") " + method.getSimpleName());
+
             if (runsIn != null) {
                 currentRunsIn = runsIn;
             }
@@ -385,7 +386,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     @Override
     public ScopeInfo visitMethodInvocation(MethodInvocationTree node, P p) {
         try {
-            debugIndentIncrement("visitMethodInvocation");
+            debugIndentIncrement("visitMethodInvocation : " + node);
             ExecutableElement m = TreeUtils.elementFromUse(node);
             List<? extends ExpressionTree> args = node.getArguments();
             List<ScopeInfo> argScopes = new ArrayList<ScopeInfo>(args.size());
@@ -393,6 +394,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 argScopes.add(arg.accept(this, p));
             }
             ScopeInfo recvScope = node.getMethodSelect().accept(this, p);
+            debugIndent("recvScope : " + recvScope);
+
             ScopeInfo scope = checkMethodInvocation(m, recvScope, argScopes,
                     node);
             return scope;
@@ -688,11 +691,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         ExecutableElement method = TreeUtils.elementFromUse(node);
 
-        if (isObjectConstructor(method,node))
-            // TODO: this is OK, we need to update the "ctx.getEffectiveMethodRunsIn(m)"
-            // if this is java.lang.Object.<init>() then we allow this.
-            return currentScope();
-
         switch(compareName(m)) {
         case ENTER_PRIVATE_MEMORY:
             checkEnterPrivateMemory(node);
@@ -718,14 +716,17 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
     }
 
+
+
     private ScopeInfo checkRegularMethodInvocation(ExecutableElement m,
             ScopeInfo recvScope, List<ScopeInfo> argScopes,
             MethodInvocationTree node) {
 
-        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m);
+        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m,currentScope());
+
         checkMethodRunsIn(m, recvScope, runsIn, node);
         checkMethodParameters(m, argScopes, node);
-        return ctx.getEffectiveMethodScope(m);
+        return ctx.getEffectiveMethodScope(m,currentScope());
     }
 
     private void checkMethodParameters(ExecutableElement m,
@@ -842,8 +843,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return false;
     }
 
-    void pln(String str) {System.out.println(str);}
-
     private ScopeInfo checkVariableScope(VariableTree node) {
         VariableElement var = TreeUtils.elementFromDeclaration(node);
         if (Utils.isStatic(node.getModifiers().getFlags())) {
@@ -862,10 +861,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
         TypeElement t = Utils.getTypeElement(var.asType());
         ScopeInfo tScope = ctx.getClassScope(t);
-
-
-        pln(" \t class :" + t);
-        pln(" \t tScope :" + tScope);
 
         Scope varScope = var.getAnnotation(Scope.class);
         if (varScope == null) {
@@ -1070,15 +1065,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             nodeTypeTree = ((ArrayTypeTree) nodeTypeTree).getType();
         }
         return nodeTypeTree;
-    }
-
-    private static final String JAVA_LANG_OBJECT = "java.lang.Object";
-    private static final String SUPER = "super()";
-
-    private boolean isObjectConstructor(ExecutableElement method,
-            MethodInvocationTree n) {
-        if (method.toString().equals(SUPER) && method.getEnclosingElement().toString().equals(JAVA_LANG_OBJECT));
-            return true;
     }
 }
 
