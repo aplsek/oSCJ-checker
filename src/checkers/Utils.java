@@ -104,18 +104,18 @@ public final class Utils {
     }
 
     public static TypeElement superType(TypeElement type) {
-        //Utils.debugPrintln("superType: " + TypesUtils.isObject(type.asType()) );
-        //Utils.debugPrintln("as type: " + type.asType() );
-        //Utils.debugPrintln("super : " + type.getSuperclass());
-
         if (TypesUtils.isObject(type.asType())) { return null; }
         if (type.getSuperclass().toString().equals("<none>")) return null;
 
-        return (TypeElement) ((DeclaredType) type.getSuperclass()).asElement();
+        return getTypeElement(type.getSuperclass());
     }
 
     public static TypeElement getTypeElement(Elements elements, String clazz) {
         return elements.getTypeElement(clazz);
+    }
+
+    public static TypeMirror getTypeMirror(Elements elements, String clazz) {
+        return getTypeElement(elements, clazz).asType();
     }
 
     /**
