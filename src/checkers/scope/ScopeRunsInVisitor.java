@@ -300,7 +300,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(m);
         for (ExecutableElement e : overrides.values()) {
-            ScopeInfo eRunsIn = getOverloadRunsInAndVisit(e, errNode);
+            ScopeInfo eRunsIn = getOverrideRunsInAndVisit(e, errNode);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
             if (!eRunsIn.equals(runsIn) && eLevel != SUPPORT) {
@@ -329,7 +329,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(m);
         for (ExecutableElement e : overrides.values()) {
-            ScopeInfo eScope = getOverloadScopeAndVisit(e, errNode);
+            ScopeInfo eScope = getOverrideScopeAndVisit(e, errNode);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
             if (!eScope.equals(scope) && eLevel != SUPPORT) {
@@ -388,14 +388,14 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         return parent;
     }
 
-    private ScopeInfo getOverloadScopeAndVisit(ExecutableElement m, Tree errNode) {
+    private ScopeInfo getOverrideScopeAndVisit(ExecutableElement m, Tree errNode) {
         ScopeInfo scope = ctx.getMethodScope(m);
         if (scope != null) { return scope; }
         checkMethod(m, trees.getTree(m), errNode);
         return ctx.getMethodScope(m);
     }
 
-    private ScopeInfo getOverloadRunsInAndVisit(ExecutableElement m,
+    private ScopeInfo getOverrideRunsInAndVisit(ExecutableElement m,
             Tree errNode) {
         ScopeInfo runsIn = ctx.getMethodRunsIn(m);
         if (runsIn != null) { return runsIn; }
