@@ -2,6 +2,16 @@ package checkers.scope;
 
 import javax.safetycritical.annotate.Scope;
 
+
+/**
+ * ScopeInfo values:
+ *
+ * null --- A literal "null" value for ScopeInfo indicates that it's a primitive.
+ * NULL --- The NULL scope constant I put in was to represent the null value in programs
+ *         - a value that can be cast to any scope.
+ *
+ *
+ */
 public class ScopeInfo {
     public static final ScopeInfo CURRENT = new ScopeInfo(Scope.CURRENT);
     public static final ScopeInfo IMMORTAL = new ScopeInfo(Scope.IMMORTAL);

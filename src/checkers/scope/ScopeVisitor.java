@@ -280,27 +280,33 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return null;
     }
 
+
+
     @Override
     public ScopeInfo visitIdentifier(IdentifierTree node, P p) {
         debugIndentIncrement("visitIdentifier : " + node);
         try {
             Element elem = TreeUtils.elementFromUse(node);
+            ScopeInfo scope = null;
 
-            if (elem.getKind() == ElementKind.FIELD ) {
-                return ctx.getFieldScope(elem.getEnclosingElement().toString(),
-                          node.getName().toString());
+            // when accessing this.method(), then this is type of FIELD, but
+            // we need to handle the this case specially.
+            if (elem.getKind() == ElementKind.FIELD && !isThis(node)) {
+                scope =  ctx.getFieldScope(elem.getEnclosingElement().toString(),
+                        node.getName().toString());
+                debugIndent("\t elem:" + elem.getEnclosingElement().toString());
+                debugIndent("\t node:" + node.getName().toString());
+                debugIndent("\t FIELD scope :" + scope.getScope());
+                return scope;
             } else if (elem.getKind() == ElementKind.LOCAL_VARIABLE ||
                     elem.getKind() == ElementKind.PARAMETER) {
                 String var = node.getName().toString();
-                ScopeInfo scope = varScopes.getVariableScope(var);
-
-                // TODO: bug here:
-                // for a field @Scope(Mission ) Foo foo;
-                // we get CURRENT!!
+                scope = varScopes.getVariableScope(var);
                 debugIndent("\t varScope:" + scope.getScope());
                 return scope;
             } else if (elem.getKind() == ElementKind.METHOD
-                    || elem.getKind() == ElementKind.CONSTRUCTOR) {
+                    || elem.getKind() == ElementKind.CONSTRUCTOR
+                    || (elem.getKind() == ElementKind.FIELD && isThis(node))) {
                 // If an identifier gets visited and its element is a method, then
                 // it is part of a MethodInvocationTree as the method select. It's
                 // either a static method, in which case there is no receiver
@@ -308,8 +314,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 // object, in which case it is implicitly invoked on "this". We
                 // return the scope of "this", which will be discarded if the
                 // method being invoked is static.
+                scope =  varScopes.getVariableScope("this");
+                debugIndent("\t method/constructor scope:" + scope.getScope());
                 return varScopes.getVariableScope("this");
             }
+
+            debugIndent("\t identifier scope [NO CASE]:" + null);
             return super.visitIdentifier(node, p);
         } finally {
             debugIndentDecrement();
@@ -676,9 +686,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         // TODO: static methods ? :
         debugIndent("\n\t checkMethodInvocation : " + node);
 
-        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, currentScope());
+        pln("\n\t checkMethodInvocation : " + node);
+        pln("\t recvScope : " + recvScope);
+        pln("\t currentScope : " + currentScope());
+
+        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, recvScope);
         checkMethodRunsIn(m, recvScope, runsIn, node);
         checkMethodParameters(m, argScopes, node);
+
+        pln("\t runsIn : " + runsIn);
 
         switch(compareName(m)) {
         case ENTER_PRIVATE_MEMORY:
@@ -704,7 +720,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         case GET_CURRENT_MANAGED_MEMORY:
             return checkGetCurrentManagedMemory(node);
         default:
-            return ctx.getEffectiveMethodScope(m, currentScope());
+            return ctx.getEffectiveMethodScope(m, recvScope);
         }
     }
 
@@ -825,7 +841,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ReturnTree node) {
         debugIndent("checkReturnScope");
         if (expectedScope.isUnknown() || expectedScope.equals(exprScope)
-                || (exprScope == null || exprScope.isNull())) {         // TODO: which one of these it should be?
+                || (exprScope == null || exprScope.isNull())) {
             return;
         }
         fail(ERR_BAD_RETURN_SCOPE, node, exprScope, expectedScope);
@@ -933,6 +949,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             nodeTypeTree = ((ArrayTypeTree) nodeTypeTree).getType();
         }
         return nodeTypeTree;
+    }
+
+    private static final String THIS = "this";
+
+    private boolean isThis(IdentifierTree node) {
+        if (node.getName().toString().equals(THIS))
+            return true;
+        else
+            return false;
     }
 }
 
