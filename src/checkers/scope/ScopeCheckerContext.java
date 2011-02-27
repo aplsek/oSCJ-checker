@@ -78,7 +78,7 @@ public class ScopeCheckerContext {
             String... params) {
         ClassScopeInfo csi = classScopes.get(clazz);
         if (csi != null) {
-            String sig = buildSignatureString(method, params);
+            String sig = Utils.buildSignatureString(method, params);
             MethodScopeInfo msi = csi.methodScopes.get(sig);
             if (msi != null) {
                 return Collections.unmodifiableList(msi.parameters);
@@ -96,7 +96,7 @@ public class ScopeCheckerContext {
             String... params) {
         ClassScopeInfo csi = classScopes.get(clazz);
         if (csi != null) {
-            String sig = buildSignatureString(method, params);
+            String sig = Utils.buildSignatureString(method, params);
             MethodScopeInfo msi = csi.methodScopes.get(sig);
             if (msi != null) {
                 return msi.runsIn;
@@ -123,7 +123,7 @@ public class ScopeCheckerContext {
             String... params) {
         ClassScopeInfo csi = classScopes.get(clazz);
         if (csi != null) {
-            String sig = buildSignatureString(method, params);
+            String sig = Utils.buildSignatureString(method, params);
             MethodScopeInfo msi = csi.methodScopes.get(sig);
             if (msi != null) {
                 return msi.scope;
@@ -257,7 +257,7 @@ public class ScopeCheckerContext {
     public void setMethodRunsIn(ScopeInfo scope, String clazz, String method,
             String... params) {
         ClassScopeInfo csi = classScopes.get(clazz);
-        String sig = buildSignatureString(method, params);
+        String sig = Utils.buildSignatureString(method, params);
         MethodScopeInfo msi = csi.methodScopes.get(sig);
         if (msi != null) {
             if (msi.runsIn != null && !msi.runsIn.equals(scope)) {
@@ -290,7 +290,7 @@ public class ScopeCheckerContext {
     public void setMethodScope(ScopeInfo scope, String clazz, String method,
             String... params) {
         ClassScopeInfo csi = classScopes.get(clazz);
-        String sig = buildSignatureString(method, params);
+        String sig = Utils.buildSignatureString(method, params);
         MethodScopeInfo msi = csi.methodScopes.get(sig);
         if (msi != null) {
             if (msi.scope != null && !msi.scope.equals(scope)) {
@@ -317,7 +317,7 @@ public class ScopeCheckerContext {
     public void setParameterScope(ScopeInfo scope, int i, String clazz,
             String method, String... params) {
         ClassScopeInfo csi = classScopes.get(clazz);
-        String sig = buildSignatureString(method, params);
+        String sig = Utils.buildSignatureString(method, params);
         MethodScopeInfo msi = csi.methodScopes.get(sig);
         ScopeInfo psi = msi.parameters.get(i);
         if (psi != null && !psi.equals(scope)) {
@@ -330,42 +330,6 @@ public class ScopeCheckerContext {
         TypeElement t = Utils.getMethodClass(m);
         setParameterScope(scope, i, t.getQualifiedName().toString(),
                 m.getSimpleName().toString(), getParameterTypeNames(m));
-    }
-
-    /**
-     * Given a method name and a list of parameter names, construct a String
-     * that uniquely identifies a method.
-     *
-     * For example, if a method has a Java type signature:
-     *
-     *     String foo(Bar1 a1, Bar2 a2)
-     *
-     * this method yields the string foo(Bar1,Bar2,)
-     */
-    static String buildSignatureString(String method, String... params) {
-        int size = method.length() + params.length + 2;
-        for (String param : params) {
-            size += param.length();
-        }
-
-        StringBuilder sb = new StringBuilder(size);
-        sb.append(method);
-        sb.append('(');
-        for (String param : params) {
-            sb.append(param);
-            sb.append(',');
-        }
-        sb.append(')');
-        return sb.toString();
-    }
-
-    /**
-     * Given a method declaration, construct a String that uniquely identifies
-     * a method.
-     */
-    static String buildSignatureString(ExecutableElement m) {
-        return buildSignatureString(m.getSimpleName().toString(),
-                getParameterTypeNames(m));
     }
 
     /**

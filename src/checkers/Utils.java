@@ -156,7 +156,7 @@ public final class Utils {
      * Given a method declaration, construct a String that uniquely identifies
      * a method.
      */
-    static String buildSignatureString(ExecutableElement m) {
+    public static String buildSignatureString(ExecutableElement m) {
         return buildSignatureString(m.getSimpleName().toString(),
                 getParameterTypeNames(m));
     }
@@ -171,7 +171,7 @@ public final class Utils {
      *
      * this method yields the string foo(Bar1,Bar2,)
      */
-    static String buildSignatureString(String method, String... params) {
+    public static String buildSignatureString(String method, String... params) {
         int size = method.length() + params.length + 2;
         for (String param : params) {
             size += param.length();
