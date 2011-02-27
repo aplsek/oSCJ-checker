@@ -154,7 +154,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeInfo visitAssignment(AssignmentTree node, P p) {
         try {
             debugIndentIncrement("visitAssignment : " + node);
-            //pln("visitAssignment : " + node);
 
             ScopeInfo lhs = node.getVariable().accept(this, p);
             ScopeInfo rhs = node.getExpression().accept(this, p);
@@ -288,8 +287,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndentIncrement("visitIdentifier : " + node);
         try {
             Element elem = TreeUtils.elementFromUse(node);
-            if (elem.getKind() == ElementKind.FIELD ||
-                    elem.getKind() == ElementKind.LOCAL_VARIABLE ||
+
+            if (elem.getKind() == ElementKind.FIELD ) {
+                return ctx.getFieldScope(elem.getEnclosingElement().toString(),
+                          node.getName().toString());
+            } else if (elem.getKind() == ElementKind.LOCAL_VARIABLE ||
                     elem.getKind() == ElementKind.PARAMETER) {
                 String var = node.getName().toString();
                 ScopeInfo scope = varScopes.getVariableScope(var);
