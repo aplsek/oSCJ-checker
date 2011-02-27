@@ -284,7 +284,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             String var = node.getName().toString();
             ScopeInfo scope = varScopes.getVariableScope(var);
             return scope;
-        } else if (elem.getKind() == ElementKind.METHOD) {
+        } else if (elem.getKind() == ElementKind.METHOD
+                || elem.getKind() == ElementKind.CONSTRUCTOR) {
             // If an identifier gets visited and its element is a method, then
             // it is part of a MethodInvocationTree as the method select. It's
             // either a static method, in which case there is no receiver
