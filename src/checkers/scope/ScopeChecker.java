@@ -35,7 +35,6 @@ public class ScopeChecker extends SinglePassChecker {
     // TODO: Remove
     public static final String ERR_RUNNABLE_WITHOUT_RUNS_IN = "runnable.without.runs.in";
     public static final String ERR_SCOPE_RUNS_IN_DISAGREEMENT = "scope.runs.in.disagreement";
-    public static final String ERR_STATIC_NOT_IMMORTAL = "static.not.immortal";
     public static final String ERR_TYPE_CAST_BAD_ENTER_PARAMETER = "type.cast.bad.enter.parameter";
 
     private ScopeCheckerContext ctx;
@@ -87,8 +86,6 @@ public class ScopeChecker extends SinglePassChecker {
                 "Runnable used with executeInArea() without @RunsIn.");
         p.put(ERR_SCOPE_RUNS_IN_DISAGREEMENT,
                 "@RunsIn annotations must be a sub-scope of @Scope annotations.");
-        p.put(ERR_STATIC_NOT_IMMORTAL,
-                "Static fields types must be @Scope(IMMORTAL) or nothing at all.");
 
         return p;
     }
