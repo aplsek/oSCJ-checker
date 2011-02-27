@@ -82,6 +82,7 @@ import com.sun.source.tree.NewArrayTree;
 import com.sun.source.tree.NewClassTree;
 import com.sun.source.tree.ParenthesizedTree;
 import com.sun.source.tree.ReturnTree;
+import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.TypeCastTree;
@@ -320,8 +321,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitIf(IfTree node, P p) {
-        // TODO: Guards
-        return super.visitIf(node, p);
+        node.getCondition().accept(this, p);
+        varScopes.pushBlock();
+        checkForDynamicGuard(node.getCondition());
+        node.getThenStatement().accept(this, p);
+        varScopes.popBlock();
+        // We don't need a new block for the else block. The block for the
+        // if statement is just to cover the relation when the if statement
+        // is a guard.
+        StatementTree elseBlock = node.getElseStatement();
+        if (elseBlock != null) {
+            elseBlock.accept(this, p);
+        }
+        return null;
     }
 
     @Override
@@ -580,18 +592,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return scope;
     }
 
-    private ScopeInfo checkDynamicGuard(MethodInvocationTree node) {
-        ExpressionTree arg1 = node.getArguments().get(0);
-        ExpressionTree arg2 = node.getArguments().get(1);
-
-        checkFinal(arg1, node);
-        checkFinal(arg2, node);
-
-        // TODO : finish the checking of the guard
-
-        return null;
-    }
-
     /**
      *
      * @param m - unused TODO
@@ -683,19 +683,49 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return scope;
     }
 
-    private void checkFinal(ExpressionTree arg, MethodInvocationTree node) {
+    private boolean checkForValidGuardArgument(ExpressionTree arg) {
         switch (arg.getKind()) {
-        case IDENTIFIER :
-            VariableElement var = (VariableElement) TreeUtils.elementFromUse((IdentifierTree) arg);
+        case IDENTIFIER:
+            VariableElement var = (VariableElement) TreeUtils
+                    .elementFromUse((IdentifierTree) arg);
             var.getModifiers();
 
             if (!isFinal(var.getModifiers())) {
-                fail(ERR_BAD_GUARD_NO_FINAL, node, arg);
+                fail(ERR_BAD_GUARD_NO_FINAL, arg, arg);
+                return false;
             }
             break;
-        default :
-            fail(ERR_BAD_GUARD_ARGUMENT, node, arg);
+        default:
+            fail(ERR_BAD_GUARD_ARGUMENT, arg, arg);
+            return false;
+        }
+        return true;
+    }
+
+    private void checkForDynamicGuard(ExpressionTree condition) {
+        if (condition.getKind() != Kind.METHOD_INVOCATION) {
             return;
+        }
+        MethodInvocationTree method = (MethodInvocationTree) condition;
+        ExecutableElement m = TreeUtils.elementFromUse(method);
+        SCJ_METHODS sig = compareName(m);
+        switch (sig) {
+        case ALLOC_IN_PARENT:
+        case ALLOC_IN_SAME:
+            ExpressionTree var1 = method.getArguments().get(0);
+            ExpressionTree var2 = method.getArguments().get(1);
+            boolean hasValidArgs = checkForValidGuardArgument(var1);
+            hasValidArgs = hasValidArgs && checkForValidGuardArgument(var2);
+            if (hasValidArgs) {
+                String var1Name = var1.toString();
+                String var2Name = var2.toString();
+                if (sig == ALLOC_IN_PARENT) {
+                    varScopes.addParentRelation(var1Name, var2Name);
+                } else {
+                    varScopes.addSameRelation(var1Name, var2Name);
+                }
+            }
+            break;
         }
     }
 
@@ -732,12 +762,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return checkGetMemoryArea(node);
         case GET_CURRENT_MANAGED_MEMORY:
             return checkGetCurrentManagedMemory(node);
-        case ALLOC_IN_SAME:
-            checkDynamicGuard(node);
-            return null;
-        case ALLOC_IN_PARENT:
-            checkDynamicGuard(node);
-            return null;
         default:
             return ctx.getEffectiveMethodScope(m,currentScope());
         }
