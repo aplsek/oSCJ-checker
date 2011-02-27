@@ -17,7 +17,7 @@ import static checkers.scjAllowed.EscapeMap.escapeEnum;
 import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION;
 import static checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PARAM;
-import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH;
+import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH;
 import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_TARGET;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_OR_ENTER;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_TARGET;
@@ -28,7 +28,7 @@ import static checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE;
 import static checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_DEFAULT_BAD_ENTER_PARAMETER;
-import static checkers.scope.ScopeChecker.ERR_RUNNABLE_WITHOUT_RUNSIN;
+import static checkers.scope.ScopeChecker.ERR_RUNNABLE_WITHOUT_RUNS_IN;
 import static checkers.scope.ScopeChecker.ERR_TYPE_CAST_BAD_ENTER_PARAMETER;
 import static checkers.scope.ScopeInfo.CURRENT;
 import static checkers.scope.ScopeInfo.UNKNOWN;
@@ -582,7 +582,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo argRunsIn = getRunsInFromRunnable(runnableType);
 
         if (!scopeTree.isParentOf(argRunsIn, currentScope()))
-            fail(ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH, node, argRunsIn, currentScope());
+            fail(ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH, node, argRunsIn, currentScope());
     }
 
     private ScopeInfo checkExecuteInArea(MethodInvocationTree node) {
@@ -629,7 +629,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (argRunsIn == null) {
             // All Runnables used with executeInArea/enter should have
             // @RunsIn on "run()" method
-            fail(ERR_RUNNABLE_WITHOUT_RUNSIN, node);
+            fail(ERR_RUNNABLE_WITHOUT_RUNS_IN, node);
         } else {
             switch (e.getKind()) {
             case IDENTIFIER :

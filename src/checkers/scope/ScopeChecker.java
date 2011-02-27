@@ -17,22 +17,23 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_ASSIGNMENT_SCOPE = "bad.assignment.scope";
     public static final String ERR_BAD_ASSIGNMENT_PRIVATE_MEM = "bad.assignment.private.mem";
     public static final String ERR_BAD_ENTER_PARAM = "bad.enter.param";
-    public static final String ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH = "bad.enterPrivateMem.runsIn.no.match";
+    public static final String ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH = "bad.enter.private.memory.runs.in.no.match";
     public static final String ERR_BAD_ENTER_TARGET = "bad.enter.target";
-    public static final String ERR_BAD_EXECUTE_IN_AREA_OR_ENTER = "bad.executeInArea.or.enter";
-    public static final String ERR_BAD_EXECUTE_IN_AREA_TARGET = "bad.executeInArea.target";
+    public static final String ERR_BAD_EXECUTE_IN_AREA_OR_ENTER = "bad.execute.in.area.or.enter";
+    public static final String ERR_BAD_EXECUTE_IN_AREA_TARGET = "bad.execute.in.area.target";
     public static final String ERR_BAD_GUARD_ARGUMENT = "bad.guard.argument";
     public static final String ERR_BAD_GUARD_NO_FINAL = "bad.guard.no.final";
     public static final String ERR_BAD_METHOD_INVOKE = "bad.method.invoke";
-    public static final String ERR_BAD_NEW_INSTANCE = "bad.newInstance";
+    public static final String ERR_BAD_NEW_INSTANCE = "bad.new.instance";
     public static final String ERR_BAD_RETURN_SCOPE = "bad.return.scope";
     public static final String ERR_BAD_RUNS_IN_METHOD = "bad.runs.in.method";
     public static final String ERR_BAD_VARIABLE_SCOPE = "bad.variable.scope";
+    // TODO: Remove
     public static final String ERR_DEFAULT_BAD_ENTER_PARAMETER = "default.bad.enter.parameter";
     public static final String ERR_ESCAPING_NONANNOTATED_FIELD = "escaping.nonannotated.field";
     public static final String ERR_INTERFACE_ANNOTATION_MISMATCH = "interface.annotation.mismatch";
     // TODO: Remove
-    public static final String ERR_RUNNABLE_WITHOUT_RUNSIN = "runnable.without.runsin";
+    public static final String ERR_RUNNABLE_WITHOUT_RUNS_IN = "runnable.without.runs.in";
     public static final String ERR_SCOPE_RUNS_IN_DISAGREEMENT = "scope.runs.in.disagreement";
     public static final String ERR_STATIC_NOT_IMMORTAL = "static.not.immortal";
     public static final String ERR_TYPE_CAST_BAD_ENTER_PARAMETER = "type.cast.bad.enter.parameter";
@@ -59,7 +60,7 @@ public class ScopeChecker extends SinglePassChecker {
         p.put(ERR_BAD_ASSIGNMENT_SCOPE,
                 "Cannot assign expression in scope %s to variable in scope %s.");
         p.put(ERR_BAD_ENTER_TARGET, "enter() must target a child scope.");
-        p.put(ERR_BAD_ENTER_PRIVATE_MEM_RUNS_IN_NO_MATCH,
+        p.put(ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH,
                 "The Runnable's @RunsIn must be a child scope of the CurrentScope\n\t @RunsIn: %s\n\t Current Scope: %s");
         p.put(ERR_BAD_EXECUTE_IN_AREA_OR_ENTER,
                 "Runnable and PrivateMemory scopes disagree.");
@@ -82,7 +83,7 @@ public class ScopeChecker extends SinglePassChecker {
         p.put(ERR_ESCAPING_NONANNOTATED_FIELD, ERR_ESCAPING_NONANNOTATED_FIELD);
         p.put(ERR_INTERFACE_ANNOTATION_MISMATCH,
                 "One or more interfaces has a mismatching @%s annotation.");
-        p.put(ERR_RUNNABLE_WITHOUT_RUNSIN,
+        p.put(ERR_RUNNABLE_WITHOUT_RUNS_IN,
                 "Runnable used with executeInArea() without @RunsIn.");
         p.put(ERR_SCOPE_RUNS_IN_DISAGREEMENT,
                 "@RunsIn annotations must be a sub-scope of @Scope annotations.");
