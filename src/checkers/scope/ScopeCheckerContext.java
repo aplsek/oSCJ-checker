@@ -43,7 +43,9 @@ public class ScopeCheckerContext {
      */
     public ScopeInfo getClassScope(String clazz) {
         ClassScopeInfo csi = classScopes.get(clazz);
-        if (csi != null) { return csi.scope; }
+        if (csi != null) {
+            return csi.scope;
+        }
         return null;
     }
 
@@ -78,8 +80,9 @@ public class ScopeCheckerContext {
         if (csi != null) {
             String sig = Utils.buildSignatureString(method, params);
             MethodScopeInfo msi = csi.methodScopes.get(sig);
-            if (msi != null) { return Collections
-                    .unmodifiableList(msi.parameters); }
+            if (msi != null) {
+                return Collections.unmodifiableList(msi.parameters);
+            }
         }
         return null;
     }
@@ -95,7 +98,9 @@ public class ScopeCheckerContext {
         if (csi != null) {
             String sig = Utils.buildSignatureString(method, params);
             MethodScopeInfo msi = csi.methodScopes.get(sig);
-            if (msi != null) { return msi.runsIn; }
+            if (msi != null) {
+                return msi.runsIn;
+            }
         }
         return null;
     }
@@ -120,7 +125,9 @@ public class ScopeCheckerContext {
         if (csi != null) {
             String sig = Utils.buildSignatureString(method, params);
             MethodScopeInfo msi = csi.methodScopes.get(sig);
-            if (msi != null) { return msi.scope; }
+            if (msi != null) {
+                return msi.scope;
+            }
         }
         return null;
     }
@@ -144,86 +151,41 @@ public class ScopeCheckerContext {
      * Get the effective RunsIn of a method. This translates a CURRENT
      * annotation to something more concrete, if available.
      *
-     * The "effective" methods get a scope annotation relative to the receiver object.
-     *  you have to see that the scope of the receiver is "b" and say that the effective
-     *  method runs-in is "b" because the annotation is CURRENT.
+     * The "effective" methods get a scope annotation relative to the receiver
+     * object. you have to see that the scope of the receiver is "b" and say
+     * that the effective method runs-in is "b" because the annotation is
+     * CURRENT.
      */
     public ScopeInfo getEffectiveMethodRunsIn(ExecutableElement m,
             ScopeInfo recvScope) {
         ScopeInfo methodRunsIn = getMethodRunsIn(m);
-        if (!methodRunsIn.isCurrent()) return methodRunsIn;
-
-        // TODO: this needs to consider also the scope from where we invoke this
-        // method.
+        if (!methodRunsIn.isCurrent())
+            return methodRunsIn;
 
         TypeElement clazz = (TypeElement) m.getEnclosingElement();
         ScopeInfo scope = getClassScope(clazz);
 
-        // if the scope is CURRENT, we need to consider the Scope of the receiver object.
-        if (scope.isCurrent() && !recvScope.isCurrent())
-            return recvScope;
-
-        // TODO: see the getEffectiveMethodScope() for the issue of
-        // "enclosing classes"
-        return scope;
+        // if the scope is CURRENT, we need to consider the Scope of the
+        // receiver object.
+        return scope.isCurrent() ? recvScope : scope;
     }
 
     /**
      * Get the effective Scope of a method. This translates a CURRENT annotation
-     * to something more concrete, if available.
-     *
-     * Here is the way I intended it, in case you are still confused. The
-     * "effective" methods get a scope annotation relative to the receiver
-     * object. For example, if we have
-     *
-     * class A {
-     *     @RunsIn(CURRENT)
-     *     void foo() { }
-     *  }
-     *
-     * @Scope("b")
-     * class B extends A { }
-     *
-     *   void bar(B b) {
-     *      b.foo();
-     *   }
-     *
-     *  When you look at the method invocation and get the
-     *  ExecutableElement for foo, it will return the method in A
-     *  because that's where it's declared. If you get the class from
-     *  that, you get a TypeElement representing A, so it seems like
-     *  the scope should be CURRENT, which is wrong. Instead, you
-     *  have to see that the scope of the receiver is "b" and say
-     *  that the effective method runs-in is "b" because the
-     *  annotation is CURRENT. The same logic applies to fields. The
-     *  effective scope has nothing to do with the current allocation
-     *  context. The concretize method will be used for that.
-     *
-     *  TODO: enclosing classes ?
-     *
-     * @return - CURRENT if the enclosing classes are not annotated.
+     * to something more concrete, if available, based on the scope of the
+     * receiver.
      */
     public ScopeInfo getEffectiveMethodScope(ExecutableElement m,
             ScopeInfo recvScope) {
-        if (!getMethodScope(m).isCurrent()) return getMethodScope(m);
+        if (!getMethodScope(m).isCurrent())
+            return getMethodScope(m);
 
         TypeElement clazz = (TypeElement) m.getEnclosingElement();
         ScopeInfo scope = getClassScope(clazz);
 
-        // Utils.debugPrintln("clazz :" + clazz);
-        /*
-         * TODO: enclosing class may change this, see the issue on
-         * "enclosing classes" while (clazz != null || scope.equals(CURRENT)) {
-         * scope = getClassScope(clazz); Element cl =
-         * clazz.getEnclosingElement(); if (cl instanceof TypeElement) clazz =
-         * (TypeElement) clazz.getEnclosingElement(); else break; }
-         */
-
-        // if the scope is CURRENT, we need to consider the Scope of the receiver object.
-        if (scope.isCurrent() && !recvScope.isCurrent())
-            return recvScope;
-
-        return scope;
+        // if the scope is CURRENT, we need to consider the Scope of the
+        // receiver object.
+        return scope.isCurrent() ? recvScope : scope;
     }
 
     /**
@@ -232,8 +194,9 @@ public class ScopeCheckerContext {
      */
     public void setClassScope(ScopeInfo scope, String clazz) {
         ClassScopeInfo csi = classScopes.get(clazz);
-        if (csi != null && !csi.scope.equals(scope)) { throw new RuntimeException(
-                "Class scope already set"); }
+        if (csi != null && !csi.scope.equals(scope)) {
+            throw new RuntimeException("Class scope already set");
+        }
         csi = new ClassScopeInfo(scope);
         classScopes.put(clazz, csi);
     }
@@ -253,8 +216,9 @@ public class ScopeCheckerContext {
     public void setFieldScope(ScopeInfo scope, String clazz, String field) {
         ClassScopeInfo csi = classScopes.get(clazz);
         ScopeInfo f = csi.fieldScopes.get(field);
-        if (f != null && !f.equals(scope)) { throw new RuntimeException(
-                "Field scope already set"); }
+        if (f != null && !f.equals(scope)) {
+            throw new RuntimeException("Field scope already set");
+        }
         csi.fieldScopes.put(field, scope);
     }
 
@@ -279,8 +243,9 @@ public class ScopeCheckerContext {
         String sig = Utils.buildSignatureString(method, params);
         MethodScopeInfo msi = csi.methodScopes.get(sig);
         if (msi != null) {
-            if (msi.runsIn != null && !msi.runsIn.equals(scope)) { throw new RuntimeException(
-                    "Method runsin already set"); }
+            if (msi.runsIn != null && !msi.runsIn.equals(scope)) {
+                throw new RuntimeException("Method runsin already set");
+            }
         } else {
             msi = new MethodScopeInfo(params.length);
             csi.methodScopes.put(sig, msi);
@@ -311,8 +276,9 @@ public class ScopeCheckerContext {
         String sig = Utils.buildSignatureString(method, params);
         MethodScopeInfo msi = csi.methodScopes.get(sig);
         if (msi != null) {
-            if (msi.scope != null && !msi.scope.equals(scope)) { throw new RuntimeException(
-                    "Method scope already set"); }
+            if (msi.scope != null && !msi.scope.equals(scope)) {
+                throw new RuntimeException("Method scope already set");
+            }
         } else {
             msi = new MethodScopeInfo(params.length);
             csi.methodScopes.put(sig, msi);
@@ -337,8 +303,9 @@ public class ScopeCheckerContext {
         String sig = Utils.buildSignatureString(method, params);
         MethodScopeInfo msi = csi.methodScopes.get(sig);
         ScopeInfo psi = msi.parameters.get(i);
-        if (psi != null && !psi.equals(scope)) { throw new RuntimeException(
-                "Parameter scope already set"); }
+        if (psi != null && !psi.equals(scope)) {
+            throw new RuntimeException("Parameter scope already set");
+        }
         msi.parameters.set(i, scope);
     }
 
