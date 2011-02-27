@@ -21,48 +21,46 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 
 @DefineScope(name="MyMission",parent=IMMORTAL)
-@Scope("MyMission") 
-class MyMission extends Mission {
+@Scope("MyMission")
+class MyMission /* extends Mission */ {
 
-    MyFoo foo;
-    
-    protected void initialize() { 
+    Foo foo;
+
+    protected void initialize() {
         new MyHandler(null, null, null, 0,this);
     }
 
-    @Override
     public long missionMemorySize() {
         return 0;
     }
-    
+
 }
 
 
 @Scope("MyMission")
 @DefineScope(name="MyHandler",parent="MyMission")
-class MyHandler extends PeriodicEventHandler {
+class MyHandler /*extends PeriodicEventHandler*/ {
 
     MyMission mission = null;
-    
-    @Scope("IMMORTAL") MyFoo foo;
-    
-    
+
+    @Scope("IMMORTAL") Foo foo;
+
+
     public MyHandler(PriorityParameters priority,
             PeriodicParameters parameters, StorageParameters scp, long memSize, MyMission mission) {
-        super(priority, parameters, scp);
-        
+        //super(priority, parameters, scp);
+
         this.mission = mission;
-        
+
     }
 
-    @RunsIn("MyHandler") 
+    @RunsIn("MyHandler")
     public void handleAsyncEvent() {
-        
-        MyFoo localFoo = this.foo;
-    
+
+        Foo localFoo = this.foo;
+
     }
 
-    @Override
     public StorageParameters getThreadConfigurationParameters() {
         return null;
     }

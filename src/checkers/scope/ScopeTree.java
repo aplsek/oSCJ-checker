@@ -27,7 +27,8 @@ public class ScopeTree {
         if (child.isCurrent())
             return null;
 
-        if (child.isCurrent())
+        // TODO: DAN: This if is wrong. I would argue even if it was isImmortal it would be wrong to do this here.
+        if (child.isImmortal())
             return ScopeInfo.IMMORTAL;  // parent of IMMORTAL is IMMORTAL
 
         return get(child);

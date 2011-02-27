@@ -163,6 +163,8 @@ public class ScopeCheckerContext {
 
         // if the scope is CURRENT, we need to consider the Scope of the place
         // from where this is invoked
+        // TODO: DAN: This isn't right, it should be the scope of the receiver object
+        //      (this logic breaks for static methods for obvious reasons). Otherwise CURRENT is exactly UNKNOWN.
         if (scope.isCurrent() && !currentScope.isCurrent())
             return currentScope;
 
@@ -199,6 +201,8 @@ public class ScopeCheckerContext {
 
         // if the scope is CURRENT, we need to consider the Scope of the place
         // from where this is invoked
+        // TODO: DAN: This isn't right, it should be the scope of the receiver object
+        //      (this logic breaks for static methods for obvious reasons). Otherwise CURRENT is exactly UNKNOWN.
         if (scope.isCurrent() && !currentScope.isCurrent())
             return currentScope;
 

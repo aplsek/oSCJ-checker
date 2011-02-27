@@ -243,17 +243,23 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitConditionalExpression(ConditionalExpressionTree node, P p) {
-        node.getCondition().accept(this, p);
-        ScopeInfo t = node.getTrueExpression().accept(this, p);
-        ScopeInfo f = node.getFalseExpression().accept(this, p);
-        // TODO: Not sure if this is right
-        if (t != null) {
-            if (!t.equals(f)) {
-                // TODO: report error
+        debugIndentIncrement("visitConditionalExpression : " + node);
+
+        try {
+            node.getCondition().accept(this, p);
+            ScopeInfo t = node.getTrueExpression().accept(this, p);
+            ScopeInfo f = node.getFalseExpression().accept(this, p);
+            // TODO: Not sure if this is right
+            if (t != null) {
+                if (!t.equals(f)) {
+                    // TODO: report error
+                }
+                return t;
             }
-            return t;
+            return null; // Primitives have no scope
+        } finally {
+            debugIndentDecrement();
         }
-        return null; // Primitives have no scope
     }
 
     @Override
@@ -486,13 +492,18 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         MethodTree enclosingMethod = TreeUtils.enclosingMethod(getCurrentPath());
         ExecutableElement m = TreeUtils.elementFromDeclaration(enclosingMethod);
+
+        // TODO: Primitives have no scope - returnScope is CURRENT, is this correct?
         ScopeInfo returnScope = ctx.getMethodScope(m);
+
+        // TODO: for primitive values this returns null, what is this visiting??
         ScopeInfo exprScope = node.getExpression().accept(this, p);
+
         debugIndent("expected return scope is: " + returnScope);
         debugIndent("actual return scope is:" + exprScope);
         checkReturnScope(exprScope, returnScope, node);
         debugIndentDecrement();
-        return null;
+        return returnScope;
     }
 
     @Override
@@ -814,7 +825,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ReturnTree node) {
         debugIndent("checkReturnScope");
         if (expectedScope.isUnknown() || expectedScope.equals(exprScope)
-                || exprScope.isNull()) {
+                || (exprScope == null || exprScope.isNull())) {         // TODO: which one of these it should be?
             return;
         }
         fail(ERR_BAD_RETURN_SCOPE, node, exprScope, expectedScope);
