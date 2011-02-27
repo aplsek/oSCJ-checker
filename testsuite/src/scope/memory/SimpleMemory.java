@@ -25,7 +25,8 @@ class PEH {
     ManagedMemory mem;
 
     public void method() {
-        mem = ManagedMemory.getCurrentManagedMemory();
+       mem = ManagedMemory.getCurrentManagedMemory();
+
     }
 
     @RunsIn("PEH")
@@ -34,5 +35,3 @@ class PEH {
     }
 }
 
-@Scope("Mission")
-class Foo {}
