@@ -266,11 +266,11 @@ public final class Utils {
         },
 
         ALLOC_IN_SAME {
-            @Override public String toString() { return "allocatedInSame(java.lang.Object,java.lang.Object)"; }
+            @Override public String toString() { return "allocInSame(java.lang.Object,java.lang.Object)"; }
         },
 
         ALLOC_IN_PARENT {
-            @Override public String toString() { return "allocatedInParent(java.lang.Object,java.lang.Object)"; }
+            @Override public String toString() { return "allocInParent(java.lang.Object,java.lang.Object)"; }
         };
     }
 
