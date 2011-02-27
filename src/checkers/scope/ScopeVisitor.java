@@ -314,9 +314,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 // object, in which case it is implicitly invoked on "this". We
                 // return the scope of "this", which will be discarded if the
                 // method being invoked is static.
-                scope =  varScopes.getVariableScope("this");
-                debugIndent("\t method/constructor scope:" + scope.getScope());
-                return varScopes.getVariableScope("this");
+                scope = varScopes.getVariableScope("this");
+                debugIndent("\t method/constructor scope:" + scope);
+                return scope;
             }
 
             debugIndent("\t identifier scope [NO CASE]:" + null);
@@ -954,10 +954,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private static final String THIS = "this";
 
     private boolean isThis(IdentifierTree node) {
-        if (node.getName().toString().equals(THIS))
-            return true;
-        else
-            return false;
+        return node.getName().toString().equals(THIS);
     }
 }
-
