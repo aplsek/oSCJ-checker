@@ -690,7 +690,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         // TODO: static methods ?
         debugIndent("\n\t checkMethodInvocation : " + node);
 
-        ExecutableElement method = TreeUtils.elementFromUse(node);
+        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m,currentScope());
+        checkMethodRunsIn(m, recvScope, runsIn, node);
+        checkMethodParameters(m, argScopes, node);
 
         switch(compareName(m)) {
         case ENTER_PRIVATE_MEMORY:
@@ -700,7 +702,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             checkExecuteInArea(node);
             return null;
         case ENTER:
-            checkExecuteInArea(node);       // TODO: how to check the enter()?
+            //checkExecuteInArea(node);       // TODO: how to check the enter()?
+            // this cannot by invoked by user!!
             return null;
         case NEW_INSTANCE:
             return checkNewInstance(node);
@@ -713,12 +716,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             checkDynamicGuard(node);
             return null;
         default:
-            return checkRegularMethodInvocation(m, recvScope, argScopes, node);
+            return ctx.getEffectiveMethodScope(m,currentScope());
         }
     }
 
 
-
+    /*
     private ScopeInfo checkRegularMethodInvocation(ExecutableElement m,
             ScopeInfo recvScope, List<ScopeInfo> argScopes,
             MethodInvocationTree node) {
@@ -728,7 +731,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         checkMethodRunsIn(m, recvScope, runsIn, node);
         checkMethodParameters(m, argScopes, node);
         return ctx.getEffectiveMethodScope(m,currentScope());
-    }
+    }*/
 
     private void checkMethodParameters(ExecutableElement m,
             List<ScopeInfo> argScopes, MethodInvocationTree node) {
