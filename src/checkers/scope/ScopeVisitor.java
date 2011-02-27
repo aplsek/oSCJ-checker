@@ -7,7 +7,7 @@ import static checkers.Utils.SCJ_METHODS.ALLOC_IN_SAME;
 import static checkers.Utils.SCJ_METHODS.DEFAULT;
 import static checkers.Utils.SCJ_METHODS.ENTER_PRIVATE_MEMORY;
 import static checkers.Utils.SCJ_METHODS.EXECUTE_IN_AREA;
-import static checkers.Utils.SCJ_METHODS.GET_CURRENT_MANAGED_AREA;
+import static checkers.Utils.SCJ_METHODS.GET_CURRENT_MANAGED_MEMORY;
 import static checkers.Utils.SCJ_METHODS.GET_MEMORY_AREA;
 import static checkers.Utils.SCJ_METHODS.NEW_ARRAY;
 import static checkers.Utils.SCJ_METHODS.NEW_ARRAY_IN_AREA;
@@ -678,12 +678,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
     }
 
-    private ScopeInfo checkGetMemoryArea(MethodInvocationTree node) {
-        // TODO: revisit checking of the "getMemoryArea"!!!!
-        ScopeInfo scope = null;
-        return scope;
-    }
-
     private ScopeInfo checkMethodInvocation(ExecutableElement m,
             ScopeInfo recvScope, List<ScopeInfo> argScopes,
             MethodInvocationTree node) {
@@ -707,8 +701,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return null;
         case NEW_INSTANCE:
             return checkNewInstance(node);
+        case NEW_INSTANCE_IN_AREA:
+            return checkNewInstanceInArea(node);
+        case NEW_ARRAY:
+            return checkNewArray(node);
+        case NEW_ARRAY_IN_AREA:
+            return checkNewInstanceInArea(node);
         case GET_MEMORY_AREA:
             return checkGetMemoryArea(node);
+        case GET_CURRENT_MANAGED_MEMORY:
+            return checkGetCurrentManagedMemory(node);
         case ALLOC_IN_SAME:
             checkDynamicGuard(node);
             return null;
@@ -719,19 +721,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return ctx.getEffectiveMethodScope(m,currentScope());
         }
     }
-
-
-    /*
-    private ScopeInfo checkRegularMethodInvocation(ExecutableElement m,
-            ScopeInfo recvScope, List<ScopeInfo> argScopes,
-            MethodInvocationTree node) {
-
-        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m,currentScope());
-
-        checkMethodRunsIn(m, recvScope, runsIn, node);
-        checkMethodParameters(m, argScopes, node);
-        return ctx.getEffectiveMethodScope(m,currentScope());
-    }*/
 
     private void checkMethodParameters(ExecutableElement m,
             List<ScopeInfo> argScopes, MethodInvocationTree node) {
@@ -774,8 +763,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 return ALLOC_IN_SAME;
             if (Utils.getMethodSignature(method).equals(ALLOC_IN_PARENT.toString()))
                 return ALLOC_IN_PARENT;
-            if (Utils.getMethodSignature(method).equals(GET_CURRENT_MANAGED_AREA.toString()))
-                return GET_CURRENT_MANAGED_AREA;
+            if (Utils.getMethodSignature(method).equals(GET_CURRENT_MANAGED_MEMORY.toString()))
+                return GET_CURRENT_MANAGED_MEMORY;
         }
         if (implementsAllocationContext(type)) {
             if (Utils.getMethodSignature(method).equals(NEW_INSTANCE.toString()))
@@ -784,7 +773,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 return NEW_ARRAY;
             if (Utils.getMethodSignature(method).equals(NEW_ARRAY_IN_AREA.toString()))
                 return NEW_ARRAY_IN_AREA;
-            if (Utils.getMethodSignature(method).equals(EXECUTE_IN_AREA.toString()))   // TODO : why it needs to call toSTring???, should be implicit
+            if (Utils.getMethodSignature(method).equals(EXECUTE_IN_AREA.toString()))
                 return EXECUTE_IN_AREA;
         }
 
@@ -816,6 +805,29 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         } else {
             // TODO: We only accept newInstance(X.class) right now
         }
+        return scope;
+    }
+
+    void pln(String str) {System.out.println(str);}
+
+    /**
+     * @return parent scope of the current scope
+     */
+    private ScopeInfo checkGetCurrentManagedMemory(MethodInvocationTree node) {
+        return scopeTree.getParent(currentScope());
+    }
+
+    private ScopeInfo checkNewArray(MethodInvocationTree node) {
+        return null;
+    }
+
+    private ScopeInfo checkNewInstanceInArea(MethodInvocationTree node) {
+        return null;
+    }
+
+    private ScopeInfo checkGetMemoryArea(MethodInvocationTree node) {
+        // TODO: revisit checking of the "getMemoryArea"!!!!
+        ScopeInfo scope = null;
         return scope;
     }
 

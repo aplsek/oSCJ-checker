@@ -228,6 +228,11 @@ public final class Utils {
             @Override public String toString() { return "newInstance(java.lang.Class)"; }
         },
 
+        NEW_INSTANCE_IN_AREA {
+            @Override public String toString() { return "newInstance(java.lang.Class)"; }
+        },
+
+
         NEW_ARRAY {
             @Override public String toString() { return "newArray(java.lang.Class,int)"; }
         },
@@ -256,7 +261,7 @@ public final class Utils {
             @Override public String toString() { return "enterPrivateMemory(long,java.lang.Runnable)"; }
         },
 
-        GET_CURRENT_MANAGED_AREA {
+        GET_CURRENT_MANAGED_MEMORY {
             @Override public String toString() { return "getCurrentManagedMemory()"; }
         },
 

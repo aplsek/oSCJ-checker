@@ -23,6 +23,16 @@ public class ScopeTree {
         return scopeTree.get(name);
     }
 
+    public ScopeInfo getParent(ScopeInfo child) {
+        if (child.isCurrent())
+            return null;
+
+        if (child.isCurrent())
+            return ScopeInfo.IMMORTAL;  // parent of IMMORTAL is IMMORTAL
+
+        return get(child);
+    }
+
     public boolean hasScope(ScopeInfo name) {
         return scopeTree.containsKey(name);
     }
