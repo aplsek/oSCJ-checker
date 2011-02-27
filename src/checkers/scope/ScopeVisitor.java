@@ -154,10 +154,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeInfo visitAssignment(AssignmentTree node, P p) {
         try {
             debugIndentIncrement("visitAssignment : " + node);
+            //pln("visitAssignment : " + node);
 
             ScopeInfo lhs = node.getVariable().accept(this, p);
             ScopeInfo rhs = node.getExpression().accept(this, p);
 
+            debugIndent("> lhs : " + lhs.getScope());
+            debugIndent("> rhs : " + rhs.getScope());
             if (lhs.equals(rhs) && !lhs.isUnknown()) {
                 return lhs;
             }
@@ -232,14 +235,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitCompoundAssignment(CompoundAssignmentTree node, P p) {
-        ScopeInfo lhs = node.getVariable().accept(this, p);
-        if (TreeUtils.isStringCompoundConcatenation(node)) {
-            if (!lhs.isCurrent()) {
-                // TODO: report error
+        debugIndentIncrement("visitCompoundAssignment : " + node);
+        try {
+            ScopeInfo lhs = node.getVariable().accept(this, p);
+            if (TreeUtils.isStringCompoundConcatenation(node)) {
+                if (!lhs.isCurrent()) {
+                    // TODO: report error
+                }
+                return lhs;
             }
-            return lhs;
+            return null; // Primitives have no scope
+        } finally {
+            debugIndentDecrement();
         }
-        return null; // Primitives have no scope
     }
 
     @Override
@@ -277,25 +285,35 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitIdentifier(IdentifierTree node, P p) {
-        Element elem = TreeUtils.elementFromUse(node);
-        if (elem.getKind() == ElementKind.FIELD ||
-                elem.getKind() == ElementKind.LOCAL_VARIABLE ||
-                elem.getKind() == ElementKind.PARAMETER) {
-            String var = node.getName().toString();
-            ScopeInfo scope = varScopes.getVariableScope(var);
-            return scope;
-        } else if (elem.getKind() == ElementKind.METHOD
-                || elem.getKind() == ElementKind.CONSTRUCTOR) {
-            // If an identifier gets visited and its element is a method, then
-            // it is part of a MethodInvocationTree as the method select. It's
-            // either a static method, in which case there is no receiver
-            // object, or it's an instance method invoked on the current
-            // object, in which case it is implicitly invoked on "this". We
-            // return the scope of "this", which will be discarded if the
-            // method being invoked is static.
-            return varScopes.getVariableScope("this");
+        debugIndentIncrement("visitIdentifier : " + node);
+        try {
+            Element elem = TreeUtils.elementFromUse(node);
+            if (elem.getKind() == ElementKind.FIELD ||
+                    elem.getKind() == ElementKind.LOCAL_VARIABLE ||
+                    elem.getKind() == ElementKind.PARAMETER) {
+                String var = node.getName().toString();
+                ScopeInfo scope = varScopes.getVariableScope(var);
+
+                // TODO: bug here:
+                // for a field @Scope(Mission ) Foo foo;
+                // we get CURRENT!!
+                debugIndent("\t varScope:" + scope.getScope());
+                return scope;
+            } else if (elem.getKind() == ElementKind.METHOD
+                    || elem.getKind() == ElementKind.CONSTRUCTOR) {
+                // If an identifier gets visited and its element is a method, then
+                // it is part of a MethodInvocationTree as the method select. It's
+                // either a static method, in which case there is no receiver
+                // object, or it's an instance method invoked on the current
+                // object, in which case it is implicitly invoked on "this". We
+                // return the scope of "this", which will be discarded if the
+                // method being invoked is static.
+                return varScopes.getVariableScope("this");
+            }
+            return super.visitIdentifier(node, p);
+        } finally {
+            debugIndentDecrement();
         }
-        return super.visitIdentifier(node, p);
     }
 
     @Override
@@ -395,6 +413,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 argScopes.add(arg.accept(this, p));
             }
             ScopeInfo recvScope = node.getMethodSelect().accept(this, p);
+            // TODO : recvScope is still null when the method is static!!!!
             debugIndent("recvScope : " + recvScope);
 
             ScopeInfo scope = checkMethodInvocation(m, recvScope, argScopes,
@@ -681,7 +700,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private ScopeInfo checkMethodInvocation(ExecutableElement m,
             ScopeInfo recvScope, List<ScopeInfo> argScopes,
             MethodInvocationTree node) {
-        // TODO: static methods ?
+        // TODO: static methods ? :
         debugIndent("\n\t checkMethodInvocation : " + node);
 
         ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m,currentScope());
@@ -818,11 +837,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private ScopeInfo checkNewArray(MethodInvocationTree node) {
-        return null;
+        // TODO:
+        ScopeInfo scope = null;
+        return scope;
     }
 
     private ScopeInfo checkNewInstanceInArea(MethodInvocationTree node) {
-        return null;
+        // TODO:
+        ScopeInfo scope = null;
+        return scope;
     }
 
     private ScopeInfo checkGetMemoryArea(MethodInvocationTree node) {
