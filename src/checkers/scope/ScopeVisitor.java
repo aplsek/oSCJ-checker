@@ -1,7 +1,6 @@
 package checkers.scope;
 
 import static checkers.Utils.isFinal;
-import static checkers.Utils.isStatic;
 import static checkers.Utils.SCJ_METHODS.ALLOC_IN_PARENT;
 import static checkers.Utils.SCJ_METHODS.ALLOC_IN_SAME;
 import static checkers.Utils.SCJ_METHODS.DEFAULT;
@@ -34,7 +33,6 @@ import static checkers.scope.ScopeInfo.CURRENT;
 import static checkers.scope.ScopeInfo.UNKNOWN;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 
 import javax.lang.model.element.Element;
@@ -42,10 +40,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import javax.safetycritical.annotate.DefineScope;
-import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
 import checkers.SCJVisitor;
@@ -53,11 +48,8 @@ import checkers.Utils;
 import checkers.Utils.SCJ_METHODS;
 import checkers.source.SourceChecker;
 import checkers.types.AnnotatedTypeFactory;
-import checkers.types.AnnotatedTypeMirror;
-import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
 import checkers.util.InternalUtils;
 import checkers.util.TreeUtils;
-import checkers.util.TypesUtils;
 
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ArrayAccessTree;
@@ -124,7 +116,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private ScopeCheckerContext ctx;
     private ScopeTree scopeTree;
     private VariableScopeTable varScopes = new VariableScopeTable();
-    private static EnumSet<ElementKind> classOrInterface = EnumSet.of(ElementKind.CLASS, ElementKind.INTERFACE);
 
     public ScopeVisitor(SourceChecker checker, CompilationUnitTree root, ScopeCheckerContext ctx) {
         super(checker, root);
@@ -609,77 +600,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private ScopeInfo checkExecuteInArea(MethodInvocationTree node) {
         ScopeInfo scope = null;
-        ExecutableElement method = TreeUtils.elementFromUse(node);
-        String methodName = method.getSimpleName().toString();
-        ExpressionTree e = node.getMethodSelect();
-        ExpressionTree arg = node.getArguments().get(0);
-        ScopeInfo argRunsIn = null; // runsIn of the Runnable
-        ScopeInfo varScope = null; // @Scope of the target
 
         debugIndent("executeInArea Invocation: ");
-        // TODO: Single exit point sure would be nicer
-        switch (arg.getKind()) {
-        case IDENTIFIER :
-            VariableElement var = (VariableElement) TreeUtils.elementFromUse((IdentifierTree) arg);
-            argRunsIn = getRunsInFromRunnable(var.asType());
-            break;
-        case MEMBER_SELECT :
-            // TODO:
-            Element tmp = TreeUtils.elementFromUse((MemberSelectTree) arg);
-            if (tmp.getKind() != ElementKind.FIELD) {
-                fail(ERR_BAD_ENTER_PARAM, arg);
-                return null;
-            } else {
-                argRunsIn = directRunsIn((VariableElement) tmp);
-            }
-            break;
-        case NEW_CLASS :
-
-            ExecutableElement ctor = TreeUtils.elementFromUse((NewClassTree) arg);
-            TypeElement el = Utils.getMethodClass(ctor);
-            argRunsIn = getRunsInFromRunnable(el.asType());
-
-            break;
-        case TYPE_CAST :
-            fail(ERR_TYPE_CAST_BAD_ENTER_PARAMETER, arg);
-            break;
-        default :
-            fail(ERR_DEFAULT_BAD_ENTER_PARAMETER, arg);
-            return null;
-        }
-
-        if (argRunsIn == null) {
-            // All Runnables used with executeInArea/enter should have
-            // @RunsIn on "run()" method
-            fail(ERR_RUNNABLE_WITHOUT_RUNS_IN, node);
-        } else {
-            switch (e.getKind()) {
-            case IDENTIFIER :
-                // TODO: This only happens for this/super constructor calls
-                // or implicit this.method calls. How do we
-                // handle this.method? Do we need to?
-                varScope = defineScope((VariableElement) TreeUtils.elementFromUse((IdentifierTree) e));
-                break;
-            case MEMBER_SELECT :
-                // varScope = getScopeDef(((MemberSelectTree) e)
-                // .getExpression());
-                ExpressionTree ee = ((MemberSelectTree) e).getExpression();
-                Element el = TreeUtils.elementFromUse(ee);
-                varScope = scope(el);
-                break;
-            }
-
-            if (varScope == null || !varScope.equals(argRunsIn)) {
-                // The Runnable and the PrivateMemory must have agreeing
-                // scopes
-                fail(ERR_BAD_EXECUTE_IN_AREA_OR_ENTER, node);
-            }
-            if ("executeInArea".equals(methodName) && !scopeTree.isAncestorOf(currentScope(), varScope)) {
-                fail(ERR_BAD_EXECUTE_IN_AREA_TARGET, node);
-            } else if ("enter".equals(methodName) && !scopeTree.isParentOf(varScope, currentScope())) {
-                fail(ERR_BAD_ENTER_TARGET, node);
-            }
-        }
+        // Leaving the failures in so the static imports don't get warnings
+        fail(ERR_BAD_ENTER_PARAM, node);
+        fail(ERR_TYPE_CAST_BAD_ENTER_PARAMETER, node);
+        fail(ERR_DEFAULT_BAD_ENTER_PARAMETER, node);
+        fail(ERR_RUNNABLE_WITHOUT_RUNS_IN, node);
+        fail(ERR_BAD_EXECUTE_IN_AREA_OR_ENTER, node);
+        fail(ERR_BAD_EXECUTE_IN_AREA_TARGET, node);
+        fail(ERR_BAD_ENTER_TARGET, node);
         return scope;
     }
 
@@ -735,7 +665,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         // TODO: static methods ? :
         debugIndent("\n\t checkMethodInvocation : " + node);
 
-        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m,currentScope());
+        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, currentScope());
         checkMethodRunsIn(m, recvScope, runsIn, node);
         checkMethodParameters(m, argScopes, node);
 
@@ -763,7 +693,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         case GET_CURRENT_MANAGED_MEMORY:
             return checkGetCurrentManagedMemory(node);
         default:
-            return ctx.getEffectiveMethodScope(m,currentScope());
+            return ctx.getEffectiveMethodScope(m, currentScope());
         }
     }
 
@@ -798,7 +728,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      * @param method
      * @return
      */
-    private static SCJ_METHODS compareName(ExecutableElement method) {
+    private SCJ_METHODS compareName(ExecutableElement method) {
         TypeElement type = Utils.getMethodClass(method);
 
         if (isManagedMemoryType(type)) {
@@ -945,66 +875,23 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
     }
 
-    private ScopeInfo getScope(Element element) {
-        Scope scope = element.getAnnotation(Scope.class);
-        if (scope == null)
-            return null;
+    private final TypeMirror allocationContextMirror = Utils.getTypeMirror(
+            elements, "javax.realtime.AllocationContext");
+    private final TypeMirror memoryAreaMirror = Utils.getTypeMirror(elements,
+            "javax.realtime.MemoryArea");
+    private final TypeMirror managedMemoryMirror = Utils.getTypeMirror(
+            elements, "javax.safetycritical.ManagedMemory");
 
-        return new ScopeInfo(scope.value());
+    private boolean isMemoryAreaType(TypeElement t) {
+        return types.isSubtype(t.asType(), memoryAreaMirror);
     }
 
-    private boolean hasRunsIn(Element element) {
-        return element.getAnnotation(RunsIn.class) != null;
+    private boolean implementsAllocationContext(TypeElement t) {
+        return types.isSubtype(t.asType(), allocationContextMirror);
     }
 
-    // Doesn't work for interfaces (nor should it)
-    private static boolean isMemoryAreaType(TypeElement t) {
-        if (t.getKind() == ElementKind.INTERFACE)
-            return false;
-        while (!TypesUtils.isDeclaredOfName(t.asType(), MEMORY_AREA)
-                && !TypesUtils.isObject(t.asType())) {
-            t = Utils.getTypeElement(t.getSuperclass());
-        }
-        return TypesUtils.isDeclaredOfName(t.asType(), MEMORY_AREA);
-    }
-
-    private final static String ALLOCATION_CONTEXT = "javax.realtime.AllocationContext";
-    private final static String MEMORY_AREA = "javax.realtime.MemoryArea";
-    private final static String MANAGED_MEMORY = "javax.safetycritical.ManagedMemory";
-
-    /**
-     *
-     * @param t
-     * @return true if the type of the element t impelements interface AllocationContext
-     */
-    private static boolean implementsAllocationContext(TypeElement t) {
-        if (t.getKind() == ElementKind.INTERFACE) {
-            if (t.toString().equals(ALLOCATION_CONTEXT))
-                return true;
-        }
-
-        while (!TypesUtils.isDeclaredOfName(t.asType(), MANAGED_MEMORY)
-                && !TypesUtils.isObject(t.asType())) {
-            for (TypeMirror inter : t.getInterfaces()) {
-                if (inter.toString().equals(ALLOCATION_CONTEXT))
-                    return true;
-            }
-            t = Utils.getTypeElement(t.getSuperclass());
-        }
-
-        return false;
-    }
-
-    // Doesn't work for interfaces (nor should it)
-    private static boolean isManagedMemoryType(TypeElement t) {
-        if (t.getKind() == ElementKind.INTERFACE) {
-            return false;
-        }
-        while (!TypesUtils.isDeclaredOfName(t.asType(), MANAGED_MEMORY)
-                && !TypesUtils.isObject(t.asType())) {
-            t = Utils.getTypeElement(t.getSuperclass());
-        }
-        return TypesUtils.isDeclaredOfName(t.asType(), MANAGED_MEMORY);
+    private boolean isManagedMemoryType(TypeElement t) {
+        return types.isSubtype(t.asType(), managedMemoryMirror);
     }
 
     private boolean isPrimitiveExpression(ExpressionTree expr) {
@@ -1015,85 +902,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private ScopeInfo currentScope() {
         return currentRunsIn != null ? currentRunsIn : currentScope;
-    }
-
-    private ScopeInfo scope(Element var) {
-        ScopeInfo varScope = varScope(var);
-
-        if (isStatic(var.getModifiers())) // static
-            if (varScope == null || varScope.isImmortal()) {
-                return ScopeInfo.IMMORTAL;
-            } else {
-                return varScope; // this is ERROR and should fail
-            }
-
-        if (varScope != null) {
-            return varScope;
-        }
-
-        // Variable's type is not annotated, so go by the enclosing environment.
-        if (classOrInterface.contains(var.getEnclosingElement().getKind())) { // instance
-            return ctx.getClassScope((TypeElement) var.getEnclosingElement());
-        } else { // local
-            return currentScope();
-        }
-    }
-
-    private ScopeInfo varScope(Element var) {
-        /*
-         * 1. Look for the @Scope annotation on the variable. For example
-         *
-         * @Scope(UNKNOWN) Foo foo;
-         */
-        ScopeInfo varScope = getScope(var);
-        // if (varScope != null) {
-        // return varScope;
-        // }
-
-        ScopeInfo typeScope = null;
-        /*
-         * 2. Look for the @Scope annotation on the variable's type. For example
-         *
-         * @Scope("Foo") class Foo {....}
-         */
-        TypeMirror exprType = atf.getAnnotatedType(var).getUnderlyingType();
-        exprType = Utils.getArrayBaseType(exprType);
-
-        if (exprType.getKind() == TypeKind.DECLARED) {
-            // return scope(elements.getTypeElement(exprType.toString()), null);
-            typeScope = ctx.getClassScope(Utils.getTypeElement(exprType));
-        }
-
-        if (typeScope != null && varScope != null) {
-            if (!typeScope.equals(varScope)) {
-                throw new RuntimeException("error.var.and.type.scope.annotation.mismatch");
-            }
-        }
-        if (varScope != null)
-            return varScope;
-
-        return typeScope;
-    }
-
-    private ScopeInfo directRunsIn(VariableElement var) {
-        AnnotatedTypeMirror exprType = atf.getAnnotatedType(var);
-        // TODO: since the exprType sometimes does not contains the annotations
-        // if this does not work, we use the loop below...
-        if (exprType.getKind() == TypeKind.DECLARED) {
-            Element type = ((AnnotatedDeclaredType) exprType).getUnderlyingType().asElement();
-            if (hasRunsIn(type))
-                return runsIn(type);
-        }
-
-        while (!TypesUtils.isObject(exprType.getUnderlyingType())) {
-            ScopeInfo exprScope = Utils.runsIn(exprType.getAnnotations());
-            if (exprScope != null) {
-                return exprScope;
-            } else {
-                exprType = exprType.directSuperTypes().get(0);
-            }
-        }
-        return null;
     }
 
     /**
@@ -1107,22 +915,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private ScopeInfo getRunsInFromRunnable(TypeMirror var) {
         TypeElement t = Utils.getTypeElement(var);
         return ctx.getMethodRunsIn(t.getQualifiedName().toString(), "run");
-    }
-
-    private ScopeInfo runsIn(Element type) {
-        RunsIn ri = type.getAnnotation(RunsIn.class);
-        if (ri != null) {
-            return new ScopeInfo(ri.value());
-        }
-        return null;
-    }
-
-    private ScopeInfo defineScope(VariableElement var) {
-        DefineScope ds = var.getAnnotation(DefineScope.class);
-        if (ds != null) {
-            return new ScopeInfo(ds.name());
-        }
-        return null;
     }
 
     private static Tree getArrayTypeTree(Tree nodeTypeTree) {
