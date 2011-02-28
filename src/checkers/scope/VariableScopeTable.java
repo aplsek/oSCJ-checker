@@ -5,6 +5,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
+
+/**
+ *
+ *
+ * NOTE: this variable TO scopeInfo map does not contain primitive variables
+ *       - it also does not contain any entries that has "null" values of ScopeInfo
+ *
+ */
 public class VariableScopeTable {
     private LinkedList<LexicalBlock> blocks =
         new LinkedList<LexicalBlock>();

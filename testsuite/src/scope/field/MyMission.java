@@ -26,11 +26,15 @@ class MyMission /* extends Mission */ {
 
     Foo foo;
 
+    long myVariable;
+
     protected void initialize() {
         new MyHandler(null, null, null, 0,this);
     }
 
     public long missionMemorySize() {
+        long myVariable = 0;
+
         return 0;
     }
 }
