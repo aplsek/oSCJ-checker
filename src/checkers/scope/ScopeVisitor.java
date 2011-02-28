@@ -435,24 +435,17 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitMethodInvocation(MethodInvocationTree node, P p) {
-        try {
-            debugIndentIncrement("visitMethodInvocation : " + node);
-            ExecutableElement m = TreeUtils.elementFromUse(node);
-            List<? extends ExpressionTree> args = node.getArguments();
-            List<ScopeInfo> argScopes = new ArrayList<ScopeInfo>(args.size());
-            for (ExpressionTree arg : args) {
-                argScopes.add(arg.accept(this, p));
-            }
-            ScopeInfo recvScope = node.getMethodSelect().accept(this, p);
-            // TODO : recvScope is still null when the method is static!!!!
-            debugIndent("recvScope : " + recvScope);
+        debugIndentIncrement("visitMethodInvocation : " + node);
+        List<ScopeInfo> argScopes = new ArrayList<ScopeInfo>(node.getArguments().size());
+        for (ExpressionTree arg : node.getArguments())
+            argScopes.add(arg.accept(this, p));
 
-            ScopeInfo scope = checkMethodInvocation(m, recvScope, argScopes,
-                    node);
-            return scope;
-        } finally {
-            debugIndentDecrement();
-        }
+        ScopeInfo recvScope = node.getMethodSelect().accept(this, p);
+        debugIndent("recvScope : " + recvScope);
+
+        debugIndentDecrement();
+        return checkMethodInvocation(TreeUtils.elementFromUse(node), recvScope, argScopes,
+                node);
     }
 
     @Override
@@ -460,7 +453,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         try {
             debugIndentIncrement("visitNewArray");
             TypeMirror arrayType = InternalUtils.typeOf(node);
-            TypeMirror componentType = Utils.getArrayBaseType(arrayType);
+            TypeMirror componentType = Utils.getBaseType(arrayType);
             if (!componentType.getKind().isPrimitive()) {
                 TypeElement t = Utils.getTypeElement(componentType);
                 ScopeInfo scope = ctx.getClassScope(t);
@@ -512,7 +505,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         MethodTree enclosingMethod = TreeUtils.enclosingMethod(getCurrentPath());
 
-        // skip checking when return is primitive!!!
+        // skip checking when return is primitive
         Tree nodeTypeTree = getArrayTypeTree(enclosingMethod.getReturnType());
         if (nodeTypeTree.getKind() == Kind.PRIMITIVE_TYPE) {
             debugIndent(" Returns primitive value. Stop visiting. Return null as ScopeInfo.");
@@ -532,27 +525,21 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitTypeCast(TypeCastTree node, P p) {
-        ScopeInfo scope = node.getExpression().accept(this, p);
-
-        if (isPrimitiveExpression(node)) {
-            return null;
-        }
-
         debugIndentIncrement("visitTypeCast " + node);
-        try {
-            TypeMirror m = InternalUtils.typeOf(node);
-            m = Utils.getArrayBaseType(m);
+        if (isPrimitiveExpression(node))
+            return null;
 
-            TypeElement t = Utils.getTypeElement(m);
-            ScopeInfo tScope = ctx.getClassScope(t);
-            if (tScope.isCurrent()) {
-                return scope;
-            } else {
-                return tScope;
-            }
-        } finally {
-            debugIndentDecrement();
-        }
+        ScopeInfo scope = node.getExpression().accept(this, p);
+        TypeMirror m =  Utils.getBaseType(InternalUtils.typeOf(node));
+        ScopeInfo cast = ctx.getClassScope(Utils.getTypeElement(m));
+
+        //TODO: compare cast and scope
+        // TODO: call super typecast!
+        // see the type system
+        // unannotated ->
+
+        debugIndentDecrement();
+        return cast.isCurrent() ? scope : cast;
     }
 
     /**
@@ -567,36 +554,27 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      */
     @Override
     public ScopeInfo visitVariable(VariableTree node, P p) {
-        ScopeInfo oldScope = currentScope;
+        debugIndentIncrement("visitVariable : " + node.toString());
         ScopeInfo oldRunsIn = currentRunsIn;
-        try {
-            debugIndentIncrement("visitVariable : " + node.toString());
 
-            Tree nodeTypeTree = getArrayTypeTree(node.getType());
-            if (nodeTypeTree.getKind() == Kind.PRIMITIVE_TYPE) {
-                debugIndent(" Primitive variable. Doesn't need to be visited.");
-                return null;
-            }
-
-            ScopeInfo lhs = checkVariableScope(node);
-            varScopes.addVariableScope(node.getName().toString(), lhs);
-
-            if (Utils.isStatic(node.getModifiers().getFlags())) {
-                // Static variable, change the context to IMMORTAL while
-                // evaluating the initializer
-                currentRunsIn = ScopeInfo.IMMORTAL;
-            }
-            ExpressionTree init = node.getInitializer();
-            if (init != null) {
-                ScopeInfo rhs = init.accept(this, p);
-                checkAssignment(lhs, rhs, node);
-            }
+        if (getArrayTypeTree(node.getType()).getKind() == Kind.PRIMITIVE_TYPE)
             return null;
-        } finally {
-            currentScope = oldScope;
-            currentRunsIn = oldRunsIn;
-            debugIndentDecrement();
+
+        ScopeInfo lhs = checkVariableScope(node);
+        varScopes.addVariableScope(node.getName().toString(), lhs);
+
+        // Static variable, change the context to IMMORTAL
+        if (Utils.isStatic(node.getModifiers().getFlags()))
+            currentRunsIn = ScopeInfo.IMMORTAL;
+
+        if (node.getInitializer() != null) {
+            ScopeInfo rhs = node.getInitializer().accept(this, p);
+            checkAssignment(lhs, rhs, node);
         }
+
+        currentRunsIn = oldRunsIn;
+        debugIndentDecrement();
+        return null;
     }
 
     private void checkAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree errorNode) {
@@ -916,25 +894,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             }
             return tScope;
         }
-    }
-
-    private final TypeMirror allocationContextMirror = Utils.getTypeMirror(
-            elements, "javax.realtime.AllocationContext");
-    private final TypeMirror memoryAreaMirror = Utils.getTypeMirror(elements,
-            "javax.realtime.MemoryArea");
-    private final TypeMirror managedMemoryMirror = Utils.getTypeMirror(
-            elements, "javax.safetycritical.ManagedMemory");
-
-    private boolean isMemoryAreaType(TypeElement t) {
-        return types.isSubtype(t.asType(), memoryAreaMirror);
-    }
-
-    private boolean implementsAllocationContext(TypeElement t) {
-        return types.isSubtype(t.asType(), allocationContextMirror);
-    }
-
-    private boolean isManagedMemoryType(TypeElement t) {
-        return types.isSubtype(t.asType(), managedMemoryMirror);
     }
 
     private boolean isPrimitiveExpression(ExpressionTree expr) {

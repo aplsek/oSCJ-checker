@@ -251,7 +251,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         }
         // Arrays reside in the same scope as their element types, so if this
         // field is an array, reduce it to its base component type.
-        vMirror = Utils.getArrayBaseType(vMirror);
+        vMirror = Utils.getBaseType(vMirror);
         if (vMirror.getKind() != TypeKind.DECLARED) {
             // The field type in here is either a primitive or a primitive
             // array. Only store a field scope if the field was an array.

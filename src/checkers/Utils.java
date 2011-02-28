@@ -291,10 +291,12 @@ public final class Utils {
      * <p>
      * The base component type of int[][][] is int.
      */
-    public static TypeMirror getArrayBaseType(TypeMirror t) {
+    public static TypeMirror getBaseType(TypeMirror t) {
         while (t.getKind() == TypeKind.ARRAY) {
             t = ((ArrayType) t).getComponentType();
         }
         return t;
     }
+
+
 }

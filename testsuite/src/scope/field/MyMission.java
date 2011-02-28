@@ -26,17 +26,19 @@ import static javax.safetycritical.annotate.Level.SUPPORT;
 @SCJAllowed(members=true)
 @DefineScope(name="MyMission",parent=IMMORTAL)
 @Scope("MyMission")
-class MyMission /*extends Mission */ {
+class MyMission extends Mission  {
 
     Foo foo;
 
     long myVariable;
 
+    @Override
     @SCJRestricted(INITIALIZATION)
     protected void initialize() {
         new MyHandler(null, null, null, 0,this);
     }
 
+    @Override
     public long missionMemorySize() {
         long myVariable = 0;
 
@@ -47,21 +49,22 @@ class MyMission /*extends Mission */ {
 @SCJAllowed(members=true)
 @Scope("MyMission")
 @DefineScope(name="MyHandler",parent="MyMission")
-class MyHandler /*extends PeriodicEventHandler */{
+class MyHandler extends PeriodicEventHandler {
 
     MyMission mission = null;
 
     @Scope("IMMORTAL") Foo foo;
 
-   ///@SCJRestricted(INITIALIZATION)
+    @SCJRestricted(INITIALIZATION)
     public MyHandler(PriorityParameters priority,
             PeriodicParameters parameters, StorageParameters scp, long memSize, MyMission mission) {
-        //super(priority, parameters, scp);
+        super(priority, parameters, scp);
         this.mission = mission;
     }
 
+    @Override
     @RunsIn("MyHandler")
-    //@SCJAllowed(SUPPORT)
+    @SCJAllowed(SUPPORT)
     public void handleAsyncEvent() {
         Foo localFoo = this.foo;        // ERROR
     }
