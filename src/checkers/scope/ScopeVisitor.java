@@ -152,6 +152,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
             debugIndent("> lhs : " + lhs.getScope());
             debugIndent("> rhs : " + rhs.getScope());
+
             if (lhs.equals(rhs) && !lhs.isUnknown()) {
                 return lhs;
             }
@@ -345,15 +346,21 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitLiteral(LiteralTree node, P p) {
-        if (node.getValue() == null) {
-            return ScopeInfo.NULL;
-        } else if (node.getValue() instanceof String) {
-            // TODO I foresee much sadness in this later on. Strings can't
-            // really interact between IMMORTAL and other scopes if it's not
-            // RunsIn(UNKNOWN).
-            return ScopeInfo.IMMORTAL;
+        debugIndentIncrement("visitLiteral : " + node);
+        debugIndent(" node's value : " + node.getValue());
+        try {
+            if (node.getValue() == null) {
+                return ScopeInfo.NULL;
+            } else if (node.getValue() instanceof String) {
+                // TODO I foresee much sadness in this later on. Strings can't
+                // really interact between IMMORTAL and other scopes if it's not
+                // RunsIn(UNKNOWN).
+                return ScopeInfo.IMMORTAL;
+            }
+            return null;
+        } finally {
+            debugIndentDecrement();
         }
-        return null;
     }
 
     @Override
@@ -557,8 +564,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo oldRunsIn = currentRunsIn;
         try {
             debugIndentIncrement("visitVariable : " + node.toString());
+
             ScopeInfo lhs = checkVariableScope(node);
             varScopes.addVariableScope(node.getName().toString(), lhs);
+
             if (Utils.isStatic(node.getModifiers().getFlags())) {
                 // Static variable, change the context to IMMORTAL while
                 // evaluating the initializer
@@ -594,6 +603,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private void checkLocalAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree errorNode) {
+        if (rhs.isNull()) // "null" value can be of any scope
+            return;
         if (!concretize(lhs).equals(concretize(rhs))) {
             fail(ERR_BAD_ASSIGNMENT_SCOPE, errorNode, rhs, lhs);
         }
@@ -686,15 +697,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         // TODO: static methods ? :
         debugIndent("\n\t checkMethodInvocation : " + node);
 
-        pln("\n\t checkMethodInvocation : " + node);
-        pln("\t recvScope : " + recvScope);
-        pln("\t currentScope : " + currentScope());
-
         ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, recvScope);
         checkMethodRunsIn(m, recvScope, runsIn, node);
         checkMethodParameters(m, argScopes, node);
-
-        pln("\t runsIn : " + runsIn);
 
         switch(compareName(m)) {
         case ENTER_PRIVATE_MEMORY:
@@ -809,8 +814,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
         return scope;
     }
-
-    void pln(String str) {System.out.println(str);}
 
     /**
      * @return parent scope of the current scope

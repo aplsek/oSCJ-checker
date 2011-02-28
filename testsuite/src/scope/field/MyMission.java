@@ -33,7 +33,6 @@ class MyMission /* extends Mission */ {
     public long missionMemorySize() {
         return 0;
     }
-
 }
 
 
@@ -45,20 +44,15 @@ class MyHandler /*extends PeriodicEventHandler*/ {
 
     @Scope("IMMORTAL") Foo foo;
 
-
     public MyHandler(PriorityParameters priority,
             PeriodicParameters parameters, StorageParameters scp, long memSize, MyMission mission) {
         //super(priority, parameters, scp);
-
         this.mission = mission;
-
     }
 
     @RunsIn("MyHandler")
     public void handleAsyncEvent() {
-
         Foo localFoo = this.foo;
-
     }
 
     public StorageParameters getThreadConfigurationParameters() {
