@@ -576,25 +576,87 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
     }
 
-    private void checkAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree errorNode) {
+    private void checkAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
+        debugIndentIncrement("checkAssignment: " + node.toString());
         if (lhs.isFieldScope()) {
-            checkFieldAssignment((FieldScopeInfo) lhs, rhs, errorNode);
+            checkFieldAssignment((FieldScopeInfo) lhs, rhs, node);
         } else {
             // TODO: Do we need an extra case for arrays?
-            checkLocalAssignment(lhs, rhs, errorNode);
+            checkLocalAssignment(lhs, rhs, node);
+        }
+        debugIndentDecrement();
+    }
+
+    private void checkFieldAssignment(FieldScopeInfo lhs, ScopeInfo rhs,
+            Tree node) {
+        debugIndentIncrement("checkFieldAssignment");
+        debugIndent("lhs receiver scope = " + lhs.getReceiverScope());
+        debugIndent("lhs field scope = " + lhs.getFieldScope());
+        debugIndent("lhs scope = " + lhs);
+        debugIndent("rhs scope = " + rhs);
+        if (!lhs.isUnknown()) {
+
+        } else {
+            ScopeInfo fScope = lhs.getFieldScope();
+            String rhsVar = getRhsVariableNameFromAssignment(node);
+            String lhsVar = getLhsVariableNameFromAssignment(node);
+            if (fScope.isCurrent()) {
+                if (!varScopes.hasSameRelation(lhsVar, rhsVar)) {
+                    fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
+                }
+            } else {
+                if (!varScopes.hasParentRelation(lhsVar, rhsVar)) {
+                    fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
+                }
+            }
+        }
+        debugIndentDecrement();
+    }
+
+    private String getLhsVariableNameFromAssignment(Tree node) {
+        if (node.getKind() == Kind.ASSIGNMENT) {
+            AssignmentTree tree = (AssignmentTree) node;
+            ExpressionTree lhs = tree.getVariable();
+
+            if (lhs.getKind() == Kind.MEMBER_SELECT) {
+                MemberSelectTree mst = (MemberSelectTree) lhs;
+                if (mst.getExpression().getKind() == Kind.IDENTIFIER) {
+                    return mst.getExpression().toString();
+                }
+            }
+            return null;
+        } else if (node.getKind() == Kind.VARIABLE) {
+            return "this";
+        } else {
+            throw new RuntimeException("Unexpected assignment AST node: "
+                    + node.getKind());
         }
     }
 
-    private void checkFieldAssignment(FieldScopeInfo lhs, ScopeInfo rhs, Tree errorNode) {
-        ScopeInfo fScope = lhs.getFieldScope();
-        if (fScope.equals(rhs) && !fScope.isUnknown()) {
-
+    private String getRhsVariableNameFromAssignment(Tree node) {
+        ExpressionTree rhs;
+        if (node.getKind() == Kind.ASSIGNMENT) {
+            AssignmentTree tree = (AssignmentTree) node;
+            rhs = tree.getExpression();
+        } else if (node.getKind() == Kind.VARIABLE) {
+            VariableTree tree = (VariableTree) node;
+            rhs = tree.getInitializer();
+        } else {
+            throw new RuntimeException("Unexpected assignment AST node: "
+                    + node.getKind());
         }
+        if (rhs.getKind() == Kind.IDENTIFIER) {
+            return ((IdentifierTree) rhs).toString();
+        }
+        return null;
     }
 
-    private void checkLocalAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree errorNode) {
+    private void checkLocalAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
+        if (lhs.isUnknown()) {
+            return;
+        }
         if (!concretize(lhs).equals(concretize(rhs))) {
-            fail(ERR_BAD_ASSIGNMENT_SCOPE, errorNode, rhs, lhs);
+            fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
         }
     }
 
@@ -657,6 +719,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private void checkForDynamicGuard(ExpressionTree condition) {
+        // This should be necessary, but for some reason it is. JUnit test
+        // run seems to consistently give a parenthesized AST for the
+        // condition, despite the fact that it's not parenthesized.
+        condition = TreeUtils.skipParens(condition);
         if (condition.getKind() != Kind.METHOD_INVOCATION) {
             return;
         }

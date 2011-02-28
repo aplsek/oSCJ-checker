@@ -4,6 +4,11 @@ public class FieldScopeInfo extends ScopeInfo {
     private final ScopeInfo receiverScope;
     private final ScopeInfo fieldScope;
 
+    public FieldScopeInfo(ScopeInfo receiverScope, ScopeInfo fieldScope) {
+        this(calculateScope(receiverScope, fieldScope), receiverScope,
+                fieldScope);
+    }
+
     public FieldScopeInfo(ScopeInfo scope, ScopeInfo receiverScope,
             ScopeInfo fieldScope) {
         super(scope.getScope());
@@ -36,5 +41,14 @@ public class FieldScopeInfo extends ScopeInfo {
             return super.equals(obj);
         }
         return false;
+    }
+
+    static ScopeInfo calculateScope(ScopeInfo receiverScope,
+            ScopeInfo fieldScope) {
+        if (fieldScope.isCurrent()) {
+            return receiverScope;
+        } else {
+            return fieldScope;
+        }
     }
 }
