@@ -132,7 +132,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (p == null) {
             ctx.setClassScope(scope, t); // t == java.lang.Object
         } else {
-            ScopeInfo parent = getParentScopeAndVisit(p, node);
+            ScopeInfo parent = getParentScopeAndVisit(p, errNode);
             if (parent.isCurrent()) {
                 ctx.setClassScope(scope, t);
             } else if (scope.equals(parent)) {
@@ -382,10 +382,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 : ScopeInfo.CURRENT;
     }
 
-    private ScopeInfo getParentScopeAndVisit(TypeElement p, ClassTree node) {
+    private ScopeInfo getParentScopeAndVisit(TypeElement p, Tree errNode) {
         ScopeInfo parent = ctx.getClassScope(p);
         if (parent == null) {
-            checkClassScope(p, trees.getTree(p), node);
+            checkClassScope(p, trees.getTree(p), errNode);
             parent = ctx.getClassScope(p);
         }
         return parent;
