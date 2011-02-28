@@ -268,7 +268,11 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             }
             tScope = ctx.getClassScope(t);
             if (s == null) {
-                scope = tScope;
+                if (tScope.isCurrent() && isUnknownMethodParameter(v)) {
+                    scope = ScopeInfo.UNKNOWN;
+                } else {
+                    scope = tScope;
+                }
             }
             if (tScope.isCurrent()) {
                 ret = scope;
@@ -282,6 +286,14 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         }
         debugIndentDecrement();
         return ret;
+    }
+
+    private boolean isUnknownMethodParameter(VariableElement v) {
+        if (v.getKind() != ElementKind.PARAMETER) {
+            return false;
+        }
+        ExecutableElement m = (ExecutableElement) v.getEnclosingElement();
+        return ctx.getMethodRunsIn(m).isUnknown();
     }
 
     /**
