@@ -36,10 +36,9 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         checker.report(Result.warning(msg, msgParams), src);
     }
 
+
     protected final TypeMirror allocationContextMirror = Utils.getTypeMirror(
             elements, "javax.realtime.AllocationContext");
-    protected final TypeMirror scopeAllocationContextMirror = Utils.getTypeMirror(
-            elements, "javax.realtime.ScopeAllocationContext");
     protected final TypeMirror memoryAreaMirror = Utils.getTypeMirror(elements,
             "javax.realtime.MemoryArea");
     protected final TypeMirror managedMemoryMirror = Utils.getTypeMirror(
@@ -53,9 +52,13 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     protected final TypeMirror scopedMemoryMirror = Utils.getTypeMirror(
             elements, "javax.realtime.ScopedMemory");
 
+    // Our SCJ-lib does not implement "javax.realtime.ScopeAllocationContext".
+    //protected final TypeMirror scopeAllocationContextMirror = Utils.getTypeMirror(
+    //        elements, "javax.realtime.ScopeAllocationContext");
+
     protected boolean needsDefineScope(TypeElement t) {
         if (implementsAllocationContext(t) ||
-                implementsScopedAllocationContext(t) ||
+                //implementsScopedAllocationContext(t) ||
                 isMemoryAreaType(t) ||
                 isManagedMemoryType(t) ||
                 isMissionMemoryType(t) ||
@@ -75,9 +78,9 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         return types.isSubtype(t.asType(), allocationContextMirror);
     }
 
-    protected boolean implementsScopedAllocationContext(TypeElement t) {
-        return types.isSubtype(t.asType(), scopeAllocationContextMirror);
-    }
+    //protected boolean implementsScopedAllocationContext(TypeElement t) {
+    //    return types.isSubtype(t.asType(), scopeAllocationContextMirror);
+    // }
 
     protected boolean isManagedMemoryType(TypeElement t) {
         return types.isSubtype(t.asType(), managedMemoryMirror);
@@ -98,4 +101,5 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     protected boolean isScopedMemoryType(TypeElement t) {
         return types.isSubtype(t.asType(),scopedMemoryMirror);
     }
+
 }
