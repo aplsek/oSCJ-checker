@@ -152,6 +152,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
             debugIndent("> lhs : " + lhs.getScope());
             debugIndent("> rhs : " + rhs.getScope());
+
             if (lhs.equals(rhs) && !lhs.isUnknown()) {
                 return lhs;
             }
@@ -347,15 +348,21 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitLiteral(LiteralTree node, P p) {
-        if (node.getValue() == null) {
-            return ScopeInfo.NULL;
-        } else if (node.getValue() instanceof String) {
-            // TODO I foresee much sadness in this later on. Strings can't
-            // really interact between IMMORTAL and other scopes if it's not
-            // RunsIn(UNKNOWN).
-            return ScopeInfo.IMMORTAL;
+        debugIndentIncrement("visitLiteral : " + node);
+        debugIndent(" node's value : " + node.getValue());
+        try {
+            if (node.getValue() == null) {
+                return ScopeInfo.NULL;
+            } else if (node.getValue() instanceof String) {
+                // TODO I foresee much sadness in this later on. Strings can't
+                // really interact between IMMORTAL and other scopes if it's not
+                // RunsIn(UNKNOWN).
+                return ScopeInfo.IMMORTAL;
+            }
+            return null;
+        } finally {
+            debugIndentDecrement();
         }
-        return null;
     }
 
     @Override
@@ -403,8 +410,14 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             List<? extends VariableTree> params = node.getParameters();
             List<ScopeInfo> paramScopes = ctx.getParameterScopes(method);
             for (int i = 0; i < paramScopes.size(); i++) {
-                varScopes.addVariableScope(params.get(i).getName().toString(),
-                        paramScopes.get(i));
+                debugIndent(" add VarScope: "
+                        + params.get(i).getName().toString() + ", scope:"
+                        + paramScopes.get(i));
+                Tree nodeTypeTree = getArrayTypeTree(params.get(i).getType());
+                // skipping the primitive variables.
+                if (nodeTypeTree.getKind() != Kind.PRIMITIVE_TYPE)
+                    varScopes.addVariableScope(params.get(i).getName()
+                            .toString(), paramScopes.get(i));
             }
             node.getBody().accept(this, p);
             // TODO: make sure we don't need to visit more
@@ -498,13 +511,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         MethodTree enclosingMethod = TreeUtils
                 .enclosingMethod(getCurrentPath());
+
+        // skip checking when return is primitive!!!
+        Tree nodeTypeTree = getArrayTypeTree(enclosingMethod.getReturnType());
+        if (nodeTypeTree.getKind() == Kind.PRIMITIVE_TYPE) {
+            debugIndent(" Returns primitive value. Stop visiting. Return null as ScopeInfo.");
+            return null;
+        }
+
         ExecutableElement m = TreeUtils.elementFromDeclaration(enclosingMethod);
-
-        // TODO: Primitives have no scope - returnScope is CURRENT, is this
-        // correct?
         ScopeInfo returnScope = ctx.getMethodScope(m);
-
-        // TODO: for primitive values this returns null, what is this visiting??
         ScopeInfo exprScope = node.getExpression().accept(this, p);
 
         debugIndent("expected return scope is: " + returnScope);
@@ -556,8 +572,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo oldRunsIn = currentRunsIn;
         try {
             debugIndentIncrement("visitVariable : " + node.toString());
+
+            Tree nodeTypeTree = getArrayTypeTree(node.getType());
+            if (nodeTypeTree.getKind() == Kind.PRIMITIVE_TYPE) {
+                debugIndent(" Primitive variable. Doesn't need to be visited.");
+                return null;
+            }
+
             ScopeInfo lhs = checkVariableScope(node);
             varScopes.addVariableScope(node.getName().toString(), lhs);
+
             if (Utils.isStatic(node.getModifiers().getFlags())) {
                 // Static variable, change the context to IMMORTAL while
                 // evaluating the initializer
@@ -652,7 +676,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private void checkLocalAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
-        if (lhs.isUnknown()) {
+        if (lhs.isUnknown() || rhs.isNull()) {
             return;
         }
         if (!concretize(lhs).equals(concretize(rhs))) {
@@ -799,7 +823,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ScopeInfo runsInScope, MethodInvocationTree n) {
         if (currentScope().isUnknown() && !runsInScope.isUnknown()) {
             fail(ERR_BAD_METHOD_INVOKE, n, CURRENT, UNKNOWN);
-        } else if (!runsInScope.isUnknown() && !runsInScope.equals(currentScope())) {
+        } else if (!runsInScope.isUnknown()
+                && !runsInScope.equals(currentScope())) {
             fail(ERR_BAD_METHOD_INVOKE, n, runsInScope, currentScope());
         }
     }
