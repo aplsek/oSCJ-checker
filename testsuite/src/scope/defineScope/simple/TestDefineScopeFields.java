@@ -43,7 +43,7 @@ abstract class PEH extends PeriodicEventHandler {
     @DefineScope(name="PEH",parent="Mission")
     @Scope(IMMORTAL)
     //## checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE
-    ManagedMemory mem4;
+    ManagedMemory mem4;                         // ERROR
 
     @DefineScope(name="PEH",parent="Mission")
     ManagedMemory mem5;                             // OK
