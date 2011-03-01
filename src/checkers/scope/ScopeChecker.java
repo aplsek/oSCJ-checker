@@ -22,7 +22,6 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_EXECUTE_IN_AREA_OR_ENTER = "bad.execute.in.area.or.enter";
     public static final String ERR_BAD_EXECUTE_IN_AREA_TARGET = "bad.execute.in.area.target";
     public static final String ERR_BAD_GUARD_ARGUMENT = "bad.guard.argument";
-    public static final String ERR_BAD_GUARD_NO_FINAL = "bad.guard.no.final";
     public static final String ERR_BAD_METHOD_INVOKE = "bad.method.invoke";
     public static final String ERR_BAD_NEW_INSTANCE = "bad.new.instance";
     public static final String ERR_BAD_RETURN_SCOPE = "bad.return.scope";
@@ -66,9 +65,7 @@ public class ScopeChecker extends SinglePassChecker {
         p.put(ERR_BAD_EXECUTE_IN_AREA_TARGET,
                 "executeInArea() must target a parent scope.");
         p.put(ERR_BAD_GUARD_ARGUMENT,
-                "Only single variables can be passed as arguments into guards, no other expressions are allowed, eg. %s.");
-        p.put(ERR_BAD_GUARD_NO_FINAL,
-                "The variables passed into the GUARD statement must be final. The argument %s is not.");
+                "Only final variables may be passed as arguments into guards.");
         p.put(ERR_BAD_METHOD_INVOKE,
                 "Illegal invocation of method of object in scope %s while in scope %s.");
         p.put(ERR_BAD_NEW_INSTANCE,

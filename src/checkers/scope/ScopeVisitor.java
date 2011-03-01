@@ -2,15 +2,6 @@ package checkers.scope;
 
 import static checkers.Utils.isFinal;
 import static checkers.Utils.SCJMethod.ALLOC_IN_PARENT;
-import static checkers.Utils.SCJMethod.ALLOC_IN_SAME;
-import static checkers.Utils.SCJMethod.DEFAULT;
-import static checkers.Utils.SCJMethod.ENTER_PRIVATE_MEMORY;
-import static checkers.Utils.SCJMethod.EXECUTE_IN_AREA;
-import static checkers.Utils.SCJMethod.GET_CURRENT_MANAGED_MEMORY;
-import static checkers.Utils.SCJMethod.GET_MEMORY_AREA;
-import static checkers.Utils.SCJMethod.NEW_ARRAY;
-import static checkers.Utils.SCJMethod.NEW_ARRAY_IN_AREA;
-import static checkers.Utils.SCJMethod.NEW_INSTANCE;
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
 import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION;
@@ -21,7 +12,6 @@ import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_TARGET;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_OR_ENTER;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_TARGET;
 import static checkers.scope.ScopeChecker.ERR_BAD_GUARD_ARGUMENT;
-import static checkers.scope.ScopeChecker.ERR_BAD_GUARD_NO_FINAL;
 import static checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE;
 import static checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE;
 import static checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE;
@@ -463,7 +453,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 .enclosingMethod(getCurrentPath());
 
         // skip checking when return is primitive
-        Tree nodeTypeTree = getArrayTypeTree(enclosingMethod.getReturnType());
+        Tree nodeTypeTree = enclosingMethod.getReturnType();
         if (nodeTypeTree.getKind() == Kind.PRIMITIVE_TYPE)
             return ScopeInfo.PRIMITIVE;
 
@@ -481,8 +471,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     @Override
     public ScopeInfo visitTypeCast(TypeCastTree node, P p) {
         debugIndentIncrement("visitTypeCast " + node);
-        if (isPrimitiveExpression(node))
+        if (isPrimitiveExpression(node)) {
+            debugIndentDecrement();
             return null;
+        }
 
         ScopeInfo scope = node.getExpression().accept(this, p);
         TypeMirror m = Utils.getBaseType(InternalUtils.typeOf(node));
@@ -507,8 +499,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndentIncrement("visitVariable : " + node.toString());
         ScopeInfo oldRunsIn = currentRunsIn;
 
-        if (getArrayTypeTree(node.getType()).getKind() == Kind.PRIMITIVE_TYPE)
+        if (node.getType().getKind() == Kind.PRIMITIVE_TYPE) {
+            debugIndentDecrement();
             return null;
+        }
 
         ScopeInfo lhs = checkVariableScope(node);
         varScopes.addVariableScope(node.getName().toString(), lhs);
@@ -659,7 +653,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             var.getModifiers();
 
             if (!isFinal(var.getModifiers())) {
-                fail(ERR_BAD_GUARD_NO_FINAL, arg, arg);
+                fail(ERR_BAD_GUARD_ARGUMENT, arg, arg);
                 return false;
             }
             break;
@@ -889,12 +883,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private ScopeInfo getRunsInFromRunnable(TypeMirror var) {
         TypeElement t = Utils.getTypeElement(var);
         return ctx.getMethodRunsIn(t.getQualifiedName().toString(), "run");
-    }
-
-    private static Tree getArrayTypeTree(Tree nodeTypeTree) {
-        while (nodeTypeTree.getKind() == Kind.ARRAY_TYPE)
-            nodeTypeTree = ((ArrayTypeTree) nodeTypeTree).getType();
-        return nodeTypeTree;
     }
 
     private static final String THIS = "this";
