@@ -60,11 +60,6 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     protected final TypeMirror managedEventHandlerMirror = Utils.getTypeMirror(
             elements, "javax.safetycritical.ManagedEventHandler");
 
-    // Our SCJ-lib does not implement "javax.realtime.ScopeAllocationContext".
-    // protected final TypeMirror scopeAllocationContextMirror =
-    // Utils.getTypeMirror(
-    // elements, "javax.realtime.ScopeAllocationContext");
-
     protected boolean implicitlyDefinesScope(TypeElement t) {
         TypeMirror m = t.asType();
         return types.isSubtype(m, missionMirror)
@@ -86,10 +81,6 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     protected boolean implementsAllocationContext(TypeElement t) {
         return types.isSubtype(t.asType(), allocationContextMirror);
     }
-
-    // protected boolean implementsScopedAllocationContext(TypeElement t) {
-    // return types.isSubtype(t.asType(), scopeAllocationContextMirror);
-    // }
 
     protected SCJMethod compareName(ExecutableElement method) {
         TypeElement type = Utils.getMethodClass(method);

@@ -512,6 +512,14 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         ScopeInfo lhs = checkVariableScope(node);
         varScopes.addVariableScope(node.getName().toString(), lhs);
+        VariableElement var = TreeUtils.elementFromDeclaration(node);
+        TypeElement t = Utils.getTypeElement(var.asType());
+
+        if (needsDefineScope(t)) {
+            // TODO:
+            //varScopes.add
+            debugIndent("\t >>>>>> NEEDS @DefineScope");
+        }
 
         // Static variable, change the context to IMMORTAL
         if (Utils.isStatic(node.getModifiers().getFlags()))
@@ -738,6 +746,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private void checkMethodRunsIn(ExecutableElement m, ScopeInfo recvScope,
             ScopeInfo runsInScope, MethodInvocationTree n) {
+        // TODO: bug, the recvScope is not considered! (This was here but was deleted by some refactoring.)
+
         if (currentScope().isUnknown() && !runsInScope.isUnknown())
             fail(ERR_BAD_METHOD_INVOKE, n, CURRENT, UNKNOWN);
         else if (!runsInScope.isUnknown()

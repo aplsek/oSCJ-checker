@@ -2,22 +2,35 @@ package scope.memory;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+import javax.realtime.PeriodicParameters;
+import javax.realtime.PriorityParameters;
 import javax.safetycritical.ManagedMemory;
+import javax.safetycritical.Mission;
+import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.SCJRunnable;
+import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.RunsIn;
-
+import javax.safetycritical.annotate.SCJRestricted;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 
 @DefineScope(name="Mission",parent=IMMORTAL)
 @Scope("Mission")
-public class SimpleMemory {
+public abstract class SimpleMemory extends Mission {
 }
 
 @Scope("Mission")
 @DefineScope(name="PEH",parent="Mission")
-class PEH {
+abstract class PEH extends PeriodicEventHandler {
+
+    @SCJRestricted(INITIALIZATION)
+    public PEH(PriorityParameters priority, PeriodicParameters period,
+            StorageParameters storage) {
+        super(priority, period, storage);
+    }
 
     @DefineScope(name="Mission",parent=IMMORTAL)
     @Scope(IMMORTAL)
@@ -44,7 +57,9 @@ class PEH {
        mem = ManagedMemory.getCurrentManagedMemory();
     }
 
+    @Override
     @RunsIn("PEH")
+    @SCJAllowed(SUPPORT)
     public void handleAsyncEvent() {
            // mem.newInstance(Foo.class);
     }

@@ -46,6 +46,28 @@ public class VariableScopeTable {
         throw new RuntimeException("Variable not defined in scope table");
     }
 
+    public void addVariableDefineScope(String var, DefineScopeInfo scope) {
+        if (scope == null)
+            throw new RuntimeException("Cannot add null scoped variable");
+        LexicalBlock last = blocks.getLast();
+        if (last.contains(var))
+            // If the block has already defined this variable, this table is
+            // somehow being used incorrectly.
+            throw new RuntimeException("Variable already defined in block");
+        last.putDefineScope(var, scope);
+    }
+
+    public DefineScopeInfo getVariableDefineScope(String var) {
+        Iterator<LexicalBlock> iter = blocks.descendingIterator();
+        while (iter.hasNext()) {
+            LexicalBlock b = iter.next();
+            DefineScopeInfo scope = b.getDefineScope(var);
+            if (scope != null)
+                return scope;
+        }
+        throw new RuntimeException("Variable not defined in scope table");
+    }
+
     public void addParentRelation(String childVar, String parentVar) {
         LexicalBlock last = blocks.getLast();
         last.setRelation(new Relation(childVar, parentVar, RelationKind.PARENT));
@@ -82,6 +104,8 @@ public class VariableScopeTable {
 
     private static class LexicalBlock {
         Map<String, ScopeInfo> scopes = new HashMap<String, ScopeInfo>();
+        Map<String, DefineScopeInfo> defineScopes = new HashMap<String, DefineScopeInfo>();
+
         Relation relation = null;
 
         public boolean contains(String var) {
@@ -100,6 +124,14 @@ public class VariableScopeTable {
             if (relation != null)
                 throw new RuntimeException("Relation already set for block");
             relation = r;
+        }
+
+        public void putDefineScope(String var, DefineScopeInfo scope) {
+            defineScopes.put(var,scope);
+        }
+
+        public DefineScopeInfo getDefineScope(String var) {
+            return defineScopes.get(var);
         }
     }
 

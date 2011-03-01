@@ -130,7 +130,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         }
         ScopeInfo scope = scopeOfClassDefinition(t);
         if (!scopeTree.hasScope(scope) && !scope.isCurrent())
-            fail(ERR_BAD_SCOPE_NAME, node, errNode);
+            fail(ERR_BAD_SCOPE_NAME, node, errNode, scope);
 
         TypeElement p = Utils.superType(t);
         if (p == null)
@@ -240,10 +240,16 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         ScopeInfo scope = new ScopeInfo(ds.name());
         ScopeInfo parent = new ScopeInfo(ds.parent());
         DefineScopeInfo dsi = new DefineScopeInfo(scope, parent);
+
         if (!scopeTree.hasScope(scope) || !scopeTree.isParentOf(scope, parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node);
 
-        if (!fieldScope.equals(parent))
+        if (!fieldScope.isCurrent()) {
+            if (!fieldScope.equals(parent))
+                fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
+                            fieldScope, parent);
+        }
+        else if (!classScope.equals(parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
                     fieldScope, parent);
 
@@ -343,7 +349,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
             if (!eRunsIn.equals(runsIn) && eLevel != SUPPORT)
-                report(Result.failure(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE),
+                fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE,
                         node, errNode);
         }
         ctx.setMethodRunsIn(runsIn, m);
@@ -400,6 +406,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             // something from the parent class or interface is broken.
             fail(ERR_BAD_LIBRARY_ANNOTATION, errNode);
     }
+
+    void pln(String str) {System.err.println(str);}
 
     void fail(String msg, Tree src, Tree err, Object... msgParams) {
         report(Result.failure(msg, msgParams), src, err);

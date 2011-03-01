@@ -12,9 +12,9 @@ public class ScopeRunsInChecker extends SinglePassChecker {
     public static final String ERR_BAD_SCOPE_NAME = "bad.scope.name";
     public static final String ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE = "illegal.class.scope.override";
     public static final String ERR_ILLEGAL_FIELD_SCOPE = "illegal.field.scope";
-    public static final String ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE = "illegal.scope.override";
-    public static final String ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE = "illegal.scope.override";
-    public static final String ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE = "illegal.scope.override";
+    public static final String ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE = "illegal.method.runs.in.override";
+    public static final String ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE = "illegal.method.scope.override";
+    public static final String ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE = "illegal.variable.scope.override";
     public static final String ERR_MEMORY_AREA_NO_DEFINE_SCOPE = "err.mem.no.def.scope";
     public static final String ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT = "err.mem.type.def.scope.not.consistent";
     public static final String ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE = "err.mem.type.def.scope.not.consistent.with.scope";
