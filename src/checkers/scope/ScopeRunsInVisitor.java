@@ -408,10 +408,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         report(Result.failure(msg, msgParams), src, err);
     }
 
-    void warn(String msg, Tree src, Tree err, Object... msgParams) {
-        report(Result.warning(msg, msgParams), src, err);
-    }
-
     private static ScopeInfo scopeOfClassDefinition(TypeElement t) {
         Scope scopeAnn = t.getAnnotation(Scope.class);
         return scopeAnn != null ? new ScopeInfo(scopeAnn.value())
@@ -438,10 +434,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     private ScopeInfo getOverrideRunsInAndVisit(ExecutableElement m,
             Tree errNode) {
         ScopeInfo runsIn = ctx.getMethodRunsIn(m);
-        if (runsIn != null)
-            return runsIn;
-        checkMethod(m, trees.getTree(m), errNode);
-        return ctx.getMethodRunsIn(m);
+        // Don't need the same check that getOverrideScopeAndVisit has, because
+        // this method is called after it, ensuring that the method RunsIn is
+        // already in the cache.
+        return runsIn;
     }
 
     /**
