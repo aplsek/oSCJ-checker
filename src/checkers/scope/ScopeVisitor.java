@@ -700,7 +700,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("\n\t checkMethodInvocation : " + node);
 
         ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, recvScope);
-        checkMethodRunsIn(m, recvScope, runsIn, node);
+        checkMethodRunsIn(m, runsIn, node);
         checkMethodParameters(m, argScopes, node);
 
         switch (compareName(m)) {
@@ -738,15 +738,26 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             checkLocalAssignment(paramScopes.get(i), argScopes.get(i), node);
     }
 
-    private void checkMethodRunsIn(ExecutableElement m, ScopeInfo recvScope,
-            ScopeInfo runsInScope, MethodInvocationTree n) {
-        // TODO: bug, the recvScope is not considered! (This was here but was deleted by some refactoring.)
-
+    /**
+     * This method checks under which condition a give method may be invoked.
+     *
+     * receiver-scope-problem - to detect a cross-scope method invocation,
+     * we used to look at the receiver of this invocation, if the receiver is
+     * not in CURRENT, then its a cross-scope method invocation. No, the getEffectionRunsIn()
+     * method will directly give as effective @RunsIn() of the method, so we dont
+     * need to look at the receiver's scope.
+     *
+     * @param m - the element representing the method invocation
+     * @param runsInScope - the effective scope in which the method runs
+     * @param node  - method invocation tree
+     */
+    private void checkMethodRunsIn(ExecutableElement m,
+            ScopeInfo runsInScope, MethodInvocationTree node) {
         if (currentScope().isUnknown() && !runsInScope.isUnknown())
-            fail(ERR_BAD_METHOD_INVOKE, n, CURRENT, UNKNOWN);
+            fail(ERR_BAD_METHOD_INVOKE, node, CURRENT, UNKNOWN);
         else if (!runsInScope.isUnknown()
                 && !runsInScope.equals(currentScope()))
-            fail(ERR_BAD_METHOD_INVOKE, n, runsInScope, currentScope());
+            fail(ERR_BAD_METHOD_INVOKE, node, runsInScope, currentScope());
     }
 
     private ScopeInfo checkNewInstance(MethodInvocationTree node) {
