@@ -188,9 +188,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return null;
     }
 
-
-    void pln(String str) {System.err.println(str);}
-
     @Override
     public ScopeInfo visitClass(ClassTree node, P p) {
         debugIndentIncrement("visitClass " + node.getSimpleName());

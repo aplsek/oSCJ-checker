@@ -214,10 +214,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         debugIndentDecrement();
     }
 
-    void pln(String str) {
-        System.err.println(str);
-    }
-
     ScopeInfo checkField(VariableElement f, Tree node, Tree errNode) {
         ScopeInfo scope = checkVariableScopeOverride(f, node, errNode);
         ScopeInfo clazzScope = getEnclosingClassScope(f);
