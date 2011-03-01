@@ -327,7 +327,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeInfo visitLiteral(LiteralTree node, P p) {
         debugIndentIncrement("visitLiteral : " + node);
         debugIndent(" node's value : " + node.getValue());
-        ScopeInfo ret = null;
+        // TODO: Are array literals handled in this?
+        ScopeInfo ret = ScopeInfo.PRIMITIVE;
         if (node.getValue() == null)
             ret = ScopeInfo.NULL;
         else if (node.getValue() instanceof String)
