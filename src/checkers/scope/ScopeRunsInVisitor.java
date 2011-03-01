@@ -5,6 +5,7 @@ import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT
 import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_LIBRARY_ANNOTATION;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME;
+import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_FIELD_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE;
@@ -144,7 +145,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 // Set the scope to something, in case processing continues past
                 // this class
                 ctx.setClassScope(scope, t);
-                fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
+                fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, p);
             }
         }
         // Ensure that the class doesn't change any Scope annotations on its
@@ -155,7 +156,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             TypeElement ie = Utils.getTypeElement(i);
             ScopeInfo is = getParentScopeAndVisit(ie, errNode);
             if (!is.isCurrent() && !is.equals(scope))
-                fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
+                fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, ie);
         }
 
         for (ExecutableElement c : Utils.constructorsIn(t)) {

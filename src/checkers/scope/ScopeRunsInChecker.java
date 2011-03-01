@@ -10,6 +10,7 @@ import com.sun.source.tree.CompilationUnitTree;
 public class ScopeRunsInChecker extends SinglePassChecker {
     public static final String ERR_BAD_LIBRARY_ANNOTATION = "bad.library.annotation";
     public static final String ERR_BAD_SCOPE_NAME = "bad.scope.name";
+    public static final String ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE = "illegal.class.scope.override";
     public static final String ERR_ILLEGAL_FIELD_SCOPE = "illegal.field.scope";
     public static final String ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE = "illegal.scope.override";
     public static final String ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE = "illegal.scope.override";
@@ -35,6 +36,7 @@ public class ScopeRunsInChecker extends SinglePassChecker {
         Properties p = new Properties();
         p.put(ERR_BAD_LIBRARY_ANNOTATION, "Library superclass has malformed annotations.");
         p.put(ERR_BAD_SCOPE_NAME, "Scope %s does not exist.");
+        p.put(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, "Class %s illegal overrides Scope annotation on superclass or interface %s.");
         p.put(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, "Non-SUPPORT level methods may not override RunsIn annotations.");
         p.put(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, "Non-SUPPORT level methods may not override Scope annotations.");
         p.put(ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE, "Variable scope %s may not override its type's scope %s.");
