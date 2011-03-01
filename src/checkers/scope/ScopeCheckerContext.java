@@ -29,9 +29,16 @@ public class ScopeCheckerContext {
      */
     private Map<String, ClassScopeInfo> classScopes;
 
+    /**
+     * A map of fully qualified class names to relevant DefineScope information - only for fields that must
+     * have a @DefineScope annotation.
+     */
+    private Map<String, DefineScopeInfo> memDefineScope;
+
     public ScopeCheckerContext() {
         scopeTree = new ScopeTree();
         classScopes = new HashMap<String, ClassScopeInfo>();
+        memDefineScope = new HashMap<String, DefineScopeInfo>();
     }
 
     public ScopeTree getScopeTree() {
@@ -362,6 +369,51 @@ public class ScopeCheckerContext {
             for (int i = 0; i < params; i++) {
                 parameters.add(null);
             }
+        }
+    }
+
+    /**
+     * Store the Scope annotation of a field, given its declaration.
+     */
+    public void setFieldDefineScope(DefineScopeInfo scope, VariableElement f) {
+        TypeElement t = Utils.getFieldClass(f);
+        setFieldDefineScope(scope, t.getQualifiedName().toString(), f.getSimpleName()
+                .toString());
+    }
+
+    /**
+     * Store the Scope annotation of a field given its fully qualified class
+     * name and its own name.
+     */
+    public void setFieldDefineScope(DefineScopeInfo scope, String clazz, String field) {
+        DefineScopeInfo dsi = memDefineScope.get(clazz + "." + field);
+        if (dsi != null && !dsi.equals(scope)) {
+            throw new RuntimeException("Field's @DefineScope already set!");
+        }
+        memDefineScope.put(clazz+field,scope);
+    }
+
+    /**
+     * Get the @DefineScope annotation of a field by its fully qualified class name and
+     * its own name.
+     */
+    public DefineScopeInfo getFieldDefineScope(String clazz, String field) {
+        DefineScopeInfo csi = memDefineScope.get(clazz + "." + field);
+        return csi;
+    }
+
+    /**
+     * Get the @DefineScope annotation of a field by its declaration.
+     */
+    public DefineScopeInfo getFieldDefineScope(VariableElement f) {
+        TypeElement t = Utils.getFieldClass(f);
+        return getFieldDefineScope(t.getQualifiedName().toString(), f.getSimpleName()
+                .toString());
+    }
+
+    public void dumpDefineScopes () {
+        for (String field : memDefineScope.keySet()) {
+            System.err.println("field: " + field + ", @DefineScope(" + memDefineScope.get(field).toString() + ")");
         }
     }
 }

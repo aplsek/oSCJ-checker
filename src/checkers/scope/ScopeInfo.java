@@ -11,7 +11,7 @@ public class ScopeInfo {
      */
     public static final ScopeInfo NULL = new ScopeInfo("null");
     public static final ScopeInfo UNKNOWN = new ScopeInfo(Scope.UNKNOWN);
-    private final String scope;
+    protected final String scope;
 
     public ScopeInfo(String scope) {
         this.scope = scope;

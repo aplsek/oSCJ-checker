@@ -299,4 +299,13 @@ public final class Utils {
     }
 
 
+    public static final String JAVAX_REALTIME = "javax.realtime";
+    public static final String JAVAX_SAFETYCRITICAL = "javax.safetycritical";
+
+    public static boolean isUserLevel(String str) {
+        if (str.startsWith(JAVAX_REALTIME) || str.startsWith(JAVAX_SAFETYCRITICAL))
+            return false;
+        return true;
+    }
+
 }

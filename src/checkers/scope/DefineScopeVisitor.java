@@ -39,9 +39,9 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         DefineScope ds = t.getAnnotation(DefineScope.class);
 
-        if (ds != null) {
+        if (ds != null)
             checkNewScope(ds.name(), ds.parent(), node);
-        }
+
         return super.visitClass(node, p);
     }
 
@@ -57,9 +57,9 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
                     .typeOf(runnable));
             DefineScope ds = t2.getAnnotation(DefineScope.class);
 
-            if (ds == null) {
+            if (ds == null)
                 fail(ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE, node);
-            }
+
         }
         return super.visitMethodInvocation(node, p);
     }
@@ -75,20 +75,19 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         boolean reservedChild = childScope.isReservedScope();
         boolean reservedParent = !parentScope.isValidParentScope();
 
-        if (reservedChild) {
+        if (reservedChild)
             fail(ERR_RESERVED_SCOPE_NAME, node, childScope);
-        }
-        if (reservedParent) {
+        if (reservedParent)
             fail(ERR_RESERVED_SCOPE_NAME, node, parentScope);
-        }
-        if (!(reservedChild || reservedParent)) {
-            if (scopeTree.hasScope(childScope)) {
+
+        if (!(reservedChild || reservedParent))
+            if (scopeTree.hasScope(childScope))
                 fail(ERR_DUPLICATE_SCOPE_NAME, node, childScope);
-            } else if (scopeTree.isParentOf(parentScope, childScope)) {
+            else if (scopeTree.isParentOf(parentScope, childScope))
                 fail(ERR_CYCLICAL_SCOPES, node, parentScope, childScope);
-            } else {
+            else
                 scopeTree.put(childScope, parentScope, node);
-            }
-        }
+
+
     }
 }

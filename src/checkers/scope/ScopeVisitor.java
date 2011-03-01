@@ -119,7 +119,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeVisitor(SourceChecker checker, CompilationUnitTree root,
             ScopeCheckerContext ctx) {
         super(checker, root);
-
         atf = checker.createFactory(root);
         this.ctx = ctx;
         scopeTree = ctx.getScopeTree();
@@ -188,6 +187,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndentDecrement();
         return null;
     }
+
+
+    void pln(String str) {System.err.println(str);}
 
     @Override
     public ScopeInfo visitClass(ClassTree node, P p) {

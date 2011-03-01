@@ -1,5 +1,8 @@
 package checkers.scope;
 
+import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
+import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT;
+import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_TYPE_NO_DEFINE_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_LIBRARY_ANNOTATION;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_FIELD_SCOPE;
@@ -19,6 +22,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
@@ -124,25 +128,26 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             return;
         }
         ScopeInfo scope = scopeOfClassDefinition(t);
-        if (!scopeTree.hasScope(scope) && !scope.isCurrent()) {
+        if (!scopeTree.hasScope(scope) && !scope.isCurrent())
             fail(ERR_BAD_SCOPE_NAME, node, errNode);
-        }
+
 
         TypeElement p = Utils.superType(t);
-        if (p == null) {
+        if (p == null)
             ctx.setClassScope(scope, t); // t == java.lang.Object
-        } else {
+        else {
             ScopeInfo parent = getParentScopeAndVisit(p, errNode);
-            if (parent.isCurrent()) {
+            if (parent.isCurrent())
                 ctx.setClassScope(scope, t);
-            } else if (scope.equals(parent)) {
+            else if (scope.equals(parent))
                 ctx.setClassScope(parent, t);
-            } else {
+            else {
                 // Set the scope to something, in case processing continues past
                 // this class
                 ctx.setClassScope(scope, t);
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
             }
+
         }
         // Ensure that the class doesn't change any Scope annotations on its
         // implemented interfaces. This shouldn't require the retrieval of
@@ -151,9 +156,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         for (TypeMirror i : t.getInterfaces()) {
             TypeElement ie = Utils.getTypeElement(i);
             ScopeInfo is = getParentScopeAndVisit(ie, node);
-            if (!is.isCurrent() && !is.equals(scope)) {
+            if (!is.isCurrent() && !is.equals(scope))
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
-            }
         }
 
         for (ExecutableElement c : Utils.constructorsIn(t)) {
@@ -197,28 +201,61 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         List<? extends VariableElement> params = m.getParameters();
         List<? extends VariableTree> paramTrees = mTree != null ? mTree
                 .getParameters() : null;
-        for (int i = 0; i < params.size(); i++) {
-            // TODO: Check overridden annotations
-            VariableElement param = params.get(i);
-            VariableTree paramTree = paramTrees != null ? paramTrees.get(i)
-                    : null;
-            ScopeInfo scope = checkVariableScopeOverride(param, paramTree,
-                    errNode);
-            if (scope != null) {
-                ctx.setParameterScope(scope, i, m);
-            }
-        }
-        debugIndentDecrement();
+                for (int i = 0; i < params.size(); i++) {
+                    // TODO: Check overridden annotations
+                    VariableElement param = params.get(i);
+                    VariableTree paramTree = paramTrees != null ? paramTrees.get(i)
+                            : null;
+                    ScopeInfo scope = checkVariableScopeOverride(param, paramTree,
+                            errNode);
+                    if (scope != null) {
+                        ctx.setParameterScope(scope, i, m);
+                    }
+                }
+                debugIndentDecrement();
     }
+
+    void pln(String str) {System.err.println(str);}
 
     ScopeInfo checkField(VariableElement f, Tree node, Tree errNode) {
         ScopeInfo scope = checkVariableScopeOverride(f, node, errNode);
         ScopeInfo clazzScope = getEnclosingClassScope(f);
 
-        if (!isValidFieldScope(scope, clazzScope)) {
+        if (!isValidFieldScope(scope, clazzScope))
             fail(ERR_ILLEGAL_FIELD_SCOPE, node, errNode, scope, clazzScope);
-        }
+
+        checkMemoryAreaField(f,clazzScope,node,errNode);
+
         return scope;
+    }
+
+    private void checkMemoryAreaField(VariableElement f, ScopeInfo clazzScope, Tree node, Tree errNode ) {
+        if (!Utils.isUserLevel(f.getEnclosingElement().toString()))
+            return;
+        if (Utils.getBaseType(f.asType()).getKind() != TypeKind.DECLARED)
+            return;
+        if (!needsDefineScope(Utils.getTypeElement(Utils.getBaseType(f.asType()))))
+            return;
+
+        DefineScope ds = f.getAnnotation(DefineScope.class);
+        if (ds == null) {
+            fail(ERR_MEMORY_AREA_TYPE_NO_DEFINE_SCOPE, node);
+            return;
+        }
+
+        DefineScopeInfo dsi = new DefineScopeInfo(ds.name(),ds.parent());
+        if (!scopeTree.hasScope(dsi.scope) || !scopeTree.hasScope(dsi.parent) || !scopeTree.isParentOf(dsi.scope, dsi.parent))
+            fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT, node);
+
+        // we need to check that the @Scope and @DefineScope are consistent.
+        Scope s = f.getAnnotation(Scope.class);
+        if (s != null && !s.value().equals(dsi.parent.getScope()))
+            fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node, s.value(),dsi.parent.getScope());
+        else
+            if ((s == null) && (clazzScope.isCurrent() || !clazzScope.equals(dsi.parent)))
+                fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,clazzScope,dsi.parent.getScope() );
+
+        ctx.setFieldDefineScope(dsi,f.getEnclosingElement().toString(),f.toString());
     }
 
     /**
@@ -242,46 +279,44 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         Scope s = v.getAnnotation(Scope.class);
         ScopeInfo scope = ScopeInfo.CURRENT;
         ScopeInfo ret;
-        if (s != null) {
+        if (s != null)
             scope = new ScopeInfo(s.value());
-        }
+
         if (!scopeTree.hasScope(scope) && !scope.isCurrent()
-                && !scope.isUnknown()) {
+                && !scope.isUnknown())
             report(Result.failure(ERR_BAD_SCOPE_NAME, scope), node, errNode);
-        }
+
         // Arrays reside in the same scope as their element types, so if this
         // field is an array, reduce it to its base component type.
         vMirror = Utils.getBaseType(vMirror);
         if (vMirror.getKind() != TypeKind.DECLARED) {
             // The field type in here is either a primitive or a primitive
             // array. Only store a field scope if the field was an array.
-            if (vMirror != v.asType()) {
+            if (vMirror != v.asType())
                 ret = scope;
-            } else {
+            else
                 ret = null; // Primitives have no scope
-            }
         } else {
             TypeElement t = Utils.getTypeElement(vMirror);
             ScopeInfo tScope = ctx.getClassScope(t);
-            if (tScope == null) {
+            if (tScope == null)
                 checkClassScope(t, trees.getTree(t), errNode);
-            }
+
             tScope = ctx.getClassScope(t);
             if (s == null) {
-                if (tScope.isCurrent() && isUnknownMethodParameter(v)) {
+                if (tScope.isCurrent() && isUnknownMethodParameter(v))
                     scope = ScopeInfo.UNKNOWN;
-                } else {
+                else
                     scope = tScope;
-                }
+
             }
-            if (tScope.isCurrent()) {
+            if (tScope.isCurrent())
                 ret = scope;
-            } else {
+            else {
                 ret = tScope;
-                if (scope.isUnknown() || !scope.equals(tScope)) {
+                if (scope.isUnknown() || !scope.equals(tScope))
                     fail(ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE, node, errNode, scope,
                             tScope);
-                }
             }
         }
         debugIndentDecrement();
@@ -289,9 +324,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     }
 
     private boolean isUnknownMethodParameter(VariableElement v) {
-        if (v.getKind() != ElementKind.PARAMETER) {
+        if (v.getKind() != ElementKind.PARAMETER)
             return false;
-        }
+
         ExecutableElement m = (ExecutableElement) v.getEnclosingElement();
         return ctx.getMethodRunsIn(m).isUnknown();
     }
@@ -305,23 +340,22 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     void checkMethodRunsIn(ExecutableElement m, MethodTree node, Tree errNode) {
         RunsIn ann = m.getAnnotation(RunsIn.class);
         ScopeInfo runsIn = ann != null ? new ScopeInfo(ann.value())
-                : ScopeInfo.CURRENT;
+        : ScopeInfo.CURRENT;
 
         if (!scopeTree.hasScope(runsIn) && !runsIn.isCurrent()
-                && !runsIn.isUnknown()) {
+                && !runsIn.isUnknown())
             report(Result.failure(ERR_BAD_SCOPE_NAME, runsIn), node, errNode);
-        }
+
 
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
-                .overriddenMethods(m);
+        .overriddenMethods(m);
         for (ExecutableElement e : overrides.values()) {
             ScopeInfo eRunsIn = getOverrideRunsInAndVisit(e, errNode);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
-            if (!eRunsIn.equals(runsIn) && eLevel != SUPPORT) {
+            if (!eRunsIn.equals(runsIn) && eLevel != SUPPORT)
                 report(Result.failure(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE),
                         node, errNode);
-            }
         }
         ctx.setMethodRunsIn(runsIn, m);
     }
@@ -335,21 +369,20 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     void checkMethodScope(ExecutableElement m, MethodTree node, Tree errNode) {
         Scope ann = m.getAnnotation(Scope.class);
         ScopeInfo scope = ann != null ? new ScopeInfo(ann.value())
-                : ScopeInfo.CURRENT;
+        : ScopeInfo.CURRENT;
 
         if (!scopeTree.hasScope(scope) && !scope.isCurrent()
-                && !scope.isUnknown()) {
+                && !scope.isUnknown())
             report(Result.failure(ERR_BAD_SCOPE_NAME, scope), node, errNode);
-        }
+
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
-                .overriddenMethods(m);
+        .overriddenMethods(m);
         for (ExecutableElement e : overrides.values()) {
             ScopeInfo eScope = getOverrideScopeAndVisit(e, errNode);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
-            if (!eScope.equals(scope) && eLevel != SUPPORT) {
+            if (!eScope.equals(scope) && eLevel != SUPPORT)
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
-            }
         }
         // TODO: Need to check that scopes agree on the method and the return
         // type
@@ -369,15 +402,14 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      * </ol>
      */
     void report(Result r, Tree node, Tree errNode) {
-        if (node != null) {
+        if (node != null)
             // Current item being visited. Report the error as usual.
             checker.report(r, errNode);
-        } else {
+        else
             // Current item is something from a library. Can't put an error on
             // it, so put an error on the node being visited stating that
             // something from the parent class or interface is broken.
             fail(ERR_BAD_LIBRARY_ANNOTATION, errNode);
-        }
     }
 
     void fail(String msg, Tree src, Tree err, Object... msgParams) {
@@ -391,7 +423,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     private static ScopeInfo scopeOfClassDefinition(TypeElement t) {
         Scope scopeAnn = t.getAnnotation(Scope.class);
         return scopeAnn != null ? new ScopeInfo(scopeAnn.value())
-                : ScopeInfo.CURRENT;
+        : ScopeInfo.CURRENT;
     }
 
     private ScopeInfo getParentScopeAndVisit(TypeElement p, Tree errNode) {
@@ -405,7 +437,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
     private ScopeInfo getOverrideScopeAndVisit(ExecutableElement m, Tree errNode) {
         ScopeInfo scope = ctx.getMethodScope(m);
-        if (scope != null) { return scope; }
+        if (scope != null)
+            return scope;
         checkMethod(m, trees.getTree(m), errNode);
         return ctx.getMethodScope(m);
     }
@@ -413,7 +446,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     private ScopeInfo getOverrideRunsInAndVisit(ExecutableElement m,
             Tree errNode) {
         ScopeInfo runsIn = ctx.getMethodRunsIn(m);
-        if (runsIn != null) { return runsIn; }
+        if (runsIn != null)
+            return runsIn;
         checkMethod(m, trees.getTree(m), errNode);
         return ctx.getMethodRunsIn(m);
     }
@@ -438,7 +472,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      */
     boolean isValidFieldScope(ScopeInfo fieldScope, ScopeInfo clazzScope) {
         return fieldScope == null || fieldScope.isCurrent()
-                || fieldScope.isUnknown()
-                || scopeTree.isParentOf(clazzScope, fieldScope);
+        || fieldScope.isUnknown()
+        || scopeTree.isParentOf(clazzScope, fieldScope);
     }
 }

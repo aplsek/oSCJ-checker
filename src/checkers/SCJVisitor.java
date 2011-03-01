@@ -52,7 +52,7 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     protected final TypeMirror scopedMemoryMirror = Utils.getTypeMirror(
             elements, "javax.realtime.ScopedMemory");
 
-    // Our SCJ-lib does not implement "javax.realtime.ScopeAllocationContext".
+    //Our SCJ-lib does not implement "javax.realtime.ScopeAllocationContext".
     //protected final TypeMirror scopeAllocationContextMirror = Utils.getTypeMirror(
     //        elements, "javax.realtime.ScopeAllocationContext");
 

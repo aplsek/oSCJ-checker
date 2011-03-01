@@ -16,6 +16,10 @@ public class ScopeRunsInChecker extends SinglePassChecker {
     public static final String ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE = "illegal.scope.override";
     public static final String ERR_RUNS_IN_ON_CLASS = "err.runs.in.on.class";
 
+    public static final String ERR_MEMORY_AREA_TYPE_NO_DEFINE_SCOPE = "err.mem.no.def.scope";
+    public static final String ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT = "err.mem.type.def.scope.not.consistent";
+    public static final String ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE = "err.mem.type.def.scope.not.consistent.with.scope";
+
     private ScopeCheckerContext ctx;
 
     public ScopeRunsInChecker(ScopeCheckerContext ctx) {
@@ -37,6 +41,10 @@ public class ScopeRunsInChecker extends SinglePassChecker {
         p.put(ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE, "Variable scope %s may not override its type's scope %s.");
         p.put(ERR_ILLEGAL_FIELD_SCOPE, "Field scope %s must be the same or an ancestor to class's scope %s.");
         p.put(ERR_RUNS_IN_ON_CLASS, "RunsIn annotations are ignored on classes.");
+        p.put(ERR_MEMORY_AREA_TYPE_NO_DEFINE_SCOPE, "MemoryArea type does not have a @DefineScope annotation.");
+        p.put(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT, "MemoryArea field @DefineScope annotation is not consistent with the @DefineScope annotations on classes.");
+        p.put(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, "MemoryArea field @DefineScope annotation is not consistent with the @Scope annotations of the field. (Field's scope is %s, @DefineScope requires %s) ");
+
         return p;
     }
 }
