@@ -154,7 +154,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         // they should be visited as well prior to this point.
         for (TypeMirror i : t.getInterfaces()) {
             TypeElement ie = Utils.getTypeElement(i);
-            ScopeInfo is = getParentScopeAndVisit(ie, node);
+            ScopeInfo is = getParentScopeAndVisit(ie, errNode);
             if (!is.isCurrent() && !is.equals(scope))
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
         }
@@ -299,7 +299,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             if (vMirror != v.asType())
                 ret = scope;
             else
-                ret = null; // Primitives have no scope
+                ret = ScopeInfo.PRIMITIVE; // Primitives have no scope
         } else {
             TypeElement t = Utils.getTypeElement(vMirror);
             ScopeInfo tScope = ctx.getClassScope(t);
@@ -312,7 +312,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                     scope = ScopeInfo.UNKNOWN;
                 else
                     scope = tScope;
-
             }
             if (tScope.isCurrent())
                 ret = scope;
@@ -475,7 +474,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      */
     boolean isValidFieldScope(ScopeInfo fieldScope, ScopeInfo clazzScope) {
         return fieldScope == null || fieldScope.isCurrent()
-                || fieldScope.isUnknown()
+                || fieldScope.isUnknown() || fieldScope.isPrimitive()
                 || scopeTree.isParentOf(clazzScope, fieldScope);
     }
 }

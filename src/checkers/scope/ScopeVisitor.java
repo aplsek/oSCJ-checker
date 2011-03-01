@@ -166,7 +166,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         } else if (TreeUtils.isStringConcatenation(node)) {
             return ScopeInfo.CURRENT;
         }
-        return null; // Primitive expressions have no scope
+        return ScopeInfo.PRIMITIVE; // Primitive expressions have no scope
     }
 
     @Override
@@ -388,11 +388,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         for (int i = 0; i < paramScopes.size(); i++) {
             debugIndent(" add VarScope: " + params.get(i).getName().toString()
                     + ", scope:" + paramScopes.get(i));
-            Tree nodeTypeTree = getArrayTypeTree(params.get(i).getType());
-            // skipping the primitive variables.
-            if (nodeTypeTree.getKind() != Kind.PRIMITIVE_TYPE)
-                varScopes.addVariableScope(params.get(i).getName().toString(),
-                        paramScopes.get(i));
+            varScopes.addVariableScope(params.get(i).getName().toString(),
+                    paramScopes.get(i));
         }
         node.getBody().accept(this, p);
         // TODO: make sure we don't need to visit more
@@ -475,8 +472,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         // skip checking when return is primitive
         Tree nodeTypeTree = getArrayTypeTree(enclosingMethod.getReturnType());
         if (nodeTypeTree.getKind() == Kind.PRIMITIVE_TYPE) {
-            debugIndent(" Returns primitive value. Stop visiting. Return null as ScopeInfo.");
-            return null;
+            return ScopeInfo.PRIMITIVE;
         }
 
         ExecutableElement m = TreeUtils.elementFromDeclaration(enclosingMethod);
@@ -912,8 +908,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         TypeMirror varBaseMirror = Utils.getBaseType(varMirror);
         if (varBaseMirror.getKind().isPrimitive()) {
             if (varMirror == varBaseMirror) {
-                // Primitives have no scope
-                return null;
+                return ScopeInfo.PRIMITIVE;
             } else {
                 // Primitive array
                 // TODO: Don't feel like thinking about this now, but

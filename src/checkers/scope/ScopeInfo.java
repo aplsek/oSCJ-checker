@@ -10,6 +10,11 @@ public class ScopeInfo {
      * any other scope.
      */
     public static final ScopeInfo NULL = new ScopeInfo("null");
+    /**
+     * Represents a primitive. Primitives don't actually have scopes, but this
+     * is used so that a null scope actually represents an error in the program.
+     */
+    public static final ScopeInfo PRIMITIVE = new ScopeInfo("primitive");
     public static final ScopeInfo UNKNOWN = new ScopeInfo(Scope.UNKNOWN);
     protected final String scope;
 
@@ -33,12 +38,17 @@ public class ScopeInfo {
         return equals(NULL);
     }
 
+    public boolean isPrimitive() {
+        return equals(PRIMITIVE);
+    }
+
     public boolean isUnknown() {
         return equals(UNKNOWN);
     }
 
     public boolean isReservedScope() {
-        return isCurrent() || isImmortal() || isNull() || isUnknown();
+        return isCurrent() || isImmortal() || isNull() || isUnknown()
+                || isPrimitive();
     }
 
     public boolean isFieldScope() {
@@ -46,7 +56,7 @@ public class ScopeInfo {
     }
 
     public boolean isValidParentScope() {
-        return !(isCurrent() || isNull() || isUnknown());
+        return !(isCurrent() || isNull() || isUnknown() || isPrimitive());
     }
 
     @Override
