@@ -258,7 +258,7 @@ public final class Utils {
         /* ManagedMemory */
 
         ENTER_PRIVATE_MEMORY {
-            @Override public String toString() { return "enterPrivateMemory(long,java.lang.Runnable)"; }
+            @Override public String toString() { return "enterPrivateMemory(long,javax.safetycritical.SCJRunnable)"; }
         },
 
         GET_CURRENT_MANAGED_MEMORY {
