@@ -597,7 +597,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("lhs scope = " + lhs);
         debugIndent("rhs scope = " + rhs);
         if (!lhs.isUnknown()) {
-
+            if (lhs.getFieldScope().isCurrent()) {
+                if (!lhs.getReceiverScope().equals(rhs)) {
+                    fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
+                }
+            } else if (!lhs.getFieldScope().equals(rhs)) {
+                fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
+            }
         } else {
             ScopeInfo fScope = lhs.getFieldScope();
             String rhsVar = getRhsVariableNameFromAssignment(node);
