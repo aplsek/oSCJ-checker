@@ -786,25 +786,24 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     /**
-     * This method checks under which condition a give method may be invoked.
+     * Check to see if a method is invokable in the current allocation context.
      *
-     * receiver-scope-problem - to detect a cross-scope method invocation,
-     * we used to look at the receiver of this invocation, if the receiver is
-     * not in CURRENT, then its a cross-scope method invocation. No, the getEffectionRunsIn()
-     * method will directly give as effective @RunsIn() of the method, so we dont
-     * need to look at the receiver's scope.
+     * Since this method is passed the effective RunsIn of the method being
+     * tested, there is no need to look at the scope of the receiver object.
      *
-     * @param m - the element representing the method invocation
-     * @param runsInScope - the effective scope in which the method runs
-     * @param node  - method invocation tree
+     * @see ScopeCheckerContext#getEffectiveMethodRunsIn(ExecutableElement, ScopeInfo)
+     *
+     * @param m  the element representing the method invocation
+     * @param effectiveRunsIn  the effective scope in which the method runs
+     * @param node  method invocation tree
      */
     private void checkMethodRunsIn(ExecutableElement m,
-            ScopeInfo runsInScope, MethodInvocationTree node) {
-        if (currentScope().isUnknown() && !runsInScope.isUnknown())
+            ScopeInfo effectiveRunsIn, MethodInvocationTree node) {
+        if (currentScope().isUnknown() && !effectiveRunsIn.isUnknown())
             fail(ERR_BAD_METHOD_INVOKE, node, CURRENT, UNKNOWN);
-        else if (!runsInScope.isUnknown()
-                && !runsInScope.equals(currentScope()))
-            fail(ERR_BAD_METHOD_INVOKE, node, runsInScope, currentScope());
+        else if (!effectiveRunsIn.isUnknown()
+                && !effectiveRunsIn.equals(currentScope()))
+            fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, currentScope());
     }
 
     private ScopeInfo checkNewInstance(MethodInvocationTree node) {
