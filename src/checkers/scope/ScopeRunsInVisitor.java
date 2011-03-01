@@ -243,9 +243,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (!scopeTree.hasScope(scope) || !scopeTree.isParentOf(scope, parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node);
 
-        // A reference to a memory area must reside in the parent's scope or a
-        // child of that scope.
-        if (!scopeTree.isAncestorOf(fieldScope, parent))
+        if (!fieldScope.equals(parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
                     f, parent);
 
