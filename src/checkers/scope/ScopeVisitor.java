@@ -19,6 +19,9 @@ import static checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_DEFAULT_BAD_ENTER_PARAMETER;
 import static checkers.scope.ScopeChecker.ERR_RUNNABLE_WITHOUT_RUNS_IN;
 import static checkers.scope.ScopeChecker.ERR_TYPE_CAST_BAD_ENTER_PARAMETER;
+import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR;
+import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT;
+import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
 import static checkers.scope.ScopeInfo.CURRENT;
 import static checkers.scope.ScopeInfo.UNKNOWN;
 
@@ -30,7 +33,9 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.Scope;
 
 import checkers.SCJVisitor;
@@ -505,14 +510,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         ScopeInfo lhs = checkVariableScope(node);
+        debugIndent("scope's varialbe: " + lhs);
         varScopes.addVariableScope(node.getName().toString(), lhs);
         VariableElement var = TreeUtils.elementFromDeclaration(node);
-        TypeElement t = Utils.getTypeElement(var.asType());
-
-        if (needsDefineScope(t)) {
-            // TODO:
-            //varScopes.add
+        if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(var.asType())))) {
             debugIndent("\t >>>>>> NEEDS @DefineScope");
+            checkDefineScopeOnVariable(var,lhs,node);
         }
 
         // Static variable, change the context to IMMORTAL
@@ -527,6 +530,50 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         currentRunsIn = oldRunsIn;
         debugIndentDecrement();
         return null;
+    }
+
+    void pln(String str) {System.out.println(str);}
+
+    private void checkDefineScopeOnVariable(VariableElement var, ScopeInfo varScope,
+            VariableTree node) {
+        if (!Utils.isUserLevel(var.getEnclosingElement().toString()))
+            return;
+        if (var.asType().getKind() != TypeKind.DECLARED)
+            return;
+
+        DefineScope ds = var.getAnnotation(DefineScope.class);
+        if (ds == null) {
+            fail(ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR, node);
+            return;
+        }
+
+        ScopeInfo scope = new ScopeInfo(ds.name());
+        ScopeInfo parent = new ScopeInfo(ds.parent());
+        DefineScopeInfo dsi = new DefineScopeInfo(scope, parent);
+
+        if (!scopeTree.hasScope(scope) || !scopeTree.isParentOf(scope, parent))
+            fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node);
+
+        ScopeInfo runsInScope = getEnclosingMethodRunsIn();
+        pln("\n\n dsi : " + dsi);
+        pln("runsInScope : " + runsInScope);
+        pln(" varScope : " + varScope);
+
+        // this is ugly but passes the test-case (as opposed to the previous if-statement)
+        if (!varScope.isCurrent()) {
+            if (!varScope.equals(parent))
+                fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
+                        varScope, parent);
+        } else if (runsInScope.isUnknown()) {
+            fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
+                    UNKNOWN, parent);
+        } else if (!runsInScope.equals(parent))
+            fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
+                    runsInScope, parent);
+
+        pln("\t DefineScope is OK");
+        pln("\t var.toString() : " + var.toString());
+        varScopes.addVariableDefineScope(var.toString(), dsi);
     }
 
     private void checkAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
@@ -858,13 +905,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo tScope = ctx.getClassScope(t);
 
         Scope varScope = var.getAnnotation(Scope.class);
+        pln("varScope : " + varScope);
+        pln("tScope : " + tScope);
+
         if (varScope == null) {
             if (tScope.isCurrent())
                 return currentScope();
             else
                 return tScope;
         } else if (tScope.isCurrent())
-            return tScope;
+            return new ScopeInfo(varScope.value());  // used to be: return tScope, now the explicit variable takes precedence.
         else {
             if (!tScope.equals(new ScopeInfo(varScope.value())))
                 fail(ERR_BAD_VARIABLE_SCOPE, node, t.getSimpleName(),
@@ -900,5 +950,18 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private boolean isThis(IdentifierTree node) {
         return node.getName().toString().equals(THIS);
+    }
+
+    /**
+     * @return - for a given position in the Tree, return the scope of the enclosing method.
+     *           if the method is @RunsIn(CURRENT), we look at the scope of the enclosing class.
+     */
+    private ScopeInfo getEnclosingMethodRunsIn() {
+        MethodTree enclosingMethod = TreeUtils.enclosingMethod(getCurrentPath());
+        ExecutableElement m = TreeUtils.elementFromDeclaration(enclosingMethod);
+        ScopeInfo scope = ctx.getMethodRunsIn(m);
+        if (scope.isCurrent())
+            scope = ctx.getClassScope(m.getEnclosingElement().toString());
+        return scope;
     }
 }

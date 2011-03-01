@@ -36,6 +36,10 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_SCOPE_RUNS_IN_DISAGREEMENT = "scope.runs.in.disagreement";
     public static final String ERR_TYPE_CAST_BAD_ENTER_PARAMETER = "type.cast.bad.enter.parameter";
 
+    public static final String ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR = "err.mem.area.no.def.scope.on.var";
+    public static final String ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT = "err.mem.type.def.scope.not.consistent";
+    public static final String ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE = "err.mem.type.def.scope.not.consistent.with.scope";
+
     private ScopeCheckerContext ctx;
 
     public ScopeChecker(ScopeCheckerContext ctx) {
@@ -83,6 +87,12 @@ public class ScopeChecker extends SinglePassChecker {
                 "Runnable used with executeInArea() without @RunsIn.");
         p.put(ERR_SCOPE_RUNS_IN_DISAGREEMENT,
                 "@RunsIn annotations must be a sub-scope of @Scope annotations.");
+        p.put(ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR,
+        "Local Variable of a type that implements AllocationContext interface must have a @DefineScope annotation.");
+        p.put(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, "MemoryArea variable's @DefineScope annotation is not consistent with the @DefineScope annotations on classes.");
+        p.put(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, "MemoryArea variable @DefineScope annotation is not consistent with the @Scope annotations of the field. (Field's scope is %s, @DefineScope requires %s) ");
+
+
 
         return p;
     }

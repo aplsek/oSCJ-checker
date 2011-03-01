@@ -244,6 +244,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (!scopeTree.hasScope(scope) || !scopeTree.isParentOf(scope, parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node);
 
+        // this is ugly but passes the test-case (as opposed to the previous if-statement)
         if (!fieldScope.isCurrent()) {
             if (!fieldScope.equals(parent))
                 fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
@@ -251,7 +252,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         }
         else if (!classScope.equals(parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
-                    fieldScope, parent);
+                    classScope, parent);
 
         ctx.setFieldDefineScope(dsi, f);
     }

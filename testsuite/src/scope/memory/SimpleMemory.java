@@ -7,15 +7,11 @@ import javax.realtime.PriorityParameters;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
-import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
-import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
-import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJRestricted;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-import static javax.safetycritical.annotate.Level.SUPPORT;
 
 @DefineScope(name="Mission",parent=IMMORTAL)
 @Scope("Mission")
@@ -32,36 +28,48 @@ abstract class PEH extends PeriodicEventHandler {
         super(priority, period, storage);
     }
 
-    @DefineScope(name="Mission",parent=IMMORTAL)
-    @Scope(IMMORTAL)
-    ManagedMemory mem;                              // OK
-
-    //@Scope(IMMORTAL)
-    //ManagedMemory mem2;
-
-    @DefineScope(name="PEH",parent="Mission")
-    @Scope("Mission")
-    ManagedMemory mem3;                             // OK
-
-    //@DefineScope(name="PEH",parent="Mission")
-    //@Scope(IMMORTAL)                                // ERR
-    //ManagedMemory mem4;
-
-    @DefineScope(name="PEH",parent="Mission")
-    ManagedMemory mem5;                             // OK
-
-    //@DefineScope(name="Mission",parent=IMMORTAL)
-    //ManagedMemory mem6;                             // ERROR
-
     public void method() {
-       mem = ManagedMemory.getCurrentManagedMemory();
+        @DefineScope(name="Mission",parent=IMMORTAL)
+        @Scope(IMMORTAL)
+        ManagedMemory mem;                              // OK
+
+        @Scope(IMMORTAL)
+        //## checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR
+        ManagedMemory mem2;                             // ERR
+
+        @DefineScope(name="PEH",parent="Mission")
+        @Scope("Mission")
+        ManagedMemory mem3;                             // OK
+
+        @DefineScope(name="PEH",parent="Mission")
+        @Scope(IMMORTAL)
+        //## checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE
+        ManagedMemory mem4;                              // ERROR
+
+        @DefineScope(name="PEH",parent="Mission")
+        ManagedMemory mem5;                             // OK
+
+        @DefineScope(name="Mission",parent=IMMORTAL)
+        //## checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE
+        ManagedMemory mem6;                             // ERROR
+
+        @DefineScope(name="Mission",parent=IMMORTAL)
+        @Scope("Mission")
+        //## checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE
+        ManagedMemory mem7;                     // ERROR
+
+        @DefineScope(name="Mission",parent="PEH")
+        @Scope("Mission")
+        //## checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT
+        ManagedMemory mem8;                     // ERROR
+
+
     }
 
-    @Override
-    @RunsIn("PEH")
-    @SCJAllowed(SUPPORT)
-    public void handleAsyncEvent() {
-           // mem.newInstance(Foo.class);
-    }
+    //@RunsIn("PEH")
+    //@SCJAllowed(SUPPORT)
+    //public void handleAsyncEvent() {
+    //       // mem.newInstance(Foo.class);
+    //}
 }
 
