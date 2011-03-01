@@ -51,6 +51,7 @@ import com.sun.source.tree.ArrayAccessTree;
 import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.BinaryTree;
 import com.sun.source.tree.BlockTree;
+import com.sun.source.tree.CatchTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.CompoundAssignmentTree;
@@ -71,6 +72,7 @@ import com.sun.source.tree.ReturnTree;
 import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
+import com.sun.source.tree.TryTree;
 import com.sun.source.tree.TypeCastTree;
 import com.sun.source.tree.VariableTree;
 
@@ -470,6 +472,23 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         checkReturnScope(exprScope, returnScope, node);
         debugIndentDecrement();
         return returnScope;
+    }
+
+    @Override
+    public ScopeInfo visitTry(TryTree node, P p) {
+        varScopes.pushBlock();
+        node.getBlock().accept(this, p);
+        varScopes.popBlock();
+        for (CatchTree c : node.getCatches()) {
+            varScopes.pushBlock();
+            c.accept(this, p);
+            varScopes.popBlock();
+        }
+        varScopes.pushBlock();
+        node.getFinallyBlock();
+        varScopes.popBlock();
+        // There is another accessor called getResources. No idea what it does.
+        return null;
     }
 
     @Override
