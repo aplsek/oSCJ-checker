@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -27,18 +28,11 @@ public class ScopeCheckerContext {
     /**
      * A map of fully qualified class names to relevant scope information.
      */
-    private Map<String, ClassScopeInfo> classScopes;
-
-    /**
-     * A map of fully qualified class names to relevant DefineScope information - only for fields that must
-     * have a @DefineScope annotation.
-     */
-    private Map<String, DefineScopeInfo> memDefineScope;
+    private Map<String, ClassInfo> classScopes;
 
     public ScopeCheckerContext() {
         scopeTree = new ScopeTree();
-        classScopes = new HashMap<String, ClassScopeInfo>();
-        memDefineScope = new HashMap<String, DefineScopeInfo>();
+        classScopes = new HashMap<String, ClassInfo>();
     }
 
     public ScopeTree getScopeTree() {
@@ -49,9 +43,9 @@ public class ScopeCheckerContext {
      * Get the Scope annotation of a class by its fully qualified name.
      */
     public ScopeInfo getClassScope(String clazz) {
-        ClassScopeInfo csi = classScopes.get(clazz);
-        if (csi != null) {
-            return csi.scope;
+        ClassInfo ci = classScopes.get(clazz);
+        if (ci != null) {
+            return ci.scope;
         }
         return null;
     }
@@ -68,8 +62,8 @@ public class ScopeCheckerContext {
      * its own name.
      */
     public ScopeInfo getFieldScope(String clazz, String field) {
-        ClassScopeInfo csi = classScopes.get(clazz);
-        return csi.fieldScopes.get(field);
+        ClassInfo ci = classScopes.get(clazz);
+        return ci.fieldScopes.get(field);
     }
 
     /**
@@ -83,10 +77,10 @@ public class ScopeCheckerContext {
 
     public List<ScopeInfo> getParameterScopes(String clazz, String method,
             String... params) {
-        ClassScopeInfo csi = classScopes.get(clazz);
-        if (csi != null) {
+        ClassInfo ci = classScopes.get(clazz);
+        if (ci != null) {
             String sig = Utils.buildSignatureString(method, params);
-            MethodScopeInfo msi = csi.methodScopes.get(sig);
+            MethodScopeInfo msi = ci.methodScopes.get(sig);
             if (msi != null) {
                 return Collections.unmodifiableList(msi.parameters);
             }
@@ -101,10 +95,10 @@ public class ScopeCheckerContext {
      */
     public ScopeInfo getMethodRunsIn(String clazz, String method,
             String... params) {
-        ClassScopeInfo csi = classScopes.get(clazz);
-        if (csi != null) {
+        ClassInfo ci = classScopes.get(clazz);
+        if (ci != null) {
             String sig = Utils.buildSignatureString(method, params);
-            MethodScopeInfo msi = csi.methodScopes.get(sig);
+            MethodScopeInfo msi = ci.methodScopes.get(sig);
             if (msi != null) {
                 return msi.runsIn;
             }
@@ -128,10 +122,10 @@ public class ScopeCheckerContext {
      */
     public ScopeInfo getMethodScope(String clazz, String method,
             String... params) {
-        ClassScopeInfo csi = classScopes.get(clazz);
-        if (csi != null) {
+        ClassInfo ci = classScopes.get(clazz);
+        if (ci != null) {
             String sig = Utils.buildSignatureString(method, params);
-            MethodScopeInfo msi = csi.methodScopes.get(sig);
+            MethodScopeInfo msi = ci.methodScopes.get(sig);
             if (msi != null) {
                 return msi.scope;
             }
@@ -200,12 +194,12 @@ public class ScopeCheckerContext {
      * name. Does not work if a different Scope annotation is already stored.
      */
     public void setClassScope(ScopeInfo scope, String clazz) {
-        ClassScopeInfo csi = classScopes.get(clazz);
-        if (csi != null && !csi.scope.equals(scope)) {
+        ClassInfo ci = classScopes.get(clazz);
+        if (ci != null && !ci.scope.equals(scope)) {
             throw new RuntimeException("Class scope already set");
         }
-        csi = new ClassScopeInfo(scope);
-        classScopes.put(clazz, csi);
+        ci = new ClassInfo(scope);
+        classScopes.put(clazz, ci);
     }
 
     /**
@@ -221,12 +215,12 @@ public class ScopeCheckerContext {
      * name and its own name.
      */
     public void setFieldScope(ScopeInfo scope, String clazz, String field) {
-        ClassScopeInfo csi = classScopes.get(clazz);
-        ScopeInfo f = csi.fieldScopes.get(field);
+        ClassInfo ci = classScopes.get(clazz);
+        ScopeInfo f = ci.fieldScopes.get(field);
         if (f != null && !f.equals(scope)) {
             throw new RuntimeException("Field scope already set");
         }
-        csi.fieldScopes.put(field, scope);
+        ci.fieldScopes.put(field, scope);
     }
 
     /**
@@ -246,16 +240,16 @@ public class ScopeCheckerContext {
      */
     public void setMethodRunsIn(ScopeInfo scope, String clazz, String method,
             String... params) {
-        ClassScopeInfo csi = classScopes.get(clazz);
+        ClassInfo ci = classScopes.get(clazz);
         String sig = Utils.buildSignatureString(method, params);
-        MethodScopeInfo msi = csi.methodScopes.get(sig);
+        MethodScopeInfo msi = ci.methodScopes.get(sig);
         if (msi != null) {
             if (msi.runsIn != null && !msi.runsIn.equals(scope)) {
                 throw new RuntimeException("Method runsin already set");
             }
         } else {
             msi = new MethodScopeInfo(params.length);
-            csi.methodScopes.put(sig, msi);
+            ci.methodScopes.put(sig, msi);
         }
         msi.runsIn = scope;
     }
@@ -279,16 +273,16 @@ public class ScopeCheckerContext {
      */
     public void setMethodScope(ScopeInfo scope, String clazz, String method,
             String... params) {
-        ClassScopeInfo csi = classScopes.get(clazz);
+        ClassInfo ci = classScopes.get(clazz);
         String sig = Utils.buildSignatureString(method, params);
-        MethodScopeInfo msi = csi.methodScopes.get(sig);
+        MethodScopeInfo msi = ci.methodScopes.get(sig);
         if (msi != null) {
             if (msi.scope != null && !msi.scope.equals(scope)) {
                 throw new RuntimeException("Method scope already set");
             }
         } else {
             msi = new MethodScopeInfo(params.length);
-            csi.methodScopes.put(sig, msi);
+            ci.methodScopes.put(sig, msi);
         }
         msi.scope = scope;
     }
@@ -306,9 +300,9 @@ public class ScopeCheckerContext {
 
     public void setParameterScope(ScopeInfo scope, int i, String clazz,
             String method, String... params) {
-        ClassScopeInfo csi = classScopes.get(clazz);
+        ClassInfo ci = classScopes.get(clazz);
         String sig = Utils.buildSignatureString(method, params);
-        MethodScopeInfo msi = csi.methodScopes.get(sig);
+        MethodScopeInfo msi = ci.methodScopes.get(sig);
         ScopeInfo psi = msi.parameters.get(i);
         if (psi != null && !psi.equals(scope)) {
             throw new RuntimeException("Parameter scope already set");
@@ -336,18 +330,23 @@ public class ScopeCheckerContext {
         return paramsArray;
     }
 
-    static class ClassScopeInfo {
+    static class ClassInfo {
         ScopeInfo scope;
         /**
          * A map of method signatures to method scope information.
          */
         Map<String, MethodScopeInfo> methodScopes;
         Map<String, ScopeInfo> fieldScopes;
+        /**
+         * A map of field names to relevant DefineScope information
+         */
+        private Map<String, DefineScopeInfo> fieldDefineScopes;
 
-        ClassScopeInfo(ScopeInfo scope) {
+        ClassInfo(ScopeInfo scope) {
             this.scope = scope;
             methodScopes = new HashMap<String, MethodScopeInfo>();
             fieldScopes = new HashMap<String, ScopeInfo>();
+            fieldDefineScopes = new HashMap<String, DefineScopeInfo>();
         }
 
         public void dumpCSI() {
@@ -377,29 +376,31 @@ public class ScopeCheckerContext {
      */
     public void setFieldDefineScope(DefineScopeInfo scope, VariableElement f) {
         TypeElement t = Utils.getFieldClass(f);
-        setFieldDefineScope(scope, t.getQualifiedName().toString(), f.getSimpleName()
-                .toString());
+        setFieldDefineScope(scope, t.getQualifiedName().toString(), f
+                .getSimpleName().toString());
     }
 
     /**
      * Store the Scope annotation of a field given its fully qualified class
      * name and its own name.
      */
-    public void setFieldDefineScope(DefineScopeInfo scope, String clazz, String field) {
-        DefineScopeInfo dsi = memDefineScope.get(clazz + "." + field);
-        if (dsi != null && !dsi.equals(scope)) {
-            throw new RuntimeException("Field's @DefineScope already set!");
+    public void setFieldDefineScope(DefineScopeInfo scope, String clazz,
+            String field) {
+        ClassInfo ci = classScopes.get(clazz);
+        DefineScopeInfo f = ci.fieldDefineScopes.get(field);
+        if (f != null && !f.equals(scope)) {
+            throw new RuntimeException("Field DefineScope already set");
         }
-        memDefineScope.put(clazz+field,scope);
+        ci.fieldDefineScopes.put(field, scope);
     }
 
     /**
-     * Get the @DefineScope annotation of a field by its fully qualified class name and
-     * its own name.
+     * Get the @DefineScope annotation of a field by its fully qualified class
+     * name and its own name.
      */
     public DefineScopeInfo getFieldDefineScope(String clazz, String field) {
-        DefineScopeInfo csi = memDefineScope.get(clazz + "." + field);
-        return csi;
+        ClassInfo ci = classScopes.get(clazz);
+        return ci.fieldDefineScopes.get(field);
     }
 
     /**
@@ -407,13 +408,18 @@ public class ScopeCheckerContext {
      */
     public DefineScopeInfo getFieldDefineScope(VariableElement f) {
         TypeElement t = Utils.getFieldClass(f);
-        return getFieldDefineScope(t.getQualifiedName().toString(), f.getSimpleName()
-                .toString());
+        return getFieldDefineScope(t.getQualifiedName().toString(), f
+                .getSimpleName().toString());
     }
 
-    public void dumpDefineScopes () {
-        for (String field : memDefineScope.keySet()) {
-            System.err.println("field: " + field + ", @DefineScope(" + memDefineScope.get(field).toString() + ")");
+    public void dumpDefineScopes() {
+        for (Entry<String, ClassInfo> e : classScopes.entrySet()) {
+            ClassInfo ci = e.getValue();
+            for (Entry<String, DefineScopeInfo> dsi : ci.fieldDefineScopes
+                    .entrySet()) {
+                System.err.println("field: " + dsi.getKey() + ", @DefineScope("
+                        + dsi.getValue() + ")");
+            }
         }
     }
 }
