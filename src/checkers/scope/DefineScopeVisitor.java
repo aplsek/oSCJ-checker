@@ -7,7 +7,6 @@ import static checkers.scope.DefineScopeChecker.ERR_RESERVED_SCOPE_NAME;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.DefineScope;
 
 import checkers.SCJVisitor;
@@ -24,14 +23,11 @@ import com.sun.source.tree.Tree;
 
 public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
     private ScopeTree scopeTree;
-    private final TypeMirror managedMemoryMirror;
 
     public DefineScopeVisitor(SourceChecker checker, CompilationUnitTree root,
             ScopeCheckerContext ctx) {
         super(checker, root);
         scopeTree = ctx.getScopeTree();
-        managedMemoryMirror = Utils.getTypeMirror(elements,
-                "javax.safetycritical.ManagedMemory");
     }
 
     @Override
@@ -50,7 +46,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         ExecutableElement m = TreeUtils.elementFromUse(node);
         TypeElement t = (TypeElement) m.getEnclosingElement();
 
-        if (types.isSubtype(t.asType(), managedMemoryMirror)
+        if (isManagedMemoryType(t)
                 && m.getSimpleName().toString().equals("enterPrivateMemory")) {
             ExpressionTree runnable = node.getArguments().get(1);
             TypeElement t2 = Utils.getTypeElement(InternalUtils
@@ -87,7 +83,5 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
                 fail(ERR_CYCLICAL_SCOPES, node, parentScope, childScope);
             else
                 scopeTree.put(childScope, parentScope, node);
-
-
     }
 }

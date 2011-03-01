@@ -213,17 +213,16 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
     ScopeInfo checkField(VariableElement f, Tree node, Tree errNode) {
         ScopeInfo scope = checkVariableScopeOverride(f, node, errNode);
-        ScopeInfo clazzScope = getEnclosingClassScope(f);
+        ScopeInfo classScope = getEnclosingClassScope(f);
 
-        if (!isValidFieldScope(scope, clazzScope))
-            fail(ERR_ILLEGAL_FIELD_SCOPE, node, errNode, scope, clazzScope);
+        if (!isValidFieldScope(scope, classScope))
+            fail(ERR_ILLEGAL_FIELD_SCOPE, node, errNode, scope, classScope);
 
-        checkMemoryAreaField(f, clazzScope, node, errNode);
-
+        checkMemoryAreaField(f, classScope, node, errNode);
         return scope;
     }
 
-    private void checkMemoryAreaField(VariableElement f, ScopeInfo clazzScope,
+    private void checkMemoryAreaField(VariableElement f, ScopeInfo classScope,
             Tree node, Tree errNode) {
         if (!Utils.isUserLevel(f.getEnclosingElement().toString()))
             return;
@@ -251,9 +250,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
                     node, s.value(), parent);
         else if (s == null
-                && (clazzScope.isCurrent() || !clazzScope.equals(parent)))
+                && (classScope.isCurrent() || !classScope.equals(parent)))
             fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
-                    node, clazzScope, parent);
+                    node, classScope, parent);
 
         ctx.setFieldDefineScope(dsi, f.getEnclosingElement().toString(),
                 f.toString());
@@ -451,10 +450,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     }
 
     /**
-     *
-     * @param f
-     *            - field under consideration
-     * @return - returns the Scope of the class enclosing the field
+     * @param f field under consideration
+     * @return the Scope of the class enclosing the field
      */
     private ScopeInfo getEnclosingClassScope(VariableElement f) {
         TypeElement t = Utils.getTypeElement(f.getEnclosingElement().asType());
@@ -468,9 +465,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      * refer to them. UNKNOWN annotations are accepted, since assignments to
      * UNKNOWN fields are checked by a dynamic guard.
      */
-    boolean isValidFieldScope(ScopeInfo fieldScope, ScopeInfo clazzScope) {
+    boolean isValidFieldScope(ScopeInfo fieldScope, ScopeInfo classScope) {
         return fieldScope == null || fieldScope.isCurrent()
                 || fieldScope.isUnknown() || fieldScope.isPrimitive()
-                || scopeTree.isParentOf(clazzScope, fieldScope);
+                || scopeTree.isParentOf(classScope, fieldScope);
     }
 }
