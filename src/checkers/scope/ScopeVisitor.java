@@ -454,7 +454,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 .enclosingMethod(getCurrentPath());
 
         // skip checking when return is primitive
-        Tree nodeTypeTree = getArrayTypeTree(enclosingMethod.getReturnType());
+        Tree nodeTypeTree = enclosingMethod.getReturnType();
         if (nodeTypeTree.getKind() == Kind.PRIMITIVE_TYPE)
             return ScopeInfo.PRIMITIVE;
 
@@ -500,7 +500,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndentIncrement("visitVariable : " + node.toString());
         ScopeInfo oldRunsIn = currentRunsIn;
 
-        if (getArrayTypeTree(node.getType()).getKind() == Kind.PRIMITIVE_TYPE) {
+        if (node.getType().getKind() == Kind.PRIMITIVE_TYPE) {
             debugIndentDecrement();
             return null;
         }
@@ -874,12 +874,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private ScopeInfo getRunsInFromRunnable(TypeMirror var) {
         TypeElement t = Utils.getTypeElement(var);
         return ctx.getMethodRunsIn(t.getQualifiedName().toString(), "run");
-    }
-
-    private static Tree getArrayTypeTree(Tree nodeTypeTree) {
-        while (nodeTypeTree.getKind() == Kind.ARRAY_TYPE)
-            nodeTypeTree = ((ArrayTypeTree) nodeTypeTree).getType();
-        return nodeTypeTree;
     }
 
     private static final String THIS = "this";
