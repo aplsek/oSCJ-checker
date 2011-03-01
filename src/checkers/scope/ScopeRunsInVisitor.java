@@ -245,10 +245,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
         if (!fieldScope.equals(parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
-                    f, parent);
+                    fieldScope, parent);
 
-        ctx.setFieldDefineScope(dsi, f.getEnclosingElement().toString(),
-                f.toString());
+        ctx.setFieldDefineScope(dsi, f);
     }
 
     /**
@@ -457,6 +456,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     boolean isValidFieldScope(ScopeInfo fieldScope, ScopeInfo classScope) {
         return fieldScope == null || fieldScope.isCurrent()
                 || fieldScope.isUnknown() || fieldScope.isPrimitive()
-                || scopeTree.isParentOf(classScope, fieldScope);
+                || scopeTree.isAncestorOf(classScope, fieldScope);
     }
 }

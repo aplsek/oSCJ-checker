@@ -83,7 +83,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         if (!(reservedChild || reservedParent))
             if (scopeTree.hasScope(childScope))
                 fail(ERR_DUPLICATE_SCOPE_NAME, node, childScope);
-            else if (scopeTree.isParentOf(parentScope, childScope))
+            else if (scopeTree.isAncestorOf(parentScope, childScope))
                 fail(ERR_CYCLICAL_SCOPES, node, parentScope, childScope);
             else
                 scopeTree.put(childScope, parentScope, node);

@@ -19,42 +19,37 @@ public class ScopeTree {
         put(ScopeInfo.IMMORTAL, new ScopeInfo(""), null);
     }
 
-    public ScopeInfo get(ScopeInfo name) {
-        return scopeTree.get(name);
-    }
-
     public ScopeInfo getParent(ScopeInfo child) {
-        if (child.isCurrent())
+        if (child.isReservedScope())
             return null;
 
-        // TODO: DAN: This if is wrong. I would argue even if it was isImmortal it would be wrong to do this here.
-        if (child.isImmortal())
-            return ScopeInfo.IMMORTAL;  // parent of IMMORTAL is IMMORTAL
-
-        return get(child);
+        return scopeTree.get(child);
     }
 
     public boolean hasScope(ScopeInfo name) {
         return scopeTree.containsKey(name);
     }
 
+    /**
+     * See if one scope is the direct parent of another.
+     */
     public boolean isParentOf(ScopeInfo child, ScopeInfo parent) {
+        ScopeInfo p = getParent(child);
+        return parent.equals(getParent(child));
+    }
+
+    /**
+     * See if one scope is equal to or an ancestor of another.
+     */
+    public boolean isAncestorOf(ScopeInfo child, ScopeInfo parent) {
+        // No matter where we are, IMMORTAL is always an ancestor of CURRENT.
         if (child.isCurrent())
             return parent.isImmortal();
 
         while (child != null) {
             if (child.equals(parent))
                 return true;
-            child = get(child);
-        }
-        return false;
-    }
-
-    public boolean isAncestorOf(ScopeInfo name, ScopeInfo expectedParent) {
-        while (name != null) {
-            if (name.equals(expectedParent))
-                return true;
-            name = get(name);
+            child = scopeTree.get(child);
         }
         return false;
     }
