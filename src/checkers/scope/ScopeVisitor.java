@@ -599,7 +599,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("lhs scope = " + lhs);
         debugIndent("rhs scope = " + rhs);
         if (!lhs.isUnknown()) {
-
+            if (lhs.getFieldScope().isCurrent()) {
+                if (!lhs.getReceiverScope().equals(rhs)) {
+                    fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
+                }
+            } else if (!lhs.getFieldScope().equals(rhs)) {
+                fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
+            }
         } else {
             ScopeInfo fScope = lhs.getFieldScope();
             String rhsVar = getRhsVariableNameFromAssignment(node);
@@ -940,20 +946,23 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private ScopeInfo checkVariableScope(VariableTree node) {
         VariableElement var = TreeUtils.elementFromDeclaration(node);
         if (Utils.isStatic(node.getModifiers().getFlags())) {
-            // TODO:
             return ScopeInfo.IMMORTAL;
         }
         // TODO: UNKNOWN parameters
-        Tree nodeTypeTree = getArrayTypeTree(node.getType());
-        if (nodeTypeTree.getKind() == Kind.PRIMITIVE_TYPE) {
-            if (nodeTypeTree == node.getType()) {
+        TypeMirror varMirror = var.asType();
+        TypeMirror varBaseMirror = Utils.getBaseType(varMirror);
+        if (varBaseMirror.getKind().isPrimitive()) {
+            if (varMirror == varBaseMirror) {
+                // Primitives have no scope
                 return null;
             } else {
                 // Primitive array
+                // TODO: Don't feel like thinking about this now, but
+                // I think we should be using the @Scope annotation
                 return currentScope();
             }
         }
-        TypeElement t = Utils.getTypeElement(var.asType());
+        TypeElement t = Utils.getTypeElement(varBaseMirror);
         ScopeInfo tScope = ctx.getClassScope(t);
 
         Scope varScope = var.getAnnotation(Scope.class);

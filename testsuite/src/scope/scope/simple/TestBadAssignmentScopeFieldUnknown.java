@@ -3,7 +3,7 @@ package scope.scope.simple;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.annotate.Scope;
 
-public class TestBadAssignmentScopeUnknown {
+public class TestBadAssignmentScopeFieldUnknown {
     static class X {
         Y y1;
         @Scope(Scope.UNKNOWN) Y y2;
