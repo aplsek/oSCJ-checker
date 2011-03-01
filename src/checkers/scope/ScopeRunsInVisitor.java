@@ -230,7 +230,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             Tree node, Tree errNode) {
         if (!Utils.isUserLevel(f.getEnclosingElement().toString()))
             return;
-        if (Utils.getBaseType(f.asType()).getKind() != TypeKind.DECLARED)
+        if (f.asType().getKind() != TypeKind.DECLARED)
             return;
         if (!needsDefineScope(Utils.getTypeElement(f.asType())))
             return;
