@@ -131,7 +131,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (!scopeTree.hasScope(scope) && !scope.isCurrent())
             fail(ERR_BAD_SCOPE_NAME, node, errNode);
 
-
         TypeElement p = Utils.superType(t);
         if (p == null)
             ctx.setClassScope(scope, t); // t == java.lang.Object
@@ -201,21 +200,23 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         List<? extends VariableElement> params = m.getParameters();
         List<? extends VariableTree> paramTrees = mTree != null ? mTree
                 .getParameters() : null;
-                for (int i = 0; i < params.size(); i++) {
-                    // TODO: Check overridden annotations
-                    VariableElement param = params.get(i);
-                    VariableTree paramTree = paramTrees != null ? paramTrees.get(i)
-                            : null;
-                    ScopeInfo scope = checkVariableScopeOverride(param, paramTree,
-                            errNode);
-                    if (scope != null) {
-                        ctx.setParameterScope(scope, i, m);
-                    }
-                }
-                debugIndentDecrement();
+        for (int i = 0; i < params.size(); i++) {
+            // TODO: Check overridden annotations
+            VariableElement param = params.get(i);
+            VariableTree paramTree = paramTrees != null ? paramTrees.get(i)
+                    : null;
+            ScopeInfo scope = checkVariableScopeOverride(param, paramTree,
+                    errNode);
+            if (scope != null) {
+                ctx.setParameterScope(scope, i, m);
+            }
+        }
+        debugIndentDecrement();
     }
 
-    void pln(String str) {System.err.println(str);}
+    void pln(String str) {
+        System.err.println(str);
+    }
 
     ScopeInfo checkField(VariableElement f, Tree node, Tree errNode) {
         ScopeInfo scope = checkVariableScopeOverride(f, node, errNode);
@@ -224,7 +225,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (!isValidFieldScope(scope, clazzScope))
             fail(ERR_ILLEGAL_FIELD_SCOPE, node, errNode, scope, clazzScope);
 
-        checkMemoryAreaField(f,clazzScope,node,errNode);
+        checkMemoryAreaField(f, clazzScope, node, errNode);
 
         return scope;
     }
@@ -235,8 +236,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             return;
         if (Utils.getBaseType(f.asType()).getKind() != TypeKind.DECLARED)
             return;
-        if (!needsDefineScope(Utils
-                .getTypeElement(Utils.getBaseType(f.asType()))))
+        if (!needsDefineScope(Utils.getTypeElement(f.asType())))
             return;
 
         DefineScope ds = f.getAnnotation(DefineScope.class);
@@ -256,11 +256,11 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         Scope s = f.getAnnotation(Scope.class);
         if (s != null && !s.value().equals(parent.getScope()))
             fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
-                    node, s.value(), parent.getScope());
+                    node, s.value(), parent);
         else if ((s == null)
                 && (clazzScope.isCurrent() || !clazzScope.equals(parent)))
             fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
-                    node, clazzScope, parent.getScope());
+                    node, clazzScope, parent);
 
         ctx.setFieldDefineScope(dsi, f.getEnclosingElement().toString(),
                 f.toString());
@@ -323,8 +323,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             else {
                 ret = tScope;
                 if (scope.isUnknown() || !scope.equals(tScope))
-                    fail(ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE, node, errNode, scope,
-                            tScope);
+                    fail(ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE, node, errNode,
+                            scope, tScope);
             }
         }
         debugIndentDecrement();
@@ -348,15 +348,14 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     void checkMethodRunsIn(ExecutableElement m, MethodTree node, Tree errNode) {
         RunsIn ann = m.getAnnotation(RunsIn.class);
         ScopeInfo runsIn = ann != null ? new ScopeInfo(ann.value())
-        : ScopeInfo.CURRENT;
+                : ScopeInfo.CURRENT;
 
         if (!scopeTree.hasScope(runsIn) && !runsIn.isCurrent()
                 && !runsIn.isUnknown())
             report(Result.failure(ERR_BAD_SCOPE_NAME, runsIn), node, errNode);
 
-
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
-        .overriddenMethods(m);
+                .overriddenMethods(m);
         for (ExecutableElement e : overrides.values()) {
             ScopeInfo eRunsIn = getOverrideRunsInAndVisit(e, errNode);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
@@ -377,14 +376,14 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     void checkMethodScope(ExecutableElement m, MethodTree node, Tree errNode) {
         Scope ann = m.getAnnotation(Scope.class);
         ScopeInfo scope = ann != null ? new ScopeInfo(ann.value())
-        : ScopeInfo.CURRENT;
+                : ScopeInfo.CURRENT;
 
         if (!scopeTree.hasScope(scope) && !scope.isCurrent()
                 && !scope.isUnknown())
             report(Result.failure(ERR_BAD_SCOPE_NAME, scope), node, errNode);
 
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
-        .overriddenMethods(m);
+                .overriddenMethods(m);
         for (ExecutableElement e : overrides.values()) {
             ScopeInfo eScope = getOverrideScopeAndVisit(e, errNode);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
@@ -431,7 +430,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     private static ScopeInfo scopeOfClassDefinition(TypeElement t) {
         Scope scopeAnn = t.getAnnotation(Scope.class);
         return scopeAnn != null ? new ScopeInfo(scopeAnn.value())
-        : ScopeInfo.CURRENT;
+                : ScopeInfo.CURRENT;
     }
 
     private ScopeInfo getParentScopeAndVisit(TypeElement p, Tree errNode) {
@@ -460,10 +459,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         return ctx.getMethodRunsIn(m);
     }
 
-
     /**
      *
-     * @param f - field under consideration
+     * @param f
+     *            - field under consideration
      * @return - returns the Scope of the class enclosing the field
      */
     private ScopeInfo getEnclosingClassScope(VariableElement f) {
@@ -480,7 +479,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      */
     boolean isValidFieldScope(ScopeInfo fieldScope, ScopeInfo clazzScope) {
         return fieldScope == null || fieldScope.isCurrent()
-        || fieldScope.isUnknown()
-        || scopeTree.isParentOf(clazzScope, fieldScope);
+                || fieldScope.isUnknown()
+                || scopeTree.isParentOf(clazzScope, fieldScope);
     }
 }
