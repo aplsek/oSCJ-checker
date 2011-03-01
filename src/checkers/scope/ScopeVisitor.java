@@ -12,7 +12,6 @@ import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_TARGET;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_OR_ENTER;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_TARGET;
 import static checkers.scope.ScopeChecker.ERR_BAD_GUARD_ARGUMENT;
-import static checkers.scope.ScopeChecker.ERR_BAD_GUARD_NO_FINAL;
 import static checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE;
 import static checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE;
 import static checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE;
@@ -646,7 +645,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             var.getModifiers();
 
             if (!isFinal(var.getModifiers())) {
-                fail(ERR_BAD_GUARD_NO_FINAL, arg, arg);
+                fail(ERR_BAD_GUARD_ARGUMENT, arg, arg);
                 return false;
             }
             break;
