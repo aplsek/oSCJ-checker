@@ -36,41 +36,19 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         checker.report(Result.warning(msg, msgParams), src);
     }
 
-
-    // TODO : simplify this :
-    // Use the topmost type and it should work.
-
     protected final TypeMirror allocationContextMirror = Utils.getTypeMirror(
             elements, "javax.realtime.AllocationContext");
     protected final TypeMirror memoryAreaMirror = Utils.getTypeMirror(elements,
             "javax.realtime.MemoryArea");
     protected final TypeMirror managedMemoryMirror = Utils.getTypeMirror(
             elements, "javax.safetycritical.ManagedMemory");
-    protected final TypeMirror privateMemoryMirror = Utils.getTypeMirror(
-            elements, "javax.safetycritical.PrivateMemory");
-    protected final TypeMirror missionMemoryMirror = Utils.getTypeMirror(
-            elements, "javax.safetycritical.MissionMemory");
-    protected final TypeMirror ltMemoryMirror = Utils.getTypeMirror(
-            elements, "javax.realtime.LTMemory");
-    protected final TypeMirror scopedMemoryMirror = Utils.getTypeMirror(
-            elements, "javax.realtime.ScopedMemory");
 
     //Our SCJ-lib does not implement "javax.realtime.ScopeAllocationContext".
     //protected final TypeMirror scopeAllocationContextMirror = Utils.getTypeMirror(
     //        elements, "javax.realtime.ScopeAllocationContext");
 
     protected boolean needsDefineScope(TypeElement t) {
-        if (implementsAllocationContext(t) ||
-                //implementsScopedAllocationContext(t) ||
-                isMemoryAreaType(t) ||
-                isManagedMemoryType(t) ||
-                isMissionMemoryType(t) ||
-                isLTMemoryType(t) ||
-                isScopedMemoryType(t) ||
-                isPrivateMemoryType(t))
-            return true;
-
-        return false;
+        return implementsAllocationContext(t);
     }
 
     protected boolean isMemoryAreaType(TypeElement t) {
@@ -88,21 +66,4 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     protected boolean isManagedMemoryType(TypeElement t) {
         return types.isSubtype(t.asType(), managedMemoryMirror);
     }
-
-    protected boolean isMissionMemoryType(TypeElement t) {
-        return types.isSubtype(t.asType(),missionMemoryMirror);
-    }
-
-    protected boolean isPrivateMemoryType(TypeElement t) {
-        return types.isSubtype(t.asType(),privateMemoryMirror);
-    }
-
-    protected boolean isLTMemoryType(TypeElement t) {
-        return types.isSubtype(t.asType(),ltMemoryMirror);
-    }
-
-    protected boolean isScopedMemoryType(TypeElement t) {
-        return types.isSubtype(t.asType(),scopedMemoryMirror);
-    }
-
 }
