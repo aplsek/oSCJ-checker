@@ -175,14 +175,12 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             Tree fTree = trees.getTree(f);
             Tree fErr = fTree != null ? fTree : errNode;
             ScopeInfo fScope = checkField(f, fTree, fErr);
-            if (fScope != null) {
+            if (fScope != null)
                 ctx.setFieldScope(fScope, f);
-            }
         }
         // We don't allow RunsIn annotations on classes anymore.
-        if (t.getAnnotation(RunsIn.class) != null) {
+        if (t.getAnnotation(RunsIn.class) != null)
             fail(ERR_RUNS_IN_ON_CLASS, node, errNode);
-        }
 
         debugIndentDecrement();
     }
@@ -207,9 +205,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                     : null;
             ScopeInfo scope = checkVariableScopeOverride(param, paramTree,
                     errNode);
-            if (scope != null) {
+            if (scope != null)
                 ctx.setParameterScope(scope, i, m);
-            }
         }
         debugIndentDecrement();
     }
@@ -253,7 +250,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (s != null && !s.value().equals(parent.getScope()))
             fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
                     node, s.value(), parent);
-        else if ((s == null)
+        else if (s == null
                 && (clazzScope.isCurrent() || !clazzScope.equals(parent)))
             fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
                     node, clazzScope, parent);
@@ -307,12 +304,11 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 checkClassScope(t, trees.getTree(t), errNode);
 
             tScope = ctx.getClassScope(t);
-            if (s == null) {
+            if (s == null)
                 if (tScope.isCurrent() && isUnknownMethodParameter(v))
                     scope = ScopeInfo.UNKNOWN;
                 else
                     scope = tScope;
-            }
             if (tScope.isCurrent())
                 ret = scope;
             else {

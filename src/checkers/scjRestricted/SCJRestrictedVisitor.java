@@ -74,35 +74,28 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
 
     private EnumSet<Phase> getSCJRestrictionsNoRecurse(ExecutableElement m) {
         SCJRestricted s = m.getAnnotation(SCJRestricted.class);
-        if (s != null) {
+        if (s != null)
             return EnumSet.copyOf(Arrays.asList(s.value()));
-        } else {
+        else
             return EnumSet.noneOf(Phase.class);
-        }
     }
 
     private EnumSet<Phase> getSCJRestrictions(ExecutableElement m, MethodTree errorNode) {
         EnumSet<Phase> rs = EnumSet.noneOf(Phase.class);
-        for (ExecutableElement o : orderedOverriddenMethods(m)) {
+        for (ExecutableElement o : orderedOverriddenMethods(m))
             rs.addAll(getSCJRestrictionsNoRecurse(o));
-        }
         EnumSet<Phase> currentRs = getSCJRestrictionsNoRecurse(m);
-        if (errorNode != null) {
+        if (errorNode != null)
             if (containsAny(currentRs, whenRestricts)) {
-                if (rs.contains(Phase.CLEANUP) && (currentRs.contains(Phase.INITIALIZATION) || currentRs.contains(Phase.RUN))) {
+                if (rs.contains(Phase.CLEANUP) && (currentRs.contains(Phase.INITIALIZATION) || currentRs.contains(Phase.RUN)))
                     fail(ERR_ILLEGAL_OVERRIDE, errorNode, "CLEANUP", "INITIALIZATION or RUN");
-                }
-                if (rs.contains(Phase.RUN) && (currentRs.contains(Phase.CLEANUP) || currentRs.contains(Phase.INITIALIZATION))) {
+                if (rs.contains(Phase.RUN) && (currentRs.contains(Phase.CLEANUP) || currentRs.contains(Phase.INITIALIZATION)))
                     fail(ERR_ILLEGAL_OVERRIDE, errorNode, "RUN", "CLEANUP or INITIALIZATION");
-                }
-                if (rs.contains(Phase.INITIALIZATION) && (currentRs.contains(Phase.CLEANUP) || currentRs.contains(Phase.RUN))) {
+                if (rs.contains(Phase.INITIALIZATION) && (currentRs.contains(Phase.CLEANUP) || currentRs.contains(Phase.RUN)))
                     fail(ERR_ILLEGAL_OVERRIDE, errorNode, "INITIALIZATION", "CLEANUP or RUN");
-                }
-                if (rs.contains(Phase.ALL) && !currentRs.contains(Phase.ALL)) {
+                if (rs.contains(Phase.ALL) && !currentRs.contains(Phase.ALL))
                     fail(ERR_ILLEGAL_OVERRIDE, errorNode, "ALL", "CLEANUP, RUN, or INITIALIZATION");
-                }
             }
-        }
 
         addFirstOrDefault(currentRs, rs, whenRestricts, Phase.ALL);
         return currentRs;
@@ -111,20 +104,19 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
     private void addFirstOrDefault(EnumSet<Phase> currentRs, EnumSet<Phase> rs, EnumSet<Phase> addFrom,
             Phase defVal) {
         if (!containsAny(currentRs, addFrom)) {
-            for (Phase r : addFrom) {
+            for (Phase r : addFrom)
                 if (rs.contains(r)) {
                     currentRs.add(r);
                     return;
                 }
-            }
             currentRs.add(defVal);
         }
     }
 
     private <K extends Enum<K>> boolean containsAny(EnumSet<K> s, Collection<K> a) {
-        for (K k : a) {
-            if (s.contains(k)) { return true; }
-        }
+        for (K k : a)
+            if (s.contains(k))
+                return true;
         return false;
     }
 
@@ -132,16 +124,15 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         boolean anyTime = rs.contains(Phase.ALL), cleanup = rs.contains(Phase.CLEANUP), initialize = rs
             .contains(Phase.INITIALIZATION);
         // At least two phase restrictions
-        if ((anyTime && (cleanup || initialize)) || (cleanup && initialize)) {
+        if (anyTime && (cleanup || initialize) || cleanup && initialize)
             fail(ERR_TOO_MANY_VALUES, node, "ALL, CLEANUP, INITIALIZATION");
-        }
     }
 
     // Check naively to see if an assignment is AllocFree. Anything that can
     // be directly caught (e.g. new objects, new methods, invocation of non-
     // @AllocFree methods) is treated as AllocFree here.
     public boolean isAllocFree(Element varElem, ExpressionTree rhs) {
-        if (currentAllocFree) {
+        if (currentAllocFree)
             if (rhs != null && TypesUtils.isBoxedPrimitive(varElem.asType())) {
                 switch (rhs.getKind()) {
                 case IDENTIFIER:
@@ -165,7 +156,6 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
                 }
                 return false;
             }
-        }
         // This method just checks for autoboxing; if an object is allocated later,
         // it'll be seen, so just return true for now.
         return true;
@@ -219,9 +209,8 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
 
 
             Tree lhs = node.getVariable();
-            while (lhs.getKind() == Kind.ARRAY_ACCESS) {
+            while (lhs.getKind() == Kind.ARRAY_ACCESS)
                 lhs = ((ArrayAccessTree) lhs).getExpression();
-            }
 
             Element varElem = TreeUtils.elementFromUse(node.getVariable());
 
@@ -264,12 +253,11 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         currentWhen = Phase.ALL;
 
 
-        for (Phase r : rs) {
+        for (Phase r : rs)
             if (whenRestricts.contains(r)) {
                 currentWhen = r;
                 break;
             }
-        }
         checkSanity(node, rs); // not necessary?
 
         R r = super.visitMethod(node, p);
@@ -294,14 +282,12 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         boolean result = false;
         if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null)
             if (r.maySelfSuspend())
-                result =  true;
+                result = true;
 
         // check overrides:
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
-        .overriddenMethods(methodElement);
+                .overriddenMethods(methodElement);
         for (ExecutableElement override : overrides.values()) {
-            //System.out.println("override: " +override);
-
             if (r == null && getSelfSuspend(override)) {
                 fail(ERR_ILLEGAL_OVERRIDE1, node);
                 System.out.println("ERROR");
@@ -320,12 +306,10 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
 
     private boolean getSelfSuspend(ExecutableElement methodElement) {
         SCJRestricted r;
-        if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null) {
+        if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null)
             return r.maySelfSuspend();
-        }
         return false;
     }
-
 
     /**
      * Returns if method is mayAllocate
@@ -357,19 +341,13 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
                 break;
             }
         }
-
-
         return result;
     }
 
     private boolean getMayAllocate(ExecutableElement methodElement) {
-        SCJRestricted r;
-        if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null) {
-            if (r.mayAllocate())
-                return true;
-            else
-                return false;
-        }
+        SCJRestricted r = methodElement.getAnnotation(SCJRestricted.class);
+        if (r != null)
+            return r.mayAllocate();
         return true;
     }
 
@@ -380,32 +358,24 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         ExecutableElement methodElement = TreeUtils.elementFromUse(node);
         EnumSet<Phase> rs = getSCJRestrictions(methodElement, null);
 
-        if (currentBlockFree && isSelfSuspend(methodElement, node)) {
+        if (currentBlockFree && isSelfSuspend(methodElement, node))
             fail(ERR_UNALLOWED_METHODCALL, node, "MAY_BLOCK", "BLOCK_FREE");
-        }
-        if (currentAllocFree && isMayAllocate(methodElement, node)) {
+        if (currentAllocFree && isMayAllocate(methodElement, node))
             fail(ERR_UNALLOWED_METHODCALL, node, "MAY_ALLOCATE", "ALLOCATE_FREE");
-        }
-        if (currentWhen == Phase.CLEANUP && (rs.contains(Phase.RUN) || rs.contains(Phase.INITIALIZATION))) {
+        if (currentWhen == Phase.CLEANUP && (rs.contains(Phase.RUN) || rs.contains(Phase.INITIALIZATION)))
             fail(ERR_UNALLOWED_METHODCALL, node, "RUN or INITIALIZATION", "CLEANUP");
-        }
-        if (currentWhen == Phase.RUN && (rs.contains(Phase.CLEANUP) || rs.contains(Phase.INITIALIZATION))) {
+        if (currentWhen == Phase.RUN && (rs.contains(Phase.CLEANUP) || rs.contains(Phase.INITIALIZATION)))
             fail(ERR_UNALLOWED_METHODCALL, node, "CLEANUP or INITIALIZATION", "RUN");
-        }
-        if (currentWhen == Phase.INITIALIZATION && (rs.contains(Phase.CLEANUP) || rs.contains(Phase.RUN))) {
+        if (currentWhen == Phase.INITIALIZATION && (rs.contains(Phase.CLEANUP) || rs.contains(Phase.RUN)))
             fail(ERR_UNALLOWED_METHODCALL, node, "CLEANUP or RUN", "INITIALIZATION");
-        }
-        if (currentWhen == Phase.ALL) {
-            if (rs.contains(Phase.CLEANUP) || rs.contains(Phase.RUN) || rs.contains(Phase.INITIALIZATION)) {
+        if (currentWhen == Phase.ALL)
+            if (rs.contains(Phase.CLEANUP) || rs.contains(Phase.RUN) || rs.contains(Phase.INITIALIZATION))
                 fail(ERR_UNALLOWED_METHODCALL, node, "CLEANUP, RUN, or INITIALIZATION", "ALL");
-            }
-        }
         List<? extends VariableElement> parameters = methodElement.getParameters();
         List<? extends ExpressionTree> arguments = node.getArguments();
-        for (int i = 0; i < parameters.size(); i++) {
+        for (int i = 0; i < parameters.size(); i++)
             if (!isAllocFree(parameters.get(i), arguments.get(i)))
                 fail(ERR_UNALLOWED_ALLOCATION, arguments.get(i));
-        }
 
         debugIndentDecrement();
         return super.visitMethodInvocation(node, p);
@@ -443,7 +413,8 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
     private Collection<ExecutableElement> orderedOverriddenMethods(ExecutableElement method) {
         TypeElement enclosing = (TypeElement) method.getEnclosingElement();
 
-        if (enclosing.getKind() == ElementKind.INTERFACE) { return orderedOverriddenMethodsInterface(method, enclosing); }
+        if (enclosing.getKind() == ElementKind.INTERFACE)
+            return orderedOverriddenMethodsInterface(method, enclosing);
 
         LinkedList<ExecutableElement> overrides = new LinkedList<ExecutableElement>();
         if (!TypesUtils.isObject(enclosing.asType())) {
@@ -454,12 +425,11 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
             HashSet<TypeElement> seenIfaces = new HashSet<TypeElement>();
             addInterfaceOverrides(enclosing, method, overrides, seenIfaces);
             while (!TypesUtils.isObject(superType.asType())) {
-                for (ExecutableElement superMethod : Utils.methodsIn(superType)) {
+                for (ExecutableElement superMethod : Utils.methodsIn(superType))
                     if (elements.overrides(method, superMethod, superType)) {
                         overrides.add(superMethod);
                         break;
                     }
-                }
                 addInterfaceOverrides(superType, method, overrides, seenIfaces);
                 superType = Utils.superType(superType);
             }
@@ -475,19 +445,14 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         while (!work.isEmpty()) {
             TypeElement workIface = work.removeFirst();
             List<? extends TypeMirror> workSuperIfaces = workIface.getInterfaces();
-            for (TypeMirror superIface : workSuperIfaces) {
-                if (superIface.getKind() == TypeKind.DECLARED) {
+            for (TypeMirror superIface : workSuperIfaces)
+                if (superIface.getKind() == TypeKind.DECLARED)
                     work.addLast((TypeElement) ((DeclaredType) superIface).asElement());
-                }
-            }
             // Assuming a method overrides itself, we want to skip iface.
-            if (workIface != iface) {
-                for (ExecutableElement workIfaceMethod : Utils.methodsIn(workIface)) {
-                    if (elements.overrides(method, workIfaceMethod, workIface)) {
+            if (workIface != iface)
+                for (ExecutableElement workIfaceMethod : Utils.methodsIn(workIface))
+                    if (elements.overrides(method, workIfaceMethod, workIface))
                         overrides.addLast(workIfaceMethod);
-                    }
-                }
-            }
         }
         return overrides;
     }
@@ -497,12 +462,11 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         for (TypeMirror iface : t.getInterfaces()) {
             TypeElement ifaceElem = (TypeElement) ((DeclaredType) iface).asElement();
             if (seenIfaces.add(ifaceElem)) {
-                for (ExecutableElement ifaceMethod : Utils.methodsIn(ifaceElem)) {
+                for (ExecutableElement ifaceMethod : Utils.methodsIn(ifaceElem))
                     if (elements.overrides(m, ifaceMethod, ifaceElem)) {
                         overrides.add(ifaceMethod);
                         break;
                     }
-                }
                 overrides.addAll(orderedOverriddenMethodsInterface(m, ifaceElem));
             }
         }

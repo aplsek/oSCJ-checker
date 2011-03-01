@@ -58,9 +58,8 @@ public class ScopeTree {
             return false;
 
         while (name != null) {
-            if (name.equals(expectedParent)) {
+            if (name.equals(expectedParent))
                 return true;
-            }
             name = get(name);
         }
         return false;
@@ -82,10 +81,9 @@ public class ScopeTree {
         for (Map.Entry<ScopeInfo, ScopeInfo> entry : scopeTree.entrySet()) {
             ScopeInfo scope = entry.getKey();
             ScopeInfo parent = entry.getValue();
-            if (!hasScope(parent) && !scope.isImmortal()) {
+            if (!hasScope(parent) && !scope.isImmortal())
                 checker.report(Result.failure(ERR_SCOPE_HAS_NO_PARENT,
                         scope, parent), scopeMap.get(scope));
-            }
         }
     }
 }

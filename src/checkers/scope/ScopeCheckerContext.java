@@ -44,9 +44,8 @@ public class ScopeCheckerContext {
      */
     public ScopeInfo getClassScope(String clazz) {
         ClassInfo ci = classScopes.get(clazz);
-        if (ci != null) {
+        if (ci != null)
             return ci.scope;
-        }
         return null;
     }
 
@@ -81,9 +80,8 @@ public class ScopeCheckerContext {
         if (ci != null) {
             String sig = Utils.buildSignatureString(method, params);
             MethodScopeInfo msi = ci.methodScopes.get(sig);
-            if (msi != null) {
+            if (msi != null)
                 return Collections.unmodifiableList(msi.parameters);
-            }
         }
         return null;
     }
@@ -99,9 +97,8 @@ public class ScopeCheckerContext {
         if (ci != null) {
             String sig = Utils.buildSignatureString(method, params);
             MethodScopeInfo msi = ci.methodScopes.get(sig);
-            if (msi != null) {
+            if (msi != null)
                 return msi.runsIn;
-            }
         }
         return null;
     }
@@ -126,9 +123,8 @@ public class ScopeCheckerContext {
         if (ci != null) {
             String sig = Utils.buildSignatureString(method, params);
             MethodScopeInfo msi = ci.methodScopes.get(sig);
-            if (msi != null) {
+            if (msi != null)
                 return msi.scope;
-            }
         }
         return null;
     }
@@ -195,12 +191,10 @@ public class ScopeCheckerContext {
      */
     public void setClassScope(ScopeInfo scope, String clazz) {
         ClassInfo ci = classScopes.get(clazz);
-        if (ci != null && ci.scope != null && !ci.scope.equals(scope)) {
+        if (ci != null && ci.scope != null && !ci.scope.equals(scope))
             throw new RuntimeException("Class scope already set");
-        }
-        if (ci == null) {
+        if (ci == null)
             ci = new ClassInfo();
-        }
         ci.scope = scope;
         classScopes.put(clazz, ci);
     }
@@ -220,9 +214,8 @@ public class ScopeCheckerContext {
     public void setFieldScope(ScopeInfo scope, String clazz, String field) {
         ClassInfo ci = classScopes.get(clazz);
         ScopeInfo f = ci.fieldScopes.get(field);
-        if (f != null && !f.equals(scope)) {
+        if (f != null && !f.equals(scope))
             throw new RuntimeException("Field scope already set");
-        }
         ci.fieldScopes.put(field, scope);
     }
 
@@ -247,9 +240,8 @@ public class ScopeCheckerContext {
         String sig = Utils.buildSignatureString(method, params);
         MethodScopeInfo msi = ci.methodScopes.get(sig);
         if (msi != null) {
-            if (msi.runsIn != null && !msi.runsIn.equals(scope)) {
+            if (msi.runsIn != null && !msi.runsIn.equals(scope))
                 throw new RuntimeException("Method runsin already set");
-            }
         } else {
             msi = new MethodScopeInfo(params.length);
             ci.methodScopes.put(sig, msi);
@@ -280,9 +272,8 @@ public class ScopeCheckerContext {
         String sig = Utils.buildSignatureString(method, params);
         MethodScopeInfo msi = ci.methodScopes.get(sig);
         if (msi != null) {
-            if (msi.scope != null && !msi.scope.equals(scope)) {
+            if (msi.scope != null && !msi.scope.equals(scope))
                 throw new RuntimeException("Method scope already set");
-            }
         } else {
             msi = new MethodScopeInfo(params.length);
             ci.methodScopes.put(sig, msi);
@@ -307,9 +298,8 @@ public class ScopeCheckerContext {
         String sig = Utils.buildSignatureString(method, params);
         MethodScopeInfo msi = ci.methodScopes.get(sig);
         ScopeInfo psi = msi.parameters.get(i);
-        if (psi != null && !psi.equals(scope)) {
+        if (psi != null && !psi.equals(scope))
             throw new RuntimeException("Parameter scope already set");
-        }
         msi.parameters.set(i, scope);
     }
 
@@ -327,9 +317,8 @@ public class ScopeCheckerContext {
         List<? extends VariableElement> params = m.getParameters();
         int paramsSize = params.size();
         String[] paramsArray = new String[paramsSize];
-        for (int i = 0; i < paramsSize; i++) {
+        for (int i = 0; i < paramsSize; i++)
             paramsArray[i] = params.get(i).asType().toString();
-        }
         return paramsArray;
     }
 
@@ -353,10 +342,9 @@ public class ScopeCheckerContext {
 
         public void dumpCSI() {
             System.out.println("\n\n\t size : " + methodScopes.size());
-            for (String key : methodScopes.keySet()) {
+            for (String key : methodScopes.keySet())
                 System.out.println("\t key:" + key + "  - "
                         + methodScopes.get(key));
-            }
         }
     }
 
@@ -367,9 +355,8 @@ public class ScopeCheckerContext {
 
         MethodScopeInfo(int params) {
             parameters = new ArrayList<ScopeInfo>(params);
-            for (int i = 0; i < params; i++) {
+            for (int i = 0; i < params; i++)
                 parameters.add(null);
-            }
         }
     }
 
@@ -394,9 +381,8 @@ public class ScopeCheckerContext {
             classScopes.put(clazz, ci);
         }
         DefineScopeInfo f = ci.fieldDefineScopes.get(field);
-        if (f != null && !f.equals(scope)) {
+        if (f != null && !f.equals(scope))
             throw new RuntimeException("Field DefineScope already set");
-        }
         ci.fieldDefineScopes.put(field, scope);
     }
 
@@ -422,10 +408,9 @@ public class ScopeCheckerContext {
         for (Entry<String, ClassInfo> e : classScopes.entrySet()) {
             ClassInfo ci = e.getValue();
             for (Entry<String, DefineScopeInfo> dsi : ci.fieldDefineScopes
-                    .entrySet()) {
+                    .entrySet())
                 System.err.println("field: " + dsi.getKey() + ", @DefineScope("
                         + dsi.getValue() + ")");
-            }
         }
     }
 }

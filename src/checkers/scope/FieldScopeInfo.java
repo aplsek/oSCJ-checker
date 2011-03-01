@@ -31,24 +31,22 @@ public class FieldScopeInfo extends ScopeInfo {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
+        if (obj == null)
             return false;
-        } else if (obj instanceof FieldScopeInfo) {
+        else if (obj instanceof FieldScopeInfo) {
             FieldScopeInfo o = (FieldScopeInfo) obj;
             return super.equals(obj) && receiverScope.equals(o.receiverScope)
                     && fieldScope.equals(o.receiverScope);
-        } else if (obj instanceof ScopeInfo) {
+        } else if (obj instanceof ScopeInfo)
             return super.equals(obj);
-        }
         return false;
     }
 
     static ScopeInfo calculateScope(ScopeInfo receiverScope,
             ScopeInfo fieldScope) {
-        if (fieldScope.isCurrent()) {
+        if (fieldScope.isCurrent())
             return receiverScope;
-        } else {
+        else
             return fieldScope;
-        }
     }
 }

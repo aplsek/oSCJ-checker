@@ -25,15 +25,13 @@ public class VariableScopeTable {
     }
 
     public void addVariableScope(String var, ScopeInfo scope) {
-        if (scope == null) {
+        if (scope == null)
             throw new RuntimeException("Cannot add null scoped variable");
-        }
         LexicalBlock last = blocks.getLast();
-        if (last.contains(var)) {
+        if (last.contains(var))
             // If the block has already defined this variable, this table is
             // somehow being used incorrectly.
             throw new RuntimeException("Variable already defined in block");
-        }
         last.put(var, scope);
     }
 
@@ -42,9 +40,8 @@ public class VariableScopeTable {
         while (iter.hasNext()) {
             LexicalBlock b = iter.next();
             ScopeInfo scope = b.get(var);
-            if (scope != null) {
+            if (scope != null)
                 return scope;
-            }
         }
         throw new RuntimeException("Variable not defined in scope table");
     }
@@ -64,9 +61,8 @@ public class VariableScopeTable {
         while (iter.hasNext()) {
             LexicalBlock b = iter.next();
             Relation r = b.relation;
-            if (r != null && r.equals(childVar, parentVar, RelationKind.PARENT)) {
+            if (r != null && r.equals(childVar, parentVar, RelationKind.PARENT))
                 return true;
-            }
         }
         return false;
     }
@@ -78,9 +74,8 @@ public class VariableScopeTable {
             Relation r = b.relation;
             if (r != null
                     && (r.equals(var1, var2, RelationKind.SAME) || r.equals(
-                            var2, var2, RelationKind.SAME))) {
+                            var2, var2, RelationKind.SAME)))
                 return true;
-            }
         }
         return false;
     }
@@ -102,9 +97,8 @@ public class VariableScopeTable {
         }
 
         public void setRelation(Relation r) {
-            if (relation != null) {
+            if (relation != null)
                 throw new RuntimeException("Relation already set for block");
-            }
             relation = r;
         }
     }

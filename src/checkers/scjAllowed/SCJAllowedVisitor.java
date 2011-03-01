@@ -70,13 +70,14 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     private static final int INFRASTRUCTURE = 4;
     private static final int HIDDEN = 5;
 
-
     static {
         annoValueMap.put("javax.safetycritical.annotate.Level.LEVEL_0", LEVEL0);
         annoValueMap.put("javax.safetycritical.annotate.Level.LEVEL_1", LEVEL1);
         annoValueMap.put("javax.safetycritical.annotate.Level.LEVEL_2", LEVEL2);
-        annoValueMap.put("javax.safetycritical.annotate.Level.SUPPORT", SUPPORT);
-        annoValueMap.put("javax.safetycritical.annotate.Level.INFRASTRUCTURE", INFRASTRUCTURE);
+        annoValueMap
+                .put("javax.safetycritical.annotate.Level.SUPPORT", SUPPORT);
+        annoValueMap.put("javax.safetycritical.annotate.Level.INFRASTRUCTURE",
+                INFRASTRUCTURE);
         annoValueMap.put("javax.safetycritical.annotate.Level.HIDDEN", HIDDEN);
     }
 
@@ -102,7 +103,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             return null;
         }
 
-        if (isEscaped(t.toString()) || escapeEnum(node) || escapeAnnotation(node) ) {
+        if (isEscaped(t.toString()) || escapeEnum(node)
+                || escapeAnnotation(node)) {
             debugIndentDecrement();
             return null;
         }
@@ -110,16 +112,15 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         // if (hasSuppressSCJAnnotation(t)) return null;
         int level = scjAllowedLevel(t.getAnnotationMirrors());
 
-        if (isUserLevel() && level >= SUPPORT ) {
+        if (isUserLevel() && level >= SUPPORT) {
             debugIndentDecrement();
             fail(ERR_SCJALLOWED_BAD_USER_LEVEL, node);
             return null;
         }
 
-        if (!scjAllowedStack.isEmpty() && scjAllowedStack.peek() > level) {
+        if (!scjAllowedStack.isEmpty() && scjAllowedStack.peek() > level)
             /** tested by FakeSCJ */
             fail(ERR_SCJALLOWED_BAD_ENCLOSED, node);
-        }
 
         debugIndent("level : " + level);
         debugIndent("type  :" + t);
@@ -127,12 +128,11 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         TypeElement superType = Utils.superType(t);
         while (superType != null
                 && !EscapeMap
-                .isEscaped(superType.getQualifiedName().toString())) {
+                        .isEscaped(superType.getQualifiedName().toString())) {
             if (scjAllowedLevel(superType.getAnnotationMirrors()) > level) {
                 System.err.println(superType.getQualifiedName());
                 System.err.println(scjAllowedLevel(superType
-                        .getAnnotationMirrors())
-                        + " > " + level);
+                        .getAnnotationMirrors()) + " > " + level);
                 fail(ERR_SCJALLOWED_BAD_SUBCLASS, node);
             }
             superType = Utils.superType(superType);
@@ -149,17 +149,14 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     public R visitMemberSelect(MemberSelectTree node, P p) {
         Element fieldElement = TreeUtils.elementFromUse(node);
 
-        //System.out.println("Member Select:" + node + "  " + fieldElement.getEnclosingElement());
-
-        if (fieldElement.getEnclosingElement() != null && isEscaped(fieldElement.getEnclosingElement().toString())) {
+        if (fieldElement.getEnclosingElement() != null
+                && isEscaped(fieldElement.getEnclosingElement().toString()))
             return super.visitMemberSelect(node, p);
-        }
 
         if (fieldElement.getKind() == ElementKind.FIELD
-                && scjAllowedLevel(fieldElement, node) > scjAllowedStack.peek()) {
+                && scjAllowedLevel(fieldElement, node) > scjAllowedStack.peek())
             /** Tested by SCJAllowedTest */
             fail(ERR_SCJALLOWED_BAD_FIELD_ACCESS, node, scjAllowedStack.peek());
-        }
         return super.visitMemberSelect(node, p);
     }
 
@@ -172,7 +169,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         debugIndentIncrement("visitMethod " + node.getName());
 
         ExecutableElement methodElement = TreeUtils
-        .elementFromDeclaration(node);
+                .elementFromDeclaration(node);
 
         checkSCJSupport(methodElement, node);
         checkSCJProtected(methodElement, node);
@@ -181,8 +178,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         if (isDefaultConstructor(node)) {
             debugIndentDecrement();
             return null;
-        }
-        else
+        } else
             level = scjAllowedLevel(methodElement, node);
 
         debugIndent("checking overrides ---------------------");
@@ -191,28 +187,19 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
                 .overriddenMethods(methodElement);
         for (ExecutableElement override : overrides.values()) {
 
-            if (isUserLevel() && !isLegalOverride(overrides, node) && scjAllowedLevel(override, node) >= INFRASTRUCTURE ) {
-                //System.out.println("error: " + override);
-                //System.out.println("error: " + override.getEnclosingElement());
+            if (isUserLevel() && !isLegalOverride(overrides, node)
+                    && scjAllowedLevel(override, node) >= INFRASTRUCTURE)
                 fail(ERR_SCJALLOWED_BAD_INFRASTRUCTURE_OVERRIDE, node);
-            }
-            // TODO: what if at SCJ level INFRASTRUCTURE is overriden by a SUPPORT and then we can override it
-            // at user level as well?
-            // TODO: this is only temporary, we need to see what is the level of the first override that remains in SCJ package
 
             if (!isEscaped(override.getEnclosingElement().toString())
-                    && level > scjAllowedLevel(override, node)) {
+                    && level > scjAllowedLevel(override, node))
                 /** Tested by OverrideTest */
                 fail(ERR_SCJALLOWED_BAD_OVERRIDE, node);
-            }
         }
 
-        if (scjAllowedStack.peek() > level) {
+        if (scjAllowedStack.peek() > level)
             /** tested by FakeSCJ */
-            // debugPrint("level: "+level);
-            // debugPrint("peek: : "+scjAllowedStack.peek());
             fail(ERR_SCJALLOWED_BAD_ENCLOSED, node);
-        }
 
         scjAllowedStack.push(level);
         R r = super.visitMethod(node, p);
@@ -223,28 +210,30 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     }
 
     /**
-     * A legal sequence of overrides is
-     *    Level 1 (user code)  ---> SUPPORT (scj code) ---> INFRASTRUCTURE (scj code)
+     * A legal sequence of overrides is Level 1 (user code) ---> SUPPORT (scj
+     * code) ---> INFRASTRUCTURE (scj code)
      *
-     * a illegal sequence is:
-     *  Level 1 (user code)  ---> INFRASTRUCTURE (scj code)
+     * a illegal sequence is: Level 1 (user code) ---> INFRASTRUCTURE (scj code)
      *
-     * --> so by this we rule out all cases where an INFRASTRUCTURE method was overriden by SUPPORT or lower level in the SCJ packages
-     * -------> since the methods from SCJ of this type can be overriden by a user code
+     * --> so by this we rule out all cases where an INFRASTRUCTURE method was
+     * overriden by SUPPORT or lower level in the SCJ packages -------> since
+     * the methods from SCJ of this type can be overriden by a user code
      *
-     * @assumption - that all the classes involved will be verified since we do not report the case
-     *  Level 1 (user code)  ---> SUPPORT (scj code) ---> INFRASTRUCTURE (scj code)  --> SUPPORT (scj code)
-     * ---> which is wrong but it should be reported in the class where INFRASTRUCTURE overrides SUPPORT
+     * @assumption - that all the classes involved will be verified since we do
+     *             not report the case Level 1 (user code) ---> SUPPORT (scj
+     *             code) ---> INFRASTRUCTURE (scj code) --> SUPPORT (scj code)
+     *             ---> which is wrong but it should be reported in the class
+     *             where INFRASTRUCTURE overrides SUPPORT
      *
      * @param overrides
      * @return
      */
     private boolean isLegalOverride(
-            Map<AnnotatedDeclaredType, ExecutableElement> overrides,MethodTree node) {
-        for (ExecutableElement override : overrides.values()) {
+            Map<AnnotatedDeclaredType, ExecutableElement> overrides,
+            MethodTree node) {
+        for (ExecutableElement override : overrides.values())
             if (scjAllowedLevel(override, node) <= SUPPORT)
                 return true;
-        }
         return false;
     }
 
@@ -277,15 +266,14 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
             debugIndent("i is: " + scjAllowedLevel(method, node));
 
-            if (scjAllowedLevel(method, node) > scjAllowedStack.peek()) {
+            if (scjAllowedLevel(method, node) > scjAllowedStack.peek())
                 /** Tested by SCJAllowedTest */
                 fail(ERR_SCJALLOWED_BAD_METHOD_CALL, node,
                         scjAllowedStack.peek());
-            }
 
-            if (scjAllowedStack.peek() == HIDDEN &&  scjAllowedLevel(method, node) < HIDDEN) {
+            if (scjAllowedStack.peek() == HIDDEN
+                    && scjAllowedLevel(method, node) < HIDDEN)
                 fail(ERR_HIDDEN_TO_SCJALLOWED, node, scjAllowedStack.peek());
-            }
         }
 
         debugIndentDecrement();
@@ -301,15 +289,13 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         ExecutableElement ctorElement = TreeUtils.elementFromUse(node);
 
-        if (isEscaped(ctorElement.getEnclosingElement().toString())) {
+        if (isEscaped(ctorElement.getEnclosingElement().toString()))
             return super.visitNewClass(node, p);
-        }
 
         if (checkSCJProtected(ctorElement, node)
-                && scjAllowedLevel(ctorElement, node) > scjAllowedStack.peek()) {
+                && scjAllowedLevel(ctorElement, node) > scjAllowedStack.peek())
             /** tested by SuppressTest */
             fail(ERR_SCJALLOWED_BAD_NEW_CALL, node, scjAllowedStack.peek());
-        }
 
         return super.visitNewClass(node, p);
     }
@@ -320,10 +306,9 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         // if (hasSuppressSCJAnnotation(variable)) return null;
         int level = scjAllowedLevel(variable, node);
-        if (scjAllowedStack.peek() > level) {
+        if (scjAllowedStack.peek() > level)
             /** tested by FakeSCJ */
             fail(ERR_SCJALLOWED_BAD_ENCLOSED, node);
-        }
         return super.visitVariable(node, p);
     }
 
@@ -381,51 +366,48 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     private int scjAllowedLevel(ExecutableElement method, Tree node) {
         if (isEscaped(method.getEnclosingElement().toString()))
             return EscapeMap.escape
-            .get(method.getEnclosingElement().toString());
+                    .get(method.getEnclosingElement().toString());
 
-        if (node.toString().equals("super()")) {
+        if (node.toString().equals("super()"))
             if (!isSCJAllowed(method))
-                return scjAllowedLevel(method.getEnclosingElement().getAnnotationMirrors());
-            /*
-             *
-             * TODO: we can not distinguis between class that has no default constructor and a
-             * class that has
-             * public HighResolutionTime() {
-             *       }
-             * --> in this case the level should be hidden!!!! NO?
-             *
-            System.out.println("elements OUT:" + method.getEnclosingElement().getEnclosedElements());
-            System.out.println("elements IN:" + method.getEnclosedElements());
-            System.out.println("method:" + method);
-            System.out.println("annot : " + method.getAnnotation(SCJAllowed.class));
-            System.out.println("annotated list:" + method.getAnnotationMirrors());
+                return scjAllowedLevel(method.getEnclosingElement()
+                        .getAnnotationMirrors());
+        /*
+         *
+         * TODO: we can not distinguis between class that has no default
+         * constructor and a class that has public HighResolutionTime() { } -->
+         * in this case the level should be hidden!!!! NO?
+         *
+         * System.out.println("elements OUT:" +
+         * method.getEnclosingElement().getEnclosedElements());
+         * System.out.println("elements IN:" + method.getEnclosedElements());
+         * System.out.println("method:" + method); System.out.println("annot : "
+         * + method.getAnnotation(SCJAllowed.class));
+         * System.out.println("annotated list:" +
+         * method.getAnnotationMirrors());
+         *
+         * int level =
+         * scjAllowedLevel(method.getEnclosingElement().getAnnotationMirrors());
+         *
+         * System.out.println("class level:" + level);
+         */
 
-            int level = scjAllowedLevel(method.getEnclosingElement().getAnnotationMirrors());
-
-            System.out.println("class level:" + level);
-             */
-        }
-
-        if (method.getSimpleName().toString().equals("<init>")) {  // we are calling constructor
-            if (Utils.isPublic(method.getModifiers())) { // and its public, so its "default"
+        if (method.getSimpleName().toString().equals("<init>"))
+            if (Utils.isPublic(method.getModifiers()))
                 if (isSCJAllowed(method))
                     return scjAllowedLevel(method.getAnnotationMirrors());
                 else
-                    return scjAllowedLevel(method.getEnclosingElement().getAnnotationMirrors());
-            }
-        }
+                    return scjAllowedLevel(method.getEnclosingElement()
+                            .getAnnotationMirrors());
 
         if (isSCJAllowed(method))
             return scjAllowedLevel(method.getAnnotationMirrors());
 
         for (ExecutableElement override : ats.overriddenMethods(method)
-                .values()) {
+                .values())
             if (!isEscaped(override.getEnclosingElement().toString())
-                    && isSCJAllowed(override)) {
-
+                    && isSCJAllowed(override))
                 return scjAllowedLevel(override.getAnnotationMirrors());
-            }
-        }
         return getEnclosingLevel(method);
     }
 
@@ -446,25 +428,23 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      * returns 0
      */
     private int scjAllowedLevel(List<? extends AnnotationMirror> annotations) {
-        for (AnnotationMirror anote : annotations) {
-            if (anote.getAnnotationType().toString().equals(
-            "javax.safetycritical.annotate.SCJAllowed")) {
+        for (AnnotationMirror anote : annotations)
+            if (anote.getAnnotationType().toString()
+                    .equals("javax.safetycritical.annotate.SCJAllowed")) {
                 Map<? extends ExecutableElement, ? extends AnnotationValue> vals = anote
-                .getElementValues();
+                        .getElementValues();
                 if (vals.isEmpty())
                     return LEVEL0;
 
                 debugIndent("method:" + vals);
 
                 for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : anote
-                        .getElementValues().entrySet()) {
+                        .getElementValues().entrySet())
                     if ("value".equals(entry.getKey().getSimpleName()
                             .toString()))
                         return annoValueMap.get(entry.getValue().toString());
-                }
                 return 0;
             }
-        }
         return HIDDEN;
     }
 
@@ -481,12 +461,11 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         if (enclosing == null)
             return HIDDEN;
 
-        if (isSCJAllowed(enclosing)) {
+        if (isSCJAllowed(enclosing))
             if (scjAllowedMembers(enclosing.getAnnotationMirrors()))
                 return scjAllowedLevel(enclosing.getAnnotationMirrors());
             else
                 return HIDDEN;
-        }
         return getEnclosingLevel(enclosing);
         // recursive call, this enclosing was not allocated, so we search even
         // higher
@@ -497,17 +476,14 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      */
     private boolean scjAllowedMembers(
             List<? extends AnnotationMirror> annotations) {
-        for (AnnotationMirror annotation : annotations) {
+        for (AnnotationMirror annotation : annotations)
             if (annotation.getAnnotationType().toString()
-                    .equals("javax.safetycritical.annotate.SCJAllowed")) {
+                    .equals("javax.safetycritical.annotate.SCJAllowed"))
                 for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotation
-                        .getElementValues().entrySet()) {
+                        .getElementValues().entrySet())
                     if ("members".equals(entry.getKey().getSimpleName()
                             .toString()))
                         return getBoolean(entry.getValue().toString());
-                }
-            }
-        }
         return false;
     }
 
@@ -555,18 +531,18 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      */
     private boolean checkSCJProtected(ExecutableElement methodElement, Tree node) {
         boolean isValid = !isSCJProtected(methodElement, node)
-        || (pkg.startsWith("javax.safetycritical") || pkg
-                .startsWith("javax.realtime"));
-        if (!isValid) {
+                || pkg.startsWith("javax.safetycritical")
+                || pkg.startsWith("javax.realtime");
+        if (!isValid)
             /** Tested by TestAllowedProtectedClash */
             fail(ERR_SCJALLOWED_BAD_PROTECTED, node);
-        }
         return isValid;
     }
 
     /**
      *
-     * @return true if currently checked class is at user level (outside of SCJ packages)
+     * @return true if currently checked class is at user level (outside of SCJ
+     *         packages)
      */
     private boolean isUserLevel() {
         return !(pkg.startsWith("javax.safetycritical") && pkg
@@ -582,31 +558,29 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      */
     private boolean checkSCJSupport(ExecutableElement methodElement, Tree node) {
         boolean isValid = !isSCJSupport(methodElement, node)
-        || (pkg.startsWith("javax.safetycritical") || pkg
-                .startsWith("javax.realtime"));
-        if (!isValid) {
+                || pkg.startsWith("javax.safetycritical")
+                || pkg.startsWith("javax.realtime");
+        if (!isValid)
             /** Tested by TestAllowedProtectedClash */
             fail(ERR_SCJALLOWED_BAD_SUPPORT, node);
-        }
 
-        if (isSCJSupport(methodElement, node) && isValid) {
+        if (isSCJSupport(methodElement, node) && isValid)
             Utils.debugPrintln(">>is SCJ SUPPORT");
-        }
 
         return isValid;
     }
 
-    private boolean checkSCJProtectedCall(ExecutableElement methodElement, Tree node) {
+    private boolean checkSCJProtectedCall(ExecutableElement methodElement,
+            Tree node) {
         boolean isValid = !isSCJProtected(methodElement, node)
-        || (pkg.startsWith("javax.safetycritical") || pkg
-                .startsWith("javax.realtime"));
+                || pkg.startsWith("javax.safetycritical")
+                || pkg.startsWith("javax.realtime");
 
-        debugIndent("is protected "+isSCJProtected(methodElement, node));
+        debugIndent("is protected " + isSCJProtected(methodElement, node));
 
-        if (!isValid) {
+        if (!isValid)
             /** Tested by TestAllowedProtectedClash */
             fail(ERR_SCJALLOWED_BAD_PROTECTED_CALL, node);
-        }
         return isValid;
     }
 
