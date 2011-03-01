@@ -1,11 +1,12 @@
 package scope.scope.simple;
 
+import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.Scope;
 
 public class TestBadAssignmentScopeField {
     @DefineScope(name="a", parent=Scope.IMMORTAL)
-    static class X {
+    static abstract class X extends Mission {
         Y y1;
         @Scope(Scope.IMMORTAL) Y y2;
     }

@@ -14,6 +14,7 @@ public class DefineScopeChecker extends SinglePassChecker {
     public static final String ERR_PRIVATE_MEM_NO_DEFINE_SCOPE = "privateMem.no.define.scope";
     public static final String ERR_RESERVED_SCOPE_NAME = "reserved.scope.name";
     public static final String ERR_SCOPE_HAS_NO_PARENT = "scope.has.no.parent";
+    public static final String ERR_UNUSED_DEFINE_SCOPE = "unused.define.scope";
 
     private ScopeCheckerContext ctx;
 
@@ -35,6 +36,7 @@ public class DefineScopeChecker extends SinglePassChecker {
         p.put(ERR_PRIVATE_MEM_NO_DEFINE_SCOPE, "PrivateMemory variable must have a @DefineScope annotation.");
         p.put(ERR_RESERVED_SCOPE_NAME, "Invalid use of reserved scope name %s used in @DefineScope.");
         p.put(ERR_SCOPE_HAS_NO_PARENT, "Scope %s has a non-existent parent %s.");
+        p.put(ERR_UNUSED_DEFINE_SCOPE, "Unused DefineScope annotation.");
         return p;
     }
 

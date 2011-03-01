@@ -51,17 +51,32 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
 
     protected final TypeMirror allocationContextMirror = Utils.getTypeMirror(
             elements, "javax.realtime.AllocationContext");
-    protected final TypeMirror memoryAreaMirror = Utils.getTypeMirror(elements,
-            "javax.realtime.MemoryArea");
     protected final TypeMirror managedMemoryMirror = Utils.getTypeMirror(
             elements, "javax.safetycritical.ManagedMemory");
+    protected final TypeMirror memoryAreaMirror = Utils.getTypeMirror(elements,
+            "javax.realtime.MemoryArea");
+    protected final TypeMirror missionMirror = Utils.getTypeMirror(elements,
+            "javax.safetycritical.Mission");
+    protected final TypeMirror managedEventHandlerMirror = Utils.getTypeMirror(
+            elements, "javax.safetycritical.ManagedEventHandler");
 
-    //Our SCJ-lib does not implement "javax.realtime.ScopeAllocationContext".
-    //protected final TypeMirror scopeAllocationContextMirror = Utils.getTypeMirror(
-    //        elements, "javax.realtime.ScopeAllocationContext");
+    // Our SCJ-lib does not implement "javax.realtime.ScopeAllocationContext".
+    // protected final TypeMirror scopeAllocationContextMirror =
+    // Utils.getTypeMirror(
+    // elements, "javax.realtime.ScopeAllocationContext");
+
+    protected boolean implicitlyDefinesScope(TypeElement t) {
+        TypeMirror m = t.asType();
+        return types.isSubtype(m, missionMirror)
+                || types.isSubtype(m, managedEventHandlerMirror);
+    }
 
     protected boolean needsDefineScope(TypeElement t) {
         return implementsAllocationContext(t);
+    }
+
+    protected boolean isManagedMemoryType(TypeElement t) {
+        return types.isSubtype(t.asType(), managedMemoryMirror);
     }
 
     protected boolean isMemoryAreaType(TypeElement t) {
@@ -72,13 +87,9 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         return types.isSubtype(t.asType(), allocationContextMirror);
     }
 
-    //protected boolean implementsScopedAllocationContext(TypeElement t) {
-    //    return types.isSubtype(t.asType(), scopeAllocationContextMirror);
+    // protected boolean implementsScopedAllocationContext(TypeElement t) {
+    // return types.isSubtype(t.asType(), scopeAllocationContextMirror);
     // }
-
-    protected boolean isManagedMemoryType(TypeElement t) {
-        return types.isSubtype(t.asType(), managedMemoryMirror);
-    }
 
     protected SCJMethod compareName(ExecutableElement method) {
         TypeElement type = Utils.getMethodClass(method);

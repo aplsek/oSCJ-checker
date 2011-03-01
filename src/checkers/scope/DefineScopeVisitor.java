@@ -4,6 +4,7 @@ import static checkers.scope.DefineScopeChecker.ERR_CYCLICAL_SCOPES;
 import static checkers.scope.DefineScopeChecker.ERR_DUPLICATE_SCOPE_NAME;
 import static checkers.scope.DefineScopeChecker.ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE;
 import static checkers.scope.DefineScopeChecker.ERR_RESERVED_SCOPE_NAME;
+import static checkers.scope.DefineScopeChecker.ERR_UNUSED_DEFINE_SCOPE;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -37,7 +38,10 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         DefineScope ds = t.getAnnotation(DefineScope.class);
 
         if (ds != null)
-            checkNewScope(ds.name(), ds.parent(), node);
+            if (implicitlyDefinesScope(t))
+                checkNewScope(ds.name(), ds.parent(), node);
+            else
+                warn(ERR_UNUSED_DEFINE_SCOPE, node);
 
         return super.visitClass(node, p);
     }
