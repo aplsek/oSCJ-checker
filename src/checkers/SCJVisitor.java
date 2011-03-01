@@ -37,6 +37,9 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     }
 
 
+    // TODO : simplify this :
+    // Use the topmost type and it should work.
+
     protected final TypeMirror allocationContextMirror = Utils.getTypeMirror(
             elements, "javax.realtime.AllocationContext");
     protected final TypeMirror memoryAreaMirror = Utils.getTypeMirror(elements,
