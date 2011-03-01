@@ -229,12 +229,14 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         return scope;
     }
 
-    private void checkMemoryAreaField(VariableElement f, ScopeInfo clazzScope, Tree node, Tree errNode ) {
+    private void checkMemoryAreaField(VariableElement f, ScopeInfo clazzScope,
+            Tree node, Tree errNode) {
         if (!Utils.isUserLevel(f.getEnclosingElement().toString()))
             return;
         if (Utils.getBaseType(f.asType()).getKind() != TypeKind.DECLARED)
             return;
-        if (!needsDefineScope(Utils.getTypeElement(Utils.getBaseType(f.asType()))))
+        if (!needsDefineScope(Utils
+                .getTypeElement(Utils.getBaseType(f.asType()))))
             return;
 
         DefineScope ds = f.getAnnotation(DefineScope.class);
@@ -243,19 +245,25 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             return;
         }
 
-        DefineScopeInfo dsi = new DefineScopeInfo(ds.name(),ds.parent());
-        if (!scopeTree.hasScope(dsi.scope) || !scopeTree.hasScope(dsi.parent) || !scopeTree.isParentOf(dsi.scope, dsi.parent))
+        ScopeInfo scope = new ScopeInfo(ds.name());
+        ScopeInfo parent = new ScopeInfo(ds.parent());
+        DefineScopeInfo dsi = new DefineScopeInfo(scope, parent);
+        if (!scopeTree.hasScope(scope) || !scopeTree.hasScope(parent)
+                || !scopeTree.isParentOf(scope, parent))
             fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT, node);
 
         // we need to check that the @Scope and @DefineScope are consistent.
         Scope s = f.getAnnotation(Scope.class);
-        if (s != null && !s.value().equals(dsi.parent.getScope()))
-            fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node, s.value(),dsi.parent.getScope());
-        else
-            if ((s == null) && (clazzScope.isCurrent() || !clazzScope.equals(dsi.parent)))
-                fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,clazzScope,dsi.parent.getScope() );
+        if (s != null && !s.value().equals(parent.getScope()))
+            fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
+                    node, s.value(), parent.getScope());
+        else if ((s == null)
+                && (clazzScope.isCurrent() || !clazzScope.equals(parent)))
+            fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
+                    node, clazzScope, parent.getScope());
 
-        ctx.setFieldDefineScope(dsi,f.getEnclosingElement().toString(),f.toString());
+        ctx.setFieldDefineScope(dsi, f.getEnclosingElement().toString(),
+                f.toString());
     }
 
     /**
