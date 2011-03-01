@@ -17,11 +17,11 @@ import static checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE;
 import static checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_DEFAULT_BAD_ENTER_PARAMETER;
-import static checkers.scope.ScopeChecker.ERR_RUNNABLE_WITHOUT_RUNS_IN;
-import static checkers.scope.ScopeChecker.ERR_TYPE_CAST_BAD_ENTER_PARAMETER;
-import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
+import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR;
+import static checkers.scope.ScopeChecker.ERR_RUNNABLE_WITHOUT_RUNS_IN;
+import static checkers.scope.ScopeChecker.ERR_TYPE_CAST_BAD_ENTER_PARAMETER;
 import static checkers.scope.ScopeInfo.CURRENT;
 import static checkers.scope.ScopeInfo.UNKNOWN;
 
@@ -48,7 +48,6 @@ import checkers.util.TreeUtils;
 
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ArrayAccessTree;
-import com.sun.source.tree.ArrayTypeTree;
 import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.BinaryTree;
 import com.sun.source.tree.BlockTree;
@@ -510,10 +509,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         ScopeInfo lhs = checkVariableScope(node);
-        debugIndent("scope's varialbe: " + lhs);
+        debugIndent("scope's variable: " + lhs);
         varScopes.addVariableScope(node.getName().toString(), lhs);
         VariableElement var = TreeUtils.elementFromDeclaration(node);
-        if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(var.asType())))) {
+        if (needsDefineScope(Utils.getBaseType(var.asType()))) {
             debugIndent("\t >>>>>> NEEDS @DefineScope");
             checkDefineScopeOnVariable(var,lhs,node);
         }
@@ -532,7 +531,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return null;
     }
 
-    void pln(String str) {System.out.println(str);}
+    private void checkAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
+        debugIndentIncrement("checkAssignment: " + node.toString());
+        if (lhs.isFieldScope())
+            checkFieldAssignment((FieldScopeInfo) lhs, rhs, node);
+        else
+            // TODO: Do we need an extra case for arrays?
+            checkLocalAssignment(lhs, rhs, node);
+        debugIndentDecrement();
+    }
 
     private void checkDefineScopeOnVariable(VariableElement var, ScopeInfo varScope,
             VariableTree node) {
@@ -559,11 +566,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent(" runsInScope : " + runsInScope);
         debugIndent(" varScope : " + varScope);
 
-        // this is ugly but passes the test-case (as opposed to the previous if-statement)
         if (!varScope.isCurrent()) {
             if (!varScope.equals(parent))
-                fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
-                        varScope, parent);
+                fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
+                        node, varScope, parent);
         } else if (runsInScope.isUnknown()) {
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
                     UNKNOWN, parent);
@@ -574,16 +580,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("\t DefineScope is PROCESSED.");
         debugIndent("\t var.toString() : " + var.toString());
         varScopes.addVariableDefineScope(var.toString(), dsi);
-    }
-
-    private void checkAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
-        debugIndentIncrement("checkAssignment: " + node.toString());
-        if (lhs.isFieldScope())
-            checkFieldAssignment((FieldScopeInfo) lhs, rhs, node);
-        else
-            // TODO: Do we need an extra case for arrays?
-            checkLocalAssignment(lhs, rhs, node);
-        debugIndentDecrement();
     }
 
     private void checkFieldAssignment(FieldScopeInfo lhs, ScopeInfo rhs,
@@ -913,7 +909,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             else
                 return tScope;
         } else if (tScope.isCurrent())
-            return new ScopeInfo(varScope.value());  // used to be: return tScope, now the explicit variable takes precedence.
+            return new ScopeInfo(varScope.value());
         else {
             if (!tScope.equals(new ScopeInfo(varScope.value())))
                 fail(ERR_BAD_VARIABLE_SCOPE, node, t.getSimpleName(),
