@@ -195,10 +195,13 @@ public class ScopeCheckerContext {
      */
     public void setClassScope(ScopeInfo scope, String clazz) {
         ClassInfo ci = classScopes.get(clazz);
-        if (ci != null && !ci.scope.equals(scope)) {
+        if (ci != null && ci.scope != null && !ci.scope.equals(scope)) {
             throw new RuntimeException("Class scope already set");
         }
-        ci = new ClassInfo(scope);
+        if (ci == null) {
+            ci = new ClassInfo();
+        }
+        ci.scope = scope;
         classScopes.put(clazz, ci);
     }
 
@@ -342,8 +345,7 @@ public class ScopeCheckerContext {
          */
         private Map<String, DefineScopeInfo> fieldDefineScopes;
 
-        ClassInfo(ScopeInfo scope) {
-            this.scope = scope;
+        ClassInfo() {
             methodScopes = new HashMap<String, MethodScopeInfo>();
             fieldScopes = new HashMap<String, ScopeInfo>();
             fieldDefineScopes = new HashMap<String, DefineScopeInfo>();
@@ -387,6 +389,10 @@ public class ScopeCheckerContext {
     public void setFieldDefineScope(DefineScopeInfo scope, String clazz,
             String field) {
         ClassInfo ci = classScopes.get(clazz);
+        if (ci == null) {
+            ci = new ClassInfo();
+            classScopes.put(clazz, ci);
+        }
         DefineScopeInfo f = ci.fieldDefineScopes.get(field);
         if (f != null && !f.equals(scope)) {
             throw new RuntimeException("Field DefineScope already set");
