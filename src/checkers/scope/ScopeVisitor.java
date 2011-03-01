@@ -555,9 +555,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node);
 
         ScopeInfo runsInScope = getEnclosingMethodRunsIn();
-        pln("\n\n dsi : " + dsi);
-        pln("runsInScope : " + runsInScope);
-        pln(" varScope : " + varScope);
+        debugIndent(" dsi : " + dsi);
+        debugIndent(" runsInScope : " + runsInScope);
+        debugIndent(" varScope : " + varScope);
 
         // this is ugly but passes the test-case (as opposed to the previous if-statement)
         if (!varScope.isCurrent()) {
@@ -571,8 +571,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
                     runsInScope, parent);
 
-        pln("\t DefineScope is OK");
-        pln("\t var.toString() : " + var.toString());
+        debugIndent("\t DefineScope is PROCESSED.");
+        debugIndent("\t var.toString() : " + var.toString());
         varScopes.addVariableDefineScope(var.toString(), dsi);
     }
 
@@ -905,8 +905,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo tScope = ctx.getClassScope(t);
 
         Scope varScope = var.getAnnotation(Scope.class);
-        pln("varScope : " + varScope);
-        pln("tScope : " + tScope);
+        debugIndent("varScope : " + varScope);
+        debugIndent("tScope : " + tScope);
 
         if (varScope == null) {
             if (tScope.isCurrent())
