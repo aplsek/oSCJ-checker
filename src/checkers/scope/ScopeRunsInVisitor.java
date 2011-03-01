@@ -1,8 +1,8 @@
 package checkers.scope;
 
-import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
-import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT;
-import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_TYPE_NO_DEFINE_SCOPE;
+import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
+import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT;
+import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_LIBRARY_ANNOTATION;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_FIELD_SCOPE;
@@ -146,7 +146,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 ctx.setClassScope(scope, t);
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
             }
-
         }
         // Ensure that the class doesn't change any Scope annotations on its
         // implemented interfaces. This shouldn't require the retrieval of
@@ -218,12 +217,12 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (!isValidFieldScope(scope, classScope))
             fail(ERR_ILLEGAL_FIELD_SCOPE, node, errNode, scope, classScope);
 
-        checkMemoryAreaField(f, classScope, node, errNode);
+        checkMemoryAreaField(f, scope, classScope, node, errNode);
         return scope;
     }
 
-    private void checkMemoryAreaField(VariableElement f, ScopeInfo classScope,
-            Tree node, Tree errNode) {
+    private void checkMemoryAreaField(VariableElement f, ScopeInfo fieldScope,
+            ScopeInfo classScope, Tree node, Tree errNode) {
         if (!Utils.isUserLevel(f.getEnclosingElement().toString()))
             return;
         if (f.asType().getKind() != TypeKind.DECLARED)
@@ -233,26 +232,21 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
         DefineScope ds = f.getAnnotation(DefineScope.class);
         if (ds == null) {
-            fail(ERR_MEMORY_AREA_TYPE_NO_DEFINE_SCOPE, node);
+            fail(ERR_MEMORY_AREA_NO_DEFINE_SCOPE, node);
             return;
         }
 
         ScopeInfo scope = new ScopeInfo(ds.name());
         ScopeInfo parent = new ScopeInfo(ds.parent());
         DefineScopeInfo dsi = new DefineScopeInfo(scope, parent);
-        if (!scopeTree.hasScope(scope) || !scopeTree.hasScope(parent)
-                || !scopeTree.isParentOf(scope, parent))
-            fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT, node);
+        if (!scopeTree.hasScope(scope) || !scopeTree.isParentOf(scope, parent))
+            fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node);
 
-        // we need to check that the @Scope and @DefineScope are consistent.
-        Scope s = f.getAnnotation(Scope.class);
-        if (s != null && !s.value().equals(parent.getScope()))
-            fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
-                    node, s.value(), parent);
-        else if (s == null
-                && (classScope.isCurrent() || !classScope.equals(parent)))
-            fail(ERR_MEMORY_AREA_TYPE_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
-                    node, classScope, parent);
+        // A reference to a memory area must reside in the parent's scope or a
+        // child of that scope.
+        if (!scopeTree.isAncestorOf(fieldScope, parent))
+            fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
+                    f, parent);
 
         ctx.setFieldDefineScope(dsi, f.getEnclosingElement().toString(),
                 f.toString());

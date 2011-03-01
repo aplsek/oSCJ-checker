@@ -51,12 +51,6 @@ public class ScopeTree {
     }
 
     public boolean isAncestorOf(ScopeInfo name, ScopeInfo expectedParent) {
-        if (expectedParent == null)
-            return false;
-
-        if (expectedParent.equals(name)) // if they are the same, its not ancestor
-            return false;
-
         while (name != null) {
             if (name.equals(expectedParent))
                 return true;
