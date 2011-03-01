@@ -217,7 +217,7 @@ public final class Utils {
         return sig;
     }
 
-    public enum SCJ_METHODS {
+    public enum SCJMethod {
         DEFAULT {
             @Override public String toString() { return null; }
         },

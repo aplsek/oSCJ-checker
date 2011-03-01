@@ -11,6 +11,7 @@ import javax.safetycritical.annotate.DefineScope;
 
 import checkers.SCJVisitor;
 import checkers.Utils;
+import checkers.Utils.SCJMethod;
 import checkers.source.SourceChecker;
 import checkers.util.InternalUtils;
 import checkers.util.TreeUtils;
@@ -47,7 +48,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         TypeElement t = (TypeElement) m.getEnclosingElement();
 
         if (isManagedMemoryType(t)
-                && m.getSimpleName().toString().equals("enterPrivateMemory")) {
+                && compareName(m) == SCJMethod.ENTER_PRIVATE_MEMORY) {
             ExpressionTree runnable = node.getArguments().get(1);
             TypeElement t2 = Utils.getTypeElement(InternalUtils
                     .typeOf(runnable));
@@ -55,7 +56,6 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
 
             if (ds == null)
                 fail(ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE, node);
-
         }
         return super.visitMethodInvocation(node, p);
     }

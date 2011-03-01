@@ -1,16 +1,16 @@
 package checkers.scope;
 
 import static checkers.Utils.isFinal;
-import static checkers.Utils.SCJ_METHODS.ALLOC_IN_PARENT;
-import static checkers.Utils.SCJ_METHODS.ALLOC_IN_SAME;
-import static checkers.Utils.SCJ_METHODS.DEFAULT;
-import static checkers.Utils.SCJ_METHODS.ENTER_PRIVATE_MEMORY;
-import static checkers.Utils.SCJ_METHODS.EXECUTE_IN_AREA;
-import static checkers.Utils.SCJ_METHODS.GET_CURRENT_MANAGED_MEMORY;
-import static checkers.Utils.SCJ_METHODS.GET_MEMORY_AREA;
-import static checkers.Utils.SCJ_METHODS.NEW_ARRAY;
-import static checkers.Utils.SCJ_METHODS.NEW_ARRAY_IN_AREA;
-import static checkers.Utils.SCJ_METHODS.NEW_INSTANCE;
+import static checkers.Utils.SCJMethod.ALLOC_IN_PARENT;
+import static checkers.Utils.SCJMethod.ALLOC_IN_SAME;
+import static checkers.Utils.SCJMethod.DEFAULT;
+import static checkers.Utils.SCJMethod.ENTER_PRIVATE_MEMORY;
+import static checkers.Utils.SCJMethod.EXECUTE_IN_AREA;
+import static checkers.Utils.SCJMethod.GET_CURRENT_MANAGED_MEMORY;
+import static checkers.Utils.SCJMethod.GET_MEMORY_AREA;
+import static checkers.Utils.SCJMethod.NEW_ARRAY;
+import static checkers.Utils.SCJMethod.NEW_ARRAY_IN_AREA;
+import static checkers.Utils.SCJMethod.NEW_INSTANCE;
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
 import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION;
@@ -45,7 +45,7 @@ import javax.safetycritical.annotate.Scope;
 
 import checkers.SCJVisitor;
 import checkers.Utils;
-import checkers.Utils.SCJ_METHODS;
+import checkers.Utils.SCJMethod;
 import checkers.source.SourceChecker;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.util.InternalUtils;
@@ -670,7 +670,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return;
         MethodInvocationTree method = (MethodInvocationTree) condition;
         ExecutableElement m = TreeUtils.elementFromUse(method);
-        SCJ_METHODS sig = compareName(m);
+        SCJMethod sig = compareName(m);
         switch (sig) {
         case ALLOC_IN_PARENT:
         case ALLOC_IN_SAME:
@@ -742,52 +742,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         else if (!runsInScope.isUnknown()
                 && !runsInScope.equals(currentScope()))
             fail(ERR_BAD_METHOD_INVOKE, n, runsInScope, currentScope());
-    }
-
-    /**
-     * TODO: perhaps move this method to UTILs? - the same for
-     * isManagedMemoryType?
-     *
-     *
-     * @param method
-     * @return
-     */
-    private SCJ_METHODS compareName(ExecutableElement method) {
-        TypeElement type = Utils.getMethodClass(method);
-
-        if (isManagedMemoryType(type)) {
-            if (Utils.getMethodSignature(method).equals(
-                    ENTER_PRIVATE_MEMORY.toString()))
-                return ENTER_PRIVATE_MEMORY;
-            if (Utils.getMethodSignature(method).equals(
-                    ALLOC_IN_SAME.toString()))
-                return ALLOC_IN_SAME;
-            if (Utils.getMethodSignature(method).equals(
-                    ALLOC_IN_PARENT.toString()))
-                return ALLOC_IN_PARENT;
-            if (Utils.getMethodSignature(method).equals(
-                    GET_CURRENT_MANAGED_MEMORY.toString()))
-                return GET_CURRENT_MANAGED_MEMORY;
-        }
-        if (implementsAllocationContext(type)) {
-            if (Utils.getMethodSignature(method)
-                    .equals(NEW_INSTANCE.toString()))
-                return NEW_INSTANCE;
-            if (Utils.getMethodSignature(method).equals(NEW_ARRAY.toString()))
-                return NEW_ARRAY;
-            if (Utils.getMethodSignature(method).equals(
-                    NEW_ARRAY_IN_AREA.toString()))
-                return NEW_ARRAY_IN_AREA;
-            if (Utils.getMethodSignature(method).equals(
-                    EXECUTE_IN_AREA.toString()))
-                return EXECUTE_IN_AREA;
-        }
-
-        if (isMemoryAreaType(type)
-                && Utils.getMethodSignature(method).equals(GET_MEMORY_AREA))
-            return GET_MEMORY_AREA;
-
-        return DEFAULT;
     }
 
     private ScopeInfo checkNewInstance(MethodInvocationTree node) {
