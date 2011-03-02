@@ -1,5 +1,6 @@
-package scope.memory;
+package scope.scopeVisitor.simple;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.realtime.PeriodicParameters;
@@ -9,13 +10,12 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
-import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.SCJRestricted;
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="Mission",parent=IMMORTAL)
 @Scope("Mission")
-public abstract class SimpleMemory extends Mission {
+public abstract class TestBadNewInstance  extends Mission  {
 }
 
 @Scope("Mission")
@@ -37,30 +37,18 @@ abstract class PEH extends PeriodicEventHandler {
     ManagedMemory mem2;                              // OK
 
     public void method() {
-        @DefineScope(name="Mission",parent=IMMORTAL)
-        @Scope(IMMORTAL)
-        ManagedMemory mem1 = null;                              // OK
-
         try {
-            //mem1.newInstance(Foo.class);
-            mem.newInstance(Foo.class);
-
-            mem2.newInstance(Foo.class);
+            mem.newInstance(Foo.class);             // OK
+            //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
+            mem2.newInstance(Foo.class);                // ERROR
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-    //@RunsIn("PEH")
-    //@SCJAllowed(SUPPORT)
-    //public void handleAsyncEvent() {
-    //       // mem.newInstance(Foo.class);
-    //}
 }
+
 
 @Scope("Mission")
 class Foo {
-
-
 }

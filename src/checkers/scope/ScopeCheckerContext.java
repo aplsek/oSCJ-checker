@@ -405,6 +405,7 @@ public class ScopeCheckerContext {
     }
 
     public void dumpDefineScopes() {
+        System.err.println("\n\n============ DEFINE SCOPES-=========");
         for (Entry<String, ClassInfo> e : classScopes.entrySet()) {
             ClassInfo ci = e.getValue();
             for (Entry<String, DefineScopeInfo> dsi : ci.fieldDefineScopes
@@ -412,5 +413,16 @@ public class ScopeCheckerContext {
                 System.err.println("field: " + dsi.getKey() + ", @DefineScope("
                         + dsi.getValue() + ")");
         }
+        System.err.println("============ DEFINE SCOPES-=========\n\n");
+    }
+
+    public void dumpClassScopes() {
+        System.err.println("\n\n============ CLASS SCOPES-=========");
+        for (Entry<String, ClassInfo> e : classScopes.entrySet()) {
+            ClassInfo ci = e.getValue();
+            System.err.println("class: " + e.getKey() + ",@Scope("
+                        + e.getValue() + ")");
+        }
+        System.err.println("============ CLASS SCOPES-=========\n\n");
     }
 }

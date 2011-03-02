@@ -273,15 +273,22 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         // we need to handle the this case specially.
         if (elem.getKind() == ElementKind.FIELD && !isThis(node)) {
             ScopeInfo scope = ctx.getFieldScope((VariableElement) elem);
+            DefineScopeInfo defineScope = null;
+            if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(elem.asType()))))
+                defineScope = ctx.getFieldDefineScope((VariableElement) elem);
+
             debugIndent("\t elem:" + elem.getEnclosingElement());
             debugIndent("\t node:" + node.getName().toString());
             debugIndent("\t FIELD scope :" + scope.getScope());
-            ret = new FieldScopeInfo(varScopes.getVariableScope("this"), scope);
+            ret = new FieldScopeInfo(varScopes.getVariableScope("this"), scope, defineScope);
         } else if (elem.getKind() == ElementKind.LOCAL_VARIABLE
                 || elem.getKind() == ElementKind.PARAMETER) {
             String var = node.getName().toString();
             ScopeInfo scope = varScopes.getVariableScope(var);
             debugIndent("\t varScope:" + scope.getScope());
+            // TODO: we need to add the "needsDefineScope" call!!
+            //       and put it into the "scope" var
+
             ret = scope;
         } else if (elem.getKind() == ElementKind.METHOD
                 || elem.getKind() == ElementKind.CONSTRUCTOR
@@ -351,8 +358,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ret = node.getExpression().accept(this, p);
         else {
             VariableElement f = (VariableElement) elem;
-            ScopeInfo fScope = ctx.getFieldScope(f);
-            ret = new FieldScopeInfo(receiver, fScope);
+            // TODO: this is ugly
+            if (f.toString().equals("class")) {
+                // TODO: is this correct?
+                ret = new FieldScopeInfo(ScopeInfo.CURRENT, ScopeInfo.CURRENT);
+            }
+            else {
+                ScopeInfo fScope = ctx.getFieldScope(f);
+                ret = new FieldScopeInfo(receiver, fScope);
+            }
         }
         debugIndentDecrement();
         return ret;
@@ -513,10 +527,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("scope's varialbe: " + lhs);
         varScopes.addVariableScope(node.getName().toString(), lhs);
         VariableElement var = TreeUtils.elementFromDeclaration(node);
-        if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(var.asType())))) {
-            debugIndent("\t >>>>>> NEEDS @DefineScope");
-            checkDefineScopeOnVariable(var,lhs,node);
-        }
+        if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(var.asType()))))
+            // if this is IDENTIFIER(a field), then this was already processed in ScopeRunsInVisitor
+            if (node.getType().getKind() != Kind.IDENTIFIER)
+                checkDefineScopeOnVariable(var,lhs,node);
 
         // Static variable, change the context to IMMORTAL
         if (Utils.isStatic(node.getModifiers().getFlags()))
@@ -532,7 +546,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return null;
     }
 
-    void pln(String str) {System.out.println(str);}
+    void pln(String str) {System.err.println(str);}
 
     private void checkDefineScopeOnVariable(VariableElement var, ScopeInfo varScope,
             VariableTree node) {
@@ -555,9 +569,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node);
 
         ScopeInfo runsInScope = getEnclosingMethodRunsIn();
-        debugIndent(" dsi : " + dsi);
-        debugIndent(" runsInScope : " + runsInScope);
-        debugIndent(" varScope : " + varScope);
 
         // this is ugly but passes the test-case (as opposed to the previous if-statement)
         if (!varScope.isCurrent()) {
@@ -571,8 +582,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
                     runsInScope, parent);
 
-        debugIndent("\t DefineScope is PROCESSED.");
-        debugIndent("\t var.toString() : " + var.toString());
         varScopes.addVariableDefineScope(var.toString(), dsi);
     }
 
@@ -762,7 +771,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // this cannot by invoked by user!!
             return null;
         case NEW_INSTANCE:
-            return checkNewInstance(node);
+            return checkNewInstance(recvScope,node);
         case NEW_INSTANCE_IN_AREA:
             return checkNewInstanceInArea(node);
         case NEW_ARRAY:
@@ -807,28 +816,43 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_BAD_METHOD_INVOKE, node, runsInScope, currentScope());
     }
 
-    private ScopeInfo checkNewInstance(MethodInvocationTree node) {
+    private ScopeInfo checkNewInstance(ScopeInfo recvScope, MethodInvocationTree node) {
         ScopeInfo scope = null;
-        // TODO: revisit checking of the "newInstance"!!!!
-        ExpressionTree e = node.getMethodSelect();
-        ExpressionTree arg = node.getArguments().get(0);
-        ScopeInfo varScope = e.accept(this, null);
-        Element newInstanceType;
 
-        if (arg.getKind() == Kind.MEMBER_SELECT
-                && ((MemberSelectTree) arg).getExpression().getKind() == Kind.IDENTIFIER
-                && (newInstanceType = TreeUtils
-                        .elementFromUse((IdentifierTree) ((MemberSelectTree) arg)
-                                .getExpression())).getKind() == ElementKind.CLASS) {
-            TypeElement newInstanceTypeElement = (TypeElement) newInstanceType;
-            ScopeInfo instanceScope = ctx.getClassScope(newInstanceTypeElement);
-            if (instanceScope != null && !varScope.equals(instanceScope))
-                fail(ERR_BAD_NEW_INSTANCE, node, newInstanceTypeElement,
-                        varScope);
-        } else {
-            // TODO: We only accept newInstance(X.class) right now
+        ExpressionTree arg = node.getArguments().get(0);
+        String type = getType(arg);
+        ScopeInfo argScope = ctx.getClassScope(type);
+
+        // TODO: left here since I am going the test also this method invoked on
+        //       local variables
+        //pln("\t NEW INSTANCE CALL!!");
+        //pln("\t\t  recvScope :" + recvScope);
+        //pln("\t\t  recvScope - defineScope :" + recvScope.defineScope);
+        //pln("\t\t  arg :" + arg);
+        //pln("\t\t  type :" + type);
+        //pln("\t\t  argScope :" +  argScope);
+        //pln("\t\t  arg :" +  TreeUtils.elementFromUse(arg).asType() );
+
+        if (recvScope.defineScope == null) {
+            // TODO: internal ERROR
         }
-        return scope;
+
+        if (!argScope.equals(recvScope.defineScope.getScope()))
+            fail(ERR_BAD_NEW_INSTANCE,node,argScope,recvScope.defineScope.getScope());
+
+        return recvScope.defineScope.getScope();
+    }
+
+    /**
+     * this is ugly
+     * TODO: how to go from ExpressionTree to TypeMirror?
+     *
+     * from "Foo.class" --> "scope.memory.Foo"
+     */
+    private String getType(ExpressionTree arg) {
+        TypeMirror type = TreeUtils.elementFromUse(arg).asType();
+        String res = type.toString();
+        return res.substring(res.indexOf('<')+1, res.indexOf('>'));
     }
 
     /**

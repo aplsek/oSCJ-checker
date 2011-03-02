@@ -18,6 +18,17 @@ public class ScopeInfo {
     public static final ScopeInfo UNKNOWN = new ScopeInfo(Scope.UNKNOWN);
     protected final String scope;
 
+    /**
+     *  this field is:
+     *  - null in general case,
+     *  - is non-null when this field/variable type implements AllocationContext
+     *
+     *  if this ScopeInfo is corresponding to a type that implements AllocationContext,
+     *  its literal (field/variable) has an according @DefineScope annotation,
+     *  then this value is passed in this field.
+     */
+    public DefineScopeInfo defineScope = null;
+
     public ScopeInfo(String scope) {
         this.scope = scope;
     }
