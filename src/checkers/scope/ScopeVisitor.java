@@ -272,7 +272,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ScopeInfo scope = ctx.getFieldScope((VariableElement) elem);
             DefineScopeInfo defineScope = null;
 
-            //add DefineScopeInfo where needed
             if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(elem.asType()))))
                 defineScope = ctx.getFieldDefineScope((VariableElement) elem);
 
@@ -282,7 +281,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             String var = node.getName().toString();
             ScopeInfo scope = varScopes.getVariableScope(var);
 
-            //add DefineScopeInfo where needed
             if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(elem.asType()))))
                 scope.defineScope = varScopes.getVariableDefineScope(var);
 
@@ -359,15 +357,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ret = node.getExpression().accept(this, p);
         else {
             VariableElement f = (VariableElement) elem;
-            // TODO: this is ugly
-            if (f.toString().equals("class")) {
-                // TODO: is this correct?
-                ret = new FieldScopeInfo(ScopeInfo.CURRENT, ScopeInfo.CURRENT);
-            }
-            else {
-                ScopeInfo fScope = ctx.getFieldScope(f);
-                ret = new FieldScopeInfo(receiver, fScope);
-            }
+            ScopeInfo fScope = ctx.getFieldScope(f);
+            ret = new FieldScopeInfo(receiver, fScope);
         }
         debugIndentDecrement();
         return ret;
@@ -550,9 +541,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         VariableElement var = TreeUtils.elementFromDeclaration(node);
         if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(var.asType())))) {
             debugIndent(" needs @DefineScope.");
-            // if this is IDENTIFIER(a field), then this was already processed in ScopeRunsInVisitor
-            if (TreeUtils.elementFromDeclaration(node).getKind()  != ElementKind.FIELD)
-                checkDefineScopeOnVariable(var,lhs,node);
+            if (var.getKind() == ElementKind.LOCAL_VARIABLE)
+                checkDefineScopeOnVariable(var, lhs, node);
         }
 
         // Static variable, change the context to IMMORTAL
@@ -843,9 +833,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo argScope = ctx.getClassScope(getType(arg));
 
         if (recvScope.defineScope == null)
-            throw new RuntimeException("ERROR : Could not retrieve DefineScopeInfo. " +
-            		"A variable/field whose type implements Allocation Context must have a @DefineScope annotation."
-                    );
+            throw new RuntimeException(
+                    "ERROR : Could not retrieve DefineScopeInfo. "
+                            + "A variable/field whose type implements Allocation Context must have a @DefineScope annotation.");
 
         if (!argScope.equals(recvScope.defineScope.getScope()))
             fail(ERR_BAD_NEW_INSTANCE,node,argScope,recvScope.defineScope.getScope());

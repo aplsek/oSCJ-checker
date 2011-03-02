@@ -19,13 +19,14 @@ public class ScopeInfo {
     protected final String scope;
 
     /**
-     *  this field is:
-     *  - null in general case,
-     *  - is non-null when this field/variable type implements AllocationContext
-     *
-     *  if this ScopeInfo is corresponding to a type that implements AllocationContext,
-     *  its literal (field/variable) has an according @DefineScope annotation,
-     *  then this value is passed in this field.
+     * This field is:
+     * <ul>
+     * <li>null in general case
+     * <li>non-null when this field/variable type implements AllocationContext
+     * </ul>
+     * Variables that are subtypes of AllocationContext must have DefineScope
+     * annotations on them. This field is used to propagate that information
+     * during checking.
      */
     protected DefineScopeInfo defineScope = null;
 
@@ -92,9 +93,5 @@ public class ScopeInfo {
 
     public DefineScopeInfo getDefineScope() {
         return defineScope;
-    }
-
-    public void putDefineScope(DefineScopeInfo dsi) {
-        defineScope = dsi;
     }
 }
