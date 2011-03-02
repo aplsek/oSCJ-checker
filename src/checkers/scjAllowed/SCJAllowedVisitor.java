@@ -357,7 +357,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
          */
 
         if (m.getSimpleName().toString().equals("<init>"))
-            if (Utils.isPublic(m.getModifiers()))
+            if (Utils.isPublic(m))
                 if (isSCJAllowed(m))
                     return scjAllowedLevel(m);
                 else

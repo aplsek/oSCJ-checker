@@ -348,7 +348,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo ret;
 
         debugIndentIncrement("visitMemberSelect: " + node.toString());
-        // TODO: Does Class.this work?
         if (elem.getKind() == ElementKind.METHOD)
             // If a MemberSelectTree is not a field, then it is a method
             // that is part of a MethodInvocationTree. In this case, we
@@ -548,7 +547,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         // Static variable, change the context to IMMORTAL
-        if (Utils.isStatic(node.getModifiers().getFlags()))
+        if (Utils.isStatic(var))
             currentRunsIn = ScopeInfo.IMMORTAL;
 
         if (node.getInitializer() != null) {
@@ -726,7 +725,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                     .elementFromUse((IdentifierTree) arg);
             var.getModifiers();
 
-            if (!isFinal(var.getModifiers())) {
+            if (!isFinal(var)) {
                 fail(ERR_BAD_GUARD_ARGUMENT, arg, arg);
                 return false;
             }
@@ -914,7 +913,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private ScopeInfo checkVariableScope(VariableTree node) {
         VariableElement var = TreeUtils.elementFromDeclaration(node);
-        if (Utils.isStatic(node.getModifiers().getFlags()))
+        if (Utils.isStatic(var))
             return ScopeInfo.IMMORTAL;
         // TODO: UNKNOWN parameters
         TypeMirror varMirror = var.asType();

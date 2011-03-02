@@ -163,7 +163,7 @@ public class ScopeCheckerContext {
     public ScopeInfo getEffectiveMethodRunsIn(ExecutableElement m,
             ScopeInfo recvScope) {
         ScopeInfo methodRunsIn = getMethodRunsIn(m);
-        if (!methodRunsIn.isCurrent() || Utils.isStatic(m.getModifiers()))
+        if (!methodRunsIn.isCurrent() || Utils.isStatic(m))
             return methodRunsIn;
 
         TypeElement clazz = (TypeElement) m.getEnclosingElement();
@@ -181,7 +181,7 @@ public class ScopeCheckerContext {
      */
     public ScopeInfo getEffectiveMethodScope(ExecutableElement m,
             ScopeInfo recvScope) {
-        if (!getMethodScope(m).isCurrent() || Utils.isStatic(m.getModifiers()))
+        if (!getMethodScope(m).isCurrent() || Utils.isStatic(m))
             return getMethodScope(m);
 
         TypeElement clazz = (TypeElement) m.getEnclosingElement();

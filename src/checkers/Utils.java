@@ -63,16 +63,16 @@ public final class Utils {
         return null;
     }
 
-    public static boolean isPublic(Collection<Modifier> modifiers) {
-        return modifiers.contains(Modifier.PUBLIC);
+    public static boolean isPublic(Element e) {
+        return e.getModifiers().contains(Modifier.PUBLIC);
     }
 
-    public static boolean isStatic(Collection<Modifier> modifiers) {
-        return modifiers.contains(Modifier.STATIC);
+    public static boolean isStatic(Element e) {
+        return e.getModifiers().contains(Modifier.STATIC);
     }
 
-    public static boolean isFinal(Collection<Modifier> modifiers) {
-        return modifiers.contains(Modifier.FINAL);
+    public static boolean isFinal(Element e) {
+        return e.getModifiers().contains(Modifier.FINAL);
     }
 
     public static boolean isAllocFree(ExecutableElement methodElement) {
