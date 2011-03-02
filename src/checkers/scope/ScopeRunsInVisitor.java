@@ -148,6 +148,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, p);
             }
         }
+        // XXX Hacky way to support X.class field accesses
+        ctx.setFieldScope(ScopeInfo.IMMORTAL, t.getQualifiedName().toString(),
+                "class");
         // Ensure that the class doesn't change any Scope annotations on its
         // implemented interfaces. This shouldn't require the retrieval of
         // all interfaces implemented by superclasses and interfaces, since

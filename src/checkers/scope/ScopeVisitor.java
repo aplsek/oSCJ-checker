@@ -297,6 +297,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ScopeInfo scope = varScopes.getVariableScope("this");
             debugIndent("\t method/constructor scope:" + scope);
             ret = scope;
+        } else if (elem.getKind() == ElementKind.CLASS
+                || elem.getKind() == ElementKind.INTERFACE) {
+            // If we're visiting an identifer that's a class, then it's
+            // probably being used in a static field member select.
+            ret = ScopeInfo.IMMORTAL;
         } else
             debugIndent("\t identifier scope [NO CASE]:" + null);
         debugIndentDecrement();
