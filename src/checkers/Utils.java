@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -308,4 +309,21 @@ public final class Utils {
         return true;
     }
 
+    /**
+     * Given a declaration, see if it's user level code.
+     *
+     * User level code is defined as anything outside of the javax.realtime and
+     * javax.safetycritical packages.
+     */
+    public static boolean isUserLevel(Element e) {
+        ElementKind k = e.getKind();
+        while (!(k.isClass() || k.isInterface())) {
+            e = e.getEnclosingElement();
+            k = e.getKind();
+        }
+        TypeElement t = (TypeElement) e;
+        String name = t.getQualifiedName().toString();
+        return !(name.startsWith(JAVAX_REALTIME) || name
+                .startsWith(JAVAX_SAFETYCRITICAL));
+    }
 }

@@ -362,25 +362,31 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     @Override
     public ScopeInfo visitMethod(MethodTree node, P p) {
         debugIndentIncrement("visitMethod " + node.getName());
-        ExecutableElement method = TreeUtils.elementFromDeclaration(node);
+        ExecutableElement m = TreeUtils.elementFromDeclaration(node);
 
-        debugIndent("Seen method " + method.getSimpleName());
+        debugIndent("Seen method " + m.getSimpleName());
         debugIndent("RunsIn: " + currentRunsIn);
         debugIndent("Scope: " + currentScope);
 
         ScopeInfo oldRunsIn = currentRunsIn;
-        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(method, currentScope());
-        debugIndent("@RunsIn(" + runsIn + ") " + method.getSimpleName());
+        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, currentScope());
+        debugIndent("@RunsIn(" + runsIn + ") " + m.getSimpleName());
 
         currentRunsIn = runsIn;
         varScopes.pushBlock();
         List<? extends VariableTree> params = node.getParameters();
-        List<ScopeInfo> paramScopes = ctx.getParameterScopes(method);
+        List<ScopeInfo> paramScopes = ctx.getParameterScopes(m);
+        List<DefineScopeInfo> defineScopes = ctx.getParameterDefineScopes(m);
         for (int i = 0; i < paramScopes.size(); i++) {
-            debugIndent(" add VarScope: " + params.get(i).getName().toString()
-                    + ", scope:" + paramScopes.get(i));
-            varScopes.addVariableScope(params.get(i).getName().toString(),
-                    paramScopes.get(i));
+            VariableTree param = params.get(i);
+            String paramName = param.getName().toString();
+            debugIndent(" add VarScope: " + paramName + ", scope:"
+                    + paramScopes.get(i));
+            varScopes.addVariableScope(paramName, paramScopes.get(i));
+            DefineScopeInfo dsi = defineScopes.get(i);
+            if (dsi != null) {
+                varScopes.addVariableDefineScope(paramName, dsi);
+            }
         }
         node.getBody().accept(this, p);
         // TODO: make sure we don't need to visit more
@@ -562,6 +568,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private void checkDefineScopeOnVariable(VariableElement var, ScopeInfo varScope,
             VariableTree node) {
+        // TODO: Is this replaceable with isUserElement(Element)?
         if (!Utils.isUserLevel(var.getEnclosingElement().toString()))
             return;
         if (var.asType().getKind() != TypeKind.DECLARED)
