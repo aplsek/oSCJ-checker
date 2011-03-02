@@ -123,14 +123,14 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
     @Override
     public R visitMemberSelect(MemberSelectTree node, P p) {
-        Element fieldElement = TreeUtils.elementFromUse(node);
+        Element f = TreeUtils.elementFromUse(node);
 
-        if (fieldElement.getEnclosingElement() != null
-                && isEscaped(fieldElement.getEnclosingElement().toString()))
+        if (f.getEnclosingElement() != null
+                && isEscaped(f.getEnclosingElement().toString()))
             return super.visitMemberSelect(node, p);
 
-        if (fieldElement.getKind() == ElementKind.FIELD
-                && scjAllowedLevel(fieldElement, node).compareTo(topLevel()) > 0)
+        if (f.getKind() == ElementKind.FIELD
+                && scjAllowedLevel(f, node).compareTo(topLevel()) > 0)
             /** Tested by SCJAllowedTest */
             fail(ERR_SCJALLOWED_BAD_FIELD_ACCESS, node, topLevel());
         return super.visitMemberSelect(node, p);
