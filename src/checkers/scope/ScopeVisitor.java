@@ -690,8 +690,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     /**
      *
-     * @param m
-     *            - unused TODO
      * @param recvScope
      *            - managedMemory instance, the target of the invocation
      * @param node
@@ -885,7 +883,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private ScopeInfo checkGetMemoryArea(MethodInvocationTree node) {
-        // TODO: revisit checking of the "getMemoryArea"!!!!
+        debugIndent("checkGetMemoryArea");
+        //node.getMethodSelect().accept(this, p);
+
+
         ScopeInfo scope = null;
         return scope;
     }

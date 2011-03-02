@@ -9,6 +9,7 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.SCJRestricted;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
@@ -36,31 +37,38 @@ abstract class PEH extends PeriodicEventHandler {
     @Scope("Mission")
     ManagedMemory mem2;                              // OK
 
+    Foo foo;
+
     public void method() {
         @DefineScope(name="Mission",parent=IMMORTAL)
         @Scope(IMMORTAL)
-        ManagedMemory mem1 = null;                              // OK
+        ManagedMemory mem1 = ManagedMemory.getCurrentManagedMemory();                              // OK
 
         try {
-            //mem1.newInstance(Foo.class);
-            mem.newInstance(Foo.class);
+            ManagedMemory.getMemoryArea(foo);
 
-            mem2.newInstance(Foo.class);
+            //mem1.newInstance(Foo.class);
+            //mem.newInstance(Foo.class);
+            //
+            //mem2.newInstance(Foo.class);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    //@RunsIn("PEH")
-    //@SCJAllowed(SUPPORT)
-    //public void handleAsyncEvent() {
-    //       // mem.newInstance(Foo.class);
-    //}
 }
 
 @Scope("Mission")
 class Foo {
 
 
+}
+
+
+@Scope("PEH)
+class Run implements Runnable {
+    @RunsIn("Mission")
+    public void run() {
+    }
 }
