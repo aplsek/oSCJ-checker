@@ -273,16 +273,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ScopeInfo scope = ctx.getFieldScope((VariableElement) elem);
             DefineScopeInfo defineScope = null;
 
-            if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(elem.asType()))))
+            if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(elem
+                    .asType()))))
                 defineScope = ctx.getFieldDefineScope((VariableElement) elem);
 
-            ret = new FieldScopeInfo(varScopes.getVariableScope("this"), scope, defineScope);
+            ret = new FieldScopeInfo(varScopes.getVariableScope("this"), scope,
+                    defineScope);
         } else if (elem.getKind() == ElementKind.LOCAL_VARIABLE
                 || elem.getKind() == ElementKind.PARAMETER) {
             String var = node.getName().toString();
             ScopeInfo scope = varScopes.getVariableScope(var);
 
-            if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(elem.asType()))))
+            if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(elem
+                    .asType()))))
                 scope.defineScope = varScopes.getVariableDefineScope(var);
 
             ret = scope;
@@ -540,7 +543,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent(" scope's variable: " + lhs);
         varScopes.addVariableScope(node.getName().toString(), lhs);
         VariableElement var = TreeUtils.elementFromDeclaration(node);
-        if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(var.asType())))) {
+        if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(var
+                .asType())))) {
             debugIndent(" needs @DefineScope.");
             if (var.getKind() == ElementKind.LOCAL_VARIABLE)
                 checkDefineScopeOnVariable(var, lhs, node);
@@ -570,8 +574,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndentDecrement();
     }
 
-    private void checkDefineScopeOnVariable(VariableElement var, ScopeInfo varScope,
-            VariableTree node) {
+    private void checkDefineScopeOnVariable(VariableElement var,
+            ScopeInfo varScope, VariableTree node) {
         debugIndent("checkDefineScopeOnVariable.");
 
         // TODO: Is this replaceable with isUserElement(Element)?
@@ -783,7 +787,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // this cannot by invoked by user!!
             return null;
         case NEW_INSTANCE:
-            return checkNewInstance(recvScope,node);
+            return checkNewInstance(recvScope, node);
         case NEW_INSTANCE_IN_AREA:
             return checkNewInstanceInArea(node);
         case NEW_ARRAY:
@@ -812,11 +816,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      * Since this method is passed the effective RunsIn of the method being
      * tested, there is no need to look at the scope of the receiver object.
      *
-     * @see ScopeCheckerContext#getEffectiveMethodRunsIn(ExecutableElement, ScopeInfo)
+     * @see ScopeCheckerContext#getEffectiveMethodRunsIn(ExecutableElement,
+     *      ScopeInfo)
      *
-     * @param m  the element representing the method invocation
-     * @param effectiveRunsIn  the effective scope in which the method runs
-     * @param node  method invocation tree
+     * @param m
+     *            the element representing the method invocation
+     * @param effectiveRunsIn
+     *            the effective scope in which the method runs
+     * @param node
+     *            method invocation tree
      */
     private void checkMethodRunsIn(ExecutableElement m,
             ScopeInfo effectiveRunsIn, MethodInvocationTree node) {
@@ -827,9 +835,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, currentScope());
     }
 
-    //void pln(String str ) {System.err.println(str);}
-
-    private ScopeInfo checkNewInstance(ScopeInfo recvScope, MethodInvocationTree node) {
+    private ScopeInfo checkNewInstance(ScopeInfo recvScope,
+            MethodInvocationTree node) {
         ExpressionTree arg = node.getArguments().get(0);
         ScopeInfo argScope = ctx.getClassScope(getNewInstanceType(arg));
 
@@ -978,11 +985,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     /**
-     * @return - for a given position in the Tree, return the scope of the enclosing method.
-     *           if the method is @RunsIn(CURRENT), we look at the scope of the enclosing class.
+     * For a given position in the Tree, return the scope of the enclosing
+     * method. If the method is RunsIn(CURRENT), look at the scope of the
+     * enclosing class.
      */
     private ScopeInfo getEnclosingMethodRunsIn() {
-        MethodTree enclosingMethod = TreeUtils.enclosingMethod(getCurrentPath());
+        MethodTree enclosingMethod = TreeUtils
+                .enclosingMethod(getCurrentPath());
         ExecutableElement m = TreeUtils.elementFromDeclaration(enclosingMethod);
         ScopeInfo scope = ctx.getMethodRunsIn(m);
         if (scope.isCurrent())
