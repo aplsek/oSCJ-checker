@@ -70,6 +70,10 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         return implementsAllocationContext(t);
     }
 
+    protected boolean needsDefineScope(TypeMirror t) {
+        return types.isSubtype(t, allocationContextMirror);
+    }
+
     protected boolean isManagedMemoryType(TypeElement t) {
         return types.isSubtype(t.asType(), managedMemoryMirror);
     }

@@ -46,15 +46,15 @@ public class VariableScopeTable {
         throw new RuntimeException("Variable not defined in scope table");
     }
 
-    public void addVariableDefineScope(String var, DefineScopeInfo scope) {
-        if (scope == null)
+    public void addVariableDefineScope(String var, DefineScopeInfo dsi) {
+        if (dsi == null)
             throw new RuntimeException("Cannot add null scoped variable");
         LexicalBlock last = blocks.getLast();
         if (last.containsDefineScope(var))
             // If the block has already defined this variable, this table is
             // somehow being used incorrectly.
             throw new RuntimeException("Variable already defined in block");
-        last.putDefineScope(var, scope);
+        last.putDefineScope(var, dsi);
     }
 
     public DefineScopeInfo getVariableDefineScope(String var) {

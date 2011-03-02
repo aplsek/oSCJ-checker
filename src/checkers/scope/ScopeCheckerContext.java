@@ -74,18 +74,6 @@ public class ScopeCheckerContext {
                 .toString());
     }
 
-    public List<ScopeInfo> getParameterScopes(String clazz, String method,
-            String... params) {
-        ClassInfo ci = classScopes.get(clazz);
-        if (ci != null) {
-            String sig = Utils.buildSignatureString(method, params);
-            MethodScopeInfo msi = ci.methodScopes.get(sig);
-            if (msi != null)
-                return Collections.unmodifiableList(msi.parameters);
-        }
-        return null;
-    }
-
     /**
      * Get the RunsIn annotation of a method given its fully qualified class
      * name, its own name, and the fully qualified names of the types of its
@@ -138,6 +126,25 @@ public class ScopeCheckerContext {
                 .getSimpleName().toString(), getParameterTypeNames(m));
     }
 
+    /**
+     * Get the Scope annotations on a method's parameters by its fully qualified
+     * class name and its own name.
+     */
+    public List<ScopeInfo> getParameterScopes(String clazz, String method,
+            String... params) {
+        ClassInfo ci = classScopes.get(clazz);
+        if (ci != null) {
+            String sig = Utils.buildSignatureString(method, params);
+            MethodScopeInfo msi = ci.methodScopes.get(sig);
+            if (msi != null)
+                return Collections.unmodifiableList(msi.parameters);
+        }
+        return null;
+    }
+
+    /**
+     * Get the Scope annotations on a method's parameters by its declaration.
+     */
     public List<ScopeInfo> getParameterScopes(ExecutableElement m) {
         TypeElement t = Utils.getMethodClass(m);
         return getParameterScopes(t.getQualifiedName().toString(), m
@@ -156,7 +163,7 @@ public class ScopeCheckerContext {
     public ScopeInfo getEffectiveMethodRunsIn(ExecutableElement m,
             ScopeInfo recvScope) {
         ScopeInfo methodRunsIn = getMethodRunsIn(m);
-        if (!methodRunsIn.isCurrent() || Utils.isStatic(m.getModifiers()))
+        if (!methodRunsIn.isCurrent() || Utils.isStatic(m))
             return methodRunsIn;
 
         TypeElement clazz = (TypeElement) m.getEnclosingElement();
@@ -174,7 +181,7 @@ public class ScopeCheckerContext {
      */
     public ScopeInfo getEffectiveMethodScope(ExecutableElement m,
             ScopeInfo recvScope) {
-        if (!getMethodScope(m).isCurrent() || Utils.isStatic(m.getModifiers()))
+        if (!getMethodScope(m).isCurrent() || Utils.isStatic(m))
             return getMethodScope(m);
 
         TypeElement clazz = (TypeElement) m.getEnclosingElement();
@@ -292,6 +299,10 @@ public class ScopeCheckerContext {
                 .getSimpleName().toString(), params);
     }
 
+    /**
+     * Set the Scope annotation of a method parameter, given the method's name
+     * and its fully qualified class name.
+     */
     public void setParameterScope(ScopeInfo scope, int i, String clazz,
             String method, String... params) {
         ClassInfo ci = classScopes.get(clazz);
@@ -303,6 +314,10 @@ public class ScopeCheckerContext {
         msi.parameters.set(i, scope);
     }
 
+    /**
+     * Set the Scope annotation of a method parameter, given the method's
+     * declaration and the parameter index.
+     */
     public void setParameterScope(ScopeInfo scope, int i, ExecutableElement m) {
         TypeElement t = Utils.getMethodClass(m);
         setParameterScope(scope, i, t.getQualifiedName().toString(), m
@@ -352,16 +367,20 @@ public class ScopeCheckerContext {
         ScopeInfo scope;
         ScopeInfo runsIn;
         List<ScopeInfo> parameters;
+        List<DefineScopeInfo> parameterDefineScopes;
 
         MethodScopeInfo(int params) {
             parameters = new ArrayList<ScopeInfo>(params);
             for (int i = 0; i < params; i++)
                 parameters.add(null);
+            parameterDefineScopes = new ArrayList<DefineScopeInfo>(params);
+            for (int i = 0; i < params; i++)
+                parameterDefineScopes.add(null);
         }
     }
 
     /**
-     * Store the Scope annotation of a field, given its declaration.
+     * Store the DefineScope annotation of a field, given its declaration.
      */
     public void setFieldDefineScope(DefineScopeInfo scope, VariableElement f) {
         TypeElement t = Utils.getFieldClass(f);
@@ -370,8 +389,8 @@ public class ScopeCheckerContext {
     }
 
     /**
-     * Store the Scope annotation of a field given its fully qualified class
-     * name and its own name.
+     * Store the DefineScope annotation of a field given its fully qualified
+     * class name and its own name.
      */
     public void setFieldDefineScope(DefineScopeInfo scope, String clazz,
             String field) {
@@ -387,7 +406,33 @@ public class ScopeCheckerContext {
     }
 
     /**
-     * Get the @DefineScope annotation of a field by its fully qualified class
+     * Set the DefineScope annotation of a method parameter, given the method's
+     * name and its fully qualified class name.
+     */
+    public void setParameterDefineScope(DefineScopeInfo dsi, int i,
+            String clazz, String method, String... params) {
+        ClassInfo ci = classScopes.get(clazz);
+        String sig = Utils.buildSignatureString(method, params);
+        MethodScopeInfo msi = ci.methodScopes.get(sig);
+        DefineScopeInfo pdsi = msi.parameterDefineScopes.get(i);
+        if (pdsi != null && !pdsi.equals(dsi))
+            throw new RuntimeException("Parameter define scope already set");
+        msi.parameterDefineScopes.set(i, dsi);
+    }
+
+    /**
+     * Set the DefineScope annotation of a method parameter, given the method's
+     * declaration and the parameter index.
+     */
+    public void setParameterDefineScope(DefineScopeInfo dsi, int i,
+            ExecutableElement m) {
+        TypeElement t = Utils.getMethodClass(m);
+        setParameterDefineScope(dsi, i, t.getQualifiedName().toString(), m
+                .getSimpleName().toString(), getParameterTypeNames(m));
+    }
+
+    /**
+     * Get the DefineScope annotation of a field by its fully qualified class
      * name and its own name.
      */
     public DefineScopeInfo getFieldDefineScope(String clazz, String field) {
@@ -396,12 +441,38 @@ public class ScopeCheckerContext {
     }
 
     /**
-     * Get the @DefineScope annotation of a field by its declaration.
+     * Get the DefineScope annotation of a field by its declaration.
      */
     public DefineScopeInfo getFieldDefineScope(VariableElement f) {
         TypeElement t = Utils.getFieldClass(f);
         return getFieldDefineScope(t.getQualifiedName().toString(), f
                 .getSimpleName().toString());
+    }
+
+    /**
+     * Get the DefineScope annotations on a method's parameters by its fully
+     * qualified class name and its own name.
+     */
+    public List<DefineScopeInfo> getParameterDefineScopes(String clazz,
+            String method, String... params) {
+        ClassInfo ci = classScopes.get(clazz);
+        if (ci != null) {
+            String sig = Utils.buildSignatureString(method, params);
+            MethodScopeInfo msi = ci.methodScopes.get(sig);
+            if (msi != null)
+                return Collections.unmodifiableList(msi.parameterDefineScopes);
+        }
+        return null;
+    }
+
+    /**
+     * Get the DefineScope annotations on a method's parameters by its
+     * declaration.
+     */
+    public List<DefineScopeInfo> getParameterDefineScopes(ExecutableElement m) {
+        TypeElement t = Utils.getMethodClass(m);
+        return getParameterDefineScopes(t.getQualifiedName().toString(), m
+                .getSimpleName().toString(), getParameterTypeNames(m));
     }
 
     public void dumpDefineScopes() {

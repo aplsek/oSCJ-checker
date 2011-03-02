@@ -34,7 +34,6 @@ public class ScopeTree {
      * See if one scope is the direct parent of another.
      */
     public boolean isParentOf(ScopeInfo child, ScopeInfo parent) {
-        ScopeInfo p = getParent(child);
         return parent.equals(getParent(child));
     }
 

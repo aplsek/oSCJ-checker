@@ -17,11 +17,11 @@ import static checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE;
 import static checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_DEFAULT_BAD_ENTER_PARAMETER;
-import static checkers.scope.ScopeChecker.ERR_RUNNABLE_WITHOUT_RUNS_IN;
-import static checkers.scope.ScopeChecker.ERR_TYPE_CAST_BAD_ENTER_PARAMETER;
-import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
+import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR;
+import static checkers.scope.ScopeChecker.ERR_RUNNABLE_WITHOUT_RUNS_IN;
+import static checkers.scope.ScopeChecker.ERR_TYPE_CAST_BAD_ENTER_PARAMETER;
 import static checkers.scope.ScopeInfo.CURRENT;
 import static checkers.scope.ScopeInfo.UNKNOWN;
 
@@ -48,10 +48,10 @@ import checkers.util.TreeUtils;
 
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ArrayAccessTree;
-import com.sun.source.tree.ArrayTypeTree;
 import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.BinaryTree;
 import com.sun.source.tree.BlockTree;
+import com.sun.source.tree.CatchTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.CompoundAssignmentTree;
@@ -72,6 +72,7 @@ import com.sun.source.tree.ReturnTree;
 import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
+import com.sun.source.tree.TryTree;
 import com.sun.source.tree.TypeCastTree;
 import com.sun.source.tree.VariableTree;
 
@@ -105,7 +106,6 @@ import com.sun.source.tree.VariableTree;
 public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private AnnotatedTypeFactory atf;
-    private ScopeInfo currentScope = null;
     private ScopeInfo currentRunsIn = null;
     private ScopeCheckerContext ctx;
     private ScopeTree scopeTree;
@@ -189,7 +189,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         TypeElement t = TreeUtils.elementFromDeclaration(node);
-        ScopeInfo oldScope = currentScope;
         ScopeInfo oldRunsIn = currentRunsIn;
 
         ScopeInfo scope = ctx.getClassScope(t);
@@ -200,11 +199,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         Utils.debugPrintln("Seen class " + t.getQualifiedName() + ": @Scope("
                 + scope + ")");
 
-        currentScope = scope;
         currentRunsIn = scope;
         super.visitClass(node, p);
         varScopes.popBlock();
-        currentScope = oldScope;
         currentRunsIn = oldRunsIn;
         debugIndentDecrement();
         return null;
@@ -303,6 +300,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ScopeInfo scope = varScopes.getVariableScope("this");
             debugIndent("\t method/constructor scope:" + scope);
             ret = scope;
+        } else if (elem.getKind() == ElementKind.CLASS
+                || elem.getKind() == ElementKind.INTERFACE) {
+            // If we're visiting an identifer that's a class, then it's
+            // probably being used in a static field member select.
+            ret = ScopeInfo.IMMORTAL;
         } else
             debugIndent("\t identifier scope [NO CASE]:" + null);
         debugIndentDecrement();
@@ -349,7 +351,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo ret;
 
         debugIndentIncrement("visitMemberSelect: " + node.toString());
-        // TODO: Does Class.this work?
         if (elem.getKind() == ElementKind.METHOD)
             // If a MemberSelectTree is not a field, then it is a method
             // that is part of a MethodInvocationTree. In this case, we
@@ -375,25 +376,30 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     @Override
     public ScopeInfo visitMethod(MethodTree node, P p) {
         debugIndentIncrement("visitMethod " + node.getName());
-        ExecutableElement method = TreeUtils.elementFromDeclaration(node);
+        ExecutableElement m = TreeUtils.elementFromDeclaration(node);
 
-        debugIndent("Seen method " + method.getSimpleName());
+        debugIndent("Seen method " + m.getSimpleName());
         debugIndent("RunsIn: " + currentRunsIn);
-        debugIndent("Scope: " + currentScope);
 
         ScopeInfo oldRunsIn = currentRunsIn;
-        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(method, currentScope());
-        debugIndent("@RunsIn(" + runsIn + ") " + method.getSimpleName());
+        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, currentScope());
+        debugIndent("@RunsIn(" + runsIn + ") " + m.getSimpleName());
 
         currentRunsIn = runsIn;
         varScopes.pushBlock();
         List<? extends VariableTree> params = node.getParameters();
-        List<ScopeInfo> paramScopes = ctx.getParameterScopes(method);
+        List<ScopeInfo> paramScopes = ctx.getParameterScopes(m);
+        List<DefineScopeInfo> defineScopes = ctx.getParameterDefineScopes(m);
         for (int i = 0; i < paramScopes.size(); i++) {
-            debugIndent(" add VarScope: " + params.get(i).getName().toString()
-                    + ", scope:" + paramScopes.get(i));
-            varScopes.addVariableScope(params.get(i).getName().toString(),
-                    paramScopes.get(i));
+            VariableTree param = params.get(i);
+            String paramName = param.getName().toString();
+            debugIndent(" add VarScope: " + paramName + ", scope:"
+                    + paramScopes.get(i));
+            varScopes.addVariableScope(paramName, paramScopes.get(i));
+            DefineScopeInfo dsi = defineScopes.get(i);
+            if (dsi != null) {
+                varScopes.addVariableDefineScope(paramName, dsi);
+            }
         }
         node.getBody().accept(this, p);
         // TODO: make sure we don't need to visit more
@@ -488,6 +494,23 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     @Override
+    public ScopeInfo visitTry(TryTree node, P p) {
+        varScopes.pushBlock();
+        node.getBlock().accept(this, p);
+        varScopes.popBlock();
+        for (CatchTree c : node.getCatches()) {
+            varScopes.pushBlock();
+            c.accept(this, p);
+            varScopes.popBlock();
+        }
+        varScopes.pushBlock();
+        node.getFinallyBlock();
+        varScopes.popBlock();
+        // There is another accessor called getResources. No idea what it does.
+        return null;
+    }
+
+    @Override
     public ScopeInfo visitTypeCast(TypeCastTree node, P p) {
         debugIndentIncrement("visitTypeCast " + node);
         if (isPrimitiveExpression(node)) {
@@ -524,7 +547,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         ScopeInfo lhs = checkVariableScope(node);
-        debugIndent("scope's varialbe: " + lhs);
+        debugIndent("scope's variable: " + lhs);
         varScopes.addVariableScope(node.getName().toString(), lhs);
         VariableElement var = TreeUtils.elementFromDeclaration(node);
         if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(var.asType()))))
@@ -533,7 +556,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 checkDefineScopeOnVariable(var,lhs,node);
 
         // Static variable, change the context to IMMORTAL
-        if (Utils.isStatic(node.getModifiers().getFlags()))
+        if (Utils.isStatic(var))
             currentRunsIn = ScopeInfo.IMMORTAL;
 
         if (node.getInitializer() != null) {
@@ -546,10 +569,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return null;
     }
 
-    void pln(String str) {System.err.println(str);}
+    private void checkAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
+        debugIndentIncrement("checkAssignment: " + node.toString());
+        if (lhs.isFieldScope())
+            checkFieldAssignment((FieldScopeInfo) lhs, rhs, node);
+        else
+            // TODO: Do we need an extra case for arrays?
+            checkLocalAssignment(lhs, rhs, node);
+        debugIndentDecrement();
+    }
 
     private void checkDefineScopeOnVariable(VariableElement var, ScopeInfo varScope,
             VariableTree node) {
+        // TODO: Is this replaceable with isUserElement(Element)?
         if (!Utils.isUserLevel(var.getEnclosingElement().toString()))
             return;
         if (var.asType().getKind() != TypeKind.DECLARED)
@@ -570,11 +602,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         ScopeInfo runsInScope = getEnclosingMethodRunsIn();
 
-        // this is ugly but passes the test-case (as opposed to the previous if-statement)
         if (!varScope.isCurrent()) {
             if (!varScope.equals(parent))
-                fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
-                        varScope, parent);
+                fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
+                        node, varScope, parent);
         } else if (runsInScope.isUnknown()) {
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
                     UNKNOWN, parent);
@@ -583,16 +614,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                     runsInScope, parent);
 
         varScopes.addVariableDefineScope(var.toString(), dsi);
-    }
-
-    private void checkAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
-        debugIndentIncrement("checkAssignment: " + node.toString());
-        if (lhs.isFieldScope())
-            checkFieldAssignment((FieldScopeInfo) lhs, rhs, node);
-        else
-            // TODO: Do we need an extra case for arrays?
-            checkLocalAssignment(lhs, rhs, node);
-        debugIndentDecrement();
     }
 
     private void checkFieldAssignment(FieldScopeInfo lhs, ScopeInfo rhs,
@@ -663,8 +684,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private ScopeInfo concretize(ScopeInfo scope) {
-        // TODO
-        return scope;
+        return scope.isCurrent() ? currentScope() : scope;
     }
 
     /**
@@ -708,7 +728,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                     .elementFromUse((IdentifierTree) arg);
             var.getModifiers();
 
-            if (!isFinal(var.getModifiers())) {
+            if (!isFinal(var)) {
                 fail(ERR_BAD_GUARD_ARGUMENT, arg, arg);
                 return false;
             }
@@ -795,25 +815,24 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     /**
-     * This method checks under which condition a give method may be invoked.
+     * Check to see if a method is invokable in the current allocation context.
      *
-     * receiver-scope-problem - to detect a cross-scope method invocation,
-     * we used to look at the receiver of this invocation, if the receiver is
-     * not in CURRENT, then its a cross-scope method invocation. No, the getEffectionRunsIn()
-     * method will directly give as effective @RunsIn() of the method, so we dont
-     * need to look at the receiver's scope.
+     * Since this method is passed the effective RunsIn of the method being
+     * tested, there is no need to look at the scope of the receiver object.
      *
-     * @param m - the element representing the method invocation
-     * @param runsInScope - the effective scope in which the method runs
-     * @param node  - method invocation tree
+     * @see ScopeCheckerContext#getEffectiveMethodRunsIn(ExecutableElement, ScopeInfo)
+     *
+     * @param m  the element representing the method invocation
+     * @param effectiveRunsIn  the effective scope in which the method runs
+     * @param node  method invocation tree
      */
     private void checkMethodRunsIn(ExecutableElement m,
-            ScopeInfo runsInScope, MethodInvocationTree node) {
-        if (currentScope().isUnknown() && !runsInScope.isUnknown())
+            ScopeInfo effectiveRunsIn, MethodInvocationTree node) {
+        if (currentScope().isUnknown() && !effectiveRunsIn.isUnknown())
             fail(ERR_BAD_METHOD_INVOKE, node, CURRENT, UNKNOWN);
-        else if (!runsInScope.isUnknown()
-                && !runsInScope.equals(currentScope()))
-            fail(ERR_BAD_METHOD_INVOKE, node, runsInScope, currentScope());
+        else if (!effectiveRunsIn.isUnknown()
+                && !effectiveRunsIn.equals(currentScope()))
+            fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, currentScope());
     }
 
     private ScopeInfo checkNewInstance(ScopeInfo recvScope, MethodInvocationTree node) {
@@ -912,7 +931,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private ScopeInfo checkVariableScope(VariableTree node) {
         VariableElement var = TreeUtils.elementFromDeclaration(node);
-        if (Utils.isStatic(node.getModifiers().getFlags()))
+        if (Utils.isStatic(var))
             return ScopeInfo.IMMORTAL;
         // TODO: UNKNOWN parameters
         TypeMirror varMirror = var.asType();
@@ -938,7 +957,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             else
                 return tScope;
         } else if (tScope.isCurrent())
-            return new ScopeInfo(varScope.value());  // used to be: return tScope, now the explicit variable takes precedence.
+            return new ScopeInfo(varScope.value());
         else {
             if (!tScope.equals(new ScopeInfo(varScope.value())))
                 fail(ERR_BAD_VARIABLE_SCOPE, node, t.getSimpleName(),
@@ -954,7 +973,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private ScopeInfo currentScope() {
-        return currentRunsIn != null ? currentRunsIn : currentScope;
+        return currentRunsIn;
     }
 
     /**
