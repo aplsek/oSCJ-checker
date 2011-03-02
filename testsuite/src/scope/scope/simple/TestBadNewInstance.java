@@ -1,4 +1,4 @@
-package scope.scopeVisitor.simple;
+package scope.scope.simple;
 
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;

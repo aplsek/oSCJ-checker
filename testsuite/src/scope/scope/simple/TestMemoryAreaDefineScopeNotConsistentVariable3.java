@@ -1,4 +1,4 @@
-package scope.scopeVisitor.simple;
+package scope.scope.simple;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -15,22 +15,23 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 @DefineScope(name="Mission",parent=IMMORTAL)
 @Scope("Mission")
-public abstract class TestMemoryAreaDefineScopeNotConsistentVariable2 extends Mission {
+public abstract class TestMemoryAreaDefineScopeNotConsistentVariable3 extends Mission {
 }
 
 @Scope("Mission")
 @DefineScope(name="PEH",parent="Mission")
-abstract class Handler6 extends PeriodicEventHandler {
+abstract class Handler7 extends PeriodicEventHandler {
 
     @SCJRestricted(INITIALIZATION)
-    public Handler6(PriorityParameters priority, PeriodicParameters period,
+    public Handler7(PriorityParameters priority, PeriodicParameters period,
             StorageParameters storage) {
         super(priority, period, storage);
     }
 
     public void method() {
         @DefineScope(name="Mission",parent=IMMORTAL)
+        @Scope("Mission")
         //## checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE
-        ManagedMemory mem6;                             // ERROR
+        ManagedMemory mem7;                     // ERROR
     }
 }
