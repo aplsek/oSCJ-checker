@@ -106,7 +106,6 @@ import com.sun.source.tree.VariableTree;
 public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private AnnotatedTypeFactory atf;
-    private ScopeInfo currentScope = null;
     private ScopeInfo currentRunsIn = null;
     private ScopeCheckerContext ctx;
     private ScopeTree scopeTree;
@@ -190,7 +189,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         TypeElement t = TreeUtils.elementFromDeclaration(node);
-        ScopeInfo oldScope = currentScope;
         ScopeInfo oldRunsIn = currentRunsIn;
 
         ScopeInfo scope = ctx.getClassScope(t);
@@ -201,11 +199,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         Utils.debugPrintln("Seen class " + t.getQualifiedName() + ": @Scope("
                 + scope + ")");
 
-        currentScope = scope;
         currentRunsIn = scope;
         super.visitClass(node, p);
         varScopes.popBlock();
-        currentScope = oldScope;
         currentRunsIn = oldRunsIn;
         debugIndentDecrement();
         return null;
@@ -370,7 +366,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         debugIndent("Seen method " + m.getSimpleName());
         debugIndent("RunsIn: " + currentRunsIn);
-        debugIndent("Scope: " + currentScope);
 
         ScopeInfo oldRunsIn = currentRunsIn;
         ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, currentScope());
@@ -680,8 +675,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private ScopeInfo concretize(ScopeInfo scope) {
-        // TODO
-        return scope;
+        return scope.isCurrent() ? currentScope() : scope;
     }
 
     /**
@@ -955,7 +949,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private ScopeInfo currentScope() {
-        return currentRunsIn != null ? currentRunsIn : currentScope;
+        return currentRunsIn;
     }
 
     /**
