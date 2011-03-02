@@ -20,7 +20,6 @@ public class FieldScopeInfo extends ScopeInfo {
         super(scope.getScope(),defineScopeInfo);
         this.receiverScope = receiverScope;
         this.fieldScope = fieldScope;
-
     }
 
     public ScopeInfo getReceiverScope() {

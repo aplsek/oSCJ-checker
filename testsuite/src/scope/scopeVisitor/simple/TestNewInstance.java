@@ -15,44 +15,33 @@ import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="Mission",parent=IMMORTAL)
 @Scope("Mission")
-public abstract class TestBadNewInstance  extends Mission  {
+public abstract class TestNewInstance  extends Mission  {
 }
 
 @Scope("Mission")
 @DefineScope(name="PEH",parent="Mission")
-class PEH extends PeriodicEventHandler {
+abstract class MyPEH extends PeriodicEventHandler {
 
     @SCJRestricted(INITIALIZATION)
-    public PEH(PriorityParameters priority, PeriodicParameters period,
+    public MyPEH(PriorityParameters priority, PeriodicParameters period,
             StorageParameters storage) {
         super(priority, period, storage);
     }
 
-
-    @DefineScope(name="PEH",parent="Mission")
-    @Scope("Mission")
+    @DefineScope(name="Mission",parent=IMMORTAL)
+    @Scope(IMMORTAL)
     ManagedMemory mem;                              // OK
 
     public void method() {
         try {
-            //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
-            mem.newInstance(Foo.class);                // ERROR
+            mem.newInstance(MyFoo.class);             // OK
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public StorageParameters getThreadConfigurationParameters() {
-        return null;
-    }
-
-    @Override
-    public void handleAsyncEvent() {
     }
 }
 
 
 @Scope("Mission")
-class Foo {
+class MyFoo {
 }
