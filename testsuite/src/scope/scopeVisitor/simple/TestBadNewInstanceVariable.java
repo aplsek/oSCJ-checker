@@ -15,28 +15,28 @@ import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="Mission",parent=IMMORTAL)
 @Scope("Mission")
-public abstract class TestBadNewInstance  extends Mission  {
+public abstract class TestBadNewInstanceVariable  extends Mission  {
 }
 
 @Scope("Mission")
 @DefineScope(name="PEH",parent="Mission")
-class PEH extends PeriodicEventHandler {
+class PEHandler extends PeriodicEventHandler {
 
     @SCJRestricted(INITIALIZATION)
-    public PEH(PriorityParameters priority, PeriodicParameters period,
+    public PEHandler(PriorityParameters priority, PeriodicParameters period,
             StorageParameters storage) {
         super(priority, period, storage);
     }
 
-    @DefineScope(name="PEH",parent="Mission")
-    @Scope("Mission")
-    ManagedMemory mem;                              // OK
-
 
     public void method() {
         try {
+            @DefineScope(name="PEH",parent="Mission")
+            @Scope("Mission")
+            ManagedMemory mem = null;                              // OK
+
             //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
-            mem.newInstance(Foo.class);                // ERROR
+            mem.newInstance(MyFoo2.class);                // ERROR
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -54,5 +54,5 @@ class PEH extends PeriodicEventHandler {
 
 
 @Scope("Mission")
-class Foo {
+class MyFoo2 {
 }
