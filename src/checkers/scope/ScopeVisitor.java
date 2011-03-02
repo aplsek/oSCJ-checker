@@ -33,6 +33,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.DefineScope;
@@ -830,29 +831,29 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private ScopeInfo checkNewInstance(ScopeInfo recvScope, MethodInvocationTree node) {
         ExpressionTree arg = node.getArguments().get(0);
-        ScopeInfo argScope = ctx.getClassScope(getType(arg));
+        ScopeInfo argScope = ctx.getClassScope(getNewInstanceType(arg));
 
         if (recvScope.defineScope == null)
             throw new RuntimeException(
-                    "ERROR : Could not retrieve DefineScopeInfo. "
-                            + "A variable/field whose type implements Allocation Context must have a @DefineScope annotation.");
+                    "No DefineScope on AllocationContext object");
 
         if (!argScope.equals(recvScope.defineScope.getScope()))
-            fail(ERR_BAD_NEW_INSTANCE,node,argScope,recvScope.defineScope.getScope());
+            fail(ERR_BAD_NEW_INSTANCE, node, argScope,
+                    recvScope.defineScope.getScope());
 
         return recvScope.defineScope.getScope();
     }
 
     /**
-     * this is ugly
-     * TODO: how to go from ExpressionTree to TypeMirror?
-     *
-     * from "Foo.class" --> "scope.memory.Foo"
+     * Convert a newInstance object to its type.
      */
-    private String getType(ExpressionTree arg) {
-        TypeMirror type = TreeUtils.elementFromUse(arg).asType();
-        String res = type.toString();
-        return res.substring(res.indexOf('<')+1, res.indexOf('>'));
+    private TypeElement getNewInstanceType(ExpressionTree arg) {
+        TypeMirror type = InternalUtils.typeOf(arg);
+        if (type.getKind() == TypeKind.DECLARED) {
+            DeclaredType decl = (DeclaredType) type;
+            return Utils.getTypeElement(decl.getTypeArguments().get(0));
+        }
+        return null;
     }
 
     /**
