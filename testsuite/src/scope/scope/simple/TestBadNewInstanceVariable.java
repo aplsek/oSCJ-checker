@@ -1,4 +1,4 @@
-package scope.scopeVisitor.simple;
+package scope.scope.simple;
 
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
@@ -7,26 +7,23 @@ import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="a", parent=Scope.IMMORTAL)
 @Scope("a")
-public abstract class TestBadNewInstance extends Mission {
+public abstract class TestBadNewInstanceVariable extends Mission {
     @Scope("a")
     @DefineScope(name="b", parent="a")
     static abstract class X extends Mission {
         @DefineScope(name="b", parent="a")
         @Scope("a")
-        ManagedMemory mem;
-
-        @DefineScope(name="a", parent=Scope.IMMORTAL)
-        @Scope(Scope.IMMORTAL)
-        ManagedMemory mem2;
+        ManagedMemory mem1 = null;
 
         public void foo() {
             try {
-                mem2.newInstance(Y.class);
-                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
+                @DefineScope(name="b", parent="a")
+                @Scope("a")
+                ManagedMemory mem = null;
+
+                // ## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
                 mem.newInstance(Y.class);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) { }
         }
     }
 

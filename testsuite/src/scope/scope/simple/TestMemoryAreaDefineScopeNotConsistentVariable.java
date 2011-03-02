@@ -1,4 +1,4 @@
-package scope.scopeVisitor.simple;
+package scope.scope.simple;
 
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
