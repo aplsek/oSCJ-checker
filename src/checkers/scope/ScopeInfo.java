@@ -27,7 +27,7 @@ public class ScopeInfo {
      *  its literal (field/variable) has an according @DefineScope annotation,
      *  then this value is passed in this field.
      */
-    public DefineScopeInfo defineScope = null;
+    protected DefineScopeInfo defineScope = null;
 
     public ScopeInfo(String scope) {
         this.scope = scope;
@@ -83,5 +83,13 @@ public class ScopeInfo {
     @Override
     public String toString() {
         return scope;
+    }
+
+    public DefineScopeInfo getDefineScope() {
+        return defineScope;
+    }
+
+    public void putDefineScope(DefineScopeInfo dsi) {
+        defineScope = dsi;
     }
 }
