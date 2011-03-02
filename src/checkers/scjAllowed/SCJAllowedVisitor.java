@@ -172,7 +172,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
                 .elementFromDeclaration(node);
 
         checkSCJSupport(methodElement, node);
-        checkSCJProtected(methodElement, node);
 
         int level = 0;
         if (isDefaultConstructor(node)) {
@@ -292,7 +291,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         if (isEscaped(ctorElement.getEnclosingElement().toString()))
             return super.visitNewClass(node, p);
 
-        if (checkSCJProtected(ctorElement, node)
+        if (checkSCJSupport(ctorElement, node)
                 && scjAllowedLevel(ctorElement, node) > scjAllowedStack.peek())
             /** tested by SuppressTest */
             fail(ERR_SCJALLOWED_BAD_NEW_CALL, node, scjAllowedStack.peek());
@@ -523,23 +522,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     }
 
     /**
-     * If the method is SCJProtected we verify that it is in these packages:
-     * javax.safetycritical javax.realtime If not, we must report
-     * "scjallowed.badprotectedcall" error.
-     *
-     * @return false - if its ilegal to call SCJProtected
-     */
-    private boolean checkSCJProtected(ExecutableElement methodElement, Tree node) {
-        boolean isValid = !isSCJProtected(methodElement, node)
-                || pkg.startsWith("javax.safetycritical")
-                || pkg.startsWith("javax.realtime");
-        if (!isValid)
-            /** Tested by TestAllowedProtectedClash */
-            fail(ERR_SCJALLOWED_BAD_PROTECTED, node);
-        return isValid;
-    }
-
-    /**
      *
      * @return true if currently checked class is at user level (outside of SCJ
      *         packages)
@@ -556,15 +538,26 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      *
      * @return false - if its illegal to call SCJProtected
      */
-    private boolean checkSCJSupport(ExecutableElement methodElement, Tree node) {
-        boolean isValid = !isSCJSupport(methodElement, node)
+    private boolean checkSCJSupport(ExecutableElement m, Tree node) {
+        boolean isValid = !isSCJSupport(m, node)
                 || pkg.startsWith("javax.safetycritical")
                 || pkg.startsWith("javax.realtime");
+        if (!isValid) {
+            // If we're in the user level with an SUPPORT annotation, we have
+            // to see if the method overrides something in SCJ.
+            for (AnnotatedDeclaredType a : ats.overriddenMethods(m).keySet()) {
+                TypeElement t = Utils.getTypeElement(a.getUnderlyingType());
+                if (!Utils.isUserLevel(t)) {
+                    isValid = true;
+                    break;
+                }
+            }
+        }
         if (!isValid)
             /** Tested by TestAllowedProtectedClash */
             fail(ERR_SCJALLOWED_BAD_SUPPORT, node);
 
-        if (isSCJSupport(methodElement, node) && isValid)
+        if (isSCJSupport(m, node) && isValid)
             Utils.debugPrintln(">>is SCJ SUPPORT");
 
         return isValid;
