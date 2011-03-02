@@ -21,17 +21,15 @@ public class DefineScopeInfo {
 
     @Override
     public int hashCode() {
-        return scope.hashCode() + parent.scope.hashCode();
+        return 31 * scope.hashCode() + parent.scope.hashCode();
     }
 
     @Override
     public String toString() {
-        return "name = " + scope + ", parent=" + parent.scope;
+        return "name = " + scope + ", parent=" + parent;
     }
-    
+
     public ScopeInfo getParent() {
         return parent;
     }
-
-
 }
