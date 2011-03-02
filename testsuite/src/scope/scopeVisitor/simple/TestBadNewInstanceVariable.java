@@ -29,6 +29,10 @@ class PEHandler extends PeriodicEventHandler {
     }
 
 
+    @DefineScope(name="PEH",parent="Mission")
+    @Scope("Mission")
+    ManagedMemory mem1 = null;                              // OK
+
     public void method() {
         try {
             @DefineScope(name="PEH",parent="Mission")

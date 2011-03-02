@@ -271,20 +271,20 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (elem.getKind() == ElementKind.FIELD && !isThis(node)) {
             ScopeInfo scope = ctx.getFieldScope((VariableElement) elem);
             DefineScopeInfo defineScope = null;
+
+            //add DefineScopeInfo where needed
             if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(elem.asType()))))
                 defineScope = ctx.getFieldDefineScope((VariableElement) elem);
 
-            debugIndent("\t elem:" + elem.getEnclosingElement());
-            debugIndent("\t node:" + node.getName().toString());
-            debugIndent("\t FIELD scope :" + scope.getScope());
             ret = new FieldScopeInfo(varScopes.getVariableScope("this"), scope, defineScope);
         } else if (elem.getKind() == ElementKind.LOCAL_VARIABLE
                 || elem.getKind() == ElementKind.PARAMETER) {
             String var = node.getName().toString();
             ScopeInfo scope = varScopes.getVariableScope(var);
-            debugIndent("\t varScope:" + scope.getScope());
-            // TODO: we need to add the "needsDefineScope" call!!
-            //       and put it into the "scope" var
+
+            //add DefineScopeInfo where needed
+            if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(elem.asType()))))
+                scope.defineScope = varScopes.getVariableDefineScope(var);
 
             ret = scope;
         } else if (elem.getKind() == ElementKind.METHOD
@@ -418,8 +418,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             argScopes.add(arg.accept(this, p));
 
         ScopeInfo recvScope = node.getMethodSelect().accept(this, p);
-        debugIndent("recvScope : " + recvScope);
-
         debugIndentDecrement();
         return checkMethodInvocation(TreeUtils.elementFromUse(node), recvScope,
                 argScopes, node);
@@ -547,13 +545,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         ScopeInfo lhs = checkVariableScope(node);
-        debugIndent("scope's variable: " + lhs);
+        debugIndent(" scope's variable: " + lhs);
         varScopes.addVariableScope(node.getName().toString(), lhs);
         VariableElement var = TreeUtils.elementFromDeclaration(node);
-        if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(var.asType()))))
+        if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(var.asType())))) {
+            debugIndent(" needs @DefineScope.");
             // if this is IDENTIFIER(a field), then this was already processed in ScopeRunsInVisitor
-            if (node.getType().getKind() != Kind.IDENTIFIER)
+            if (TreeUtils.elementFromDeclaration(node).getKind()  != ElementKind.FIELD)
                 checkDefineScopeOnVariable(var,lhs,node);
+        }
 
         // Static variable, change the context to IMMORTAL
         if (Utils.isStatic(var))
@@ -581,6 +581,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private void checkDefineScopeOnVariable(VariableElement var, ScopeInfo varScope,
             VariableTree node) {
+        debugIndent("checkDefineScopeOnVariable.");
+
         // TODO: Is this replaceable with isUserElement(Element)?
         if (!Utils.isUserLevel(var.getEnclosingElement().toString()))
             return;
@@ -601,7 +603,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node);
 
         ScopeInfo runsInScope = getEnclosingMethodRunsIn();
-
         if (!varScope.isCurrent()) {
             if (!varScope.equals(parent))
                 fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
@@ -835,26 +836,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, currentScope());
     }
 
+    //void pln(String str ) {System.err.println(str);}
+
     private ScopeInfo checkNewInstance(ScopeInfo recvScope, MethodInvocationTree node) {
-        ScopeInfo scope = null;
-
         ExpressionTree arg = node.getArguments().get(0);
-        String type = getType(arg);
-        ScopeInfo argScope = ctx.getClassScope(type);
+        ScopeInfo argScope = ctx.getClassScope(getType(arg));
 
-        // TODO: left here since I am going the test also this method invoked on
-        //       local variables
-        //pln("\t NEW INSTANCE CALL!!");
-        //pln("\t\t  recvScope :" + recvScope);
-        //pln("\t\t  recvScope - defineScope :" + recvScope.defineScope);
-        //pln("\t\t  arg :" + arg);
-        //pln("\t\t  type :" + type);
-        //pln("\t\t  argScope :" +  argScope);
-        //pln("\t\t  arg :" +  TreeUtils.elementFromUse(arg).asType() );
-
-        if (recvScope.defineScope == null) {
-            // TODO: internal ERROR
-        }
+        if (recvScope.defineScope == null)
+            throw new RuntimeException("ERROR : Could not retrieve DefineScopeInfo. " +
+            		"A variable/field whose type implements Allocation Context must have a @DefineScope annotation."
+                    );
 
         if (!argScope.equals(recvScope.defineScope.getScope()))
             fail(ERR_BAD_NEW_INSTANCE,node,argScope,recvScope.defineScope.getScope());

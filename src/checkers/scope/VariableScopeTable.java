@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 
 
 /**
@@ -66,6 +67,21 @@ public class VariableScopeTable {
                 return scope;
         }
         throw new RuntimeException("Variable not defined in scope table");
+    }
+
+    public void dumpVarDefineScopes() {
+        System.err.println("\n\n ========= DUMP DEFINE SCOPES variables/locals===== ");
+
+        Iterator<LexicalBlock> iter = blocks.descendingIterator();
+        while (iter.hasNext()) {
+            LexicalBlock b = iter.next();
+            //DefineScopeInfo scope = b.defineScopes;
+            for ( Entry<String, DefineScopeInfo> key  : b.defineScopes.entrySet()) {
+                System.err.println(key.getKey() + ":"
+                        + key.getValue());
+            }
+        }
+        System.err.println("========= DUMP DEFINE SCOPES variables/locals===\n");
     }
 
     public void addParentRelation(String childVar, String parentVar) {
