@@ -33,6 +33,11 @@ public class ScopeInfo {
         this.scope = scope;
     }
 
+    public ScopeInfo(String scope, DefineScopeInfo defineScope) {
+        this.scope = scope;
+        this.defineScope = defineScope;
+    }
+
     public String getScope() {
         return scope;
     }

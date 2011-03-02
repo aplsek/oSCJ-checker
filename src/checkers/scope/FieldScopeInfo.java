@@ -17,11 +17,10 @@ public class FieldScopeInfo extends ScopeInfo {
     public FieldScopeInfo(ScopeInfo scope, ScopeInfo receiverScope,
             ScopeInfo fieldScope,
             DefineScopeInfo defineScopeInfo) {
-        super(scope.getScope());
+        super(scope.getScope(),defineScopeInfo);
         this.receiverScope = receiverScope;
         this.fieldScope = fieldScope;
 
-        this.defineScope = defineScopeInfo;
     }
 
     public ScopeInfo getReceiverScope() {
