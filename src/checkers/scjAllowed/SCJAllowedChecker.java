@@ -20,7 +20,7 @@ import com.sun.source.tree.CompilationUnitTree;
  * conditionals, the closest is used. 2. If the expression occurs within the body of a method that is annotated
  *
  * @SCJAllowed(n) then compliance level is n. 3. If the expression occurs within the body of a class annotated
- * @SCJAll- owed(n) or a class nested within a class annotated
+ * @SCJAllowed(n) or a class nested within a class annotated
  * @SCJAllowed(n), and the Members attribute of the annotation is set to true then the expression is n. If none of the
  *                 above holds, then the expression has no compliance level. The compliance level of a member (field,
  *                 method or nested class) is the first of: 1. If the member is annotated
@@ -34,6 +34,7 @@ import com.sun.source.tree.CompilationUnitTree;
 public class SCJAllowedChecker extends SinglePassChecker {
     // Please keep alphabetized
     public static final String ERR_HIDDEN_TO_SCJALLOWED = "hidden.to.scjallowed";
+    // TODO: This error seems to have gone away
     public static final String ERR_SCJALLOWED_BAD_CONSTRUCTOR_CALL = "scjallowed.badconstructorcall";
     public static final String ERR_SCJALLOWED_BAD_ENCLOSED = "scjallowed.badenclosed";
     public static final String ERR_SCJALLOWED_BAD_FIELD_ACCESS = "scjallowed.badfieldaccess";
@@ -41,7 +42,6 @@ public class SCJAllowedChecker extends SinglePassChecker {
     public static final String ERR_SCJALLOWED_BAD_METHOD_CALL = "scjallowed.badmethodcall";
     public static final String ERR_SCJALLOWED_BAD_NEW_CALL = "scjallowed.badnewcall";
     public static final String ERR_SCJALLOWED_BAD_OVERRIDE = "scjallowed.badoverride";
-    public static final String ERR_SCJALLOWED_BAD_PROTECTED = "scjallowed.badprotected";
     public static final String ERR_SCJALLOWED_BAD_PROTECTED_CALL = "scjallowed.badprotectedcall";
     public static final String ERR_SCJALLOWED_BAD_SUBCLASS = "scjallowed.badsubclass";
     public static final String ERR_SCJALLOWED_BAD_SUPPORT = "scjallowed.badsupport";
@@ -72,8 +72,6 @@ public class SCJAllowedChecker extends SinglePassChecker {
                 "Constructor call is not allowed at level %s.");
         p.put(ERR_SCJALLOWED_BAD_OVERRIDE,
                 "Method may not decrease visibility of their overrides.");
-        p.put(ERR_SCJALLOWED_BAD_PROTECTED,
-                "Methods outside of javax.realtime or javax.safetycritical packages cannot be annotated with @SCJAllowed(INFRASTRUCTURE).");
         p.put(ERR_SCJALLOWED_BAD_PROTECTED_CALL,
                 "@SCJAllowed(INFRASTRUCTURE) methods may not be called outside of javax.realtime or javax.safetycritical packages.");
         p.put(ERR_SCJALLOWED_BAD_SUBCLASS,
