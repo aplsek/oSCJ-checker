@@ -18,6 +18,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
+import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJRestricted;
 
 import checkers.scope.ScopeInfo;
@@ -325,5 +326,9 @@ public final class Utils {
         String name = t.getQualifiedName().toString();
         return !(name.startsWith(JAVAX_REALTIME) || name
                 .startsWith(JAVAX_SAFETYCRITICAL));
+    }
+
+    public static boolean isUserLevel(Level l) {
+        return !(l == Level.INFRASTRUCTURE || l == Level.SUPPORT);
     }
 }

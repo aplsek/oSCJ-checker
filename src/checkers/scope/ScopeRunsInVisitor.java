@@ -370,9 +370,12 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             ScopeInfo eRunsIn = getOverrideRunsInAndVisit(e, errNode);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
-            if (!eRunsIn.equals(runsIn) && eLevel != SUPPORT)
-                fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE,
-                        node, errNode);
+            // eLevel can be SUPPORT or INFRASTRUCTURE, though overriding an
+            // INFRASTRUCTURE method in user code is illegal. This part is
+            // checked in SCJAllowedVisitor; we include INFRASTRUCTURE here
+            // because we're pulling in SCJ types.
+            if (!eRunsIn.equals(runsIn) && Utils.isUserLevel(eLevel))
+                fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
         }
         ctx.setMethodRunsIn(runsIn, m);
     }
