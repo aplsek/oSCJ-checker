@@ -253,7 +253,7 @@ public final class Utils {
         /* AllocationContext */
 
         EXECUTE_IN_AREA {
-            @Override public String toString() { return "executeInArea(java.lang.Runnable)"; }
+            @Override public String toString() { return "executeInArea(javax.safetycritical.SCJRunnable)"; }
         },
 
         /* ManagedMemory */
