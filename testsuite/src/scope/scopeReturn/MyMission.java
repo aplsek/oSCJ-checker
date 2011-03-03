@@ -27,21 +27,22 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope(IMMORTAL)
 class ImmortalClass {
-    
+
     @Scope(IMMORTAL)
     public Foo getFoo() {
         return new Foo();           // OK
     }
-    
+
 }
 
 @DefineScope(name="MyMission",parent=IMMORTAL)
-@Scope("MyMission") 
+@Scope("MyMission")
 class MyMission extends Mission {
 
     //@Scope(IMMORTAL) static Foo foo = new Foo();
-    
-    protected void initialize() { 
+
+    @Override
+    protected void initialize() {
         new MyHandler(null, null, null, 0,this);
     }
 
@@ -49,34 +50,34 @@ class MyMission extends Mission {
     public long missionMemorySize() {
         return 0;
     }
-    
+
     MyField field;
-    
+
     @Scope(IMMORTAL) @RunsIn("MyHandler")
-    public Bar getFooErr() {
-        return new Bar();           // ERR
+    public BarBarBar getFooErr() {
+        return new BarBarBar();           // ERR
     }
-    
+
     @Scope("MyHandler") @RunsIn("MyHandler")
     public BarScope getBarScope() {
         return new BarScope();           // OK
     }
-    
+
     @Scope("MyHandler") @RunsIn("MyHandler")
     public MyField getField() {
         return field;           // ERR
     }
-    
+
     @Scope("MyMission") @RunsIn("MyHandler")
     public BarScope getBarScope2() {
         return new BarScope();           // ERR
     }
-    
+
     @Scope(UNKNOWN) @RunsIn("MyHandler")
     public BarScope getBarScopeUNKNOWN() {
         return new BarScope();           // OK
     }
-    
+
 }
 
 
@@ -85,21 +86,22 @@ class MyMission extends Mission {
 class MyHandler extends PeriodicEventHandler {
 
     MyMission mission = null;
-    
+
     public MyHandler(PriorityParameters priority,
             PeriodicParameters parameters, StorageParameters scp, long memSize, MyMission mission) {
         super(priority, parameters, scp);
-        
+
         this.mission = mission;
-        
+
     }
 
-    @RunsIn("MyHandler") 
+    @Override
+    @RunsIn("MyHandler")
     public void handleAsyncEvent() {
         //MyMission mission = (MyMission) Mission.getCurrentMission();
-        
+
        // @Scope(IMMORTAL) Foo immFoo = mission.getFoo();
-        
+
        // @Scope(IMMORTAL) Foo immFoo2 = mission.getFooGeneric();
     }
 

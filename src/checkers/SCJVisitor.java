@@ -10,6 +10,8 @@ import static checkers.Utils.SCJMethod.GET_MEMORY_AREA;
 import static checkers.Utils.SCJMethod.NEW_ARRAY;
 import static checkers.Utils.SCJMethod.NEW_ARRAY_IN_AREA;
 import static checkers.Utils.SCJMethod.NEW_INSTANCE;
+import static checkers.Utils.SCJMethod.NEW_INSTANCE_IN_AREA;
+
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -107,6 +109,9 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
             if (Utils.getMethodSignature(method)
                     .equals(NEW_INSTANCE.toString()))
                 return NEW_INSTANCE;
+            if (Utils.getMethodSignature(method)
+                    .equals(NEW_INSTANCE_IN_AREA.toString()))
+                return NEW_INSTANCE_IN_AREA;
             if (Utils.getMethodSignature(method).equals(NEW_ARRAY.toString()))
                 return NEW_ARRAY;
             if (Utils.getMethodSignature(method).equals(

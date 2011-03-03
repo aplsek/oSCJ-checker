@@ -1,4 +1,4 @@
-package scope.scope.simple;
+package scope.memory;
 
 import javax.realtime.MemoryArea;
 import javax.safetycritical.ManagedMemory;
@@ -9,30 +9,26 @@ import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="a", parent=Scope.IMMORTAL)
 @Scope("a")
-public abstract class TestBadNewInstance extends Mission {
+public abstract class TestBadNewInstanceInArea extends Mission {
     @Scope("a")
     @DefineScope(name="b", parent="a")
     static abstract class X extends Mission {
-        @DefineScope(name="a", parent=Scope.IMMORTAL)
-        @Scope(Scope.IMMORTAL)
-        ManagedMemory mem;
 
-        @DefineScope(name="b", parent="a")
-        @Scope("a")
-        ManagedMemory mem2;
+        Y y;
 
         public void foo() throws InstantiationException, IllegalAccessException {
-            mem.newInstance(Y.class);
-            //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
-            mem2.newInstance(Y.class);
+                MemoryArea.newInstanceInArea(y,Y.class);
+
+                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
+                MemoryArea.newInstanceInArea(y,Z.class);
         }
 
 
         @RunsIn("b")
         public void method () throws InstantiationException, IllegalAccessException {
-            ManagedMemory.getCurrentManagedMemory().newInstance(Z.class);
+            Z z = new Z();
             //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
-            ManagedMemory.getCurrentManagedMemory().newInstance(Y.class);
+            MemoryArea.newInstanceInArea(z,Y.class);
         }
     }
 

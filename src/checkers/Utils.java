@@ -235,9 +235,8 @@ public final class Utils {
         },
 
         NEW_INSTANCE_IN_AREA {
-            @Override public String toString() { return "newInstance(java.lang.Class)"; }
+            @Override public String toString() { return "newInstanceInArea(java.lang.Object,java.lang.Class)"; }
         },
-
 
         NEW_ARRAY {
             @Override public String toString() { return "newArray(java.lang.Class,int)"; }

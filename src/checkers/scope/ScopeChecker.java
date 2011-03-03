@@ -16,8 +16,10 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_ALLOCATION = "bad.allocation";
     public static final String ERR_BAD_ASSIGNMENT_SCOPE = "bad.assignment.scope";
     public static final String ERR_BAD_ASSIGNMENT_PRIVATE_MEM = "bad.assignment.private.mem";
+    // TODO: Remove
     public static final String ERR_BAD_ENTER_PARAM = "bad.enter.param";
     public static final String ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH = "bad.enter.private.memory.runs.in.no.match";
+    // TODO: Remove
     public static final String ERR_BAD_ENTER_TARGET = "bad.enter.target";
     public static final String ERR_BAD_EXECUTE_IN_AREA_OR_ENTER = "bad.execute.in.area.or.enter";
     public static final String ERR_BAD_EXECUTE_IN_AREA_TARGET = "bad.execute.in.area.target";
@@ -41,6 +43,7 @@ public class ScopeChecker extends SinglePassChecker {
     // TODO: Remove
     public static final String ERR_RUNNABLE_WITHOUT_RUNS_IN = "runnable.without.runs.in";
     public static final String ERR_SCOPE_RUNS_IN_DISAGREEMENT = "scope.runs.in.disagreement";
+    // TODO: Remove
     public static final String ERR_TYPE_CAST_BAD_ENTER_PARAMETER = "type.cast.bad.enter.parameter";
 
     private ScopeCheckerContext ctx;

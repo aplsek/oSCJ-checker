@@ -1,5 +1,6 @@
 package checkers.scope;
 
+import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.annotate.Scope;
 
 public class ScopeInfo {
@@ -94,4 +95,19 @@ public class ScopeInfo {
     public DefineScopeInfo getDefineScope() {
         return defineScope;
     }
+
+    /**
+     * We need this method because when user calls ManagedMemory.getCurrentManagedMemory(),
+     * we return a ScopeInfo from the scope tree, but the scopeTree objects do not have the "defineScope
+     * field properly set.
+     *
+     * TODO: we can either go with this solution of we an update construction of the scopeTree
+     * so that this information is generated there.
+     *
+     * @param dsi
+     */
+    public void setDefineScope(DefineScopeInfo dsi) {
+        defineScope = dsi;
+    }
+
 }
