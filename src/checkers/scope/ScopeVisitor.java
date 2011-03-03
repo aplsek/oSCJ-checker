@@ -703,19 +703,33 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                     argRunsIn, currentScope());
     }
 
-    private ScopeInfo checkExecuteInArea(MethodInvocationTree node) {
-        ScopeInfo scope = null;
+    private ScopeInfo checkExecuteInArea(ScopeInfo recvScope, MethodInvocationTree node) {
+        ScopeInfo target = recvScope.getDefineScope().getScope();
+        TypeMirror runnableType = InternalUtils.typeOf(node.getArguments().get(
+                0));
+        ScopeInfo argRunsIn = getRunsInFromRunnable(runnableType);
 
-        debugIndent("executeInArea Invocation: ");
+        if (argRunsIn.isCurrent()) {
+            // no @RunsIn on the Runnable
+            fail(ERR_RUNNABLE_WITHOUT_RUNS_IN, node);
+        }
+
+        if (!scopeTree.isAncestorOf(currentScope(), target)) {
+            // the executeInArea must target an Ancestor scope
+            fail(ERR_BAD_EXECUTE_IN_AREA_TARGET, node, currentScope(), target);
+        }
+
+        if (!target.equals(argRunsIn)) {
+            // target and @RunsIn on runnable must be the same
+            fail(ERR_BAD_EXECUTE_IN_AREA_OR_ENTER, node, target, argRunsIn);
+        }
+
         // Leaving the failures in so the static imports don't get warnings
-        fail(ERR_BAD_ENTER_PARAM, node);
-        fail(ERR_TYPE_CAST_BAD_ENTER_PARAMETER, node);
-        fail(ERR_DEFAULT_BAD_ENTER_PARAMETER, node);
-        fail(ERR_RUNNABLE_WITHOUT_RUNS_IN, node);
-        fail(ERR_BAD_EXECUTE_IN_AREA_OR_ENTER, node);
-        fail(ERR_BAD_EXECUTE_IN_AREA_TARGET, node);
-        fail(ERR_BAD_ENTER_TARGET, node);
-        return scope;
+        //fail(ERR_BAD_ENTER_PARAM, node);
+        //fail(ERR_TYPE_CAST_BAD_ENTER_PARAMETER, node);
+        //fail(ERR_DEFAULT_BAD_ENTER_PARAMETER, node);
+        //fail(ERR_BAD_ENTER_TARGET, node);
+        return null;
     }
 
     private boolean checkForValidGuardArgument(ExpressionTree arg) {
@@ -781,7 +795,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             checkEnterPrivateMemory(node);
             return null; // void methods don't return a scope
         case EXECUTE_IN_AREA:
-            checkExecuteInArea(node);
+            checkExecuteInArea(recvScope, node);
             return null;
         case ENTER:
             // checkExecuteInArea(node); // TODO: how to check the enter()?
@@ -794,7 +808,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         case NEW_ARRAY:
             return checkNewArray(recvScope, node);
         case NEW_ARRAY_IN_AREA:
-            return checkNewInstanceInArea(node);
+            return checkNewArrayInArea(node);
         case GET_MEMORY_AREA:
             return checkGetMemoryArea(argScopes.get(0), node);
         case GET_CURRENT_MANAGED_MEMORY:
@@ -907,6 +921,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private ScopeInfo checkNewInstanceInArea(MethodInvocationTree node) {
+        // TODO:
+        ScopeInfo scope = null;
+        return scope;
+    }
+
+    private ScopeInfo checkNewArrayInArea(MethodInvocationTree node) {
         // TODO:
         ScopeInfo scope = null;
         return scope;

@@ -68,9 +68,9 @@ public class ScopeChecker extends SinglePassChecker {
         p.put(ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH,
                 "The Runnable's @RunsIn must be a child scope of the CurrentScope\n\t @RunsIn: %s\n\t Current Scope: %s");
         p.put(ERR_BAD_EXECUTE_IN_AREA_OR_ENTER,
-                "Runnable and PrivateMemory scopes disagree.");
+                "Runnable and PrivateMemory scopes disagree. Target is %s, while Runnable's @RunsIn is %s.");
         p.put(ERR_BAD_EXECUTE_IN_AREA_TARGET,
-                "executeInArea() must target a parent scope.");
+                "executeInArea() must target a parent scope. Current scope is %s, while we target %s.");
         p.put(ERR_BAD_GUARD_ARGUMENT,
                 "Only final variables may be passed as arguments into guards.");
         p.put(ERR_BAD_GET_MEMORY_AREA,
