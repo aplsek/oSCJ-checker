@@ -6,25 +6,25 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 
-@DefineScope(name="a",parent=Scope.IMMORTAL)
+@DefineScope(name="a", parent=Scope.IMMORTAL)
 @Scope("a")
 public abstract class TestBadNewInstanceVariable extends Mission  {
     @Scope("a")
-    @DefineScope(name="b",parent="a")
-    abstract class X extends Mission {
+    @DefineScope(name="b", parent="a")
+    static abstract class X extends Mission {
         public void method() {
             try {
-                @DefineScope(name="b",parent="a")
+                @DefineScope(name="b", parent="a")
                 @Scope("a")
                 ManagedMemory mem = null;
                 //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
-                mem.newInstance(MyFoo2.class);
+                mem.newInstance(Y.class);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
     @Scope("a")
-    class MyFoo2 {}
+    static class Y { }
 }
 
