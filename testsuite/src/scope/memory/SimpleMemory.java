@@ -66,7 +66,7 @@ class Foo {
 }
 
 
-@Scope("PEH)
+@Scope("PEH")
 class Run implements Runnable {
     @RunsIn("Mission")
     public void run() {
