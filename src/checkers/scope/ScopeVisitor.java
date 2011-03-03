@@ -13,7 +13,10 @@ import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_OR_ENTER;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_TARGET;
 import static checkers.scope.ScopeChecker.ERR_BAD_GUARD_ARGUMENT;
 import static checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE;
+import static checkers.scope.ScopeChecker.ERR_BAD_NEW_ARRAY;
+import static checkers.scope.ScopeChecker.ERR_BAD_NEW_ARRAY_TYPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE;
+import static checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_DEFAULT_BAD_ENTER_PARAMETER;
@@ -791,7 +794,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         case NEW_INSTANCE_IN_AREA:
             return checkNewInstanceInArea(node);
         case NEW_ARRAY:
-            return checkNewArray(node);
+            return checkNewArray(recvScope, node);
         case NEW_ARRAY_IN_AREA:
             return checkNewInstanceInArea(node);
         case GET_MEMORY_AREA:
@@ -838,23 +841,37 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private ScopeInfo checkNewInstance(ScopeInfo recvScope,
             MethodInvocationTree node) {
         ExpressionTree arg = node.getArguments().get(0);
-        ScopeInfo argScope = ctx.getClassScope(getNewInstanceType(arg));
-        DefineScopeInfo dsi = recvScope.getDefineScope();
+        TypeMirror instType = getNewInstanceType(arg);
+        ScopeInfo target = recvScope.getDefineScope().getScope();
 
-        if (!argScope.equals(dsi.getScope()))
-            fail(ERR_BAD_NEW_INSTANCE, node, argScope, dsi.getScope());
+        if (isValidNewInstanceType(instType)) {
+            ScopeInfo argScope = ctx.getClassScope(instType.toString());
+            if (!(argScope.isCurrent() || argScope.equals(target)))
+                fail(ERR_BAD_NEW_INSTANCE, node, argScope, target);
+        } else {
+            fail(ERR_BAD_NEW_INSTANCE_TYPE, node, instType);
+        }
+        return target;
+    }
 
-        return dsi.getScope();
+    private boolean isValidNewInstanceType(TypeMirror m) {
+        TypeKind k = m.getKind();
+        if (k == TypeKind.ARRAY || k == TypeKind.WILDCARD
+                || k == TypeKind.TYPEVAR || k.isPrimitive()) {
+            return false;
+        }
+        TypeElement t = Utils.getTypeElement(m);
+        return !(t.getKind().isInterface() || Utils.isAbstract(t));
     }
 
     /**
      * Convert a newInstance object to its type.
      */
-    private TypeElement getNewInstanceType(ExpressionTree arg) {
+    private TypeMirror getNewInstanceType(ExpressionTree arg) {
         TypeMirror type = InternalUtils.typeOf(arg);
         if (type.getKind() == TypeKind.DECLARED) {
             DeclaredType decl = (DeclaredType) type;
-            return Utils.getTypeElement(decl.getTypeArguments().get(0));
+            return decl.getTypeArguments().get(0);
         }
         return null;
     }
@@ -866,10 +883,29 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return scopeTree.getParent(currentScope());
     }
 
-    private ScopeInfo checkNewArray(MethodInvocationTree node) {
-        // TODO:
-        ScopeInfo scope = null;
-        return scope;
+    private ScopeInfo checkNewArray(ScopeInfo recvScope,
+            MethodInvocationTree node) {
+        ExpressionTree arg = node.getArguments().get(0);
+        TypeMirror instType = getNewInstanceType(arg);
+        ScopeInfo target = recvScope.getDefineScope().getScope();
+
+        if (isValidNewArrayType(instType)) {
+            instType = Utils.getBaseType(instType);
+            if (!instType.getKind().isPrimitive()) {
+                ScopeInfo argScope = ctx.getClassScope(instType.toString());
+
+                if (!(argScope.isCurrent() || argScope.equals(target)))
+                    fail(ERR_BAD_NEW_ARRAY, node, argScope, target);
+            }
+        } else {
+            fail(ERR_BAD_NEW_ARRAY_TYPE, node, instType);
+        }
+        return target;
+    }
+
+    private boolean isValidNewArrayType(TypeMirror m) {
+        TypeKind k = m.getKind();
+        return !(k == TypeKind.VOID || k == TypeKind.WILDCARD || k == TypeKind.TYPEVAR);
     }
 
     private ScopeInfo checkNewInstanceInArea(MethodInvocationTree node) {
