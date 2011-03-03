@@ -796,7 +796,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         case NEW_ARRAY_IN_AREA:
             return checkNewInstanceInArea(node);
         case GET_MEMORY_AREA:
-            return checkGetMemoryArea(node);
+            return checkGetMemoryArea(argScopes.get(0), node);
         case GET_CURRENT_MANAGED_MEMORY:
             return checkGetCurrentManagedMemory(node);
         default:
@@ -912,13 +912,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return scope;
     }
 
-    private ScopeInfo checkGetMemoryArea(MethodInvocationTree node) {
-        debugIndent("checkGetMemoryArea");
-        //node.getMethodSelect().accept(this, p);
-
-
-        ScopeInfo scope = null;
-        return scope;
+    private ScopeInfo checkGetMemoryArea(ScopeInfo scope,
+            MethodInvocationTree node) {
+        if (scope.isUnknown()) {
+            // TODO: Fail
+        }
+        return new ScopeInfo(scope.getScope(), new DefineScopeInfo(scope,
+                scopeTree.getParent(scope)));
     }
 
     private void checkReturnScope(ScopeInfo exprScope, ScopeInfo expectedScope,
