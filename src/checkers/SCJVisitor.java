@@ -118,7 +118,8 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         }
 
         if (isMemoryAreaType(type)
-                && Utils.getMethodSignature(method).equals(GET_MEMORY_AREA))
+                && Utils.getMethodSignature(method).equals(
+                        GET_MEMORY_AREA.toString()))
             return GET_MEMORY_AREA;
 
         return DEFAULT;

@@ -11,6 +11,7 @@ import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_N
 import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_TARGET;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_OR_ENTER;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_TARGET;
+import static checkers.scope.ScopeChecker.ERR_BAD_GET_MEMORY_AREA;
 import static checkers.scope.ScopeChecker.ERR_BAD_GUARD_ARGUMENT;
 import static checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE;
 import static checkers.scope.ScopeChecker.ERR_BAD_NEW_ARRAY;
@@ -934,8 +935,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private ScopeInfo checkGetMemoryArea(ScopeInfo scope,
             MethodInvocationTree node) {
+        // TODO: CURRENT is also illegal if it can't be made into a concrete
+        // scope name.
         if (scope.isUnknown()) {
-            // TODO: Fail
+            fail(ERR_BAD_GET_MEMORY_AREA, node);
         }
         return new ScopeInfo(scope.getScope(), new DefineScopeInfo(scope,
                 scopeTree.getParent(scope)));
