@@ -839,16 +839,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             MethodInvocationTree node) {
         ExpressionTree arg = node.getArguments().get(0);
         ScopeInfo argScope = ctx.getClassScope(getNewInstanceType(arg));
+        DefineScopeInfo dsi = recvScope.getDefineScope();
 
-        if (recvScope.defineScope == null)
-            throw new RuntimeException(
-                    "No DefineScope on AllocationContext object");
+        if (!argScope.equals(dsi.getScope()))
+            fail(ERR_BAD_NEW_INSTANCE, node, argScope, dsi.getScope());
 
-        if (!argScope.equals(recvScope.defineScope.getScope()))
-            fail(ERR_BAD_NEW_INSTANCE, node, argScope,
-                    recvScope.defineScope.getScope());
-
-        return recvScope.defineScope.getScope();
+        return dsi.getScope();
     }
 
     /**
