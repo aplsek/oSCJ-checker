@@ -21,8 +21,8 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_ENTER_TARGET = "bad.enter.target";
     public static final String ERR_BAD_EXECUTE_IN_AREA_OR_ENTER = "bad.execute.in.area.or.enter";
     public static final String ERR_BAD_EXECUTE_IN_AREA_TARGET = "bad.execute.in.area.target";
-    public static final String ERR_BAD_GUARD_ARGUMENT = "bad.guard.argument";
     public static final String ERR_BAD_GET_MEMORY_AREA = "bad.get.memory.area";
+    public static final String ERR_BAD_GUARD_ARGUMENT = "bad.guard.argument";
     public static final String ERR_BAD_METHOD_INVOKE = "bad.method.invoke";
     public static final String ERR_BAD_NEW_ARRAY = "bad.new.array";
     public static final String ERR_BAD_NEW_ARRAY_TYPE = "bad.new.array.type";
@@ -71,10 +71,10 @@ public class ScopeChecker extends SinglePassChecker {
                 "Runnable and PrivateMemory scopes disagree.");
         p.put(ERR_BAD_EXECUTE_IN_AREA_TARGET,
                 "executeInArea() must target a parent scope.");
-        p.put(ERR_BAD_GUARD_ARGUMENT,
-                "Only final variables may be passed as arguments into guards.");
         p.put(ERR_BAD_GET_MEMORY_AREA,
                 "Cannot call getMemoryArea on an UNKNOWN object.");
+        p.put(ERR_BAD_GUARD_ARGUMENT,
+                "Only final variables may be passed as arguments into guards.");
         p.put(ERR_BAD_METHOD_INVOKE,
                 "Illegal invocation of method of object in scope %s while in scope %s.");
         p.put(ERR_BAD_NEW_ARRAY,
