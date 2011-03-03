@@ -9,15 +9,15 @@ public class FieldScopeInfo extends ScopeInfo {
                 fieldScope, null);
     }
 
-    public FieldScopeInfo(ScopeInfo receiverScope, ScopeInfo fieldScope, DefineScopeInfo defineScopeInfo) {
+    public FieldScopeInfo(ScopeInfo receiverScope, ScopeInfo fieldScope,
+            DefineScopeInfo defineScopeInfo) {
         this(calculateScope(receiverScope, fieldScope), receiverScope,
                 fieldScope, defineScopeInfo);
     }
 
     public FieldScopeInfo(ScopeInfo scope, ScopeInfo receiverScope,
-            ScopeInfo fieldScope,
-            DefineScopeInfo defineScopeInfo) {
-        super(scope.getScope(),defineScopeInfo);
+            ScopeInfo fieldScope, DefineScopeInfo defineScopeInfo) {
+        super(scope.getScope(), defineScopeInfo);
         this.receiverScope = receiverScope;
         this.fieldScope = fieldScope;
     }

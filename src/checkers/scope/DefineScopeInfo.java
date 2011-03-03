@@ -26,7 +26,7 @@ public class DefineScopeInfo {
 
     @Override
     public String toString() {
-        return "name = " + scope + ", parent=" + parent;
+        return "DefineScope(name=" + scope + ", parent=" + parent + ")";
     }
 
     public ScopeInfo getParent() {

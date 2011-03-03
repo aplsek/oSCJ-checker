@@ -7,23 +7,25 @@ import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="a", parent=Scope.IMMORTAL)
 @Scope("a")
-public abstract class TestBadNewInstance extends Mission {
+public abstract class TestBadNewInstanceType extends Mission {
     @Scope("a")
     @DefineScope(name="b", parent="a")
     static abstract class X extends Mission {
-        @DefineScope(name="a", parent=Scope.IMMORTAL)
-        @Scope(Scope.IMMORTAL)
-        ManagedMemory mem;
-
         @DefineScope(name="b", parent="a")
         @Scope("a")
-        ManagedMemory mem2;
+        ManagedMemory mem;
 
         public void foo() {
             try {
-                mem.newInstance(Y.class);
-                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
-                mem2.newInstance(Y.class);
+                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
+                mem.newInstance(Y[].class);
+                Class<?> c = null;
+                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
+                mem.newInstance(c);
+                // TODO: Fix ## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
+                mem.newInstance(void.class);
+                // TODO: Fix ## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
+                mem.newInstance(int.class);
             } catch (Exception e) {
                 e.printStackTrace();
             }

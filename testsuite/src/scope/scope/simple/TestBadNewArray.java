@@ -7,7 +7,7 @@ import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="a", parent=Scope.IMMORTAL)
 @Scope("a")
-public abstract class TestBadNewInstance extends Mission {
+public abstract class TestBadNewArray extends Mission {
     @Scope("a")
     @DefineScope(name="b", parent="a")
     static abstract class X extends Mission {
@@ -21,9 +21,9 @@ public abstract class TestBadNewInstance extends Mission {
 
         public void foo() {
             try {
-                mem.newInstance(Y.class);
-                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
-                mem2.newInstance(Y.class);
+                mem.newArray(Y.class, 1);
+                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_ARRAY
+                mem2.newArray(Y.class, 1);
             } catch (Exception e) {
                 e.printStackTrace();
             }

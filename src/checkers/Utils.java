@@ -64,16 +64,20 @@ public final class Utils {
         return null;
     }
 
+    public static boolean isAbstract(Element e) {
+        return e.getModifiers().contains(Modifier.ABSTRACT);
+    }
+
+    public static boolean isFinal(Element e) {
+        return e.getModifiers().contains(Modifier.FINAL);
+    }
+
     public static boolean isPublic(Element e) {
         return e.getModifiers().contains(Modifier.PUBLIC);
     }
 
     public static boolean isStatic(Element e) {
         return e.getModifiers().contains(Modifier.STATIC);
-    }
-
-    public static boolean isFinal(Element e) {
-        return e.getModifiers().contains(Modifier.FINAL);
     }
 
     public static boolean isAllocFree(ExecutableElement methodElement) {

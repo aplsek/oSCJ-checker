@@ -23,7 +23,10 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_EXECUTE_IN_AREA_TARGET = "bad.execute.in.area.target";
     public static final String ERR_BAD_GUARD_ARGUMENT = "bad.guard.argument";
     public static final String ERR_BAD_METHOD_INVOKE = "bad.method.invoke";
+    public static final String ERR_BAD_NEW_ARRAY = "bad.new.array";
+    public static final String ERR_BAD_NEW_ARRAY_TYPE = "bad.new.array.type";
     public static final String ERR_BAD_NEW_INSTANCE = "bad.new.instance";
+    public static final String ERR_BAD_NEW_INSTANCE_TYPE = "bad.new.instance.type";
     public static final String ERR_BAD_RETURN_SCOPE = "bad.return.scope";
     public static final String ERR_BAD_RUNS_IN_METHOD = "bad.runs.in.method";
     public static final String ERR_BAD_VARIABLE_SCOPE = "bad.variable.scope";
@@ -71,8 +74,14 @@ public class ScopeChecker extends SinglePassChecker {
                 "Only final variables may be passed as arguments into guards.");
         p.put(ERR_BAD_METHOD_INVOKE,
                 "Illegal invocation of method of object in scope %s while in scope %s.");
+        p.put(ERR_BAD_NEW_ARRAY,
+                "Cannot allocate objects of type %s inside scope %s.");
+        p.put(ERR_BAD_NEW_ARRAY_TYPE,
+                "Type %s is a bad argument to newArray.");
         p.put(ERR_BAD_NEW_INSTANCE,
                 "Cannot allocate objects of type %s inside scope %s.");
+        p.put(ERR_BAD_NEW_INSTANCE_TYPE,
+                "Type %s is a bad argument to newInstance.");
         p.put(ERR_BAD_RETURN_SCOPE,
                 "Cannot return expression in scope %s in a method that has @Scope annotation: %s.");
         p.put(ERR_BAD_RUNS_IN_METHOD,

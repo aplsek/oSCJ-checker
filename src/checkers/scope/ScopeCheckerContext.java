@@ -61,6 +61,10 @@ public class ScopeCheckerContext {
      * its own name.
      */
     public ScopeInfo getFieldScope(String clazz, String field) {
+        // XXX Hacky way to support X.class field accesses
+        if ("class".equals(field)) {
+            return ScopeInfo.IMMORTAL;
+        }
         ClassInfo ci = classScopes.get(clazz);
         return ci.fieldScopes.get(field);
     }
@@ -490,7 +494,6 @@ public class ScopeCheckerContext {
     public void dumpClassScopes() {
         System.err.println("\n\n============ CLASS SCOPES-=========");
         for (Entry<String, ClassInfo> e : classScopes.entrySet()) {
-            ClassInfo ci = e.getValue();
             System.err.println("class: " + e.getKey() + ",@Scope("
                         + e.getValue() + ")");
         }
