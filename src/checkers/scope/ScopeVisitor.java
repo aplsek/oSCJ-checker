@@ -915,6 +915,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private ScopeInfo checkGetMemoryArea(ScopeInfo scope,
             MethodInvocationTree node) {
+        // TODO: CURRENT is also illegal if it can't be made into a concrete
+        // scope name.
         if (scope.isUnknown()) {
             fail(ERR_BAD_GET_MEMORY_AREA, node);
         }
