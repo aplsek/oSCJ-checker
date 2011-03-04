@@ -10,9 +10,9 @@ import javax.safetycritical.annotate.Scope;
 @Scope("a")
 public abstract class TestBadReturnScope extends Mission {
     @Scope(Scope.IMMORTAL) @RunsIn("b")
-    public X getFooErr() {
+    public Y getFooErr() {
         //## checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE
-        return new X();
+        return new Y();
     }
 
     @Scope(Scope.IMMORTAL)
@@ -31,7 +31,11 @@ public abstract class TestBadReturnScope extends Mission {
         return new int[]{1};
     }
 
-    static class X { }
+    @Scope("a")
+    @DefineScope(name="b", parent="a")
+    static abstract class X extends Mission { }
+
+    static class Y { }
 }
 
 
