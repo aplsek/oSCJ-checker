@@ -18,7 +18,7 @@ public class TestInput {
     private List<String> options;
 
     private static final String OUTDIR = System.getProperty("tests.outputDir",
-            "tests" + File.separator + "build" + File.separator + "testclasses");
+            "testsuite/tests/" + File.separator + "build" + File.separator + "testclasses");
     static { ensureExistance(OUTDIR); }
 
     public TestInput(Iterable<? extends JavaFileObject> files,
@@ -32,7 +32,7 @@ public class TestInput {
         this.options = new LinkedList<String>();
 
         String classpath = System.getProperty("tests.classpath",
-                "tests" + File.separator + "build");
+                "testsuite/tests/" + File.separator + "build");
         String globalclasspath = System.getProperty("java.class.path", "");
 
         this.options.add("-Xmaxerrs");

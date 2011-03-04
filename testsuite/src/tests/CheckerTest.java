@@ -29,7 +29,7 @@ abstract public class CheckerTest {
      */
     public CheckerTest(String checkerName, String checkerDir, String... checkerOptions) {
         this.checkerName = checkerName;
-        this.checkerDir = "tests" + File.separator + checkerDir;
+        this.checkerDir = "testsuite/tests" + File.separator + checkerDir;
         this.checkerOptions = Arrays.copyOf(checkerOptions, checkerOptions.length);
     }
 
