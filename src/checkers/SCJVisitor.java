@@ -61,11 +61,19 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
             "javax.safetycritical.Mission");
     protected final TypeMirror managedEventHandlerMirror = Utils.getTypeMirror(
             elements, "javax.safetycritical.ManagedEventHandler");
+    protected final TypeMirror scjRunnableMirror = Utils.getTypeMirror(
+            elements, "javax.safetycritical.SCJRunnable");
 
-    protected boolean implicitlyDefinesScope(TypeElement t) {
+    protected boolean alwaysImplicitlyDefinesScope(TypeElement t) {
         TypeMirror m = t.asType();
         return types.isSubtype(m, missionMirror)
                 || types.isSubtype(m, managedEventHandlerMirror);
+    }
+
+    protected boolean implicitlyDefinesScope(TypeElement t) {
+        TypeMirror m = t.asType();
+        return alwaysImplicitlyDefinesScope(t)
+                || types.isSubtype(m, scjRunnableMirror);
     }
 
     protected boolean needsDefineScope(TypeElement t) {

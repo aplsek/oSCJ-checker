@@ -38,9 +38,11 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         DefineScope ds = t.getAnnotation(DefineScope.class);
 
         if (ds != null)
-            if (implicitlyDefinesScope(t))
+            // We don't check for DefineScopes on SCJRunnables. They are
+            // checked on demand when seen using enterPrivateMemory.
+            if (alwaysImplicitlyDefinesScope(t))
                 checkNewScope(ds.name(), ds.parent(), node);
-            else
+            else if (!implicitlyDefinesScope(t))
                 warn(ERR_UNUSED_DEFINE_SCOPE, node);
 
         return super.visitClass(node, p);
@@ -56,10 +58,18 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
             ExpressionTree runnable = node.getArguments().get(1);
             TypeElement t2 = Utils.getTypeElement(InternalUtils
                     .typeOf(runnable));
+            Tree errNode = trees.getTree(t2);
             DefineScope ds = t2.getAnnotation(DefineScope.class);
 
+            // Report errors on the SCJRunnable being used, if possible, rather
+            // than the method invocation site. Error messages from
+            // checkNewScope() are much less confusing on classes.
+            if (errNode == null)
+                errNode = node;
             if (ds == null)
-                fail(ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE, node);
+                fail(ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE, errNode);
+            else
+                checkNewScope(ds.name(), ds.parent(), errNode);
         }
         return super.visitMethodInvocation(node, p);
     }
