@@ -893,7 +893,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      */
     private ScopeInfo checkGetCurrentManagedMemory(MethodInvocationTree node) {
         ScopeInfo memoryObject = scopeTree.getParent(currentScope());
-        return new ScopeInfo(memoryObject.getScope(), new DefineScopeInfo(currentScope(),memoryObject))
+        return new ScopeInfo(memoryObject.getScope(), new DefineScopeInfo(currentScope(),memoryObject));
     }
 
     private ScopeInfo checkNewArray(ScopeInfo recvScope, ExpressionTree arg,
