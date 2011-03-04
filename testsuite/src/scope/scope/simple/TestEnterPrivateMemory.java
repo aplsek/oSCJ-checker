@@ -23,6 +23,9 @@ public abstract class TestEnterPrivateMemory extends Mission {
     @Scope("a")
     @DefineScope(name="b",parent="a")
     static abstract class PEH extends Mission {
+        RunY runY = new RunY();
+        RunZ runZ = new RunZ();
+
         @RunsIn("b")
         public void handleAsyncEvent() {
             RunX runX = new RunX();
@@ -33,20 +36,18 @@ public abstract class TestEnterPrivateMemory extends Mission {
             mem.enterPrivateMemory(1000, new RunX());
             method(new RunX());
 
-            ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, runX);
-
-            RunY runY = new RunY();
             //## checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH
             mem.enterPrivateMemory(1000, runY);
 
-            RunZ runZ = new RunZ();
             //## checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH
             mem.enterPrivateMemory(1000, runZ);
         }
 
         @RunsIn("b")
         public void method(RunX runX) {
+            //## checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR
             ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
+            //## checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR
             mem.enterPrivateMemory(1000, runX);
         }
     }
