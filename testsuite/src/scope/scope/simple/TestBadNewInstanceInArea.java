@@ -1,4 +1,4 @@
-package scope.memory;
+package scope.scope.simple;
 
 import javax.realtime.MemoryArea;
 import javax.safetycritical.ManagedMemory;
