@@ -1,6 +1,5 @@
 package checkers.scope;
 
-import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.annotate.Scope;
 
 public class ScopeInfo {
