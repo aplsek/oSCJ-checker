@@ -20,10 +20,6 @@ public abstract class TestEnterPrivateMemory2 extends Mission {
         public void handleAsyncEvent() {
             RunX runX = new RunX();
 
-            @Scope("a") @DefineScope(name="b",parent="a")
-            ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
-            mem.enterPrivateMemory(1000, runX);
-
             ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, runX);
         }
     }

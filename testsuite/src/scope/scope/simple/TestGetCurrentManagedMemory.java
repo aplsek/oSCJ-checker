@@ -8,18 +8,33 @@ import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="a", parent=Scope.IMMORTAL)
 @Scope("a")
-public class TestGetCurrentManagedMemory {
+public abstract class TestGetCurrentManagedMemory extends Mission {
 
     @Scope("a")
     @DefineScope(name="b", parent="a")
     static abstract class X extends Mission {
 
-        @RunsIn("b")
-        public void bar() throws InstantiationException, IllegalAccessException {
+        Y y = new Y();
+
+        public void m() throws InstantiationException, IllegalAccessException {
             ManagedMemory.getCurrentManagedMemory();
+
+            @Scope(Scope.IMMORTAL)
+            @DefineScope(name="a", parent=Scope.IMMORTAL)
+            ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
+        }
+
+        @RunsIn("b")
+        public void m2() throws InstantiationException, IllegalAccessException {
+            ManagedMemory.getCurrentManagedMemory();
+
+            @Scope("a")
+            @DefineScope(name="b", parent="a")
+            ManagedMemory mem2 = ManagedMemory.getCurrentManagedMemory();
 
             @Scope("b")
             @DefineScope(name="b", parent="a")
+            //## checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE
             ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
 
         }
