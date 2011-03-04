@@ -285,8 +285,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ScopeInfo scope = varScopes.getVariableScope(var);
 
             if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(elem
-                    .asType()))))
+                    .asType())))) {
                 scope.defineScope = varScopes.getVariableDefineScope(var);
+                if (scope.defineScope == null)
+                    // instead of throwing exception, we will report a fail
+                    // since this is a user-level error
+                    fail(ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR, node);
+            }
 
             ret = scope;
         } else if (elem.getKind() == ElementKind.METHOD
