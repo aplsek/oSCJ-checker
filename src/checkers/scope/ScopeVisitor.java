@@ -837,11 +837,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      */
     private void checkMethodRunsIn(ExecutableElement m,
             ScopeInfo effectiveRunsIn, MethodInvocationTree node) {
+        if (Utils.isStatic(m) &&  (effectiveRunsIn.isCurrent() || effectiveRunsIn.isUnknown()))
+            // TODO: invocation of a static method with @RunsIn(CURRENT)/@RunsIn(UNKNOWN) is OK
+            return;
+
         if (currentScope().isUnknown() && !effectiveRunsIn.isUnknown())
             fail(ERR_BAD_METHOD_INVOKE, node, CURRENT, UNKNOWN);
-        else if (!effectiveRunsIn.isUnknown()
+        else
+            if (!effectiveRunsIn.isUnknown()
                 && !effectiveRunsIn.equals(currentScope()))
-            fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, currentScope());
+                fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, currentScope());
     }
 
     private ScopeInfo checkNewInstance(ScopeInfo recvScope,

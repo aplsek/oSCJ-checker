@@ -14,10 +14,11 @@ import javax.safetycritical.annotate.Scope;
 
 
 @DefineScope(name="MyMission",parent=IMMORTAL)
-@Scope("MyMission") 
+@Scope("MyMission")
 public class NewInstance extends Mission {
 
-    protected void initialize() { 
+    @Override
+    protected void initialize() {
         new PEH(null, null, null, 0,this);
     }
 
@@ -25,10 +26,7 @@ public class NewInstance extends Mission {
     public long missionMemorySize() {
         return 0;
     }
-
 }
-
-
 
 @Scope("MyMission")
 @DefineScope(name="MyHandler",parent="MyMission")
@@ -43,12 +41,12 @@ class PEH extends PeriodicEventHandler {
         this.mission = mission;
     }
 
-    @RunsIn("MyHandler") 
+    @Override
+    @RunsIn("MyHandler")
     public void handleAsyncEvent() {
         try {
             @Scope("MyMission") MemoryArea mem =  MemoryArea.getMemoryArea(mission);
             MissionFoo missionFoo = (MissionFoo) mem.newInstance(MissionFoo.class);
-
 
         } catch (InstantiationException e) {
             e.printStackTrace();

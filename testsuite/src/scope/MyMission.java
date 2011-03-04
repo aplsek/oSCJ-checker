@@ -5,7 +5,7 @@
 //        ARunnable1 aRunnable = new ARunnable1();
 //                               ^
 //scope/MyMission.java:65: The Runnable class must have a matching @Scope annotation.
-//        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, aRunnable);  // ERROR  
+//        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, aRunnable);  // ERROR
 //                                                                  ^
 //testsuite/src/scope/MyMission.java:75: The Runnable passed into the enterPrivateMemory() call must have a run() method with a @RunsIn annotation.
 //        mem.enterPrivateMemory(2000, (Runnable) cRun);                 // OK
@@ -19,25 +19,30 @@
 package scope;
 
 
-
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
+import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
+
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 
-@DefineScope(name="scope.MyMission",parent=IMMORTAL)
-@Scope("scope.MyMission") 
-class MyMission extends Mission {
+@DefineScope(name="MyMission",parent=IMMORTAL)
+@Scope("MyMission")
+public class MyMission extends Mission {
 
-    protected void initialize() { 
+    @Override
+    @SCJRestricted(INITIALIZATION)
+    protected void initialize() {
         new MyHandler(null, null, null, 0);
     }
 
@@ -46,99 +51,69 @@ class MyMission extends Mission {
         return 0;
     }
 
-}
+    @Scope("MyMission")
+    @DefineScope(name="scope.MyHandler",parent="MyMission")
+    static class MyHandler extends PeriodicEventHandler {
 
+        @SCJRestricted(INITIALIZATION)
+        public MyHandler(PriorityParameters priority,
+                PeriodicParameters parameters, StorageParameters scp, long memSize) {
+            super(priority, parameters, scp);
+        }
 
-@Scope("scope.MyMission")
-@DefineScope(name="scope.MyHandler",parent="scope.MyMission")
-class MyHandler extends PeriodicEventHandler {
+        @Override
+        @RunsIn("scope.MyHandler")
+        public void handleAsyncEvent() {
 
-    public MyHandler(PriorityParameters priority,
-            PeriodicParameters parameters, StorageParameters scp, long memSize) {
-        super(priority, parameters, scp);
-    }
+            A aObj = new A();
+            B bObj = new B(); // OK
 
-    @RunsIn("scope.MyHandler") 
-    public void handleAsyncEvent() {
-        
-        A aObj = new A();                                                
-        B bObj = new B(); // OK
-       
-        ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
+            ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
 
-        //:: (argument.type.incompatible)
-        ARunnable1 aRunnable = new ARunnable1();                // ERROR
-        ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, aRunnable);  // ERROR  
-        
-        BRunnable1 bRunnable = new BRunnable1();
-        mem.enterPrivateMemory(2000, bRunnable);                          // OK
-        
-        Runnable cc = (Runnable) new CRunner();
-        
-        CRunner cRun = new CRunner();
-        mem.enterPrivateMemory(2000, (Runnable) cRun);                 // OK
-        
-        RunnableNull runNull = new RunnableNull();
-        mem.enterPrivateMemory(2000, runNull);                  // ERROR, no @RunsIn
-    }
+            RunY aRunnable = new RunY();                // ERROR
+            ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000, aRunnable);  // ERROR
 
+            RunZ cRun = new RunZ();
+            mem.enterPrivateMemory(2000, cRun);                 // OK
+        }
 
-    class A {
-        void bar() { }
-    }
+        static class A {
+            void bar() { }
+        }
 
-    class B {
-        A a; 
-        A a2 = new A();                     
-        Object o;
+        static class B {
+            A a;
+            A a2 = new A();
+            Object o;
 
-        @SCJRestricted(mayAllocate=false)
-        void foo(A a) {
-            o = a;                          
-            //a.bar();                     // ERROR  (not reported since its commented out
+            @SCJRestricted(mayAllocate=false)
+            void foo(A a) {
+                o = a;
+                //a.bar();                     // ERROR  (not reported since its commented out
+            }
+        }
+
+        @Override
+        public StorageParameters getThreadConfigurationParameters() {
+            return null;
         }
     }
 
-    @Override
-    public StorageParameters getThreadConfigurationParameters() {
-        return null;
+    @Scope("MyMission")
+    @DefineScope(name="MyMissionInitA", parent="MyMission")
+    static class RunY implements SCJRunnable {
+        @Override
+        @RunsIn("MyMissionInitA")
+        public void run() {
+        }
     }
 
+    @Scope("scope.MyHandler")
+    @DefineScope(name="MyMissionRunB", parent="scope.MyHandler")
+    static class RunZ implements SCJRunnable {
+        @Override
+        @RunsIn("MyMissionRunB")
+        public void run() {
+        }
+    }
 }
-
-
-
-@Scope("scope.MyHandler") 
-class BRunnable1 implements Runnable {
-    @Override
-    @RunsIn("MyMissionRunB") 
-    public void run() {
-    } 
-}
-
-
-@Scope("scope.MyMission") 
-@DefineScope(name="MyMissionInitA", parent="scope.MyMission")
-class ARunnable1 implements Runnable {
-    @Override
-    @RunsIn("MyMissionInitA") 
-    public void run() {
-    }  
-}
-
-class RunnableNull implements Runnable {
-    @Override
-    public void run() {
-    } 
-}
-
-
-@Scope("scope.MyHandler") 
-@DefineScope(name="MyMissionRunB", parent="scope.MyHandler") 
-class CRunner implements Runnable {
-    @Override
-    @RunsIn("MyMissionRunB") 
-    public void run() {
-    }   
-}
-
