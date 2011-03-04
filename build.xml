@@ -97,7 +97,7 @@
             <report todir="${build.reports}/html"/>
         </junitreport>
 	</target>
-	
+
 	<target name="simple-tests" depends="jar,compile-tests"
 		        description="Run tests for all checkers">
 		    <!-- Copied from -run-tests target -->

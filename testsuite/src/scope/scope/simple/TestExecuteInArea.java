@@ -8,22 +8,21 @@ import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
 
 @Scope("a")
-@DefineScope(name = "a", parent = Scope.IMMORTAL)
+@DefineScope(name="a", parent=Scope.IMMORTAL)
 public abstract class TestExecuteInArea extends Mission {
 
     @Scope("c")
-    @DefineScope(name = "c", parent = "b")
-    static abstract class X extends Mission {}
+    @DefineScope(name="c", parent="b")
+    static abstract class X extends Mission { }
 
     @Scope("b")
-    @DefineScope(name = "b", parent = "a")
-    abstract static class x extends Mission {
-
-        @DefineScope(name = "a", parent = Scope.IMMORTAL)
+    @DefineScope(name="b", parent="a")
+    static abstract class Y extends Mission {
+        @DefineScope(name="a", parent=Scope.IMMORTAL)
         @Scope(Scope.IMMORTAL)
         ManagedMemory a;
 
-        @DefineScope(name = "c", parent = "b")
+        @DefineScope(name="c", parent="b")
         @Scope("b")
         ManagedMemory c;
 
@@ -50,28 +49,24 @@ public abstract class TestExecuteInArea extends Mission {
     @Scope("b")
     static class Run implements SCJRunnable {
         @RunsIn("a")
-        public void run() {
-        }
+        public void run() { }
     }
 
     @Scope("b")
     static class Run2 implements SCJRunnable {
         @RunsIn("b")
-        public void run() {
-        }
+        public void run() { }
     }
 
     @Scope("b")
     static class Run3 implements SCJRunnable {
-        public void run() {
-        }
+        public void run() { }
     }
 
     @Scope("b")
     static class Run4 implements SCJRunnable {
         @RunsIn("c")
-        public void run() {
-        }
+        public void run() { }
     }
 }
 

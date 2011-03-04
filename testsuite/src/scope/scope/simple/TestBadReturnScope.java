@@ -8,23 +8,12 @@ import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="a", parent=Scope.IMMORTAL)
 @Scope("a")
-public class TestBadReturnScope extends Mission {
-
-    @Override
-    protected void initialize() {
-    }
-
-    @Override
-    public long missionMemorySize() {
-        return 0;
-    }
-
+public abstract class TestBadReturnScope extends Mission {
     @Scope(Scope.IMMORTAL) @RunsIn("b")
     public X getFooErr() {
         //## checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE
         return new X();
     }
-
 
     @Scope(Scope.IMMORTAL)
     public int getPrimitive() {
@@ -42,12 +31,7 @@ public class TestBadReturnScope extends Mission {
         return new int[]{1};
     }
 
-
-    @Scope("a")
-    @DefineScope(name="b", parent="a")
-    abstract static class Handler extends Mission {}
-
-    class X {}
+    static class X { }
 }
 
 

@@ -1,6 +1,5 @@
 package scope.scope.simple;
 
-import javax.realtime.MemoryArea;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
@@ -27,9 +26,8 @@ public abstract class TestBadNewInstance extends Mission {
             mem2.newInstance(Y.class);
         }
 
-
         @RunsIn("b")
-        public void method () throws InstantiationException, IllegalAccessException {
+        public void bar() throws InstantiationException, IllegalAccessException {
             ManagedMemory.getCurrentManagedMemory().newInstance(Z.class);
             //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
             ManagedMemory.getCurrentManagedMemory().newInstance(Y.class);
