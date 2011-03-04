@@ -41,7 +41,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
             // We don't check for DefineScopes on SCJRunnables. They are
             // checked on demand when seen using enterPrivateMemory.
             if (alwaysImplicitlyDefinesScope(t))
-                checkNewScope(ds.name(), ds.parent(), node);
+                checkNewScope(ds.name(), ds.parent(), false, node);
             else if (!implicitlyDefinesScope(t))
                 warn(ERR_UNUSED_DEFINE_SCOPE, node);
 
@@ -69,7 +69,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
             if (ds == null)
                 fail(ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE, errNode);
             else
-                checkNewScope(ds.name(), ds.parent(), errNode);
+                checkNewScope(ds.name(), ds.parent(), true, errNode);
         }
         return super.visitMethodInvocation(node, p);
     }
@@ -77,7 +77,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
     /**
      * Ensure that a DefineScope annotation is valid.
      */
-    void checkNewScope(String child, String parent, Tree node) {
+    void checkNewScope(String child, String parent, boolean ignoreDuplicates, Tree node) {
         // Null scope checks aren't necessary since Java apparently doesn't
         // consider "null" to be a constant expression.
         ScopeInfo childScope = new ScopeInfo(child);
@@ -90,12 +90,20 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         if (reservedParent)
             fail(ERR_RESERVED_SCOPE_NAME, node, parentScope);
 
-        if (!(reservedChild || reservedParent))
-            if (scopeTree.hasScope(childScope))
-                fail(ERR_DUPLICATE_SCOPE_NAME, node, childScope);
-            else if (scopeTree.isAncestorOf(parentScope, childScope))
+        if (!(reservedChild || reservedParent)) {
+            if (scopeTree.hasScope(childScope)) {
+                if (!ignoreDuplicates)
+                    fail(ERR_DUPLICATE_SCOPE_NAME, node, childScope);
+                if (!scopeTree.hasScope(parentScope))
+                    fail(ERR_DUPLICATE_SCOPE_NAME, node, childScope);
+                if (!scopeTree.isParentOf(childScope, parentScope))
+                    fail(ERR_DUPLICATE_SCOPE_NAME, node, childScope);
+            }
+
+            if (scopeTree.isAncestorOf(parentScope, childScope))
                 fail(ERR_CYCLICAL_SCOPES, node, parentScope, childScope);
             else
                 scopeTree.put(childScope, parentScope, node);
+        }
     }
 }
