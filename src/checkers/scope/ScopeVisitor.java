@@ -805,11 +805,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         case NEW_INSTANCE:
             return checkNewInstance(recvScope, node.getArguments().get(0), node);
         case NEW_INSTANCE_IN_AREA:
-            return checkNewInstanceInArea(argScopes.get(0),node);
+            return checkNewInstanceInArea(argScopes.get(0), node);
         case NEW_ARRAY:
-            return checkNewArray(recvScope, node);
+            return checkNewArray(recvScope, node.getArguments().get(0), node);
         case NEW_ARRAY_IN_AREA:
-            return checkNewArrayInArea(node);
+            return checkNewArrayInArea(argScopes.get(0), node);
         case GET_MEMORY_AREA:
             return checkGetMemoryArea(argScopes.get(0), node);
         case GET_CURRENT_MANAGED_MEMORY:
@@ -898,9 +898,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         //return scopeTree.getParent(currentScope());
     }
 
-    private ScopeInfo checkNewArray(ScopeInfo recvScope,
+    private ScopeInfo checkNewArray(ScopeInfo recvScope, ExpressionTree arg,
             MethodInvocationTree node) {
-        ExpressionTree arg = node.getArguments().get(0);
         TypeMirror instType = getNewInstanceType(arg);
         ScopeInfo target = recvScope.getDefineScope().getScope();
 
@@ -926,20 +925,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     void pln(String str) {System.err.println("\t "+str);}
 
     private ScopeInfo checkNewInstanceInArea(ScopeInfo scope,MethodInvocationTree node) {
-        //pln("\n\n====\n checkNewInstanceInArea :" + node);
-       // pln("scope :" + scope);
         ScopeInfo target = checkGetMemoryArea(scope,node);
-
-        //pln("target :" + target);
-        //pln("target's define scope :" + target.defineScope);
-
         return checkNewInstance(target,node.getArguments().get(1),node);
     }
 
-    private ScopeInfo checkNewArrayInArea(MethodInvocationTree node) {
-        // TODO:
-        ScopeInfo scope = null;
-        return scope;
+    /**
+     * TODO: this needs to be tested.
+     */
+    private ScopeInfo checkNewArrayInArea(ScopeInfo scope, MethodInvocationTree node) {
+        ScopeInfo target = checkGetMemoryArea(scope,node);
+        return checkNewArray(target, node.getArguments().get(1), node);
     }
 
     private ScopeInfo checkGetMemoryArea(ScopeInfo scope,
@@ -950,12 +945,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_BAD_GET_MEMORY_AREA, node);
         }
         ScopeInfo parent = scopeTree.getParent(scope);
-        parent.setDefineScope(new DefineScopeInfo(scope,
+        return new ScopeInfo(parent.getScope(),new DefineScopeInfo(scope,
                 scopeTree.getParent(scope)));
-
-        return parent;
-        //return new ScopeInfo(scope.getScope(), new DefineScopeInfo(scope,
-        //        scopeTree.getParent(scope)));
     }
 
     private void checkReturnScope(ScopeInfo exprScope, ScopeInfo expectedScope,
