@@ -6,14 +6,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
-/**
- *
- *
- * NOTE: this variable TO scopeInfo map does not contain primitive variables
- *       - it also does not contain any entries that has "null" values of ScopeInfo
- *
- */
 public class VariableScopeTable {
     private LinkedList<LexicalBlock> blocks = new LinkedList<LexicalBlock>();
 
@@ -71,18 +63,17 @@ public class VariableScopeTable {
     }
 
     public void dumpVarDefineScopes() {
-        System.err.println("\n\n ========= DUMP DEFINE SCOPES variables/locals===== ");
+        System.err.println("\n\n=== DUMP DEFINE SCOPES variables/locals===");
 
         Iterator<LexicalBlock> iter = blocks.descendingIterator();
         while (iter.hasNext()) {
             LexicalBlock b = iter.next();
-            //DefineScopeInfo scope = b.defineScopes;
-            for ( Entry<String, DefineScopeInfo> key  : b.defineScopes.entrySet()) {
-                System.err.println(key.getKey() + ":"
-                        + key.getValue());
+            // DefineScopeInfo scope = b.defineScopes;
+            for (Entry<String, DefineScopeInfo> key : b.defineScopes.entrySet()) {
+                System.err.println(key.getKey() + ":" + key.getValue());
             }
         }
-        System.err.println("========= DUMP DEFINE SCOPES variables/locals===\n");
+        System.err.println("=== DUMP DEFINE SCOPES variables/locals===\n");
     }
 
     public void addParentRelation(String childVar, String parentVar) {
