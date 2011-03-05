@@ -691,13 +691,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return scope.isCurrent() ? currentScope() : scope;
     }
 
-    /**
-     *
-     * @param recvScope
-     *            - managedMemory instance, the target of the invocation
-     * @param node
-     * @return
-     */
     private void checkEnterPrivateMemory(MethodInvocationTree node) {
         TypeMirror runnableType = InternalUtils.typeOf(node.getArguments().get(
                 1));
@@ -706,6 +699,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (!scopeTree.isParentOf(argRunsIn, currentScope()))
             fail(ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH, node,
                     argRunsIn, currentScope());
+        // TODO: This is incomplete. Since enterPrivateMemory is non-static,
+        // have to check vs the receiver.
     }
 
     private ScopeInfo checkExecuteInArea(ScopeInfo recvScope,
