@@ -131,6 +131,11 @@ public final class TestUtilities {
                     String[] msgs = line.split("##");
                     for (String msg : msgs) {
                         String key = msg.trim();
+                        String warning = "";
+                        if (key.startsWith("warning: ")) {
+                            warning = "warning: ";
+                            key = key.substring(9);
+                        }
                         int fieldSep = key.lastIndexOf(".");
                         String clazz = key.substring(0, fieldSep);
                         String field = key.substring(fieldSep + 1);
@@ -138,7 +143,7 @@ public final class TestUtilities {
                             Class<?> c = Class.forName(clazz);
                             Field f = c.getField(field);
                             Object o = f.get(null);
-                            msg = ":" + errorLine + ": (" + o + ")";
+                            msg = ":" + errorLine + ": " + warning + "(" + o + ")";
                             expected.add(msg);
                         } catch (Exception e) {
                             msg = ":" + errorLine + ": "
