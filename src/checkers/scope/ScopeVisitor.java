@@ -894,6 +894,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo memoryObject = scopeTree.getParent(currentScope());
         return new ScopeInfo(memoryObject.getScope(), new DefineScopeInfo(
                 currentScope(), memoryObject));
+        // TODO: Probably need an error if we're not in a concrete scope.
     }
 
     private ScopeInfo checkNewArray(ScopeInfo recvScope, ExpressionTree arg,

@@ -8,13 +8,12 @@ import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="a", parent=Scope.IMMORTAL)
 @Scope("a")
-public abstract class TestGetCurrentManagedMemory extends Mission {
+public abstract class TestMemoryAreaDefineScopeNotConsistentWithScopeGetCurrentManagedMemory
+        extends Mission {
 
     @Scope("a")
     @DefineScope(name="b", parent="a")
     static abstract class X extends Mission {
-        Y y = new Y();
-
         public void foo() throws InstantiationException, IllegalAccessException {
             ManagedMemory.getCurrentManagedMemory();
 
@@ -38,10 +37,4 @@ public abstract class TestGetCurrentManagedMemory extends Mission {
 
         }
     }
-
-    @Scope("a")
-    static class Y { }
-
-    @Scope("b")
-    static class Z { }
 }
