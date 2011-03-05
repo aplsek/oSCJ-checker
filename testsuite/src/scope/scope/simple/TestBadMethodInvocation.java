@@ -15,11 +15,16 @@ public abstract class TestBadMethodInvocation extends Mission {
 
         Y y;
 
+        Arg arg = new Arg();
+
         @RunsIn("b")
         public void method() {
             method();
             y.methodUNK();
             y.methodRunsInB();
+
+            //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
+            y.method(arg);
 
             //## checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE
             y.method();
@@ -38,20 +43,24 @@ public abstract class TestBadMethodInvocation extends Mission {
         void method() {
         }
 
+        @RunsIn("b")
+        void method(Arg arg) {
+        }
+
         @RunsIn(Scope.UNKNOWN)
         void methodUNK() {
         }
 
         @RunsIn("b")
         void methodRunsInB() {
-
         }
 
         @RunsIn("c")
         void methodRunsInC() {
-
         }
     }
+
+    static class Arg {}
 
     @Scope("c")
     @DefineScope(name="c", parent="b")
