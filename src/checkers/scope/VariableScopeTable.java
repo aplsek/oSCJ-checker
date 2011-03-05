@@ -66,11 +66,7 @@ public class VariableScopeTable {
             if (scope != null)
                 return scope;
         }
-
-        // NOTE: instead of throwing exception, we will report a fail
-        // since this is a user-level error.
-        // OLD: throw new RuntimeException("Variable not defined in scope table");
-        return null;
+        throw new RuntimeException("Variable not defined in scope table");
     }
 
     public void dumpVarDefineScopes() {
