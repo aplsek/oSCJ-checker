@@ -7,13 +7,12 @@ import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="a", parent=Scope.IMMORTAL)
 @Scope("a")
-public abstract class TestBadMethodInvocation extends Mission {
+public abstract class TestBadMethodInvoke extends Mission {
 
     @Scope("a")
     @DefineScope(name="b", parent="a")
     static abstract class X extends Mission {
         Y y;
-        Arg arg = new Arg();
 
         @RunsIn("b")
         public void method() {
@@ -21,8 +20,6 @@ public abstract class TestBadMethodInvocation extends Mission {
             y.methodRunsInUnknown();
             y.methodRunsInB();
 
-            //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-            y.method(arg);
             //## checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE
             y.method();
             //## checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE
@@ -38,9 +35,6 @@ public abstract class TestBadMethodInvocation extends Mission {
     static class Y {
         void method() { }
 
-        @RunsIn("b")
-        void method(Arg arg) { }
-
         @RunsIn(Scope.UNKNOWN)
         void methodRunsInUnknown() { }
 
@@ -50,8 +44,6 @@ public abstract class TestBadMethodInvocation extends Mission {
         @RunsIn("c")
         void methodRunsInC() { }
     }
-
-    static class Arg { }
 
     @Scope("c")
     @DefineScope(name="c", parent="b")
