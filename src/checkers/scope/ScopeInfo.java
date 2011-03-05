@@ -6,6 +6,11 @@ public class ScopeInfo {
     public static final ScopeInfo CURRENT = new ScopeInfo(Scope.CURRENT);
     public static final ScopeInfo IMMORTAL = new ScopeInfo(Scope.IMMORTAL);
     /**
+     * Represents an error in the checker. In order for the checker to keep
+     * going, some things are expected to be non-null. This fills that gap.
+     */
+    public static final ScopeInfo INVALID = new ScopeInfo("invalid");
+    /**
      * Represents a null literal in the program being checked. Can be coerced to
      * any other scope.
      */
@@ -51,6 +56,10 @@ public class ScopeInfo {
         return equals(IMMORTAL);
     }
 
+    public boolean isInvalid() {
+        return equals(INVALID);
+    }
+
     public boolean isNull() {
         return equals(NULL);
     }
@@ -64,8 +73,8 @@ public class ScopeInfo {
     }
 
     public boolean isReservedScope() {
-        return isCurrent() || isImmortal() || isNull() || isUnknown()
-                || isPrimitive();
+        return isCurrent() || isImmortal() || isInvalid() || isNull()
+                || isUnknown() || isPrimitive();
     }
 
     public boolean isFieldScope() {
@@ -73,7 +82,7 @@ public class ScopeInfo {
     }
 
     public boolean isValidParentScope() {
-        return !(isCurrent() || isNull() || isUnknown() || isPrimitive());
+        return !(isCurrent() || isInvalid() || isNull() || isUnknown() || isPrimitive());
     }
 
     @Override

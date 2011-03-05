@@ -587,6 +587,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         DefineScope ds = var.getAnnotation(DefineScope.class);
         if (ds == null) {
             fail(ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR, node);
+            varScopes.addVariableDefineScope(var.toString(),
+                    new DefineScopeInfo(ScopeInfo.INVALID, ScopeInfo.INVALID));
             return;
         }
 
