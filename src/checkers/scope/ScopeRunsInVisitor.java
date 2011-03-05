@@ -12,6 +12,7 @@ import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT
 import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
+import static checkers.scope.ScopeRunsInChecker.ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
 import java.util.List;
@@ -373,7 +374,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
         if (!scopeTree.hasScope(runsIn) && !runsIn.isCurrent()
                 && !runsIn.isUnknown())
-            report(Result.failure(ERR_BAD_SCOPE_NAME, runsIn), node, errNode);
+            fail(ERR_BAD_SCOPE_NAME, node, errNode, runsIn);
 
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(m);
@@ -404,7 +405,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
         if (!scopeTree.hasScope(scope) && !scope.isCurrent()
                 && !scope.isUnknown())
-            report(Result.failure(ERR_BAD_SCOPE_NAME, scope), node, errNode);
+            fail(ERR_BAD_SCOPE_NAME, node, errNode, scope);
 
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(m);
@@ -415,6 +416,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             if (!eScope.equals(scope) && eLevel != SUPPORT)
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
         }
+        TypeKind r = m.getReturnType().getKind();
+        if ((r.isPrimitive() || r == TypeKind.VOID) && ann != null)
+            warn(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, node, errNode);
         // TODO: Need to check that scopes agree on the method and the return
         // type
         ctx.setMethodScope(scope, m);
@@ -436,15 +440,21 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (node != null)
             // Current item being visited. Report the error as usual.
             checker.report(r, errNode);
-        else
+        else if (r.isFailure())
             // Current item is something from a library. Can't put an error on
             // it, so put an error on the node being visited stating that
-            // something from the parent class or interface is broken.
+            // something from the parent class or interface is broken. If the
+            // result is a warning, we ignore it, since they are purely
+            // informational.
             fail(ERR_BAD_LIBRARY_ANNOTATION, errNode);
     }
 
     void fail(String msg, Tree src, Tree err, Object... msgParams) {
         report(Result.failure(msg, msgParams), src, err);
+    }
+
+    void warn(String msg, Tree src, Tree err, Object... msgParams) {
+        report(Result.warning(msg, msgParams), src, err);
     }
 
     private static ScopeInfo scopeOfClassDefinition(TypeElement t) {

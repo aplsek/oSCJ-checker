@@ -20,6 +20,7 @@ public class ScopeRunsInChecker extends SinglePassChecker {
     public static final String ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT = "err.mem.type.def.scope.not.consistent";
     public static final String ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE = "err.mem.type.def.scope.not.consistent.with.scope";
     public static final String ERR_RUNS_IN_ON_CLASS = "err.runs.in.on.class";
+    public static final String ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN = "scope.on.void.or.primitive.return";
 
     private ScopeCheckerContext ctx;
 
@@ -47,6 +48,7 @@ public class ScopeRunsInChecker extends SinglePassChecker {
         p.put(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, "MemoryArea field @DefineScope annotation is not consistent with the @DefineScope annotations on classes.");
         p.put(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, "MemoryArea field @DefineScope annotation is not consistent with the @Scope annotations of the field. (Field's scope is %s, @DefineScope requires %s) ");
         p.put(ERR_RUNS_IN_ON_CLASS, "RunsIn annotations are ignored on classes.");
+        p.put(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, "@Scope annotation ignored on methods that return void or primitives.");
 
         return p;
     }
