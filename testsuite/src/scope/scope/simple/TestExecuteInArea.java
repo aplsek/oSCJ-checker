@@ -33,7 +33,7 @@ public abstract class TestExecuteInArea extends Mission {
             a.executeInArea(new Run());
 
             Run2 r2 = new Run2();
-            //## checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_OR_ENTER
+            //## checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_RUNS_IN
             a.executeInArea(r2);
 
             Run3 r3 = new Run3();

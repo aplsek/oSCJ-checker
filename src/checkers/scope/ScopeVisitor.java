@@ -8,7 +8,7 @@ import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION;
 import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT;
 import static checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH;
-import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_OR_ENTER;
+import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_RUNS_IN;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_TARGET;
 import static checkers.scope.ScopeChecker.ERR_BAD_GET_MEMORY_AREA;
 import static checkers.scope.ScopeChecker.ERR_BAD_GUARD_ARGUMENT;
@@ -728,7 +728,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         if (!target.equals(argRunsIn))
             // target and @RunsIn on runnable must be the same
-            fail(ERR_BAD_EXECUTE_IN_AREA_OR_ENTER, node, target, argRunsIn);
+            fail(ERR_BAD_EXECUTE_IN_AREA_RUNS_IN, node, target, argRunsIn);
 
         // Leaving the failures in so the static imports don't get warnings
         // fail(ERR_BAD_ENTER_PARAM, node);
