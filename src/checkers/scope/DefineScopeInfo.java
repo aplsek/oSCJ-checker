@@ -15,8 +15,8 @@ public class DefineScopeInfo {
 
     @Override
     public boolean equals(Object obj) {
-        return obj != null &&
-            scope.equals(((DefineScopeInfo)obj).scope) && parent.equals(((DefineScopeInfo)obj).parent);
+        DefineScopeInfo d = (DefineScopeInfo) obj;
+        return obj != null && scope.equals(d.scope) && parent.equals(d.parent);
     }
 
     @Override

@@ -77,7 +77,8 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
     /**
      * Ensure that a DefineScope annotation is valid.
      */
-    void checkNewScope(String child, String parent, boolean ignoreDuplicates, Tree node) {
+    void checkNewScope(String child, String parent, boolean ignoreDuplicates,
+            Tree node) {
         // Null scope checks aren't necessary since Java apparently doesn't
         // consider "null" to be a constant expression.
         ScopeInfo childScope = new ScopeInfo(child);

@@ -1,11 +1,9 @@
 package checkers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -21,7 +19,6 @@ import javax.lang.model.util.Elements;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJRestricted;
 
-import checkers.scope.ScopeInfo;
 import checkers.util.TypesUtils;
 
 public final class Utils {
@@ -51,19 +48,6 @@ public final class Utils {
         if (DEBUG) System.err.println(indent + msg);
     }
 
-    public static String annotationValue(Collection<? extends AnnotationMirror> annotations, String annotation) {
-        AnnotationMirror a = getAnnotation(annotations, annotation);
-        if (a != null) { return (String) a.getElementValues().values().iterator().next().getValue(); }
-        return null;
-    }
-
-    public static AnnotationMirror getAnnotation(Collection<? extends AnnotationMirror> annotations, String annotation) {
-        for (AnnotationMirror anno : annotations) {
-            if (anno.getAnnotationType().toString().equals(annotation)) { return anno; }
-        }
-        return null;
-    }
-
     public static boolean isAbstract(Element e) {
         return e.getModifiers().contains(Modifier.ABSTRACT);
     }
@@ -81,19 +65,11 @@ public final class Utils {
     }
 
     public static boolean isAllocFree(ExecutableElement methodElement) {
-        SCJRestricted r;
-        if ((r = methodElement.getAnnotation(SCJRestricted.class)) != null && r.value() != null) {
+        SCJRestricted r = methodElement.getAnnotation(SCJRestricted.class);
+        if (r != null && r.value() != null) {
             return !r.mayAllocate();
         }
         return false;
-    }
-
-    public static ScopeInfo scope(Collection<? extends AnnotationMirror> annotations) {
-        return new ScopeInfo(annotationValue(annotations, "javax.safetycritical.annotate.Scope"));
-    }
-
-    public static ScopeInfo runsIn(Collection<? extends AnnotationMirror> annotations) {
-        return new ScopeInfo(annotationValue(annotations, "javax.safetycritical.annotate.RunsIn"));
     }
 
     public static HashSet<TypeElement> getAllInterfaces(TypeElement type) {
@@ -103,7 +79,8 @@ public final class Utils {
             ret.add(ifaceElement);
             ret.addAll(getAllInterfaces(ifaceElement));
         }
-        if (type.getKind() == ElementKind.CLASS && !TypesUtils.isObject(type.asType())) {
+        if (type.getKind() == ElementKind.CLASS
+                && !TypesUtils.isObject(type.asType())) {
             ret.addAll(getAllInterfaces(getTypeElement(type.getSuperclass())));
         }
         return ret;
@@ -175,7 +152,7 @@ public final class Utils {
      *
      *     String foo(Bar1 a1, Bar2 a2)
      *
-     * this method yields the string foo(Bar1,Bar2,)
+     * this method yields the string foo(Bar1,Bar2)
      */
     public static String buildSignatureString(String method, String... params) {
         int size = method.length() + params.length + 2;
@@ -191,10 +168,9 @@ public final class Utils {
         for (String param : params) {
             sb.append(param);
             if (++i < len)
-                sb.append(',');         // TODO: is this necessary? is this valid in the general case?
+                sb.append(',');
 
         }
-
         sb.append(')');
         return sb.toString();
     }
@@ -308,9 +284,8 @@ public final class Utils {
     public static final String JAVAX_SAFETYCRITICAL = "javax.safetycritical";
 
     public static boolean isUserLevel(String str) {
-        if (str.startsWith(JAVAX_REALTIME) || str.startsWith(JAVAX_SAFETYCRITICAL))
-            return false;
-        return true;
+        return !(str.startsWith(JAVAX_REALTIME) || str
+                .startsWith(JAVAX_SAFETYCRITICAL));
     }
 
     /**

@@ -147,7 +147,7 @@ public class VariableScopeTable {
         }
 
         public void putDefineScope(String var, DefineScopeInfo scope) {
-            defineScopes.put(var,scope);
+            defineScopes.put(var, scope);
         }
 
         public DefineScopeInfo getDefineScope(String var) {

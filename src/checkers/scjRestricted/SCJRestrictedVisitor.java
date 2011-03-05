@@ -248,8 +248,8 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
 
         ExecutableElement m = TreeUtils.elementFromDeclaration(node);
         EnumSet<Phase> rs = getSCJRestrictions(m, node);
-        currentBlockFree = !isSelfSuspend(m,node);
-        currentAllocFree = !isMayAllocate(m,node);
+        currentBlockFree = !isSelfSuspend(m, node);
+        currentAllocFree = !isMayAllocate(m, node);
         currentWhen = Phase.ALL;
 
 

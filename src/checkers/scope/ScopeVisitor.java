@@ -5,6 +5,7 @@ import static checkers.Utils.SCJMethod.ALLOC_IN_PARENT;
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
 import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION;
+import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT;
 import static checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_OR_ENTER;
@@ -639,6 +640,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             } else if (!varScopes.hasParentRelation(lhsVar, rhsVar))
                 fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
         }
+        DefineScopeInfo rhsDsi = rhs.getDefineScope();
+        if (rhsDsi != null && !rhsDsi.equals(lhs.getDefineScope()))
+            fail(ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT, node);
         debugIndentDecrement();
     }
 
@@ -681,6 +685,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return;
         if (!concretize(lhs).equals(concretize(rhs)))
             fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
+        DefineScopeInfo rhsDsi = rhs.getDefineScope();
+        if (rhsDsi != null && !rhsDsi.equals(lhs.getDefineScope()))
+            fail(ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT, node);
     }
 
     private ScopeInfo concretize(ScopeInfo scope) {
@@ -842,16 +849,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      */
     private void checkMethodRunsIn(ExecutableElement m,
             ScopeInfo effectiveRunsIn, MethodInvocationTree node) {
-        if (Utils.isStatic(m) &&  (effectiveRunsIn.isCurrent() || effectiveRunsIn.isUnknown()))
-            // TODO: invocation of a static method with @RunsIn(CURRENT)/@RunsIn(UNKNOWN) is OK
+        if (Utils.isStatic(m)
+                && (effectiveRunsIn.isCurrent() || effectiveRunsIn.isUnknown()))
             return;
 
         if (currentScope().isUnknown() && !effectiveRunsIn.isUnknown())
             fail(ERR_BAD_METHOD_INVOKE, node, CURRENT, UNKNOWN);
-        else
-            if (!effectiveRunsIn.isUnknown()
+        else if (!effectiveRunsIn.isUnknown()
                 && !effectiveRunsIn.equals(currentScope()))
-                fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, currentScope());
+            fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, currentScope());
     }
 
     private ScopeInfo checkNewInstance(ScopeInfo recvScope,
@@ -921,17 +927,17 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return !(k == TypeKind.VOID || k == TypeKind.WILDCARD || k == TypeKind.TYPEVAR);
     }
 
-    void pln(String str) {System.err.println("\t "+str);}
-
-    private ScopeInfo checkNewInstanceInArea(ScopeInfo scope,MethodInvocationTree node) {
-        ScopeInfo target = checkGetMemoryArea(scope,node);
-        return checkNewInstance(target,node.getArguments().get(1),node);
+    private ScopeInfo checkNewInstanceInArea(ScopeInfo scope,
+            MethodInvocationTree node) {
+        ScopeInfo target = checkGetMemoryArea(scope, node);
+        return checkNewInstance(target, node.getArguments().get(1), node);
     }
 
     /**
      * TODO: this needs to be tested.
      */
-    private ScopeInfo checkNewArrayInArea(ScopeInfo scope, MethodInvocationTree node) {
+    private ScopeInfo checkNewArrayInArea(ScopeInfo scope,
+            MethodInvocationTree node) {
         ScopeInfo target = checkGetMemoryArea(scope,node);
         return checkNewArray(target, node.getArguments().get(1), node);
     }
@@ -946,7 +952,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         ScopeInfo parent = scopeTree.getParent(scope);
-        return new ScopeInfo(parent.getScope(),new DefineScopeInfo(scope,
+        return new ScopeInfo(parent.getScope(), new DefineScopeInfo(scope,
                 scopeTree.getParent(scope)));
     }
 
@@ -957,27 +963,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 || exprScope == null || exprScope.isNull())
             return;
         fail(ERR_BAD_RETURN_SCOPE, node, exprScope, expectedScope);
-    }
-
-    /**
-     * TODO: replace those string comparisons
-     *
-     * TODO: extend it to support also ManagedMemory!!!!
-     *
-     * @param var1
-     * @param var2
-     * @return
-     */
-    private boolean checkPrivateMemAssignmentError(VariableElement var1,
-            VariableElement var2) {
-        if (var1.asType().toString()
-                .equals("javax.safetycritical.PrivateMemory")
-                && var2.asType().toString()
-                        .equals("javax.safetycritical.PrivateMemory"))
-            if (!var1.getAnnotationMirrors().toString()
-                    .equals(var2.getAnnotationMirrors().toString()))
-                return true;
-        return false;
     }
 
     private ScopeInfo checkVariableScope(VariableTree node) {

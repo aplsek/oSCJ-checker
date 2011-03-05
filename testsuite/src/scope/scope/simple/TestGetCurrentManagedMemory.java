@@ -13,10 +13,9 @@ public abstract class TestGetCurrentManagedMemory extends Mission {
     @Scope("a")
     @DefineScope(name="b", parent="a")
     static abstract class X extends Mission {
-
         Y y = new Y();
 
-        public void m() throws InstantiationException, IllegalAccessException {
+        public void foo() throws InstantiationException, IllegalAccessException {
             ManagedMemory.getCurrentManagedMemory();
 
             @Scope(Scope.IMMORTAL)
@@ -25,7 +24,7 @@ public abstract class TestGetCurrentManagedMemory extends Mission {
         }
 
         @RunsIn("b")
-        public void m2() throws InstantiationException, IllegalAccessException {
+        public void bar() throws InstantiationException, IllegalAccessException {
             ManagedMemory.getCurrentManagedMemory();
 
             @Scope("a")

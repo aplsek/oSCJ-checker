@@ -9,32 +9,31 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.RunsIn;
 
-@DefineScope(name="a",parent=Scope.IMMORTAL)
+@DefineScope(name="a", parent=Scope.IMMORTAL)
 @Scope("a")
 public abstract class TestEnterPrivateMemory extends Mission {
-
-    public void bar1() {
+    public void bar() {
         RunY runY = new RunY();
-        @Scope(Scope.IMMORTAL) @DefineScope(name="a",parent=Scope.IMMORTAL)
+        @Scope(Scope.IMMORTAL) @DefineScope(name="a", parent=Scope.IMMORTAL)
         ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
         mem.enterPrivateMemory(1000, runY);
     }
 
     @Scope("a")
-    @DefineScope(name="b",parent="a")
-    static abstract class PEH extends Mission {
+    @DefineScope(name="b", parent="a")
+    static abstract class X extends Mission {
         RunY runY = new RunY();
         RunZ runZ = new RunZ();
 
         @RunsIn("b")
-        public void handleAsyncEvent() {
+        public void foo() {
             RunX runX = new RunX();
-            @Scope("a") @DefineScope(name="b",parent="a")
+            @Scope("a") @DefineScope(name="b", parent="a")
             ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
             mem.enterPrivateMemory(1000, runX);
 
             mem.enterPrivateMemory(1000, new RunX());
-            method(new RunX());
+            bar(new RunX());
 
             //## checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH
             mem.enterPrivateMemory(1000, runY);
@@ -44,7 +43,7 @@ public abstract class TestEnterPrivateMemory extends Mission {
         }
 
         @RunsIn("b")
-        public void method(RunX runX) {
+        public void bar(RunX runX) {
             //## checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR
             ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
             //## checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR
@@ -54,27 +53,24 @@ public abstract class TestEnterPrivateMemory extends Mission {
 
     @SCJAllowed(members=true)
     @Scope("b")
-    @DefineScope(name="runX",parent="b")
+    @DefineScope(name="runX", parent="b")
     static class RunX implements SCJRunnable {
         @RunsIn("runX")
-        public void run() {
-        }
+        public void run() { }
     }
 
     @SCJAllowed(members=true)
     @Scope("a")
-    @DefineScope(name="runY",parent="a")
+    @DefineScope(name="runY", parent="a")
     static class RunY implements SCJRunnable {
         @RunsIn("runY")
-        public void run() {
-        }
+        public void run() { }
     }
 
     @SCJAllowed(members=true)
     @Scope("a")
-    @DefineScope(name="runZ",parent="a")
+    @DefineScope(name="runZ", parent="a")
     static  class RunZ implements SCJRunnable {
-        public void run() {
-        }
+        public void run() { }
     }
 }

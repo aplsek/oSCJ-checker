@@ -14,6 +14,7 @@ import com.sun.source.tree.CompilationUnitTree;
 public class ScopeChecker extends SinglePassChecker {
     // Please keep alphabetized
     public static final String ERR_BAD_ALLOCATION = "bad.allocation";
+    public static final String ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT = "bad.allocation.context.assignment";
     public static final String ERR_BAD_ASSIGNMENT_SCOPE = "bad.assignment.scope";
     public static final String ERR_BAD_ASSIGNMENT_PRIVATE_MEM = "bad.assignment.private.mem";
     // TODO: Remove
@@ -33,8 +34,6 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_RETURN_SCOPE = "bad.return.scope";
     public static final String ERR_BAD_RUNS_IN_METHOD = "bad.runs.in.method";
     public static final String ERR_BAD_VARIABLE_SCOPE = "bad.variable.scope";
-    // TODO: Remove
-    public static final String ERR_DEFAULT_BAD_ENTER_PARAMETER = "default.bad.enter.parameter";
     public static final String ERR_ESCAPING_NONANNOTATED_FIELD = "escaping.nonannotated.field";
     public static final String ERR_INTERFACE_ANNOTATION_MISMATCH = "interface.annotation.mismatch";
     public static final String ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR = "err.mem.area.no.def.scope.on.var";
@@ -43,8 +42,6 @@ public class ScopeChecker extends SinglePassChecker {
     // TODO: Remove
     public static final String ERR_RUNNABLE_WITHOUT_RUNS_IN = "runnable.without.runs.in";
     public static final String ERR_SCOPE_RUNS_IN_DISAGREEMENT = "scope.runs.in.disagreement";
-    // TODO: Remove
-    public static final String ERR_TYPE_CAST_BAD_ENTER_PARAMETER = "type.cast.bad.enter.parameter";
 
     private ScopeCheckerContext ctx;
 
@@ -63,6 +60,8 @@ public class ScopeChecker extends SinglePassChecker {
         // Please keep alphabetized
         p.put(ERR_BAD_ALLOCATION,
                 "Object allocation in a context (%s) other than its designated scope (%s).");
+        p.put(ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT,
+                "Assignment of AllocationContext objects must retain @DefineScope information.");
         p.put(ERR_BAD_ASSIGNMENT_PRIVATE_MEM,
                 "Cannot assign to a private memory with a different @DefineScope.");
         p.put(ERR_BAD_ASSIGNMENT_SCOPE,

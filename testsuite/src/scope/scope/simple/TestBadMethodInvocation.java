@@ -12,20 +12,17 @@ public abstract class TestBadMethodInvocation extends Mission {
     @Scope("a")
     @DefineScope(name="b", parent="a")
     static abstract class X extends Mission {
-
         Y y;
-
         Arg arg = new Arg();
 
         @RunsIn("b")
         public void method() {
             method();
-            y.methodUNK();
+            y.methodRunsInUnknown();
             y.methodRunsInB();
 
             //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
             y.method(arg);
-
             //## checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE
             y.method();
             //## checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE
@@ -35,39 +32,28 @@ public abstract class TestBadMethodInvocation extends Mission {
         void method2() {
             y.method();
         }
-
     }
 
     @Scope("a")
     static class Y {
-        void method() {
-        }
+        void method() { }
 
         @RunsIn("b")
-        void method(Arg arg) {
-        }
+        void method(Arg arg) { }
 
         @RunsIn(Scope.UNKNOWN)
-        void methodUNK() {
-        }
+        void methodRunsInUnknown() { }
 
         @RunsIn("b")
-        void methodRunsInB() {
-        }
+        void methodRunsInB() { }
 
         @RunsIn("c")
-        void methodRunsInC() {
-        }
+        void methodRunsInC() { }
     }
 
-    static class Arg {}
+    static class Arg { }
 
     @Scope("c")
     @DefineScope(name="c", parent="b")
-    static abstract class W extends Mission {}
-
-    // TODO: check parameters!!
-    // ERR_BAD_ASSIGNMENT_SCOPE
-
-
+    static abstract class W extends Mission { }
 }
