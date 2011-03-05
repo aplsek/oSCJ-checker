@@ -271,15 +271,23 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         // when accessing this.method(), then this is type of FIELD, but
         // we need to handle the this case specially.
         if (elem.getKind() == ElementKind.FIELD && !isThis(node)) {
-            ScopeInfo scope = ctx.getFieldScope((VariableElement) elem);
+            VariableElement v = (VariableElement) elem;
+            ScopeInfo scope = ctx.getFieldScope(v);
             DefineScopeInfo defineScope = null;
+            ScopeInfo receiver;
 
             if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(elem
                     .asType()))))
                 defineScope = ctx.getFieldDefineScope((VariableElement) elem);
 
-            ret = new FieldScopeInfo(varScopes.getVariableScope("this"), scope,
-                    defineScope);
+            // Since the receiver is implicit, we need to figure out whether
+            // or not the field is static or not and set the scope accordingly.
+            if (Utils.isStatic(v))
+                receiver = ScopeInfo.IMMORTAL;
+            else
+                receiver = varScopes.getVariableScope("this");
+
+            ret = new FieldScopeInfo(receiver, scope, defineScope);
         } else if (elem.getKind() == ElementKind.LOCAL_VARIABLE
                 || elem.getKind() == ElementKind.PARAMETER) {
             String var = node.getName().toString();

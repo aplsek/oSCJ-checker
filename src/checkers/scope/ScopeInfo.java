@@ -85,6 +85,16 @@ public class ScopeInfo {
         return !(isCurrent() || isInvalid() || isNull() || isUnknown() || isPrimitive());
     }
 
+    /**
+     * Determine whether or not this scope is valid on a static field.
+     *
+     * CURRENT is allowed because the class name is the receiver, which is
+     * treated as IMMORTAL in ScopeVisitor.
+     */
+    public boolean isValidStaticScope() {
+        return isCurrent() || isImmortal() || isPrimitive();
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj != null && scope.equals(((ScopeInfo) obj).scope);

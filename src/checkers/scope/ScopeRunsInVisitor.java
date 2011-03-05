@@ -6,6 +6,7 @@ import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_FIELD_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE;
+import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_STATIC_FIELD_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE;
 import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT;
 import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
@@ -245,7 +246,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         ScopeInfo scope = checkVariableScopeOverride(f, node, errNode);
         ScopeInfo classScope = getEnclosingClassScope(f);
 
-        if (!isValidFieldScope(scope, classScope))
+        if (Utils.isStatic(f)) {
+            if (!scope.isValidStaticScope())
+                fail(ERR_ILLEGAL_STATIC_FIELD_SCOPE, node, errNode, scope);
+        } else if (!isValidInstanceFieldScope(scope, classScope))
             fail(ERR_ILLEGAL_FIELD_SCOPE, node, errNode, scope, classScope);
 
         if (scope.isCurrent())
@@ -490,7 +494,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      * refer to them. UNKNOWN annotations are accepted, since assignments to
      * UNKNOWN fields are checked by a dynamic guard.
      */
-    boolean isValidFieldScope(ScopeInfo fieldScope, ScopeInfo classScope) {
+    boolean isValidInstanceFieldScope(ScopeInfo fieldScope, ScopeInfo classScope) {
         return fieldScope == null || fieldScope.isCurrent()
                 || fieldScope.isUnknown() || fieldScope.isPrimitive()
                 || scopeTree.isAncestorOf(classScope, fieldScope);
