@@ -21,27 +21,22 @@ public class ScopeInfo {
      */
     public static final ScopeInfo PRIMITIVE = new ScopeInfo("primitive");
     public static final ScopeInfo UNKNOWN = new ScopeInfo(Scope.UNKNOWN);
-    protected final String scope;
+    private final String scope;
 
     /**
-     * This field is:
-     * <ul>
-     * <li>null in general case
-     * <li>non-null when this field/variable type implements AllocationContext
-     * </ul>
-     * Variables that are subtypes of AllocationContext must have DefineScope
-     * annotations on them. This field is used to propagate that information
-     * during checking.
+     * This field is used to indicate that this ScopeInfo object is utilized by
+     * an object that represents a named scope. For all other objects, this is a
+     * null value.
      */
-    protected DefineScopeInfo defineScope = null;
+    private final ScopeInfo represented;
 
     public ScopeInfo(String scope) {
-        this.scope = scope;
+        this(scope, null);
     }
 
-    public ScopeInfo(String scope, DefineScopeInfo defineScope) {
+    public ScopeInfo(String scope, ScopeInfo represented) {
         this.scope = scope;
-        this.defineScope = defineScope;
+        this.represented = represented;
     }
 
     public String getScope() {
@@ -110,7 +105,29 @@ public class ScopeInfo {
         return scope;
     }
 
-    public DefineScopeInfo getDefineScope() {
-        return defineScope;
+    /**
+     * Get the scope represented by the object this ScopeInfo object is
+     * associated with. For example:
+     * <p>
+     * <code>
+     * Scope("a") DefineScope(name="b", parent="a")
+     * ManagedMemory mem;
+     * </code>
+     * <p>
+     * In this case, the current ScopeInfo object represents named scope a, but
+     * a ScopeInfo object representing scope b will be returned by this method,
+     * if it is the one attached to the mem variable.
+     */
+    public ScopeInfo getRepresentedScope() {
+        return represented;
+    }
+
+    /**
+     * Create a new ScopeInfo object representing the scope of the current
+     * object, but which also represents a named scope declared by an
+     * AllocationContext.
+     */
+    public ScopeInfo representing(ScopeInfo represented) {
+        return new ScopeInfo(scope, represented);
     }
 }

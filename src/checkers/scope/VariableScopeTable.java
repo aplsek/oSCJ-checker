@@ -39,43 +39,6 @@ public class VariableScopeTable {
         throw new RuntimeException("Variable not defined in scope table");
     }
 
-    public void addVariableDefineScope(String var, DefineScopeInfo dsi) {
-        if (dsi == null)
-            throw new RuntimeException("Cannot add null scoped variable");
-        LexicalBlock last = blocks.getLast();
-        if (last.containsDefineScope(var))
-            // If the block has already defined this variable, this table is
-            // somehow being used incorrectly.
-            throw new RuntimeException("Variable already defined in block");
-        last.putDefineScope(var, dsi);
-    }
-
-    public DefineScopeInfo getVariableDefineScope(String var) {
-        Iterator<LexicalBlock> iter = blocks.descendingIterator();
-        while (iter.hasNext()) {
-            LexicalBlock b = iter.next();
-            DefineScopeInfo scope = b.getDefineScope(var);
-            if (scope != null)
-                return scope;
-        }
-        throw new RuntimeException("Variable not defined in scope table: "
-                + var);
-    }
-
-    public void dumpVarDefineScopes() {
-        System.err.println("\n\n=== DUMP DEFINE SCOPES variables/locals===");
-
-        Iterator<LexicalBlock> iter = blocks.descendingIterator();
-        while (iter.hasNext()) {
-            LexicalBlock b = iter.next();
-            // DefineScopeInfo scope = b.defineScopes;
-            for (Entry<String, DefineScopeInfo> key : b.defineScopes.entrySet()) {
-                System.err.println(key.getKey() + ":" + key.getValue());
-            }
-        }
-        System.err.println("=== DUMP DEFINE SCOPES variables/locals===\n");
-    }
-
     public void addParentRelation(String childVar, String parentVar) {
         LexicalBlock last = blocks.getLast();
         last.setRelation(new Relation(childVar, parentVar, RelationKind.PARENT));
@@ -112,7 +75,6 @@ public class VariableScopeTable {
 
     private static class LexicalBlock {
         Map<String, ScopeInfo> scopes = new HashMap<String, ScopeInfo>();
-        Map<String, DefineScopeInfo> defineScopes = new HashMap<String, DefineScopeInfo>();
 
         Relation relation = null;
 
@@ -132,18 +94,6 @@ public class VariableScopeTable {
             if (relation != null)
                 throw new RuntimeException("Relation already set for block");
             relation = r;
-        }
-
-        public void putDefineScope(String var, DefineScopeInfo scope) {
-            defineScopes.put(var, scope);
-        }
-
-        public DefineScopeInfo getDefineScope(String var) {
-            return defineScopes.get(var);
-        }
-
-        public boolean containsDefineScope(String var) {
-            return defineScopes.containsKey(var);
         }
     }
 

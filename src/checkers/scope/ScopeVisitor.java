@@ -273,12 +273,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (elem.getKind() == ElementKind.FIELD && !isThis(node)) {
             VariableElement v = (VariableElement) elem;
             ScopeInfo scope = ctx.getFieldScope(v);
-            DefineScopeInfo defineScope = null;
+            ScopeInfo defineScope = null;
             ScopeInfo receiver;
 
             if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(elem
                     .asType()))))
-                defineScope = ctx.getFieldDefineScope((VariableElement) elem);
+                defineScope = ctx.getFieldScope(v).getRepresentedScope();
 
             // Since the receiver is implicit, we need to figure out whether
             // or not the field is static or not and set the scope accordingly.
@@ -290,14 +290,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ret = new FieldScopeInfo(receiver, scope, defineScope);
         } else if (elem.getKind() == ElementKind.LOCAL_VARIABLE
                 || elem.getKind() == ElementKind.PARAMETER) {
-            String var = node.getName().toString();
-            ScopeInfo scope = varScopes.getVariableScope(var);
-
-            if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(elem
-                    .asType()))))
-                scope.defineScope = varScopes.getVariableDefineScope(var);
-
-            ret = scope;
+            ret = varScopes.getVariableScope(node.getName().toString());
         } else if (elem.getKind() == ElementKind.METHOD
                 || elem.getKind() == ElementKind.CONSTRUCTOR
                 || elem.getKind() == ElementKind.FIELD && isThis(node)) {
@@ -393,16 +386,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         varScopes.pushBlock();
         List<? extends VariableTree> params = node.getParameters();
         List<ScopeInfo> paramScopes = ctx.getParameterScopes(m);
-        List<DefineScopeInfo> defineScopes = ctx.getParameterDefineScopes(m);
         for (int i = 0; i < paramScopes.size(); i++) {
             VariableTree param = params.get(i);
             String paramName = param.getName().toString();
             debugIndent(" add VarScope: " + paramName + ", scope:"
                     + paramScopes.get(i));
             varScopes.addVariableScope(paramName, paramScopes.get(i));
-            DefineScopeInfo dsi = defineScopes.get(i);
-            if (dsi != null)
-                varScopes.addVariableDefineScope(paramName, dsi);
         }
         node.getBody().accept(this, p);
         // TODO: make sure we don't need to visit more
@@ -548,15 +537,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         ScopeInfo lhs = checkVariableScope(node);
-        debugIndent(" scope's variable: " + lhs);
+        debugIndent("variable's scope: " + lhs);
         varScopes.addVariableScope(node.getName().toString(), lhs);
         VariableElement var = TreeUtils.elementFromDeclaration(node);
-        if (needsDefineScope(Utils.getTypeElement(Utils.getBaseType(var
-                .asType())))) {
-            debugIndent(" needs @DefineScope.");
-            if (var.getKind() == ElementKind.LOCAL_VARIABLE)
-                checkDefineScopeOnVariable(var, lhs, node);
-        }
 
         // Static variable, change the context to IMMORTAL
         if (Utils.isStatic(var))
@@ -582,44 +565,33 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndentDecrement();
     }
 
-    private void checkDefineScopeOnVariable(VariableElement var,
+    private ScopeInfo checkDefineScopeOnVariable(VariableElement var,
             ScopeInfo varScope, VariableTree node) {
         debugIndent("checkDefineScopeOnVariable.");
 
         // TODO: Is this replaceable with isUserElement(Element)?
         if (!Utils.isUserLevel(var.getEnclosingElement().toString()))
-            return;
+            return varScope;
         if (var.asType().getKind() != TypeKind.DECLARED)
-            return;
+            return varScope;
 
         DefineScope ds = var.getAnnotation(DefineScope.class);
         if (ds == null) {
             fail(ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR, node);
-            varScopes.addVariableDefineScope(var.toString(),
-                    new DefineScopeInfo(ScopeInfo.INVALID, ScopeInfo.INVALID));
-            return;
+            return varScope.representing(ScopeInfo.INVALID);
         }
 
         ScopeInfo scope = new ScopeInfo(ds.name());
         ScopeInfo parent = new ScopeInfo(ds.parent());
-        DefineScopeInfo dsi = new DefineScopeInfo(scope, parent);
 
         if (!scopeTree.hasScope(scope) || !scopeTree.isParentOf(scope, parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node);
 
-        ScopeInfo runsInScope = getEnclosingMethodRunsIn();
-        if (!varScope.isCurrent()) {
-            if (!varScope.equals(parent))
-                fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
-                        node, varScope, parent);
-        } else if (runsInScope.isUnknown())
+        if (!varScope.equals(parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
-                    UNKNOWN, parent);
-        else if (!runsInScope.equals(parent))
-            fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
-                    runsInScope, parent);
+                    varScope, parent);
 
-        varScopes.addVariableDefineScope(var.toString(), dsi);
+        return varScope.representing(scope);
     }
 
     private void checkFieldAssignment(FieldScopeInfo lhs, ScopeInfo rhs,
@@ -645,8 +617,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             } else if (!varScopes.hasParentRelation(lhsVar, rhsVar))
                 fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
         }
-        DefineScopeInfo rhsDsi = rhs.getDefineScope();
-        if (rhsDsi != null && !rhsDsi.equals(lhs.getDefineScope()))
+        ScopeInfo rhsDsi = rhs.getRepresentedScope();
+        if (rhsDsi != null && !rhsDsi.equals(lhs.getRepresentedScope()))
             fail(ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT, node);
         debugIndentDecrement();
     }
@@ -690,8 +662,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return;
         if (!concretize(lhs).equals(concretize(rhs)))
             fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
-        DefineScopeInfo rhsDsi = rhs.getDefineScope();
-        if (rhsDsi != null && !rhsDsi.equals(lhs.getDefineScope()))
+        ScopeInfo rhsDsi = rhs.getRepresentedScope();
+        if (rhsDsi != null && !rhsDsi.equals(lhs.getRepresentedScope()))
             fail(ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT, node);
     }
 
@@ -713,7 +685,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private ScopeInfo checkExecuteInArea(ScopeInfo recvScope,
             MethodInvocationTree node) {
-        ScopeInfo target = recvScope.getDefineScope().getScope();
+        ScopeInfo target = recvScope.getRepresentedScope();
         TypeMirror runnableType = InternalUtils.typeOf(node.getArguments().get(
                 0));
         ScopeInfo argRunsIn = getRunsInFromRunnable(runnableType);
@@ -860,10 +832,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, currentScope());
     }
 
-    private ScopeInfo checkNewInstance(ScopeInfo recvScope,
-            ExpressionTree arg, MethodInvocationTree node) {
+    private ScopeInfo checkNewInstance(ScopeInfo recvScope, ExpressionTree arg,
+            MethodInvocationTree node) {
         TypeMirror instType = getNewInstanceType(arg);
-        ScopeInfo target = recvScope.getDefineScope().getScope();
+        ScopeInfo target = recvScope.getRepresentedScope();
 
         if (isValidNewInstanceType(instType)) {
             ScopeInfo argScope = ctx.getClassScope(instType.toString());
@@ -900,15 +872,14 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      */
     private ScopeInfo checkGetCurrentManagedMemory(MethodInvocationTree node) {
         ScopeInfo memoryObject = scopeTree.getParent(currentScope());
-        return new ScopeInfo(memoryObject.getScope(), new DefineScopeInfo(
-                currentScope(), memoryObject));
+        return new ScopeInfo(memoryObject.getScope(), currentScope());
         // TODO: Probably need an error if we're not in a concrete scope.
     }
 
     private ScopeInfo checkNewArray(ScopeInfo recvScope, ExpressionTree arg,
             MethodInvocationTree node) {
         TypeMirror instType = getNewInstanceType(arg);
-        ScopeInfo target = recvScope.getDefineScope().getScope();
+        ScopeInfo target = recvScope.getRepresentedScope();
 
         if (isValidNewArrayType(instType)) {
             instType = Utils.getBaseType(instType);
@@ -939,7 +910,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      */
     private ScopeInfo checkNewArrayInArea(ScopeInfo scope,
             MethodInvocationTree node) {
-        ScopeInfo target = checkGetMemoryArea(scope,node);
+        ScopeInfo target = checkGetMemoryArea(scope, node);
         return checkNewArray(target, node.getArguments().get(1), node);
     }
 
@@ -953,8 +924,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         ScopeInfo parent = scopeTree.getParent(scope);
-        return new ScopeInfo(parent.getScope(), new DefineScopeInfo(scope,
-                scopeTree.getParent(scope)));
+        return new ScopeInfo(parent.getScope(), scope);
     }
 
     private void checkReturnScope(ScopeInfo exprScope, ScopeInfo expectedScope,
@@ -968,9 +938,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private ScopeInfo checkVariableScope(VariableTree node) {
         VariableElement var = TreeUtils.elementFromDeclaration(node);
-        if (Utils.isStatic(var))
-            return ScopeInfo.IMMORTAL;
+        // We already have all of the information we need for fields
+        if (var.getKind() == ElementKind.FIELD)
+            return ctx.getFieldScope(var);
+
         // TODO: UNKNOWN parameters
+        ScopeInfo ret;
         TypeMirror varMirror = var.asType();
         TypeMirror varBaseMirror = Utils.getBaseType(varMirror);
         if (varBaseMirror.getKind().isPrimitive())
@@ -990,17 +963,21 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         if (varScope == null) {
             if (tScope.isCurrent())
-                return currentScope();
+                ret = currentScope();
             else
-                return tScope;
+                ret = tScope;
         } else if (tScope.isCurrent())
-            return new ScopeInfo(varScope.value());
+            ret = new ScopeInfo(varScope.value());
         else {
             if (!tScope.equals(new ScopeInfo(varScope.value())))
                 fail(ERR_BAD_VARIABLE_SCOPE, node, t.getSimpleName(),
                         currentScope());
-            return tScope;
+            ret = tScope;
         }
+        if (needsDefineScope(t))
+            ret = checkDefineScopeOnVariable(var, ret, node);
+
+        return ret;
     }
 
     private boolean isPrimitiveExpression(ExpressionTree expr) {

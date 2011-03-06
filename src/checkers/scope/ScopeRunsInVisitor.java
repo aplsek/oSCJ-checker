@@ -235,11 +235,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             effectiveScope = ctx.getEffectiveMethodRunsIn(m,
                     getEnclosingClassScope(m));
         }
-        DefineScopeInfo dsi = checkMemoryAreaVariable(p, effectiveScope, tree,
-                errNode);
-        if (dsi != null) {
-            ctx.setParameterDefineScope(dsi, i, m);
-        }
+        scope = checkMemoryAreaVariable(p, effectiveScope, tree, errNode);
         return scope;
     }
 
@@ -250,36 +246,33 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (Utils.isStatic(f)) {
             if (!scope.isValidStaticScope())
                 fail(ERR_ILLEGAL_STATIC_FIELD_SCOPE, node, errNode, scope);
+            scope = ScopeInfo.IMMORTAL;
         } else if (!isValidInstanceFieldScope(scope, classScope))
             fail(ERR_ILLEGAL_FIELD_SCOPE, node, errNode, scope, classScope);
 
         if (scope.isCurrent())
             scope = classScope;
-        DefineScopeInfo dsi = checkMemoryAreaVariable(f, scope, node, errNode);
-        if (dsi != null)
-            ctx.setFieldDefineScope(dsi, f);
-
+        scope = checkMemoryAreaVariable(f, scope, node, errNode);
         return scope;
     }
 
-    private DefineScopeInfo checkMemoryAreaVariable(VariableElement v,
+    private ScopeInfo checkMemoryAreaVariable(VariableElement v,
             ScopeInfo effectiveVarScope, Tree node, Tree errNode) {
         if (!Utils.isUserLevel(v))
-            return null;
+            return effectiveVarScope;
         if (v.asType().getKind() != TypeKind.DECLARED)
-            return null;
+            return effectiveVarScope;
         if (!needsDefineScope(Utils.getTypeElement(v.asType())))
-            return null;
+            return effectiveVarScope;
 
         DefineScope ds = v.getAnnotation(DefineScope.class);
         if (ds == null) {
             fail(ERR_MEMORY_AREA_NO_DEFINE_SCOPE, node, errNode);
-            return null;
+            return effectiveVarScope.representing(ScopeInfo.INVALID);
         }
 
         ScopeInfo scope = new ScopeInfo(ds.name());
         ScopeInfo parent = new ScopeInfo(ds.parent());
-        DefineScopeInfo dsi = new DefineScopeInfo(scope, parent);
 
         if (!scopeTree.hasScope(scope) || !scopeTree.isParentOf(scope, parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node, errNode);
@@ -287,7 +280,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (!effectiveVarScope.equals(parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
                     errNode, effectiveVarScope, parent);
-        return dsi;
+        return effectiveVarScope.representing(scope);
     }
 
     /**

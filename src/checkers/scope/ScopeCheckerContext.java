@@ -348,15 +348,10 @@ public class ScopeCheckerContext {
          */
         Map<String, MethodScopeInfo> methodScopes;
         Map<String, ScopeInfo> fieldScopes;
-        /**
-         * A map of field names to relevant DefineScope information
-         */
-        private Map<String, DefineScopeInfo> fieldDefineScopes;
 
         ClassInfo() {
             methodScopes = new HashMap<String, MethodScopeInfo>();
             fieldScopes = new HashMap<String, ScopeInfo>();
-            fieldDefineScopes = new HashMap<String, DefineScopeInfo>();
         }
 
         public void dumpCSI() {
@@ -371,124 +366,12 @@ public class ScopeCheckerContext {
         ScopeInfo scope;
         ScopeInfo runsIn;
         List<ScopeInfo> parameters;
-        List<DefineScopeInfo> parameterDefineScopes;
 
         MethodScopeInfo(int params) {
             parameters = new ArrayList<ScopeInfo>(params);
             for (int i = 0; i < params; i++)
                 parameters.add(null);
-            parameterDefineScopes = new ArrayList<DefineScopeInfo>(params);
-            for (int i = 0; i < params; i++)
-                parameterDefineScopes.add(null);
         }
-    }
-
-    /**
-     * Store the DefineScope annotation of a field, given its declaration.
-     */
-    public void setFieldDefineScope(DefineScopeInfo scope, VariableElement f) {
-        TypeElement t = Utils.getFieldClass(f);
-        setFieldDefineScope(scope, t.getQualifiedName().toString(), f
-                .getSimpleName().toString());
-    }
-
-    /**
-     * Store the DefineScope annotation of a field given its fully qualified
-     * class name and its own name.
-     */
-    public void setFieldDefineScope(DefineScopeInfo scope, String clazz,
-            String field) {
-        ClassInfo ci = classScopes.get(clazz);
-        if (ci == null) {
-            ci = new ClassInfo();
-            classScopes.put(clazz, ci);
-        }
-        DefineScopeInfo f = ci.fieldDefineScopes.get(field);
-        if (f != null && !f.equals(scope))
-            throw new RuntimeException("Field DefineScope already set");
-        ci.fieldDefineScopes.put(field, scope);
-    }
-
-    /**
-     * Set the DefineScope annotation of a method parameter, given the method's
-     * name and its fully qualified class name.
-     */
-    public void setParameterDefineScope(DefineScopeInfo dsi, int i,
-            String clazz, String method, String... params) {
-        ClassInfo ci = classScopes.get(clazz);
-        String sig = Utils.buildSignatureString(method, params);
-        MethodScopeInfo msi = ci.methodScopes.get(sig);
-        DefineScopeInfo pdsi = msi.parameterDefineScopes.get(i);
-        if (pdsi != null && !pdsi.equals(dsi))
-            throw new RuntimeException("Parameter define scope already set");
-        msi.parameterDefineScopes.set(i, dsi);
-    }
-
-    /**
-     * Set the DefineScope annotation of a method parameter, given the method's
-     * declaration and the parameter index.
-     */
-    public void setParameterDefineScope(DefineScopeInfo dsi, int i,
-            ExecutableElement m) {
-        TypeElement t = Utils.getMethodClass(m);
-        setParameterDefineScope(dsi, i, t.getQualifiedName().toString(), m
-                .getSimpleName().toString(), getParameterTypeNames(m));
-    }
-
-    /**
-     * Get the DefineScope annotation of a field by its fully qualified class
-     * name and its own name.
-     */
-    public DefineScopeInfo getFieldDefineScope(String clazz, String field) {
-        ClassInfo ci = classScopes.get(clazz);
-        return ci.fieldDefineScopes.get(field);
-    }
-
-    /**
-     * Get the DefineScope annotation of a field by its declaration.
-     */
-    public DefineScopeInfo getFieldDefineScope(VariableElement f) {
-        TypeElement t = Utils.getFieldClass(f);
-        return getFieldDefineScope(t.getQualifiedName().toString(), f
-                .getSimpleName().toString());
-    }
-
-    /**
-     * Get the DefineScope annotations on a method's parameters by its fully
-     * qualified class name and its own name.
-     */
-    public List<DefineScopeInfo> getParameterDefineScopes(String clazz,
-            String method, String... params) {
-        ClassInfo ci = classScopes.get(clazz);
-        if (ci != null) {
-            String sig = Utils.buildSignatureString(method, params);
-            MethodScopeInfo msi = ci.methodScopes.get(sig);
-            if (msi != null)
-                return Collections.unmodifiableList(msi.parameterDefineScopes);
-        }
-        return null;
-    }
-
-    /**
-     * Get the DefineScope annotations on a method's parameters by its
-     * declaration.
-     */
-    public List<DefineScopeInfo> getParameterDefineScopes(ExecutableElement m) {
-        TypeElement t = Utils.getMethodClass(m);
-        return getParameterDefineScopes(t.getQualifiedName().toString(), m
-                .getSimpleName().toString(), getParameterTypeNames(m));
-    }
-
-    public void dumpDefineScopes() {
-        System.err.println("\n\n============ DEFINE SCOPES-=========");
-        for (Entry<String, ClassInfo> e : classScopes.entrySet()) {
-            ClassInfo ci = e.getValue();
-            for (Entry<String, DefineScopeInfo> dsi : ci.fieldDefineScopes
-                    .entrySet())
-                System.err.println("field: " + dsi.getKey() + ", @DefineScope("
-                        + dsi.getValue() + ")");
-        }
-        System.err.println("============ DEFINE SCOPES-=========\n\n");
     }
 
     public void dumpClassScopes() {

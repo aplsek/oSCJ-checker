@@ -10,14 +10,14 @@ public class FieldScopeInfo extends ScopeInfo {
     }
 
     public FieldScopeInfo(ScopeInfo receiverScope, ScopeInfo fieldScope,
-            DefineScopeInfo defineScopeInfo) {
+            ScopeInfo represented) {
         this(calculateScope(receiverScope, fieldScope), receiverScope,
-                fieldScope, defineScopeInfo);
+                fieldScope, represented);
     }
 
-    public FieldScopeInfo(ScopeInfo scope, ScopeInfo receiverScope,
-            ScopeInfo fieldScope, DefineScopeInfo defineScopeInfo) {
-        super(scope.getScope(), defineScopeInfo);
+    private FieldScopeInfo(ScopeInfo scope, ScopeInfo receiverScope,
+            ScopeInfo fieldScope, ScopeInfo representative) {
+        super(scope.getScope(), representative);
         this.receiverScope = receiverScope;
         this.fieldScope = fieldScope;
     }
@@ -54,5 +54,10 @@ public class FieldScopeInfo extends ScopeInfo {
             return receiverScope;
         else
             return fieldScope;
+    }
+
+    @Override
+    public FieldScopeInfo representing(ScopeInfo represented) {
+        return new FieldScopeInfo(receiverScope, fieldScope, represented);
     }
 }
