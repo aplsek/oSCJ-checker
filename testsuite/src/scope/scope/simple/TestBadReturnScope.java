@@ -15,20 +15,18 @@ public abstract class TestBadReturnScope extends Mission {
         return new Y();
     }
 
-    @Scope(Scope.IMMORTAL)
     public int getPrimitive() {
         return 1;
     }
 
-    @Scope(Scope.IMMORTAL)
     public void getVoid() {
         return;
     }
 
     @Scope(Scope.IMMORTAL)
-    public int[] getPrimitive2() {
+    public int[] getArray() {
         //## checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE
-        return new int[]{1};
+        return new int[] { 1 };
     }
 
     @Scope("a")

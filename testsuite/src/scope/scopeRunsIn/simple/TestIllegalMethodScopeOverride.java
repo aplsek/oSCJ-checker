@@ -8,22 +8,22 @@ public class TestIllegalMethodScopeOverride {
     static class X {
         @SCJAllowed(Level.SUPPORT)
         @Scope(Scope.IMMORTAL)
-        void foo(Y y) { }
+        Object foo(Y y) { return null; }
         @Scope(Scope.IMMORTAL)
-        void bar() { }
+        Object bar() { return null; }
         @Scope(Scope.IMMORTAL)
-        void baz() { }
+        Object baz() { return null; }
     }
     static class Y extends X {
         @Override
         @Scope(Scope.CURRENT)
-        void foo(Y y) { }
+        Object foo(Y y) { return null; }
         @Override
         @Scope(Scope.CURRENT)
         //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE
-        void bar() { }
+        Object bar() { return null; }
         @Override
         @Scope(Scope.IMMORTAL)
-        void baz() { }
+        Object baz() { return null; }
     }
 }
