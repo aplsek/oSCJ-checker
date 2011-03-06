@@ -17,11 +17,7 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT = "bad.allocation.context.assignment";
     public static final String ERR_BAD_ASSIGNMENT_SCOPE = "bad.assignment.scope";
     public static final String ERR_BAD_ASSIGNMENT_PRIVATE_MEM = "bad.assignment.private.mem";
-    // TODO: Remove
-    public static final String ERR_BAD_ENTER_PARAM = "bad.enter.param";
     public static final String ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH = "bad.enter.private.memory.runs.in.no.match";
-    // TODO: Remove
-    public static final String ERR_BAD_ENTER_TARGET = "bad.enter.target";
     public static final String ERR_BAD_EXECUTE_IN_AREA_RUNS_IN = "bad.execute.in.area.or.enter";
     public static final String ERR_BAD_EXECUTE_IN_AREA_TARGET = "bad.execute.in.area.target";
     public static final String ERR_BAD_GET_MEMORY_AREA = "bad.get.memory.area";
@@ -66,7 +62,6 @@ public class ScopeChecker extends SinglePassChecker {
                 "Cannot assign to a private memory with a different @DefineScope.");
         p.put(ERR_BAD_ASSIGNMENT_SCOPE,
                 "Cannot assign expression in scope %s to variable in scope %s.");
-        p.put(ERR_BAD_ENTER_TARGET, "enter() must target a child scope.");
         p.put(ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH,
                 "The Runnable's @RunsIn must be a child scope of the CurrentScope\n\t @RunsIn: %s\n\t Current Scope: %s");
         p.put(ERR_BAD_EXECUTE_IN_AREA_RUNS_IN,
