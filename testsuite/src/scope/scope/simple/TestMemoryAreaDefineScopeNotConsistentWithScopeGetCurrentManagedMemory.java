@@ -15,8 +15,6 @@ public abstract class TestMemoryAreaDefineScopeNotConsistentWithScopeGetCurrentM
     @DefineScope(name="b", parent="a")
     static abstract class X extends Mission {
         public void foo() throws InstantiationException, IllegalAccessException {
-            ManagedMemory.getCurrentManagedMemory();
-
             @Scope(Scope.IMMORTAL)
             @DefineScope(name="a", parent=Scope.IMMORTAL)
             ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
@@ -24,8 +22,6 @@ public abstract class TestMemoryAreaDefineScopeNotConsistentWithScopeGetCurrentM
 
         @RunsIn("b")
         public void bar() throws InstantiationException, IllegalAccessException {
-            ManagedMemory.getCurrentManagedMemory();
-
             @Scope("a")
             @DefineScope(name="b", parent="a")
             ManagedMemory mem2 = ManagedMemory.getCurrentManagedMemory();
