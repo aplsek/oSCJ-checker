@@ -506,7 +506,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndentIncrement("visitTypeCast " + node);
         if (isPrimitiveExpression(node)) {
             debugIndentDecrement();
-            return null;
+            return ScopeInfo.PRIMITIVE;
         }
 
         ScopeInfo scope = node.getExpression().accept(this, p);
