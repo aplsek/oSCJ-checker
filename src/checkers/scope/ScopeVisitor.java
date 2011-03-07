@@ -159,7 +159,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeInfo visitBinary(BinaryTree node, P p) {
         super.visitBinary(node, p);
         if (TreeUtils.isCompileTimeString(node))
-            return ScopeInfo.CURRENT;
+            return ScopeInfo.IMMORTAL;
         else if (TreeUtils.isStringConcatenation(node))
             return ScopeInfo.CURRENT;
         return ScopeInfo.PRIMITIVE; // Primitive expressions have no scope
