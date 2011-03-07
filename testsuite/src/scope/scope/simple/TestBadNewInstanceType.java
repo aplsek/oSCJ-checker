@@ -18,6 +18,8 @@ public abstract class TestBadNewInstanceType extends Mission {
         public void foo() {
             try {
                 //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
+                mem.newInstance(Z.class);
+                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
                 mem.newInstance(Y[].class);
                 Class<?> c = null;
                 //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
@@ -26,12 +28,13 @@ public abstract class TestBadNewInstanceType extends Mission {
                 mem.newInstance(void.class);
                 // TODO: Fix ## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
                 mem.newInstance(int.class);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) { }
         }
     }
 
     @Scope("a")
     static class Y { }
+
+    @Scope("a")
+    static abstract class Z { }
 }
