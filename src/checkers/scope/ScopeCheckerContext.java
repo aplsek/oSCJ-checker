@@ -170,8 +170,8 @@ public class ScopeCheckerContext {
         if (!methodRunsIn.isCurrent() || Utils.isStatic(m))
             return methodRunsIn;
 
-        TypeElement clazz = (TypeElement) m.getEnclosingElement();
-        ScopeInfo scope = getClassScope(clazz);
+        TypeElement t = Utils.getMethodClass(m);
+        ScopeInfo scope = getClassScope(t);
 
         // if the scope is CURRENT, we need to consider the Scope of the
         // receiver object.
@@ -188,8 +188,8 @@ public class ScopeCheckerContext {
         if (!getMethodScope(m).isCurrent() || Utils.isStatic(m))
             return getMethodScope(m);
 
-        TypeElement clazz = (TypeElement) m.getEnclosingElement();
-        ScopeInfo scope = getClassScope(clazz);
+        TypeElement t = Utils.getMethodClass(m);
+        ScopeInfo scope = getClassScope(t);
 
         // if the scope is CURRENT, we need to consider the Scope of the
         // receiver object.
