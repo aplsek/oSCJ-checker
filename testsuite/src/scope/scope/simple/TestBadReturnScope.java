@@ -5,7 +5,6 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-
 @DefineScope(name="a", parent=Scope.IMMORTAL)
 @Scope("a")
 public abstract class TestBadReturnScope extends Mission {
@@ -27,6 +26,24 @@ public abstract class TestBadReturnScope extends Mission {
     public int[] getArray() {
         //## checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE
         return new int[] { 1 };
+    }
+
+    @Scope("a")
+    public Y methNull() {
+        return null;
+    }
+
+    @Scope(Scope.UNKNOWN)
+    public Y methUNK() {
+        @Scope("a") Y y = new Y();
+        return y;
+    }
+
+    @Scope("a")
+    public Y meth() {
+        @Scope(Scope.UNKNOWN) Y y = new Y();
+        //## checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE
+        return y;
     }
 
     @Scope("a")
