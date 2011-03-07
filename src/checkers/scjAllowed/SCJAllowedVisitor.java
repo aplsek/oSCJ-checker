@@ -3,17 +3,16 @@ package checkers.scjAllowed;
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
 import static checkers.scjAllowed.EscapeMap.isEscaped;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_HIDDEN_TO_SCJALLOWED;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_ENCLOSED;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_FIELD_ACCESS;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_INFRASTRUCTURE_OVERRIDE;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_METHOD_CALL;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_NEW_CALL;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_OVERRIDE;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_PROTECTED_CALL;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_SUBCLASS;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_SUPPORT;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_SCJALLOWED_BAD_USER_LEVEL;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_ENCLOSED;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_FIELD_ACCESS;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_INFRASTRUCTURE_CALL;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_INFRASTRUCTURE_OVERRIDE;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_METHOD_CALL;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_NEW_CALL;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_SUBCLASS;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_SUPPORT;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_USER_LEVEL;
 import static javax.safetycritical.annotate.Level.HIDDEN;
 import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
 import static javax.safetycritical.annotate.Level.LEVEL_0;
@@ -92,15 +91,15 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         // if (hasSuppressSCJAnnotation(t)) return null;
         Level level = scjAllowedLevel(t);
 
-        if (Utils.isUserLevel(t) && level.compareTo(SUPPORT) >= 0) {
+        if (Utils.isUserLevel(t) && level == INFRASTRUCTURE) {
             debugIndentDecrement();
-            fail(ERR_SCJALLOWED_BAD_USER_LEVEL, node);
+            fail(ERR_BAD_USER_LEVEL, node);
             return null;
         }
 
         if (!scjAllowedStack.isEmpty() && topLevel().compareTo(level) > 0)
             /** tested by FakeSCJ */
-            fail(ERR_SCJALLOWED_BAD_ENCLOSED, node);
+            fail(ERR_BAD_ENCLOSED, node);
 
         debugIndent("level : " + level);
         debugIndent("type  :" + t);
@@ -109,7 +108,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         while (s != null
                 && !EscapeMap.isEscaped(s.getQualifiedName().toString())) {
             if (scjAllowedLevel(s).compareTo(level) > 0) {
-                fail(ERR_SCJALLOWED_BAD_SUBCLASS, node);
+                fail(ERR_BAD_SUBCLASS, node);
             }
             s = Utils.superType(s);
         }
@@ -132,7 +131,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         if (f.getKind() == ElementKind.FIELD
                 && scjAllowedLevel(f, node).compareTo(topLevel()) > 0)
             /** Tested by SCJAllowedTest */
-            fail(ERR_SCJALLOWED_BAD_FIELD_ACCESS, node, topLevel());
+            fail(ERR_BAD_FIELD_ACCESS, node, topLevel());
         return super.visitMemberSelect(node, p);
     }
 
@@ -164,17 +163,17 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
                     && !isLegalOverride(overrides, node)
                     && scjAllowedLevel(override, node)
                             .compareTo(INFRASTRUCTURE) >= 0)
-                fail(ERR_SCJALLOWED_BAD_INFRASTRUCTURE_OVERRIDE, node);
+                fail(ERR_BAD_INFRASTRUCTURE_OVERRIDE, node);
 
             if (!isEscaped(override.getEnclosingElement().toString())
                     && level.compareTo(scjAllowedLevel(override, node)) > 0)
                 /** Tested by OverrideTest */
-                fail(ERR_SCJALLOWED_BAD_OVERRIDE, node);
+                fail(ERR_BAD_OVERRIDE, node);
         }
 
         if (topLevel().compareTo(level) > 0)
             /** tested by FakeSCJ */
-            fail(ERR_SCJALLOWED_BAD_ENCLOSED, node);
+            fail(ERR_BAD_ENCLOSED, node);
 
         scjAllowedStack.push(level);
         R r = super.visitMethod(node, p);
@@ -234,11 +233,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         if (!isSCJInternal(m, node)) {
             if (scjAllowedLevel(m, node).compareTo(topLevel()) > 0)
                 /** Tested by SCJAllowedTest */
-                fail(ERR_SCJALLOWED_BAD_METHOD_CALL, node, topLevel());
-
-            if (topLevel() == HIDDEN
-                    && scjAllowedLevel(m, node).compareTo(HIDDEN) < 0)
-                fail(ERR_HIDDEN_TO_SCJALLOWED, node, topLevel());
+                fail(ERR_BAD_METHOD_CALL, node, topLevel());
         }
 
         debugIndentDecrement();
@@ -260,7 +255,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         if (checkSCJSupport(ctor, node)
                 && scjAllowedLevel(ctor, node).compareTo(topLevel()) > 0)
             /** tested by SuppressTest */
-            fail(ERR_SCJALLOWED_BAD_NEW_CALL, node, topLevel());
+            fail(ERR_BAD_NEW_CALL, node, topLevel());
 
         return super.visitNewClass(node, p);
     }
@@ -273,7 +268,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         Level level = scjAllowedLevel(v, node);
         if (topLevel().compareTo(level) > 0)
             /** tested by FakeSCJ */
-            fail(ERR_SCJALLOWED_BAD_ENCLOSED, node);
+            fail(ERR_BAD_ENCLOSED, node);
         return super.visitVariable(node, p);
     }
 
@@ -462,7 +457,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         }
         if (!isValid)
             /** Tested by TestAllowedProtectedClash */
-            fail(ERR_SCJALLOWED_BAD_SUPPORT, node);
+            fail(ERR_BAD_SUPPORT, node);
 
         if (isSCJSupport(m, node) && isValid)
             Utils.debugPrintln(">>is SCJ SUPPORT");
@@ -477,7 +472,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         if (!isValid)
             /** Tested by TestAllowedProtectedClash */
-            fail(ERR_SCJALLOWED_BAD_PROTECTED_CALL, node);
+            fail(ERR_BAD_INFRASTRUCTURE_CALL, node);
         return isValid;
     }
 

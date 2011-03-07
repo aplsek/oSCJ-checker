@@ -4,7 +4,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 
 public class TestIllegalNoOverrideInherit {
     @SCJRestricted(mayAllocate=false)
-	public void foo() { }
+    public void foo() { }
 
     class X extends TestIllegalNoOverrideInherit {
         @Override

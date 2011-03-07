@@ -8,18 +8,16 @@
 
 package scjAllowed;
 
-import javax.safetycritical.FakeSCJMembers;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
 
 @SCJAllowed(members=true)
-public class SCJMembersTest {
+public class TestBadFieldAccessMembers {
+    @SCJAllowed(Level.LEVEL_1)
+    static int x;
 
-    /**
-     * calling a non-annotated method, but FakeSCJMembers has members=true
-     */
     public void foo() {
-        FakeSCJMembers.level1Call();
-        int member = FakeSCJMembers.member;
+        //## checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_FIELD_ACCESS
+        int x = TestBadFieldAccessMembers.x;
     }
 }
