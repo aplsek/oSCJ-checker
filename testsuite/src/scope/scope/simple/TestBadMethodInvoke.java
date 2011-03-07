@@ -15,8 +15,8 @@ public abstract class TestBadMethodInvoke extends Mission {
         Y y;
 
         @RunsIn("b")
-        public void method() {
-            method();
+        public void foo() {
+            foo();
             y.methodRunsInUnknown();
             y.methodRunsInB();
 
@@ -26,7 +26,7 @@ public abstract class TestBadMethodInvoke extends Mission {
             y.methodRunsInC();
         }
 
-        void method2() {
+        void bar() {
             y.method();
         }
     }
@@ -36,7 +36,10 @@ public abstract class TestBadMethodInvoke extends Mission {
         void method() { }
 
         @RunsIn(Scope.UNKNOWN)
-        void methodRunsInUnknown() { }
+        void methodRunsInUnknown() {
+            //## checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE
+            methodRunsInB();
+        }
 
         @RunsIn("b")
         void methodRunsInB() { }
