@@ -16,6 +16,7 @@ public class SimpleTest extends ParameterizedCheckerTest {
         Collection<Object[]> tests = testFiles("scope/defineScope/simple");
         tests.addAll(testFiles("scope/scopeRunsIn/simple"));
         tests.addAll(testFiles("scope/scope/simple"));
+        tests.addAll(testFiles("scjRestricted"));
         return tests;
     }
 }
