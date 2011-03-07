@@ -20,6 +20,7 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH = "bad.enter.private.memory.runs.in.no.match";
     public static final String ERR_BAD_EXECUTE_IN_AREA_RUNS_IN = "bad.execute.in.area.or.enter";
     public static final String ERR_BAD_EXECUTE_IN_AREA_TARGET = "bad.execute.in.area.target";
+    public static final String ERR_BAD_GET_CURRENT_MANAGED_MEMORY = "bad.get.current.managed.memory";
     public static final String ERR_BAD_GET_MEMORY_AREA = "bad.get.memory.area";
     public static final String ERR_BAD_GUARD_ARGUMENT = "bad.guard.argument";
     public static final String ERR_BAD_METHOD_INVOKE = "bad.method.invoke";
@@ -68,6 +69,10 @@ public class ScopeChecker extends SinglePassChecker {
                 "Runnable and PrivateMemory scopes disagree. Target is %s, while Runnable's @RunsIn is %s.");
         p.put(ERR_BAD_EXECUTE_IN_AREA_TARGET,
                 "executeInArea() must target a parent scope. Current scope is %s, while we target %s.");
+        p.put(ERR_BAD_GET_CURRENT_MANAGED_MEMORY,
+                "getCurrentManagedMemory may only be called from a concrete, non-IMMORTAL scope.");
+        p.put(ERR_BAD_GET_MEMORY_AREA,
+                "getMemoryArea may only be passed objects of known scopes.");
         p.put(ERR_BAD_GUARD_ARGUMENT,
                 "Only final variables may be passed as arguments into guards.");
         p.put(ERR_BAD_METHOD_INVOKE,

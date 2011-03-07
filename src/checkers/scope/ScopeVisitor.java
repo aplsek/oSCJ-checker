@@ -10,6 +10,7 @@ import static checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_RUNS_IN;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_TARGET;
+import static checkers.scope.ScopeChecker.ERR_BAD_GET_CURRENT_MANAGED_MEMORY;
 import static checkers.scope.ScopeChecker.ERR_BAD_GET_MEMORY_AREA;
 import static checkers.scope.ScopeChecker.ERR_BAD_GUARD_ARGUMENT;
 import static checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE;
@@ -871,9 +872,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      * @return parent scope of the current scope
      */
     private ScopeInfo checkGetCurrentManagedMemory(MethodInvocationTree node) {
-        ScopeInfo memoryObject = scopeTree.getParent(currentScope());
-        return new ScopeInfo(memoryObject.getScope(), currentScope());
-        // TODO: Probably need an error if we're not in a concrete scope.
+        ScopeInfo current = currentScope();
+        ScopeInfo parent = scopeTree.getParent(current);
+        if (parent == null) {
+            fail(ERR_BAD_GET_CURRENT_MANAGED_MEMORY, node);
+            return ScopeInfo.INVALID.representing(current);
+        }
+        return parent.representing(current);
     }
 
     private ScopeInfo checkNewArray(ScopeInfo recvScope, ExpressionTree arg,
@@ -1003,24 +1008,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return ctx.getMethodRunsIn(t.getQualifiedName().toString(), "run");
     }
 
-    private static final String THIS = "this";
-
     private boolean isThis(IdentifierTree node) {
-        return node.getName().toString().equals(THIS);
-    }
-
-    /**
-     * For a given position in the Tree, return the scope of the enclosing
-     * method. If the method is RunsIn(CURRENT), look at the scope of the
-     * enclosing class.
-     */
-    private ScopeInfo getEnclosingMethodRunsIn() {
-        MethodTree enclosingMethod = TreeUtils
-                .enclosingMethod(getCurrentPath());
-        ExecutableElement m = TreeUtils.elementFromDeclaration(enclosingMethod);
-        ScopeInfo scope = ctx.getMethodRunsIn(m);
-        if (scope.isCurrent())
-            scope = ctx.getClassScope(m.getEnclosingElement().toString());
-        return scope;
+        String s = node.getName().toString();
+        return s.equals("this") || s.equals("super");
     }
 }
