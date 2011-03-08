@@ -1,6 +1,5 @@
 package checkers.scope;
 
-import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
 
 import java.util.Properties;
 

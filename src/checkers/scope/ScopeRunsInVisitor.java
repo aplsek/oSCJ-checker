@@ -427,8 +427,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         TypeKind r = m.getReturnType().getKind();
         if ((r.isPrimitive() || r == TypeKind.VOID) && ann != null)
             warn(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, node, errNode);
-        // TODO: Need to check that scopes agree on the method and the return
-        // type
+
         ctx.setMethodScope(scope, m);
     }
 

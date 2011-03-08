@@ -795,8 +795,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             checkExecuteInArea(recvScope, node);
             return null;
         case ENTER:
-            // checkExecuteInArea(node); // TODO: how to check the enter()?
-            // this cannot by invoked by user!!
+            // this method cannot be invoked by user
             return null;
         case NEW_INSTANCE:
             return checkNewInstance(recvScope, node.getArguments().get(0), node);
