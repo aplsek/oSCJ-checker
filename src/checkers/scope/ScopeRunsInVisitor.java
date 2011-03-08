@@ -51,6 +51,7 @@ import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.PrimitiveTypeTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
+import com.sun.source.tree.Tree.Kind;
 
 /**
  * This visitor is responsible for retrieving Scope and RunsIn annotations from
@@ -205,7 +206,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             fail(ERR_RUNS_IN_ON_CONSTRUCTOR, mTree, mErr);
 
         checkMethod(m, mTree, mErr);
-
     }
 
     void checkMethod(ExecutableElement m, MethodTree mTree, Tree errNode) {
@@ -396,6 +396,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         ctx.setMethodRunsIn(runsIn, m);
     }
 
+    void pln(String str) {
+        System.out.println("\t" + str);
+    }
+
     /**
      * Check that a method has a valid Scope annotation. A method's Scope
      * annotation is valid as long as it exists in the scope tree, or is UNKNOWN
@@ -494,8 +498,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     }
 
     /**
-     * @param e  a field or method
-     * @return  the Scope of the class enclosing the member
+     * @param e
+     *            a field or method
+     * @return the Scope of the class enclosing the member
      */
     private ScopeInfo getEnclosingClassScope(Element e) {
         return ctx.getClassScope((TypeElement) e.getEnclosingElement());
