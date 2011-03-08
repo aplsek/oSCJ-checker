@@ -99,9 +99,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         if (!scjAllowedStack.isEmpty() && topLevel().compareTo(level) > 0)
             fail(ERR_BAD_ENCLOSED, node);
 
-        debugIndent("level : " + level);
-        debugIndent("type  :" + t);
-
         TypeElement s = Utils.superType(t);
         while (s != null
                 && !EscapeMap.isEscaped(s.getQualifiedName().toString())) {
@@ -139,7 +136,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     @Override
     public R visitMethod(MethodTree node, P p) {
         debugIndentIncrement("visitMethod " + node.getName());
-
         ExecutableElement m = TreeUtils.elementFromDeclaration(node);
 
         checkSCJSupport(m, node);
@@ -159,12 +155,12 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         // checking overrides
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
-                .overriddenMethods(m);
+        .overriddenMethods(m);
         for (ExecutableElement override : overrides.values()) {
             if (Utils.isUserLevel(m)
                     && !isLegalOverride(overrides, node)
                     && scjAllowedLevel(override, node)
-                            .compareTo(INFRASTRUCTURE) >= 0)
+                    .compareTo(INFRASTRUCTURE) >= 0)
                 fail(ERR_BAD_INFRASTRUCTURE_OVERRIDE, node);
 
             if (!isEscaped(override.getEnclosingElement().toString())
@@ -216,8 +212,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             return true;
         return false;
     }
-
-    void pln(String str) {System.out.println("\t " + str);}
 
     @Override
     public R visitMethodInvocation(MethodInvocationTree node, P p) {
@@ -315,10 +309,10 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         if (node.toString().startsWith("if (Safelet.getDeploymentLevel() == 0"))
             return LEVEL_0;
         else if (node.toString().startsWith(
-                "if (Safelet.getDeploymentLevel() == 1"))
+        "if (Safelet.getDeploymentLevel() == 1"))
             return LEVEL_1;
         else if (node.toString().startsWith(
-                "if (Safelet.getDeploymentLevel() == 2"))
+        "if (Safelet.getDeploymentLevel() == 2"))
             return LEVEL_2;
         return SUPPORT; // TODO: Why was this support?
     }
@@ -447,36 +441,30 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     }
 
     private boolean checkSCJSupport(ExecutableElement m, Tree node) {
-        boolean isValid = !isSCJSupport(m, node) || !Utils.isUserLevel(m);
+        boolean isValid = ! (isSCJSupport(m, node) && Utils.isUserLevel(m));
 
         if (!isValid) {
             // If we're in the user level with an SUPPORT annotation, we have
-            // to see if the method overrides something in SCJ.
-            for (AnnotatedDeclaredType a : ats.overriddenMethods(m).keySet()) {
-                TypeElement t = Utils.getTypeElement(a.getUnderlyingType());
-                if (!Utils.isUserLevel(t)) {
-                    isValid = true;
+            // to see if the method overrides a @SCJAllowed(SUPPORT) method
+            Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
+            .overriddenMethods(m);
+            for (ExecutableElement override : overrides.values()) {
+                Level overLevel = scjAllowedLevel(override);
+                if (overLevel != SUPPORT) {
+                    isValid = false;
                     break;
                 }
+                isValid = true;
             }
         }
         if (!isValid)
             fail(ERR_BAD_SUPPORT, node);
-
-        if (isSCJSupport(m, node) && isValid)
-            Utils.debugPrintln(">>is SCJ SUPPORT");
 
         return isValid;
     }
 
     private boolean checkSCJInternalCall(ExecutableElement m, Tree node) {
         boolean isValid = !(isSCJInternal(m, node) && !Utils.isUserLevel(m));
-
-        debugIndent("is protected " + isSCJInternal(m, node));
-        debugIndent("\t is protected :" + isSCJInternal(m, node));
-        debugIndent("\t isValid :" + isValid);
-        debugIndent("\t is user level :" + Utils.isUserLevel(m));
-        debugIndent("\t m:" +  m);
 
         if (!isValid)
             fail(ERR_BAD_INFRASTRUCTURE_CALL, node);
