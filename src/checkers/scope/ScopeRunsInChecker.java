@@ -51,7 +51,7 @@ public class ScopeRunsInChecker extends SinglePassChecker {
         p.put(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, "MemoryArea field @DefineScope annotation is not consistent with the @DefineScope annotations on classes.");
         p.put(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, "MemoryArea field @DefineScope annotation is not consistent with the @Scope annotations of the field. (Field's scope is %s, @DefineScope requires %s) ");
         p.put(ERR_RUNS_IN_ON_CLASS, "RunsIn annotations are ignored on classes.");
-        p.put(ERR_RUNS_IN_ON_CLASS, "RunsIn annotations are not allowed on constructors.");
+        p.put(ERR_RUNS_IN_ON_CONSTRUCTOR, "RunsIn annotations are not allowed on constructors.");
         p.put(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, "@Scope annotation ignored on methods that return void or primitives.");
 
         return p;
