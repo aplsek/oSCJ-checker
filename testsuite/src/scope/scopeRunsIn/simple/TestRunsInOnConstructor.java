@@ -1,4 +1,4 @@
-package scope.scope.simple;
+package scope.scopeRunsIn.simple;
 
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
@@ -8,11 +8,10 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope(IMMORTAL)
 @DefineScope(name="a", parent=IMMORTAL)
-public abstract class TestConstructor extends Mission {
+public abstract class TestRunsInOnConstructor extends Mission {
 
-    ///  @RunsIn annotations not allowed on constructors.
     @RunsIn("a")
-    //## ERR_RUNSIN_ON_CONSTRUCTOR : TODO:
-    public TestConstructor() {
+    //## checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CONSTRUCTOR
+    public TestRunsInOnConstructor() {
     }
 }

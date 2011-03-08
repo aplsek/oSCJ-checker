@@ -12,6 +12,7 @@ import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT
 import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
+import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CONSTRUCTOR;
 import static checkers.scope.ScopeRunsInChecker.ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
@@ -174,7 +175,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         for (ExecutableElement c : Utils.constructorsIn(t)) {
             MethodTree mTree = trees.getTree(c);
             Tree mErr = mTree != null ? mTree : errNode;
-            checkMethod(c, mTree, mErr);
+            checkConstructor(c, mTree, mErr);
         }
 
         for (ExecutableElement m : Utils.methodsIn(t)) {
@@ -195,6 +196,16 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             fail(ERR_RUNS_IN_ON_CLASS, node, errNode);
 
         debugIndentDecrement();
+    }
+
+    private void checkConstructor(ExecutableElement m, MethodTree mTree,
+            Tree mErr) {
+        RunsIn runsIn = m.getAnnotation(RunsIn.class);
+        if (runsIn != null)
+            fail(ERR_RUNS_IN_ON_CONSTRUCTOR, mTree, mErr);
+
+        checkMethod(m, mTree, mErr);
+
     }
 
     void checkMethod(ExecutableElement m, MethodTree mTree, Tree errNode) {
