@@ -1,5 +1,7 @@
 package scope.scope.simple;
 
+import javax.realtime.ImmortalMemory;
+import javax.realtime.MemoryArea;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
@@ -24,6 +26,12 @@ public abstract class TestBadNewInstance extends Mission {
             mem.newInstance(Y.class);
             //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
             mem2.newInstance(Y.class);
+
+            Object o = new Object();
+            MemoryArea.getMemoryArea(o).newInstance(Y.class);
+
+
+            ImmortalMemory.instance().newInstance(Y.class);
         }
 
         @RunsIn("b")

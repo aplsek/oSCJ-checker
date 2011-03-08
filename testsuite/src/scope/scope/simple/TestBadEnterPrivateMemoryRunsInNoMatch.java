@@ -17,6 +17,8 @@ public abstract class TestBadEnterPrivateMemoryRunsInNoMatch extends Mission {
         @Scope(Scope.IMMORTAL) @DefineScope(name="a", parent=Scope.IMMORTAL)
         ManagedMemory mem = null;
         mem.enterPrivateMemory(1000, y);
+
+        mem.enterPrivateMemory(1000, new Y());
     }
 
     @Scope("a")

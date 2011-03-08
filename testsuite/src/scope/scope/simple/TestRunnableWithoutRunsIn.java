@@ -35,6 +35,10 @@ public abstract class TestRunnableWithoutRunsIn extends Mission {
             Run2 r2 = new Run2();
             //## checkers.scope.ScopeChecker.ERR_RUNNABLE_WITHOUT_RUNS_IN
             a.executeInArea(r2);
+
+            Run3 r3 = new Run3();
+            a.executeInArea(r3);
+
         }
     }
 
@@ -46,6 +50,11 @@ public abstract class TestRunnableWithoutRunsIn extends Mission {
 
     @Scope("b")
     static class Run2 implements SCJRunnable {
+        public void run() { }
+    }
+
+    static class Run3 implements SCJRunnable {
+        @RunsIn("a")
         public void run() { }
     }
 }
