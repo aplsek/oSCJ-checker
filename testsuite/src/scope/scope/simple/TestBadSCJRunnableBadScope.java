@@ -9,7 +9,7 @@ import javax.safetycritical.annotate.DefineScope;
 
 @Scope("a")
 @DefineScope(name="a", parent=Scope.IMMORTAL)
-public abstract class TestRunnableWithoutRunsIn extends Mission {
+public abstract class TestBadSCJRunnableBadScope extends Mission {
 
     @Scope("c")
     @DefineScope(name="c", parent="b")
@@ -22,30 +22,15 @@ public abstract class TestRunnableWithoutRunsIn extends Mission {
         @Scope(Scope.IMMORTAL)
         ManagedMemory a;
 
-        @DefineScope(name="c", parent="b")
-        @Scope("b")
-        ManagedMemory c;
-
         public void m() {
-            Run r = new Run();
-            a.executeInArea(r);
-
-            a.executeInArea(new Run());
-
-            Run2 r2 = new Run2();
-            //## checkers.scope.ScopeChecker.ERR_RUNNABLE_WITHOUT_RUNS_IN
-            a.executeInArea(r2);
+            Run3 r3 = new Run3();
+            //## checkers.scope.ScopeChecker.ERR_SCJRUNNABLE_BAD_SCOPE
+            a.executeInArea(r3);
         }
     }
 
-    @Scope("b")
-    static class Run implements SCJRunnable {
+    static class Run3 implements SCJRunnable {
         @RunsIn("a")
-        public void run() { }
-    }
-
-    @Scope("b")
-    static class Run2 implements SCJRunnable {
         public void run() { }
     }
 }

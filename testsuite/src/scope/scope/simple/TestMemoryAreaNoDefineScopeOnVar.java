@@ -32,9 +32,13 @@ public abstract class TestMemoryAreaNoDefineScopeOnVar extends Mission {
             @Scope(Scope.IMMORTAL)
             //## checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR
             ManagedMemory mem = null;
+
+            //## checkers.scope.ScopeChecker.ERR_SCJRUNNABLE_BAD_SCOPE
             mem.enterPrivateMemory(1000, new Y());
         }
     }
+
+
 
     @SCJAllowed(members=true)
     @Scope("b")
