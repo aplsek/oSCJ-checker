@@ -477,8 +477,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo returnScope = ctx.getMethodScope(m);
         ScopeInfo exprScope = node.getExpression().accept(this, p);
 
-        debugIndent("expected return scope is: " + returnScope);
-        debugIndent("actual return scope is:" + exprScope);
+        debugIndent("\t expected return scope is: " + returnScope);
+        debugIndent("\t actual return scope is:" + exprScope);
         checkReturnScope(exprScope, returnScope, node);
         debugIndentDecrement();
         return returnScope;
@@ -941,7 +941,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         fail(ERR_BAD_RETURN_SCOPE, node, exprScope, expectedScope);
     }
 
+
     private ScopeInfo checkVariableScope(VariableTree node) {
+        debugIndent("checkVariableScope " + node );
+
         VariableElement var = TreeUtils.elementFromDeclaration(node);
         // We already have all of the information we need for fields
         if (var.getKind() == ElementKind.FIELD)
@@ -963,8 +966,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo tScope = ctx.getClassScope(t);
 
         Scope varScope = var.getAnnotation(Scope.class);
-        debugIndent("varScope : " + varScope);
-        debugIndent("tScope : " + tScope);
+        debugIndent("\t var : " + var);
+        debugIndent("\t varScope : " + varScope);
+        debugIndent("\t tScope : " + tScope);
 
         if (varScope == null) {
             if (tScope.isCurrent())

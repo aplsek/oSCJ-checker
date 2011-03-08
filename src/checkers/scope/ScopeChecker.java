@@ -32,13 +32,14 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_RUNS_IN_METHOD = "bad.runs.in.method";
     public static final String ERR_BAD_VARIABLE_SCOPE = "bad.variable.scope";
     public static final String ERR_ESCAPING_NONANNOTATED_FIELD = "escaping.nonannotated.field";
-    public static final String ERR_INTERFACE_ANNOTATION_MISMATCH = "interface.annotation.mismatch";
     public static final String ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR = "err.mem.area.no.def.scope.on.var";
     public static final String ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT = "err.mem.type.def.scope.not.consistent";
     public static final String ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE = "err.mem.type.def.scope.not.consistent.with.scope";
     // TODO: Remove
     public static final String ERR_RUNNABLE_WITHOUT_RUNS_IN = "runnable.without.runs.in";
     public static final String ERR_SCOPE_RUNS_IN_DISAGREEMENT = "scope.runs.in.disagreement";
+    // TODO: Remove?
+    public static final String ERR_INTERFACE_ANNOTATION_MISMATCH = "interface.annotation.mismatch";
 
     private ScopeCheckerContext ctx;
 
