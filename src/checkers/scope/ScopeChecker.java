@@ -18,7 +18,8 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_ASSIGNMENT_SCOPE = "bad.assignment.scope";
     public static final String ERR_BAD_ASSIGNMENT_PRIVATE_MEM = "bad.assignment.private.mem";
     public static final String ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH = "bad.enter.private.memory.runs.in.no.match";
-    public static final String ERR_BAD_EXECUTE_IN_AREA_RUNS_IN = "bad.execute.in.area.or.enter";
+    public static final String ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET = "bad.enter.private.memory.bad.target";
+    public static final String ERR_BAD_EXECUTE_IN_AREA_RUNS_IN = "bad.execute.in.area.runsIn";
     public static final String ERR_BAD_EXECUTE_IN_AREA_TARGET = "bad.execute.in.area.target";
     public static final String ERR_BAD_GET_CURRENT_MANAGED_MEMORY = "bad.get.current.managed.memory";
     public static final String ERR_BAD_GET_MEMORY_AREA = "bad.get.memory.area";
@@ -38,6 +39,7 @@ public class ScopeChecker extends SinglePassChecker {
     // TODO: Remove
     public static final String ERR_RUNNABLE_WITHOUT_RUNS_IN = "runnable.without.runs.in";
     public static final String ERR_SCOPE_RUNS_IN_DISAGREEMENT = "scope.runs.in.disagreement";
+    public static final String ERR_SCJRUNNABLE_BAD_SCOPE = "bad.scjrunnable.bad.scope";
     // TODO: Remove?
     public static final String ERR_INTERFACE_ANNOTATION_MISMATCH = "interface.annotation.mismatch";
 
@@ -64,8 +66,12 @@ public class ScopeChecker extends SinglePassChecker {
                 "Cannot assign to a private memory with a different @DefineScope.");
         p.put(ERR_BAD_ASSIGNMENT_SCOPE,
                 "Cannot assign expression in scope %s to variable in scope %s.");
+        p.put(ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET,
+                "The Runnable's @RunsIn must be a child scope of the scope represented by the @DefineScope annotation on the memory area variable.\n\t @RunsIn: %s\n\t Target Scope: %s");
         p.put(ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH,
                 "The Runnable's @RunsIn must be a child scope of the CurrentScope\n\t @RunsIn: %s\n\t Current Scope: %s");
+        p.put(ERR_SCJRUNNABLE_BAD_SCOPE,
+        "The SCJRunnable's used for enterPrivateMemory()/executeInArea() must have a @Scope annotation.");
         p.put(ERR_BAD_EXECUTE_IN_AREA_RUNS_IN,
                 "Runnable and PrivateMemory scopes disagree. Target is %s, while Runnable's @RunsIn is %s.");
         p.put(ERR_BAD_EXECUTE_IN_AREA_TARGET,
