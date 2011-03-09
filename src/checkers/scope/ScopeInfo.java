@@ -1,6 +1,10 @@
 package checkers.scope;
 
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.VariableElement;
 import javax.safetycritical.annotate.Scope;
+
+import checkers.Utils;
 
 public class ScopeInfo {
     public static final ScopeInfo CALLER = new ScopeInfo(Scope.CALLER);
@@ -96,6 +100,15 @@ public class ScopeInfo {
     public boolean isValidParentScope() {
         return !(isCaller() || isInvalid() || isNull() || isUnknown()
                 || isPrimitive() || isThis());
+    }
+
+    public boolean isValidVariableScope(VariableElement v, ScopeTree scopeTree) {
+        if (Utils.isStatic(v) && isThis())
+            return false;
+        if (v.getKind() == ElementKind.FIELD && isCaller())
+            return false;
+        return isPrimitive() || isUnknown() || isCaller() || isThis()
+                || scopeTree.hasScope(this);
     }
 
     /**

@@ -79,11 +79,7 @@ import com.sun.source.tree.TryTree;
 import com.sun.source.tree.TypeCastTree;
 import com.sun.source.tree.VariableTree;
 
-//TODO: Defaults for @RunsIn/@Scope on specific SCJ classes
-//TODO: Unscoped method parameters?
 //TODO: Anonymous runnables
-//TODO: Errors for using annotated classes in unannotated classes
-//TODO: Add illegal scope location errors back in
 
 /**
  * @Scope("FooMission") RunsIn is implied to be FooMission class FooMission
@@ -571,8 +567,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ScopeInfo varScope, VariableTree node) {
         debugIndent("checkDefineScopeOnVariable.");
 
-        // TODO: Is this replaceable with isUserElement(Element)?
-        if (!Utils.isUserLevel(var.getEnclosingElement().toString()))
+        if (!Utils.isUserLevel(var))
             return varScope;
         if (var.asType().getKind() != TypeKind.DECLARED)
             return varScope;
@@ -589,6 +584,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (!scopeTree.hasScope(scope) || !scopeTree.isParentOf(scope, parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node);
 
+        varScope = concretize(varScope);
         if (!varScope.equals(parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
                     varScope, parent);
@@ -929,6 +925,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_BAD_GET_MEMORY_AREA, node);
             return ScopeInfo.UNKNOWN;
         }
+        scope = concretize(scope);
 
         ScopeInfo parent = scopeTree.getParent(scope);
         return new ScopeInfo(parent.getScope(), scope);
@@ -944,52 +941,36 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private ScopeInfo checkVariableScope(VariableTree node) {
-        debugIndent("checkVariableScope " + node);
-
-        VariableElement var = TreeUtils.elementFromDeclaration(node);
-        // We already have all of the information we need for fields
-        if (var.getKind() == ElementKind.FIELD) {
-            ScopeInfo f = ctx.getFieldScope(var);
+        debugIndent("checkVariableScope");
+        VariableElement v = TreeUtils.elementFromDeclaration(node);
+        TypeMirror mv = v.asType();
+        TypeMirror bmv = Utils.getBaseType(mv);
+        ScopeInfo ret;
+        ScopeInfo defaultScope = concretize(Utils.getDefaultVariableScope(v, ctx));
+        if (v.getKind() == ElementKind.FIELD) {
+            ScopeInfo f = ctx.getFieldScope(v);
             return new FieldScopeInfo(currentScope(), f).representing(f
                     .getRepresentedScope());
         }
 
-        // TODO: UNKNOWN parameters
-        ScopeInfo ret;
-        TypeMirror varMirror = var.asType();
-        TypeMirror varBaseMirror = Utils.getBaseType(varMirror);
-        if (varBaseMirror.getKind().isPrimitive())
-            if (varMirror == varBaseMirror)
-                return ScopeInfo.PRIMITIVE;
-            else
-                // Primitive array
-                // TODO: Don't feel like thinking about this now, but
-                // I think we should be using the @Scope annotation
-                return currentScope();
-        TypeElement t = Utils.getTypeElement(varBaseMirror);
-        ScopeInfo tScope = ctx.getClassScope(t);
-
-        Scope varScope = var.getAnnotation(Scope.class);
-        debugIndent("\t var : " + var);
-        debugIndent("\t varScope : " + varScope);
-        debugIndent("\t tScope : " + tScope);
-
-        if (varScope == null) {
-            if (tScope.isCaller())
-                ret = currentScope();
-            else
-                ret = tScope;
-        } else if (tScope.isCaller())
-            ret = new ScopeInfo(varScope.value());
+        if (Utils.isPrimitive(mv))
+            ret = ScopeInfo.PRIMITIVE;
+        else if (Utils.isPrimitiveArray(mv))
+            ret = defaultScope;
+        else if (bmv.getKind() == TypeKind.TYPEVAR)
+            ret = defaultScope;
         else {
-            if (!tScope.equals(new ScopeInfo(varScope.value())))
-                fail(ERR_BAD_VARIABLE_SCOPE, node, t.getSimpleName(),
-                        currentScope());
-            ret = tScope;
+            ScopeInfo stv = ctx.getClassScope(Utils.getTypeElement(bmv));
+            if (stv.isCaller())
+                ret = defaultScope;
+            else {
+                if (!defaultScope.equals(stv))
+                    fail(ERR_BAD_VARIABLE_SCOPE, node, mv, currentScope());
+                ret = stv;
+            }
+            if (needsDefineScope(mv))
+                ret = checkDefineScopeOnVariable(v, ret, node);
         }
-        if (needsDefineScope(t))
-            ret = checkDefineScopeOnVariable(var, ret, node);
-
         return ret;
     }
 

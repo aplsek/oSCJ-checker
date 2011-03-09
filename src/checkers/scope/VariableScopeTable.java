@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class VariableScopeTable {
     private LinkedList<LexicalBlock> blocks = new LinkedList<LexicalBlock>();

@@ -18,7 +18,10 @@ import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
 
+import checkers.scope.ScopeCheckerContext;
+import checkers.scope.ScopeInfo;
 import checkers.util.TypesUtils;
 
 public final class Utils {
@@ -279,14 +282,8 @@ public final class Utils {
         return t;
     }
 
-
     public static final String JAVAX_REALTIME = "javax.realtime";
     public static final String JAVAX_SAFETYCRITICAL = "javax.safetycritical";
-
-    public static boolean isUserLevel(String str) {
-        return !(str.startsWith(JAVAX_REALTIME) || str
-                .startsWith(JAVAX_SAFETYCRITICAL));
-    }
 
     /**
      * Given a declaration, see if it's user level code.
@@ -308,5 +305,41 @@ public final class Utils {
 
     public static boolean isUserLevel(Level l) {
         return !(l == Level.INFRASTRUCTURE || l == Level.SUPPORT);
+    }
+
+    public static ScopeInfo getDefaultMethodRunsIn(ExecutableElement m) {
+        if (Utils.isStatic(m))
+            return ScopeInfo.CALLER;
+        return ScopeInfo.THIS;
+    }
+
+    public static ScopeInfo getDefaultVariableScope(VariableElement v,
+            ScopeCheckerContext ctx) {
+        TypeKind k = v.asType().getKind();
+        if (k.isPrimitive())
+            return ScopeInfo.PRIMITIVE;
+        Scope s = v.getAnnotation(Scope.class);
+        if (s != null)
+            return new ScopeInfo(s.value());
+        if (k == TypeKind.DECLARED) {
+            TypeElement t = Utils.getTypeElement(v.asType());
+            ScopeInfo si = ctx.getClassScope(t);
+            if (!si.isCaller())
+                return si;
+        }
+        if (Utils.isStatic(v))
+            return ScopeInfo.IMMORTAL;
+        else if (v.getKind() == ElementKind.FIELD)
+            return ScopeInfo.THIS;
+        else
+            return ScopeInfo.CALLER;
+    }
+
+    public static boolean isPrimitive(TypeMirror m) {
+        return m.getKind().isPrimitive();
+    }
+
+    public static boolean isPrimitiveArray(TypeMirror m) {
+        return Utils.getBaseType(m).getKind().isPrimitive();
     }
 }
