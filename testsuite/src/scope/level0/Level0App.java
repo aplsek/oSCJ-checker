@@ -34,7 +34,6 @@ public class Level0App extends CyclicExecutive {
         new WordHandler(20000);
     }
 
-    // @Override
     @Override
     public long missionMemorySize() {
         return 5000000;
