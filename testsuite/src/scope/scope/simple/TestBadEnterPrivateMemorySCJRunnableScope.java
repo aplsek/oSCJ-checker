@@ -18,7 +18,7 @@ public abstract class TestBadEnterPrivateMemorySCJRunnableScope extends Mission 
         @DefineScope(name = "a", parent = Scope.IMMORTAL)
         ManagedMemory mem = null;
         Y y = new Y();
-        //## checkers.scope.ScopeChecker.ERR_SCJRUNNABLE_BAD_SCOPE
+        //## checkers.scope.ScopeChecker.ERR_SCJ_RUNNABLE_BAD_SCOPE
         mem.enterPrivateMemory(1000, y);
     }
 

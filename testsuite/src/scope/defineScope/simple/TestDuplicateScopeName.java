@@ -9,7 +9,7 @@ public class TestDuplicateScopeName {
     static abstract class X extends Mission { }
     @DefineScope(name="b", parent=Scope.IMMORTAL)
     static abstract class Y extends Mission { }
-    @DefineScope(name="a", parent=Scope.IMMORTAL)
+    @DefineScope(name="b", parent="a")
     //## checkers.scope.DefineScopeChecker.ERR_DUPLICATE_SCOPE_NAME
     static abstract class Z extends Mission { }
 }

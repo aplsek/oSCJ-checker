@@ -35,8 +35,6 @@ public abstract class TestMemoryAreaNoDefineScopeOnVar extends Mission {
         }
     }
 
-
-
     @SCJAllowed(members=true)
     @Scope("b")
     @DefineScope(name="c", parent="b")

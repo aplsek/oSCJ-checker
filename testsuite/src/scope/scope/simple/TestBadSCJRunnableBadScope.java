@@ -24,7 +24,7 @@ public abstract class TestBadSCJRunnableBadScope extends Mission {
 
         public void m() {
             Run3 r3 = new Run3();
-            //## checkers.scope.ScopeChecker.ERR_SCJRUNNABLE_BAD_SCOPE
+            //## checkers.scope.ScopeChecker.ERR_SCJ_RUNNABLE_BAD_SCOPE
             a.executeInArea(r3);
         }
     }

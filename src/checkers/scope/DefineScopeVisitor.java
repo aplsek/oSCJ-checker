@@ -40,9 +40,9 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         if (ds != null)
             // We don't check for DefineScopes on SCJRunnables. They are
             // checked on demand when seen using enterPrivateMemory.
-            if (alwaysImplicitlyDefinesScope(t))
-                checkNewScope(ds.name(), ds.parent(), false, node);
-            else if (!implicitlyDefinesScope(t))
+            if (implicitlyDefinesScope(t))
+                checkNewScope(ds.name(), ds.parent(), node);
+            else
                 warn(ERR_UNUSED_DEFINE_SCOPE, node);
 
         return super.visitClass(node, p);
@@ -51,7 +51,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
     @Override
     public R visitMethodInvocation(MethodInvocationTree node, P p) {
         ExecutableElement m = TreeUtils.elementFromUse(node);
-        TypeElement t = (TypeElement) m.getEnclosingElement();
+        TypeElement t = Utils.getMethodClass(m);
 
         if (isManagedMemoryType(t)
                 && compareName(m) == SCJMethod.ENTER_PRIVATE_MEMORY) {
@@ -69,7 +69,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
             if (ds == null)
                 fail(ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE, errNode);
             else
-                checkNewScope(ds.name(), ds.parent(), true, errNode);
+                checkNewScope(ds.name(), ds.parent(), errNode);
         }
         return super.visitMethodInvocation(node, p);
     }
@@ -77,8 +77,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
     /**
      * Ensure that a DefineScope annotation is valid.
      */
-    void checkNewScope(String child, String parent, boolean ignoreDuplicates,
-            Tree node) {
+    void checkNewScope(String child, String parent, Tree node) {
         // Null scope checks aren't necessary since Java apparently doesn't
         // consider "null" to be a constant expression.
         ScopeInfo childScope = new ScopeInfo(child);
@@ -93,8 +92,6 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
 
         if (!(reservedChild || reservedParent)) {
             if (scopeTree.hasScope(childScope)) {
-                if (!ignoreDuplicates)
-                    fail(ERR_DUPLICATE_SCOPE_NAME, node, childScope);
                 if (!scopeTree.hasScope(parentScope))
                     fail(ERR_DUPLICATE_SCOPE_NAME, node, childScope);
                 if (!scopeTree.isParentOf(childScope, parentScope))
