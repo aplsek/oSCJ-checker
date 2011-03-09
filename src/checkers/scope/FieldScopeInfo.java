@@ -50,7 +50,7 @@ public class FieldScopeInfo extends ScopeInfo {
 
     static ScopeInfo calculateScope(ScopeInfo receiverScope,
             ScopeInfo fieldScope) {
-        if (fieldScope.isCurrent())
+        if (fieldScope.isCaller())
             return receiverScope;
         else
             return fieldScope;

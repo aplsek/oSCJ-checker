@@ -41,8 +41,8 @@ public class ScopeTree {
      * See if one scope is equal to or an ancestor of another.
      */
     public boolean isAncestorOf(ScopeInfo child, ScopeInfo parent) {
-        // No matter where we are, IMMORTAL is always an ancestor of CURRENT.
-        if (child.isCurrent())
+        // No matter where we are, IMMORTAL is always an ancestor of CALLER.
+        if (child.isCaller())
             return parent.isImmortal();
 
         while (child != null) {

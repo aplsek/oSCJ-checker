@@ -19,10 +19,10 @@ public class TestIllegalMethodRunsInOverride {
     @Scope(Scope.IMMORTAL)
     static class Y extends X {
         @Override
-        @RunsIn(Scope.CURRENT)
+        @RunsIn(Scope.CALLER)
         void foo(Y y) { }
         @Override
-        @RunsIn(Scope.CURRENT)
+        @RunsIn(Scope.CALLER)
         //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE
         void bar() { }
         @Override

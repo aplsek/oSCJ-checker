@@ -8,6 +8,6 @@ public class TestIllegalVariableScopeOverride {
     //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE
     @Scope(Scope.UNKNOWN) X x1;
     //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE
-    void foo(@Scope(Scope.CURRENT) X x2) { }
+    void foo(@Scope(Scope.CALLER) X x2) { }
     @Scope(Scope.IMMORTAL) X x3;
 }

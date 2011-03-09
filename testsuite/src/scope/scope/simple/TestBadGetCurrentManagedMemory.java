@@ -14,7 +14,7 @@ public abstract class TestBadGetCurrentManagedMemory extends Mission {
         ManagedMemory.getCurrentManagedMemory();
     }
 
-    @RunsIn(Scope.CURRENT)
+    @RunsIn(Scope.CALLER)
     void bar() {
         //## checkers.scope.ScopeChecker.ERR_BAD_GET_CURRENT_MANAGED_MEMORY
         ManagedMemory.getCurrentManagedMemory();

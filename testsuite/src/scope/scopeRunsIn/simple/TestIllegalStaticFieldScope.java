@@ -17,6 +17,6 @@ public abstract class TestIllegalStaticFieldScope extends Mission {
     @Scope(Scope.IMMORTAL)
     static class Y { }
 
-    @Scope(Scope.CURRENT)
+    @Scope(Scope.CALLER)
     static class Z { }
 }

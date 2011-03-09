@@ -156,44 +156,44 @@ public class ScopeCheckerContext {
     }
 
     /**
-     * Get the effective RunsIn of a method. This translates a CURRENT
+     * Get the effective RunsIn of a method. This translates a CALLER
      * annotation to something more concrete, if available.
      *
      * The "effective" methods get a scope annotation relative to the receiver
      * object. you have to see that the scope of the receiver is "b" and say
      * that the effective method runs-in is "b" because the annotation is
-     * CURRENT.
+     * CALLER.
      */
     public ScopeInfo getEffectiveMethodRunsIn(ExecutableElement m,
             ScopeInfo recvScope) {
         ScopeInfo methodRunsIn = getMethodRunsIn(m);
-        if (!methodRunsIn.isCurrent() || Utils.isStatic(m))
+        if (!methodRunsIn.isCaller() || Utils.isStatic(m))
             return methodRunsIn;
 
         TypeElement t = Utils.getMethodClass(m);
         ScopeInfo scope = getClassScope(t);
 
-        // if the scope is CURRENT, we need to consider the Scope of the
+        // if the scope is CALLER, we need to consider the Scope of the
         // receiver object.
-        return scope.isCurrent() ? recvScope : scope;
+        return scope.isCaller() ? recvScope : scope;
     }
 
     /**
-     * Get the effective Scope of a method. This translates a CURRENT annotation
+     * Get the effective Scope of a method. This translates a CALLER annotation
      * to something more concrete, if available, based on the scope of the
      * receiver.
      */
     public ScopeInfo getEffectiveMethodScope(ExecutableElement m,
             ScopeInfo recvScope) {
-        if (!getMethodScope(m).isCurrent() || Utils.isStatic(m))
+        if (!getMethodScope(m).isCaller() || Utils.isStatic(m))
             return getMethodScope(m);
 
         TypeElement t = Utils.getMethodClass(m);
         ScopeInfo scope = getClassScope(t);
 
-        // if the scope is CURRENT, we need to consider the Scope of the
+        // if the scope is CALLER, we need to consider the Scope of the
         // receiver object.
-        return scope.isCurrent() ? recvScope : scope;
+        return scope.isCaller() ? recvScope : scope;
     }
 
     /**

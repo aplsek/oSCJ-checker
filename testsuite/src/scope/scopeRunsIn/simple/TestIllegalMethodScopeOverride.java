@@ -16,10 +16,10 @@ public class TestIllegalMethodScopeOverride {
     }
     static class Y extends X {
         @Override
-        @Scope(Scope.CURRENT)
+        @Scope(Scope.CALLER)
         Object foo(Y y) { return null; }
         @Override
-        @Scope(Scope.CURRENT)
+        @Scope(Scope.CALLER)
         //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE
         Object bar() { return null; }
         @Override

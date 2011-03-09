@@ -3,7 +3,7 @@ package checkers.scope;
 import javax.safetycritical.annotate.Scope;
 
 public class ScopeInfo {
-    public static final ScopeInfo CURRENT = new ScopeInfo(Scope.CURRENT);
+    public static final ScopeInfo CALLER = new ScopeInfo(Scope.CALLER);
     public static final ScopeInfo IMMORTAL = new ScopeInfo(Scope.IMMORTAL);
     /**
      * Represents an error in the checker. In order for the checker to keep
@@ -20,6 +20,7 @@ public class ScopeInfo {
      * is used so that a null scope actually represents an error in the program.
      */
     public static final ScopeInfo PRIMITIVE = new ScopeInfo("primitive");
+    public static final ScopeInfo THIS = new ScopeInfo(Scope.THIS);
     public static final ScopeInfo UNKNOWN = new ScopeInfo(Scope.UNKNOWN);
     private final String scope;
 
@@ -43,8 +44,8 @@ public class ScopeInfo {
         return scope;
     }
 
-    public boolean isCurrent() {
-        return equals(CURRENT);
+    public boolean isCaller() {
+        return equals(CALLER);
     }
 
     public boolean isImmortal() {
@@ -68,7 +69,7 @@ public class ScopeInfo {
     }
 
     public boolean isReservedScope() {
-        return isCurrent() || isImmortal() || isInvalid() || isNull()
+        return isCaller() || isImmortal() || isInvalid() || isNull()
                 || isUnknown() || isPrimitive();
     }
 
@@ -77,17 +78,17 @@ public class ScopeInfo {
     }
 
     public boolean isValidParentScope() {
-        return !(isCurrent() || isInvalid() || isNull() || isUnknown() || isPrimitive());
+        return !(isCaller() || isInvalid() || isNull() || isUnknown() || isPrimitive());
     }
 
     /**
      * Determine whether or not this scope is valid on a static field.
      *
-     * CURRENT is allowed because the class name is the receiver, which is
+     * CALLER is allowed because the class name is the receiver, which is
      * treated as IMMORTAL in ScopeVisitor.
      */
     public boolean isValidStaticScope() {
-        return isCurrent() || isImmortal() || isPrimitive();
+        return isCaller() || isImmortal() || isPrimitive();
     }
 
     @Override
