@@ -15,6 +15,7 @@ import javax.realtime.RelativeTime;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
+import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 
@@ -71,11 +72,11 @@ public class CDHandler extends PeriodicEventHandler {
     @RunsIn("CDHandler")
     public Callsign makeCallsign(Callsign callsign) {
         try {
-            r.cs = (byte[]) MemoryArea.newArrayInArea(r, byte.class,
+            r.cs = (byte[]) ManagedMemory.newArrayInArea(r, byte.class,
                     callsign.cs.length);
             for (int i = 0; i < callsign.length; i++)
                 r.cs[i] = callsign.cs[i];
-            MemoryArea.getMemoryArea(st).executeInArea(r);
+            ManagedMemory.getMemoryArea(st).executeInArea(r);
             return r.result;
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -92,13 +93,13 @@ public class CDHandler extends PeriodicEventHandler {
     }
 
     @Scope("CDMission")
-    class CallsignRunnable implements Runnable {
+    class CallsignRunnable implements SCJRunnable {
         byte[] cs;
         Callsign result;
 
+        //@RunsIn("CDMission")
         public void run() {
             result = new Callsign(cs);
         }
     }
-
 }
