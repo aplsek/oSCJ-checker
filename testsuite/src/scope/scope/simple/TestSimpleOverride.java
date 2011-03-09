@@ -1,7 +1,6 @@
 package scope.scope.simple;
 
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
@@ -35,7 +34,7 @@ public class TestSimpleOverride {
     }
 
     @Scope("ONE")
-    @DefineScope(name = "ONE", parent = IMMORTAL)
+    @DefineScope(name="ONE", parent=Scope.IMMORTAL)
     static abstract class B extends A {
 
         A aa;
