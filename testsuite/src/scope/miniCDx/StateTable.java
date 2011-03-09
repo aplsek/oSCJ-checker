@@ -49,7 +49,7 @@ public class StateTable {
     }
 
     @Scope("CDMission")
-    class VectorRunnable implements Runnable {
+    class VectorRunnable implements SCJRunnable {
 
         Callsign cs;
 
