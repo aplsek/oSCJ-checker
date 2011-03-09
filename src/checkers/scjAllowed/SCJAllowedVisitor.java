@@ -28,6 +28,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.safetycritical.Services;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
 
@@ -89,7 +90,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         Level level = scjAllowedLevel(t);
 
-
         if (Utils.isUserLevel(t) && level == INFRASTRUCTURE) {
             debugIndentDecrement();
             fail(ERR_BAD_USER_LEVEL, node);
@@ -102,7 +102,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         TypeElement s = Utils.superType(t);
         while (s != null
                 && !EscapeMap.isEscaped(s.getQualifiedName().toString())) {
-            if (getSCJAllowedLevelValue(s).compareTo(level) > 0) {
+            if (scjAllowedLevel(s).compareTo(level) > 0) {
                 fail(ERR_BAD_SUBCLASS, node);
             }
             s = Utils.superType(s);
@@ -155,12 +155,12 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         // checking overrides
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
-        .overriddenMethods(m);
+                .overriddenMethods(m);
         for (ExecutableElement override : overrides.values()) {
             if (Utils.isUserLevel(m)
                     && !isLegalOverride(overrides, node)
                     && scjAllowedLevel(override, node)
-                    .compareTo(INFRASTRUCTURE) >= 0)
+                            .compareTo(INFRASTRUCTURE) >= 0)
                 fail(ERR_BAD_INFRASTRUCTURE_OVERRIDE, node);
 
             if (!isEscaped(override.getEnclosingElement().toString())
@@ -292,27 +292,34 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         return null;
     }
 
+    public static final String GUARD = "if (Services.getDeploymentLevel() == ";
+
     /**
      * Returns true if Guard is there.
      */
     private boolean isGuard(IfTree node) {
-        if (node.toString().startsWith("if (Safelet.getDeploymentLevel() == "))
+        if (node.toString().startsWith(GUARD))
             return true;
-        else
-            return false;
+        return false;
     }
+
+    public static final String GUARD_L0 = "if (Safelet.getDeploymentLevel() == Level.LEVEL_0";
+    public static final String GUARD_L1 = "if (Safelet.getDeploymentLevel() == Level.LEVEL_1";
+    public static final String GUARD_L2 = "if (Safelet.getDeploymentLevel() == Level.LEVEL_2";
 
     /**
      * Returns the level value of the guard
+     *
+     * TODO: this will break, if user will use anything else than
+     * "Level.LEVEL_*".
+     *
      */
     private Level getGuardLevel(IfTree node) {
-        if (node.toString().startsWith("if (Safelet.getDeploymentLevel() == 0"))
+        if (node.toString().startsWith(GUARD_L0))
             return LEVEL_0;
-        else if (node.toString().startsWith(
-        "if (Safelet.getDeploymentLevel() == 1"))
+        else if (node.toString().startsWith(GUARD_L1))
             return LEVEL_1;
-        else if (node.toString().startsWith(
-        "if (Safelet.getDeploymentLevel() == 2"))
+        else if (node.toString().startsWith(GUARD_L2))
             return LEVEL_2;
         return SUPPORT; // TODO: Why was this support?
     }
@@ -328,7 +335,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         if (node.toString().equals("super()"))
             if (!isSCJAllowed(m))
-                return getSCJAllowedLevelValue(t);
+                return scjAllowedLevel(t);
         /*
          *
          * TODO: we can not distinguish between class that has no default
@@ -359,10 +366,11 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         if (isSCJAllowed(m))
             return getSCJAllowedLevelValue(m);
 
-        for (ExecutableElement override : ats.overriddenMethods(m).values())
-            if (!isEscaped(override.getEnclosingElement().toString())
-                    && isSCJAllowed(override))
-                return getSCJAllowedLevelValue(override);
+        // Note: @SCJAllowed level cannot be inherited from an overriden method
+        // for (ExecutableElement override : ats.overriddenMethods(m).values())
+        // if (!isEscaped(override.getEnclosingElement().toString())
+        // && isSCJAllowed(override))
+        // return getSCJAllowedLevelValue(override);
 
         return getEnclosingLevel(m);
     }
@@ -387,8 +395,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         SCJAllowed a = e.getAnnotation(SCJAllowed.class);
         return a == null ? HIDDEN : a.value();
     }
-
-    void pln(String str) {System.out.println("\t " + str);}
 
     /**
      * @assert: should be called only on methods in SCJ package
@@ -431,7 +437,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     private boolean isSCJInternal(Element e, Tree node) {
         if (e.getAnnotation(SCJAllowed.class) != null)
             return scjAllowedLevel(e) == INFRASTRUCTURE;
-        //TODO: what about HIDDEN?
+        // TODO: what about HIDDEN?
 
         return false;
     }
@@ -444,13 +450,13 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     }
 
     private boolean checkSCJSupport(ExecutableElement m, Tree node) {
-        boolean isValid = ! (isSCJSupport(m, node) && Utils.isUserLevel(m));
+        boolean isValid = !(isSCJSupport(m, node) && Utils.isUserLevel(m));
 
         if (!isValid) {
             // If we're in the user level with an SUPPORT annotation, we have
             // to see if the method overrides a @SCJAllowed(SUPPORT) method
             Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
-            .overriddenMethods(m);
+                    .overriddenMethods(m);
             for (ExecutableElement override : overrides.values()) {
                 Level overLevel = getSCJAllowedLevelValue(override);
                 if (overLevel != SUPPORT) {
