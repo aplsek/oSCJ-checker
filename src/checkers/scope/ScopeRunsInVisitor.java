@@ -117,6 +117,20 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         return super.visitPrimitiveType(node, p);
     }
 
+    @Override
+    public Void visitVariable(VariableTree node, Void p) {
+        VariableElement v = TreeUtils.elementFromDeclaration(node);
+        if (v.getKind() == ElementKind.LOCAL_VARIABLE) {
+            Scope s = v.getAnnotation(Scope.class);
+            if (s != null) {
+                ScopeInfo si = new ScopeInfo(s.value());
+                if (!si.isValidVariableScope(v, scopeTree))
+                    fail(ERR_BAD_SCOPE_NAME, node, si);
+            }
+        }
+        return super.visitVariable(node, p);
+    }
+
     /**
      * Check that a class has a valid Scope annotation.
      * <ul>
@@ -228,11 +242,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 .getParameters() : null;
         for (int i = 0; i < params.size(); i++) {
             // TODO: Check overridden annotations
-            VariableElement param = params.get(i);
-            VariableTree paramTree = paramTrees != null ? paramTrees.get(i)
-                    : null;
-            ScopeInfo scope = checkMethodParameter(param, paramTree, i, m,
-                    errNode);
+            VariableElement p = params.get(i);
+            VariableTree pTree = paramTrees != null ? paramTrees.get(i) : null;
+            ScopeInfo scope = checkMethodParameter(p, pTree, i, m, errNode);
             ctx.setParameterScope(scope, i, m);
         }
     }
@@ -305,49 +317,36 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      */
     ScopeInfo checkVariableScopeOverride(VariableElement v, Tree node,
             Tree errNode) {
-        debugIndentIncrement("checkVariableScopeOverride: " + v);
-
-        Scope s = v.getAnnotation(Scope.class);
-        // Arrays reside in the same scope as their element types, so if this
-        // field is an array, reduce it to its base component type.
-        TypeMirror vMirror = Utils.getBaseType(v.asType());
-        ScopeInfo vTypeScope = null;
-        if (vMirror.getKind() == TypeKind.DECLARED)
-            vTypeScope = getParentScopeAndVisit(Utils.getTypeElement(vMirror),
-                    errNode);
-
-        ScopeInfo scope = getDefaultVariableAnnotation(v);
+        debugIndent("checkVariableScopeOverride: " + v);
+        TypeMirror mv = v.asType();
+        TypeMirror bmv = Utils.getBaseType(mv);
         ScopeInfo ret;
-        if (s != null)
-            scope = new ScopeInfo(s.value());
 
-        if (!scopeTree.hasScope(scope) && !scope.isCaller() && !scope.isThis()
-                && !scope.isUnknown() && !scope.isPrimitive())
-            fail(ERR_BAD_SCOPE_NAME, node, errNode, scope);
-        if (Utils.isStatic(v) && scope.isThis())
-            fail(ERR_BAD_SCOPE_NAME, node, errNode, scope);
-        if (v.getKind() == ElementKind.FIELD && scope.isCaller())
-            fail(ERR_BAD_SCOPE_NAME, node, errNode, scope);
+        if (bmv.getKind() == TypeKind.DECLARED)
+            getParentScopeAndVisit(Utils.getTypeElement(bmv), errNode);
 
-        if (vMirror.getKind() != TypeKind.DECLARED) {
-            // The field type in here is either a primitive or a primitive
-            // array. Only store a field scope if the field was an array.
-            if (vMirror != v.asType())
-                ret = scope;
-            else
-                ret = ScopeInfo.PRIMITIVE; // Primitives have no scope
-        } else {
-            TypeElement t = Utils.getTypeElement(vMirror);
-            if (vTypeScope.isCaller())
-                ret = scope;
+        ScopeInfo defaultScope = Utils.getDefaultVariableScope(v, ctx);
+
+        if (!defaultScope.isValidVariableScope(v, scopeTree))
+            fail(ERR_BAD_SCOPE_NAME, node, errNode, defaultScope);
+
+        if (Utils.isPrimitive(mv))
+            ret = ScopeInfo.PRIMITIVE;
+        else if (Utils.isPrimitiveArray(mv))
+            ret = defaultScope;
+        else if (bmv.getKind() == TypeKind.TYPEVAR)
+            ret = defaultScope;
+        else {
+            ScopeInfo stv = ctx.getClassScope(Utils.getTypeElement(bmv));
+            if (stv.isCaller())
+                ret = defaultScope;
             else {
-                ret = vTypeScope;
-                if (scope.isUnknown() || !scope.equals(vTypeScope))
+                if (defaultScope.isUnknown() || !defaultScope.equals(stv))
                     fail(ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE, node, errNode,
-                            scope, vTypeScope);
+                            defaultScope, stv);
+                ret = stv;
             }
         }
-        debugIndentDecrement();
         return ret;
     }
 
@@ -360,7 +359,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     void checkMethodRunsIn(ExecutableElement m, MethodTree node, Tree errNode) {
         RunsIn ann = m.getAnnotation(RunsIn.class);
         ScopeInfo runsIn = ann != null ? new ScopeInfo(ann.value())
-                : getDefaultMethodRunsIn(m);
+                : Utils.getDefaultMethodRunsIn(m);
 
         // UNKNOWN is no longer a valid RunsIn annotation.
         if (!(scopeTree.hasScope(runsIn) || runsIn.isCaller() || runsIn
@@ -430,30 +429,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             scope = scope.representing(name);
         }
         ctx.setMethodScope(scope, m);
-    }
-
-    private ScopeInfo getDefaultMethodRunsIn(ExecutableElement m) {
-        if (Utils.isStatic(m))
-            return ScopeInfo.CALLER;
-        return ScopeInfo.THIS;
-    }
-
-    private ScopeInfo getDefaultVariableAnnotation(VariableElement v) {
-        TypeKind k = v.asType().getKind();
-        if (k.isPrimitive())
-            return ScopeInfo.PRIMITIVE;
-        if (k == TypeKind.DECLARED) {
-            TypeElement t = Utils.getTypeElement(v.asType());
-            ScopeInfo s = ctx.getClassScope(t);
-            if (!s.isCaller())
-                return s;
-        }
-        if (Utils.isStatic(v))
-            return ScopeInfo.IMMORTAL;
-        else if (v.getKind() == ElementKind.FIELD)
-            return ScopeInfo.THIS;
-        else
-            return ScopeInfo.CALLER;
     }
 
     /**
