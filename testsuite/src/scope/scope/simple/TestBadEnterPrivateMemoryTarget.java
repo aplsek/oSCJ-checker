@@ -14,7 +14,7 @@ import javax.safetycritical.annotate.RunsIn;
 public abstract class TestBadEnterPrivateMemoryTarget extends Mission {
     public void bar() {
         @Scope("a")
-        @DefineScope(name = "b", parent = "a")
+        @DefineScope(name="b", parent="a")
         ManagedMemory mem2 = null;
         Z z = new Z();
         //## checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET
@@ -22,16 +22,14 @@ public abstract class TestBadEnterPrivateMemoryTarget extends Mission {
     }
 
     @Scope("a")
-    @DefineScope(name = "b", parent = "a")
-    static abstract class X extends Mission {
-    }
+    @DefineScope(name="b", parent="a")
+    static abstract class X extends Mission { }
 
     @SCJAllowed(members = true)
     @Scope("a")
-    @DefineScope(name = "c", parent = "a")
+    @DefineScope(name="c", parent="a")
     static class Z implements SCJRunnable {
         @RunsIn("c")
-        public void run() {
-        }
+        public void run() { }
     }
 }

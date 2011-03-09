@@ -24,7 +24,7 @@ import static checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR;
-import static checkers.scope.ScopeChecker.ERR_SCJRUNNABLE_BAD_SCOPE;
+import static checkers.scope.ScopeChecker.ERR_SCJ_RUNNABLE_BAD_SCOPE;
 import static checkers.scope.ScopeInfo.CALLER;
 
 import java.util.ArrayList;
@@ -467,7 +467,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return super.visitReturn(node, p);
 
         MethodTree enclosingMethod = TreeUtils
-        .enclosingMethod(getCurrentPath());
+                .enclosingMethod(getCurrentPath());
 
         // skip checking when return is primitive
         Tree nodeTypeTree = enclosingMethod.getReturnType();
@@ -676,20 +676,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private void checkEnterPrivateMemory(ScopeInfo recvScope,
             MethodInvocationTree node) {
         ScopeInfo target = recvScope.getRepresentedScope();
-        ScopeInfo argRunsIn = getRunsInFromSCJRunnable(node.getArguments().get(
-                1));
-        ScopeInfo runnableScope = getRunnnableScope(node.getArguments().get(
-                1));
+        ExpressionTree arg = node.getArguments().get(1);
+        ScopeInfo argRunsIn = getRunsInFromSCJRunnable(arg);
+        ScopeInfo runnableScope = getRunnnableScope(arg);
 
         if (!scopeTree.isParentOf(argRunsIn, currentScope()))
             fail(ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH, node,
                     argRunsIn, currentScope());
 
-        if (!scopeTree.isParentOf(argRunsIn,target))
+        if (!scopeTree.isParentOf(argRunsIn, target))
             fail(ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET, node, argRunsIn, target);
 
         if (runnableScope.isCaller() || !runnableScope.equals(target))
-            fail(ERR_SCJRUNNABLE_BAD_SCOPE, node, argRunsIn, target);
+            fail(ERR_SCJ_RUNNABLE_BAD_SCOPE, node, argRunsIn, target);
     }
 
     private ScopeInfo checkExecuteInArea(ScopeInfo recvScope,
@@ -708,7 +707,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_BAD_EXECUTE_IN_AREA_RUNS_IN, node, target, argRunsIn);
 
         if (runnableScope.isCaller() || !runnableScope.equals(currentScope()))
-            fail(ERR_SCJRUNNABLE_BAD_SCOPE, node, argRunsIn, target);
+            fail(ERR_SCJ_RUNNABLE_BAD_SCOPE, node, argRunsIn, target);
 
         // Leaving the failures in so the static imports don't get warnings
         // fail(ERR_BAD_ENTER_PARAM, node);
@@ -722,7 +721,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         switch (arg.getKind()) {
         case IDENTIFIER:
             VariableElement var = (VariableElement) TreeUtils
-            .elementFromUse((IdentifierTree) arg);
+                    .elementFromUse((IdentifierTree) arg);
             var.getModifiers();
 
             if (!isFinal(var)) {
@@ -1022,7 +1021,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         TypeMirror runnableType = InternalUtils.typeOf(expressionTree);
         return ctx.getClassScope(runnableType.toString());
     }
-
 
     private boolean isThis(IdentifierTree node) {
         String s = node.getName().toString();

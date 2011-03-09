@@ -51,7 +51,6 @@ import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.PrimitiveTypeTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
-import com.sun.source.tree.Tree.Kind;
 
 /**
  * This visitor is responsible for retrieving Scope and RunsIn annotations from

@@ -5,7 +5,6 @@ import javax.safetycritical.annotate.SCJAllowed;
 
 @SCJAllowed(members=true)
 public class TestBadMethodCallMembers {
-
     public void foo() {
         //## checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_METHOD_CALL
         bar();

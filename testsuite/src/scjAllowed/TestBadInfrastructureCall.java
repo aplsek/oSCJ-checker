@@ -1,7 +1,5 @@
 package scjAllowed;
 
-import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
-
 import javax.realtime.MemoryArea;
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
@@ -20,13 +18,6 @@ public class TestBadInfrastructureCall {
         mem.enter(null);
     }
 
-    @SCJAllowed(INFRASTRUCTURE)
-    //## checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_USER_LEVEL
-    public void bar() {
-        mem.enter(null);
-    }
-
     @DefineScope(name = "a", parent = Scope.IMMORTAL)
-    abstract static class X extends Mission {
-    }
+    abstract static class X extends Mission { }
 }

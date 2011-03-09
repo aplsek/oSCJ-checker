@@ -155,12 +155,12 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         // checking overrides
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
-        .overriddenMethods(m);
+                .overriddenMethods(m);
         for (ExecutableElement override : overrides.values()) {
             if (Utils.isUserLevel(m)
                     && !isLegalOverride(overrides, node)
                     && scjAllowedLevel(override, node)
-                    .compareTo(INFRASTRUCTURE) >= 0)
+                            .compareTo(INFRASTRUCTURE) >= 0)
                 fail(ERR_BAD_INFRASTRUCTURE_OVERRIDE, node);
 
             if (!isEscaped(override.getEnclosingElement().toString())
@@ -309,10 +309,10 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         if (node.toString().startsWith("if (Safelet.getDeploymentLevel() == 0"))
             return LEVEL_0;
         else if (node.toString().startsWith(
-        "if (Safelet.getDeploymentLevel() == 1"))
+                "if (Safelet.getDeploymentLevel() == 1"))
             return LEVEL_1;
         else if (node.toString().startsWith(
-        "if (Safelet.getDeploymentLevel() == 2"))
+                "if (Safelet.getDeploymentLevel() == 2"))
             return LEVEL_2;
         return SUPPORT; // TODO: Why was this support?
     }
@@ -441,13 +441,13 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     }
 
     private boolean checkSCJSupport(ExecutableElement m, Tree node) {
-        boolean isValid = ! (isSCJSupport(m, node) && Utils.isUserLevel(m));
+        boolean isValid = !(isSCJSupport(m, node) && Utils.isUserLevel(m));
 
         if (!isValid) {
             // If we're in the user level with an SUPPORT annotation, we have
             // to see if the method overrides a @SCJAllowed(SUPPORT) method
             Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
-            .overriddenMethods(m);
+                    .overriddenMethods(m);
             for (ExecutableElement override : overrides.values()) {
                 Level overLevel = scjAllowedLevel(override);
                 if (overLevel != SUPPORT) {
