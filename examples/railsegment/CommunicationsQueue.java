@@ -1,19 +1,19 @@
 /**
- *  Name: Railsegment 
+ *  Name: Railsegment
  *  Author : Kelvin Nilsen, <kelvin.nilsen@atego.com>
- *  
+ *
  *  Copyright (C) 2011  Kelvin Nilsen
- *  
+ *
  *  Railsegment is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
- *  
+ *
  *  Railsegment is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -25,9 +25,9 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.CURRENT;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 @SCJAllowed
 @Scope("TM")
@@ -37,16 +37,16 @@ public class CommunicationsQueue
   public final static int MODULATED_SERVICE_DONE = 0x02;
   public final static int SATELLITE_SERVICE_DONE = 0x04;
   public final static int MOBILE_SERVICE_DONE = 0x08;
-  
+
   // Indicate that a message has been received by the corresponding
-  // channel. 
+  // channel.
   public final static int MODULATED_SERVICE_RECEIVED_MESSAGE = 0x10;
   public final static int SATELLITE_SERVICE_RECEIVED_MESSAGE = 0x20;
   public final static int MOBILE_SERVICE_RECEIVED_MESSAGE = 0x40;
 
   public final static int RD_ONLY = 0;
   public final static int WR_ONLY = 1;
-  
+
 
   private final static int MAXIMUM_FILES = 40;
 
@@ -133,7 +133,7 @@ public class CommunicationsQueue
       status &= ~MOBILE_SERVICE_DONE;
     }
 
-    
+
     int mobile_message_count = 0;
     int modulated_message_count = 0;
     int satellite_message_count = 0;
@@ -216,7 +216,7 @@ public class CommunicationsQueue
 
   final int BUFFER_LENGTH;
   final int BUFFER_COUNT;
-  
+
   int free_buffers, reserved_buffers, command_buffers, response_buffers;
   int free_count, reserved_count, command_count, response_count;
 
@@ -232,7 +232,6 @@ public class CommunicationsQueue
   // have a different ceiling priority than me?
   private int my_ceiling;
 
-  @RunsIn(CURRENT)
   CommunicationsQueue(int num_buffers, int buffer_length, int ceiling_priority)
   {
     smc = new SubmissionCoordination();
@@ -265,7 +264,7 @@ public class CommunicationsQueue
     file_numbers = new int[num_buffers];
   }
 
-  @RunsIn(CURRENT)
+  @RunsIn(CALLER)
   void initialize() {
     Services.setCeiling(this, my_ceiling);
   }
@@ -358,7 +357,7 @@ public class CommunicationsQueue
     free_count++;
     notifyAll();
   }
-                                       
+
   @RunsIn(UNKNOWN)
   private synchronized void awaitResponse(int buffer_no, RequestType initial) {
     while (activity_codes[buffer_no] == initial) {
@@ -403,7 +402,7 @@ public class CommunicationsQueue
 
       RequestType request = ((mode == RD_ONLY)?
                              RequestType.REQUEST_READ_SOCKET:
-                             RequestType.REQUEST_WRITE_SOCKET); 
+                             RequestType.REQUEST_WRITE_SOCKET);
       issueRequest(buffer_no, request);
       awaitResponse(buffer_no, request);
 
@@ -521,7 +520,7 @@ public class CommunicationsQueue
     return buffers[command_ndx];
   }
 
-  @RunsIn(UNKNOWN) 
+  @RunsIn(UNKNOWN)
   public final int getCommandArg(int command_ndx) {
     return command_args[command_ndx];
   }
@@ -538,5 +537,5 @@ public class CommunicationsQueue
     notifyAll();
   }
 
-  
+
 }

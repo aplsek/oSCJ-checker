@@ -1,19 +1,19 @@
 /**
- *  Name: Railsegment 
+ *  Name: Railsegment
  *  Author : Kelvin Nilsen, <kelvin.nilsen@atego.com>
- *  
+ *
  *  Copyright (C) 2011  Kelvin Nilsen
- *  
+ *
  *  Railsegment is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
- *  
+ *
  *  Railsegment is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -31,7 +31,6 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.CURRENT;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -94,19 +93,19 @@ public class TrainMission extends Mission
   private CommunicationsQueue comms_data;
   private SynchronizedTime times_data;
   private NavigationInfo navs_data;
-    
+
   private CommunicationServiceSequencer commsq;
   private TimeServiceSequencer timesq;
   private NavigationServiceSequencer navsq;
   private TrainControlSequencer controlsq;
 
-  @RunsIn(CURRENT)
   public TrainMission() {
     // nothing much happens here
 
   }
 
-  @RunsIn(CURRENT)
+  @Override
+@RunsIn(CURRENT)
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -114,7 +113,8 @@ public class TrainMission extends Mission
     return MissionMemorySize;
   }
 
-  @RunsIn(CURRENT)
+  @Override
+@RunsIn(CURRENT)
   public void initialize() {
     // it all happens here instead
 
@@ -132,7 +132,7 @@ public class TrainMission extends Mission
     navs_data.initialize();
 
 
-    // Why don't I just instantiate LinearMissionSequencer instead of 
+    // Why don't I just instantiate LinearMissionSequencer instead of
     // these special sequencers?  Because I want the inner missions to
     // be allocated in their respective Mission memories, allowing them to
     // keep references to their inner entities.
@@ -154,7 +154,8 @@ public class TrainMission extends Mission
   // no need to override the default implementation of cleanup, which
   // does nothing.
 
-  @RunsIn(UNKNOWN)
+  @Override
+@RunsIn(UNKNOWN)
   public void requestTermination()
   {
     commsq.requestSequenceTermination();

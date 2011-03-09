@@ -1,19 +1,19 @@
 /**
- *  Name: Railsegment 
+ *  Name: Railsegment
  *  Author : Kelvin Nilsen, <kelvin.nilsen@atego.com>
- *  
+ *
  *  Copyright (C) 2011  Kelvin Nilsen
- *  
+ *
  *  Railsegment is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
- *  
+ *
  *  Railsegment is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -30,7 +30,6 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.CURRENT;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -40,19 +39,18 @@ class SatOversight extends NoHeapRealtimeThread {
   private static final long BackingStoreRequirements = 500;
   private static final long NativeStackRequirements = 2000;
   private static final long JavaStackRequirements = 300;
-  
+
   final int MODULATED_PRIORITY;
   final SatQueue modulated_data;
   final SatCommService mission;
-  
-  @RunsIn(CURRENT)
+
   SatOversight(int priority,
                SatCommService my_mission, SatQueue modulated_data) {
     super(new PriorityParameters(priority),
           new StorageParameters(BackingStoreRequirements,
                                 NativeStackRequirements,
                                 JavaStackRequirements));
-    
+
     this.MODULATED_PRIORITY = priority;
     this.mission = my_mission;
     this.modulated_data = modulated_data;
@@ -93,7 +91,7 @@ class SatOversight extends NoHeapRealtimeThread {
     //        command to complete its execution
     //     b) if a new command is ready, farm it out to the
     //        hardware if the hardware is not busy.
-    //     c) if a previously issued hardware request has 
+    //     c) if a previously issued hardware request has
     //        completed, digest the result.  Generate
     //        a response to the application.  If there is another
     //        pending hardware operation, issue it now.

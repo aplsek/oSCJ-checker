@@ -1,19 +1,19 @@
 /**
- *  Name: Railsegment 
+ *  Name: Railsegment
  *  Author : Kelvin Nilsen, <kelvin.nilsen@atego.com>
- *  
+ *
  *  Copyright (C) 2011  Kelvin Nilsen
- *  
+ *
  *  Railsegment is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
- *  
+ *
  *  Railsegment is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -31,7 +31,6 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.CURRENT;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -60,7 +59,6 @@ class NavigationService extends Mission {
   private GPSDriver gps_driver;
   private NavigationOversight nav_thread;
 
-  @RunsIn(CURRENT)
   NavigationService(NavigationInfo navs_data, TrainClock train_clock,
                     RouteData route_data, int gps_priority,
                     int nav_lookup_priority) {
@@ -75,7 +73,8 @@ class NavigationService extends Mission {
     prior_update_time = new AbsoluteTime(0L, 0, train_clock);
   }
 
-  @RunsIn(CURRENT)
+  @Override
+@RunsIn(CURRENT)
   public final long missionMemorySize()
   {
     // This must be large enough to hold each of the four submissions,
@@ -84,7 +83,8 @@ class NavigationService extends Mission {
     return MissionMemorySize;
   }
 
-  @RunsIn(CURRENT)
+  @Override
+@RunsIn(CURRENT)
   public void initialize() {
     // This is where I'd like to set my ceiling.  Confirm that it is
     // ok here.  The following assumes the GPS_PRIORITY > NAV_LOOKUP_PRIORITY
@@ -104,18 +104,19 @@ class NavigationService extends Mission {
 
   }
 
-  @RunsIn(UNKNOWN)
+  @Override
+@RunsIn(UNKNOWN)
   public void requestTermination() {
 
   }
-  
+
   private int prior_longitude, prior_lattitude;
   AbsoluteTime prior_update_time;
 
   private int longitude, lattitude;
   AbsoluteTime update_time;
 
-  // called periodically by the GPS Driver 
+  // called periodically by the GPS Driver
   @RunsIn(UNKNOWN)
   synchronized void updatePosition(@Scope(UNKNOWN) AbsoluteTime time_stamp,
                                    int longitude, int lattitude) {

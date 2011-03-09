@@ -1,19 +1,19 @@
 /**
- *  Name: Railsegment 
+ *  Name: Railsegment
  *  Author : Kelvin Nilsen, <kelvin.nilsen@atego.com>
- *  
+ *
  *  Copyright (C) 2011  Kelvin Nilsen
- *  
+ *
  *  Railsegment is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
- *  
+ *
  *  Railsegment is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -52,7 +52,6 @@ public class TrainControl extends Mission
 
   private TrainControlThread train_thread;
 
-  @RunsIn(CURRENT)
   public TrainControl(final CommunicationsQueue comms_data,
                       final SynchronizedTime times_data,
                       final NavigationInfo navs_data,
@@ -61,11 +60,12 @@ public class TrainControl extends Mission
     this.comms_data = comms_data;
     this.times_data = times_data;
     this.navs_data = navs_data;
-    
+
     this.CONTROL_PRIORITY = CONTROL_PRIORITY;
   }
 
-  @RunsIn(CURRENT)
+  @Override
+@RunsIn(CURRENT)
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -73,7 +73,8 @@ public class TrainControl extends Mission
     return MissionMemorySize;
   }
 
-  @RunsIn(CURRENT)
+  @Override
+@RunsIn(CURRENT)
   public void initialize()
   {
     // TODO: later, we should declare the various subtypes and
@@ -84,14 +85,14 @@ public class TrainControl extends Mission
     // Implementation not shown for expediency.
 
     train_thread = new TrainControlThread(comms_data, times_data, navs_data,
-                                          CONTROL_PRIORITY); 
+                                          CONTROL_PRIORITY);
 
     // spawn one NHRT to take responsibility for maintaining
     // coordination with central traffic control.  this NHRT
     // pre-fetches future segment authorizations and releases old
     // authorizations no longer required.  It also tracks progress
     // along route to assure that upcoming track switches are in the
-    // correct position. 
+    // correct position.
 
 
     // spawn one periodic event handler with 1 minute period to
@@ -102,11 +103,12 @@ public class TrainControl extends Mission
 
   }
 
-  @RunsIn(UNKNOWN)
+  @Override
+@RunsIn(UNKNOWN)
   public void requestTermination()
   {
     // something special to coordinate with the NHRT thread
-    
+
     super.requestTermination();
   }
 }

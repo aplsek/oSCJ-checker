@@ -1,19 +1,19 @@
 /**
- *  Name: Railsegment 
+ *  Name: Railsegment
  *  Author : Kelvin Nilsen, <kelvin.nilsen@atego.com>
- *  
+ *
  *  Copyright (C) 2011  Kelvin Nilsen
- *  
+ *
  *  Railsegment is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
- *  
+ *
  *  Railsegment is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -27,8 +27,8 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.CURRENT;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import static javax.safetycritical.annotate.Scope.CALLER;
+
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 /**
@@ -65,15 +65,15 @@ public class CommunicationService extends Mission
   SatCommServiceSequencer satcommsq;
   MobileCommServiceSequencer mobilecommsq;
 
-  @RunsIn(CURRENT)
-  public CommunicationService(CommunicationsQueue comms_data, 
+  public CommunicationService(CommunicationsQueue comms_data,
                               final int COMMS_PRIORITY)
   {
     this.comms_data = comms_data;
     this.COMMS_PRIORITY = COMMS_PRIORITY;
   }
 
-  @RunsIn(CURRENT)
+  @Override
+  @RunsIn(CALLER)
   public final long missionMemorySize()
   {
     // This must be large enough to hold each of the four submissions,
@@ -82,18 +82,19 @@ public class CommunicationService extends Mission
     return MissionMemorySize;
   }
 
-  @RunsIn(CURRENT)
+  @Override
+  @RunsIn(CALLER)
   public void initialize()
   {
     cypherq = new CypherQueue(COMMS_PRIORITY);
     cypherq.initialize();
-    
+
     modulatedq = new ModulatedQueue(COMMS_PRIORITY);
     modulatedq.initialize();
-    
+
     satq = new SatQueue(COMMS_PRIORITY);
     satq.initialize();
-    
+
     mobileq = new MobileQueue(COMMS_PRIORITY);
     mobileq.initialize();
 
@@ -122,10 +123,11 @@ public class CommunicationService extends Mission
     mobilecommsq = new MobileCommServiceSequencer(COMMS_PRIORITY, mobileq);
   }
 
-  @RunsIn(UNKNOWN)
+  @Override
+@RunsIn(UNKNOWN)
   public void requestTermination()
   {
     management_thread.requestTermination();
-    
+
   }
 }

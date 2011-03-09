@@ -1,19 +1,19 @@
 /**
- *  Name: Railsegment 
+ *  Name: Railsegment
  *  Author : Kelvin Nilsen, <kelvin.nilsen@atego.com>
- *  
+ *
  *  Copyright (C) 2011  Kelvin Nilsen
- *  
+ *
  *  Railsegment is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
- *  
+ *
  *  Railsegment is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -28,7 +28,6 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.CURRENT;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @DefineScope(name="E", parent="A")
@@ -52,8 +51,6 @@ public class SecurityService extends Mission
   private SecurityOversight cypher_thread;
   private SecurityInterruptHandler cypher_isr;
 
-
-  @RunsIn(CURRENT)
   public SecurityService(final int cypher_priority,
                          final CypherQueue cypher_data)
   {
@@ -61,7 +58,8 @@ public class SecurityService extends Mission
     CYPHER_PRIORITY = cypher_priority;
   }
 
-  @RunsIn(CURRENT)
+  @Override
+@RunsIn(CURRENT)
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -69,7 +67,8 @@ public class SecurityService extends Mission
     return MissionMemorySize;
   }
 
-  @RunsIn(CURRENT)
+  @Override
+@RunsIn(CURRENT)
   public void initialize()
   {
     // Let's assume there are two schedulables here.
@@ -84,7 +83,8 @@ public class SecurityService extends Mission
     cypher_isr = new SecurityInterruptHandler(this, cypher_data);
   }
 
-  @RunsIn(UNKNOWN)
+  @Override
+@RunsIn(UNKNOWN)
   public void requestTermination()
   {
     // do something special to coordinate with the NHRT thread
