@@ -1,4 +1,4 @@
-package scjAllowed;
+package scjAllowed.simple;
 
 import javax.safetycritical.PrivateMemory;
 import javax.safetycritical.annotate.Level;

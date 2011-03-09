@@ -3,7 +3,7 @@
 //               ^
 //1 error
 
-package scjAllowed;
+package scjAllowed.simple;
 
 import javax.realtime.AbsoluteTime;
 import javax.realtime.Clock;

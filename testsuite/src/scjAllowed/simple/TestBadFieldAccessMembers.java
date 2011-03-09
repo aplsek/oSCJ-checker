@@ -6,7 +6,7 @@
 //                                   ^
 //2 errors
 
-package scjAllowed;
+package scjAllowed.simple;
 
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;

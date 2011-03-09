@@ -1,4 +1,4 @@
-package scjAllowed;
+package scjAllowed.sanity;
 
 import javax.safetycritical.annotate.SCJAllowed;
 

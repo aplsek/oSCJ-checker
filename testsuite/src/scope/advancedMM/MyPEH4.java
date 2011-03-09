@@ -15,6 +15,7 @@ import javax.realtime.PriorityParameters;
 import javax.realtime.RelativeTime;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.PeriodicEventHandler;
+import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 
 @SCJAllowed(members = true)
@@ -52,7 +53,7 @@ public class MyPEH4 extends PeriodicEventHandler {
             Tick time = (Tick) m.newInstance(Tick.class);
 
             //## ERROR
-            m.executeInArea(new Runnable() {
+            m.executeInArea(new SCJRunnable() {
                 public void run() {
                     MyPEH4.this.tock = new Tick();
                 }

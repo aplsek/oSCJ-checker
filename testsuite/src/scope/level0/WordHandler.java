@@ -1,7 +1,7 @@
 package scope.level0;
 
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
@@ -22,7 +22,7 @@ public class WordHandler extends PeriodicEventHandler {
     }
 
     @Override
-    @SCJAllowed()
+    @SCJAllowed(SUPPORT)
     @RunsIn("WordHandler")
     public void handleAsyncEvent() {
         // printing HelloWorld!!!!

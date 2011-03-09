@@ -1,4 +1,4 @@
-package scjAllowed;
+package scjAllowed.simple;
 
 import javax.safetycritical.Services;
 import javax.safetycritical.annotate.Level;

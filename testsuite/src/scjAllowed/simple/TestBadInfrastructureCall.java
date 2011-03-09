@@ -1,4 +1,4 @@
-package scjAllowed;
+package scjAllowed.simple;
 
 import javax.realtime.MemoryArea;
 import javax.safetycritical.Mission;
