@@ -2,22 +2,20 @@
 
 package scope.level0;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
 import javax.safetycritical.PeriodicEventHandler;
-import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import javax.safetycritical.annotate.DefineScope;
-
-@SCJAllowed(members=true)
+@SCJAllowed(members = true)
 @Scope("Level0App")
-@DefineScope(name="Level0App",parent=IMMORTAL)
+@DefineScope(name = "Level0App", parent = IMMORTAL)
 public class Level0App extends CyclicExecutive {
 
     @SCJRestricted(INITIALIZATION)
@@ -42,13 +40,15 @@ public class Level0App extends CyclicExecutive {
         return 5000000;
     }
 
-
     public static void main(final String[] args) {
     }
 
     @Override
-    public void setUp() {}
+    public void setUp() {
+    }
+
     @Override
-    public void tearDown() {}
+    public void tearDown() {
+    }
 
 }

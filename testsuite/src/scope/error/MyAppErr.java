@@ -1,34 +1,20 @@
 package scope.error;
 
-import java.util.Arrays;
+import javax.safetycritical.annotate.SCJAllowed;
+import static javax.safetycritical.annotate.Phase.CLEANUP;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
-import javax.safetycritical.annotate.DefineScope;
-import javax.safetycritical.annotate.RunsIn;
-import javax.safetycritical.annotate.Scope;
-import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.realtime.RelativeTime;
+import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
-import javax.safetycritical.ManagedMemory;
-import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-import javax.realtime.AbsoluteTime;
-import javax.realtime.Clock;
-import javax.realtime.ImmortalMemory;
-import javax.realtime.MemoryArea;
-import javax.realtime.RealtimeThread;
-import javax.safetycritical.CyclicExecutive;
-import javax.safetycritical.MissionManager;
-import javax.safetycritical.Safelet;
-import javax.safetycritical.Terminal;
-
-
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJRestricted;
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-import static javax.safetycritical.annotate.Phase.CLEANUP;
 import javax.safetycritical.annotate.Scope;
 
+@SCJAllowed(members=true)
 @DefineScope(name="APP", parent=Scope.IMMORTAL)
 @Scope("APP")
 public class MyAppErr extends CyclicExecutive {

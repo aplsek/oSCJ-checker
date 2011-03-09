@@ -1,26 +1,19 @@
 package scope.level1;
 
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-import java.util.Arrays;
-import javax.safetycritical.annotate.RunsIn;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-import javax.safetycritical.annotate.SCJAllowed;
-import javax.safetycritical.annotate.Scope;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import javax.safetycritical.annotate.DefineScope;
 import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-import javax.realtime.Clock;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.realtime.RelativeTime;
 import javax.safetycritical.Mission;
-import javax.safetycritical.MissionSequencer;
-import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.PriorityScheduler;
-import javax.safetycritical.Safelet;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
 
 @Scope("OneMission")
 @DefineScope(name = "OneMission", parent = IMMORTAL)

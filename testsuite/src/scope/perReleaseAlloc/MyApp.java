@@ -21,29 +21,20 @@ package scope.perReleaseAlloc;
  *   @authors  Lei Zhao, Ales Plsek
  */
 
-import javax.realtime.AbsoluteTime;
-import javax.realtime.Clock;
-import javax.realtime.ImmortalMemory;
-import javax.realtime.MemoryArea;
+import static javax.safetycritical.annotate.Phase.CLEANUP;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.realtime.PriorityParameters;
-import javax.realtime.RealtimeThread;
 import javax.realtime.RelativeTime;
 import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
-import javax.safetycritical.MissionManager;
 import javax.safetycritical.PeriodicEventHandler;
-import javax.safetycritical.Safelet;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.Terminal;
-
 import javax.safetycritical.annotate.DefineScope;
-import javax.safetycritical.annotate.SCJRestricted;
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-import static javax.safetycritical.annotate.Phase.CLEANUP;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-
-import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members = true)
 @Scope("MyApp")

@@ -15,8 +15,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.SCJAllowed;
 
-
-@SCJAllowed(members=true)
+@SCJAllowed(members = true)
 @Scope("MyApp")
 class MyPEH2 extends PeriodicEventHandler {
 
@@ -26,8 +25,8 @@ class MyPEH2 extends PeriodicEventHandler {
 
     static {
         pri = new PriorityParameters(13);
-        per = new PeriodicParameters(new RelativeTime(0, 0),
-                new RelativeTime(500, 0));
+        per = new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
+                500, 0));
         stor = new StorageParameters(1000L, 1000L, 1000L);
     }
 

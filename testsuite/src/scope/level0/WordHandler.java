@@ -10,10 +10,9 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-
-@SCJAllowed()
+@SCJAllowed(members=true)
 @Scope("Level0App")
-@DefineScope(name="WordHandler",parent="Level0App")
+@DefineScope(name = "WordHandler", parent = "Level0App")
 public class WordHandler extends PeriodicEventHandler {
 
     @SCJAllowed()
@@ -31,7 +30,8 @@ public class WordHandler extends PeriodicEventHandler {
 
     @Override
     @SCJAllowed()
-    public void cleanUp() {}
+    public void cleanUp() {
+    }
 
     @Override
     public StorageParameters getThreadConfigurationParameters() {
