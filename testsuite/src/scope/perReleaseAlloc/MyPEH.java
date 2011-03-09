@@ -11,6 +11,7 @@ import javax.realtime.RelativeTime;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
+import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
@@ -45,8 +46,9 @@ public class MyPEH extends PeriodicEventHandler {
     @RunsIn("MyPEH")
     public void handleAsyncEvent() {
         final long times[] = new long[1000];
-        Runnable r = new Runnable() {
+        SCJRunnable r = new SCJRunnable() {
             @RunsIn("RunScope")
+            //## checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME
             public void run() {
                 long[] copy = new long[1000];
                 for (int i = 0; i < 1000; i++)

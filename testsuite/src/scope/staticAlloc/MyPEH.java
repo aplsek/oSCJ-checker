@@ -1,5 +1,6 @@
 package scope.staticAlloc;
 
+import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.safetycritical.annotate.DefineScope;
@@ -48,7 +49,7 @@ public class MyPEH extends PeriodicEventHandler {
     }
 
     @Override
-    @SCJRestricted(INITIALIZATION)
+    @SCJRestricted(CLEANUP)
     public void cleanUp() {
     }
 

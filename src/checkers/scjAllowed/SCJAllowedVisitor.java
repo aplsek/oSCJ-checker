@@ -213,6 +213,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         return false;
     }
 
+    void pln(String str) {System.err.println("\t" + str);}
+
     @Override
     public R visitMethodInvocation(MethodInvocationTree node, P p) {
         debugIndentIncrement("visit method invocation :" + node);
@@ -227,8 +229,9 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         checkSCJInternalCall(m, node);
 
         if (!isSCJInternal(m, node)) {
-            if (scjAllowedLevel(m, node).compareTo(topLevel()) > 0)
+            if (scjAllowedLevel(m, node).compareTo(topLevel()) > 0) {
                 fail(ERR_BAD_METHOD_CALL, node, topLevel());
+            }
         }
 
         debugIndentDecrement();

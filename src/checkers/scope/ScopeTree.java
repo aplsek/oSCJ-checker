@@ -63,6 +63,14 @@ public class ScopeTree {
         System.out.println("SCOPE TREE : \n" + scopeTree.toString());
     }
 
+    public void dumpTree() {
+        for (Map.Entry<ScopeInfo, ScopeInfo> entry : scopeTree.entrySet()) {
+            ScopeInfo scope = entry.getKey();
+            ScopeInfo parent = entry.getValue();
+            System.out.println("\t scope=" + scope + ", parent=" + parent);
+        }
+    }
+
     /**
      * Check that the scope tree is indeed a tree.
      */

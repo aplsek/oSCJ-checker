@@ -7,6 +7,7 @@ import javax.lang.model.element.TypeElement;
 import javax.safetycritical.annotate.Level;
 
 import checkers.Utils;
+import checkers.scope.ScopeInfo;
 import checkers.util.TreeUtils;
 
 import com.sun.source.tree.ClassTree;
@@ -48,12 +49,21 @@ public class EscapeMap {
 
         escape.put("byte", Level.LEVEL_0);
         escape.put("Array", Level.LEVEL_0);
+        escape.put("java.util", Level.LEVEL_0);
         escape.put("java.lang.Integer", Level.LEVEL_0);
         escape.put("java.lang.Long", Level.LEVEL_0);
     }
 
     public static boolean isEscaped(String str) {
-        return escape.containsKey(str);
+        if (escape.containsKey(str))
+            return true;
+
+        // this allows also package names
+        for (Map.Entry<String, Level> entry : escape.entrySet())
+            if (str.startsWith(entry.getKey()))
+                return true;
+
+        return false;
     }
 
     public static boolean escapeEnum(ClassTree node) {
