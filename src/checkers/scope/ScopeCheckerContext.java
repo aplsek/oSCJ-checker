@@ -156,44 +156,49 @@ public class ScopeCheckerContext {
     }
 
     /**
-     * Get the effective RunsIn of a method. This translates a CALLER
-     * annotation to something more concrete, if available.
+     * Get the effective RunsIn of a method at one of its call sites. This
+     * translates a CALLER or THIS annotation to something more concrete, if
+     * available.
      *
-     * The "effective" methods get a scope annotation relative to the receiver
-     * object. you have to see that the scope of the receiver is "b" and say
-     * that the effective method runs-in is "b" because the annotation is
-     * CALLER.
+     * <ul>
+     * <li>If the method annotation is RunsIn(CALLER), the effective RunsIn is
+     * the current scope.
+     * <li>If the method annotation is RunsIn(THIS), the effective RunsIn is the
+     * receiver object.
+     * <li>Otherwise, the effective RunsIn is the annotation that was calculated
+     * from the ScopeRunsInVisitor.
      */
     public ScopeInfo getEffectiveMethodRunsIn(ExecutableElement m,
-            ScopeInfo recvScope) {
+            ScopeInfo recvScope, ScopeInfo currentScope) {
         ScopeInfo methodRunsIn = getMethodRunsIn(m);
-        if (!methodRunsIn.isCaller() || Utils.isStatic(m))
-            return methodRunsIn;
-
-        TypeElement t = Utils.getMethodClass(m);
-        ScopeInfo scope = getClassScope(t);
-
-        // if the scope is CALLER, we need to consider the Scope of the
-        // receiver object.
-        return scope.isCaller() ? recvScope : scope;
+        if (methodRunsIn.isCaller())
+            return currentScope;
+        if (methodRunsIn.isThis())
+            return recvScope;
+        return methodRunsIn;
     }
 
     /**
-     * Get the effective Scope of a method. This translates a CALLER annotation
-     * to something more concrete, if available, based on the scope of the
-     * receiver.
+     * Get the effective return Scope of a method at one of its call sites. This
+     * translates a CALLER or THIS annotation to something more concrete, if
+     * available.
+     *
+     * <ul>
+     * <li>If the method annotation is Scope(CALLER), the effective Scope is
+     * the current scope.
+     * <li>If the method annotation is Scope(THIS), the effective Scope is the
+     * receiver object.
+     * <li>Otherwise, the effective Scope is the annotation that was calculated
+     * from the ScopeRunsInVisitor.
      */
     public ScopeInfo getEffectiveMethodScope(ExecutableElement m,
-            ScopeInfo recvScope) {
-        if (!getMethodScope(m).isCaller() || Utils.isStatic(m))
-            return getMethodScope(m);
-
-        TypeElement t = Utils.getMethodClass(m);
-        ScopeInfo scope = getClassScope(t);
-
-        // if the scope is CALLER, we need to consider the Scope of the
-        // receiver object.
-        return scope.isCaller() ? recvScope : scope;
+            ScopeInfo recvScope, ScopeInfo currentScope) {
+        ScopeInfo methodScope = getMethodScope(m);
+        if (methodScope.isCaller())
+            return currentScope;
+        if (methodScope.isThis())
+            return recvScope;
+        return methodScope;
     }
 
     /**
@@ -227,6 +232,8 @@ public class ScopeCheckerContext {
         ScopeInfo f = ci.fieldScopes.get(field);
         if (f != null && !f.equals(scope))
             throw new RuntimeException("Field scope already set");
+        if (scope.isCaller())
+            throw new RuntimeException("Bad scope");
         ci.fieldScopes.put(field, scope);
     }
 
@@ -378,7 +385,7 @@ public class ScopeCheckerContext {
         System.err.println("\n\n============ CLASS SCOPES-=========");
         for (Entry<String, ClassInfo> e : classScopes.entrySet()) {
             System.err.println("class: " + e.getKey() + ",@Scope("
-                        + e.getValue() + ")");
+                    + e.getValue() + ")");
         }
         System.err.println("============ CLASS SCOPES-=========\n\n");
     }

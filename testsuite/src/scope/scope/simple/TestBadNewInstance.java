@@ -30,8 +30,7 @@ public abstract class TestBadNewInstance extends Mission {
             Object o = new Object();
             MemoryArea.getMemoryArea(o).newInstance(Y.class);
 
-            //## TODO: ERROR : this  : the error is OK :checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
-            //     but its parameters in the message are wrong.
+            //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
             ImmortalMemory.instance().newInstance(Y.class);
         }
 

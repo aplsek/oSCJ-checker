@@ -64,21 +64,38 @@ public class ScopeInfo {
         return equals(PRIMITIVE);
     }
 
+    public boolean isThis() {
+        return equals(THIS);
+    }
+
     public boolean isUnknown() {
         return equals(UNKNOWN);
     }
 
     public boolean isReservedScope() {
         return isCaller() || isImmortal() || isInvalid() || isNull()
-                || isUnknown() || isPrimitive();
+                || isUnknown() || isPrimitive() || isThis();
     }
 
     public boolean isFieldScope() {
         return false;
     }
 
+    /**
+     * Check that a field has a valid Scope annotation.
+     * <p>
+     * Fields must live in the same scope or parent scope of the objects which
+     * refer to them. UNKNOWN annotations are accepted, since assignments to
+     * UNKNOWN fields are checked by a dynamic guard.
+     */
+    boolean isValidInstanceFieldScope(ScopeInfo classScope, ScopeTree scopeTree) {
+        return isThis() || isUnknown() || isPrimitive()
+                || scopeTree.isAncestorOf(classScope, this);
+    }
+
     public boolean isValidParentScope() {
-        return !(isCaller() || isInvalid() || isNull() || isUnknown() || isPrimitive());
+        return !(isCaller() || isInvalid() || isNull() || isUnknown()
+                || isPrimitive() || isThis());
     }
 
     /**

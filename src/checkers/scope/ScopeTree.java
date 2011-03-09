@@ -34,6 +34,7 @@ public class ScopeTree {
      * See if one scope is the direct parent of another.
      */
     public boolean isParentOf(ScopeInfo child, ScopeInfo parent) {
+        if (child.isImmortal() && parent.isImmortal()) return true;
         return parent.equals(getParent(child));
     }
 
@@ -41,8 +42,8 @@ public class ScopeTree {
      * See if one scope is equal to or an ancestor of another.
      */
     public boolean isAncestorOf(ScopeInfo child, ScopeInfo parent) {
-        // No matter where we are, IMMORTAL is always an ancestor of CALLER.
-        if (child.isCaller())
+        // IMMORTAL is always an ancestor of CALLER or THIS.
+        if (child.isCaller() || child.isThis())
             return parent.isImmortal();
 
         while (child != null) {

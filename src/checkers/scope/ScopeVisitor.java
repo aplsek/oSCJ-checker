@@ -9,7 +9,6 @@ import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT;
 import static checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH;
 import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET;
-import static checkers.scope.ScopeChecker.ERR_SCJRUNNABLE_BAD_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_RUNS_IN;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_TARGET;
 import static checkers.scope.ScopeChecker.ERR_BAD_GET_CURRENT_MANAGED_MEMORY;
@@ -25,9 +24,8 @@ import static checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR;
-import static checkers.scope.ScopeChecker.ERR_RUNNABLE_WITHOUT_RUNS_IN;
+import static checkers.scope.ScopeChecker.ERR_SCJRUNNABLE_BAD_SCOPE;
 import static checkers.scope.ScopeInfo.CALLER;
-import static checkers.scope.ScopeInfo.UNKNOWN;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -382,7 +380,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("RunsIn: " + currentRunsIn);
 
         ScopeInfo oldRunsIn = currentRunsIn;
-        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, currentScope());
+        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, currentScope(),
+                ScopeInfo.CALLER);
         debugIndent("@RunsIn(" + runsIn + ") " + m.getSimpleName());
 
         currentRunsIn = runsIn;
@@ -605,7 +604,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("lhs scope = " + lhs);
         debugIndent("rhs scope = " + rhs);
         if (!lhs.isUnknown()) {
-            if (lhs.getFieldScope().isCaller()) {
+            if (lhs.getFieldScope().isThis()) {
                 if (!lhs.getReceiverScope().equals(rhs))
                     fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
             } else if (!lhs.getFieldScope().equals(rhs))
@@ -614,7 +613,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ScopeInfo fScope = lhs.getFieldScope();
             String rhsVar = getRhsVariableNameFromAssignment(node);
             String lhsVar = getLhsVariableNameFromAssignment(node);
-            if (fScope.isCaller()) {
+            if (fScope.isThis()) {
                 if (!varScopes.hasSameRelation(lhsVar, rhsVar))
                     fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
             } else if (!varScopes.hasParentRelation(lhsVar, rhsVar))
@@ -674,8 +673,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return scope.isCaller() ? currentScope() : scope;
     }
 
-    void pln(String str) {System.out.println("\t" + str);}
-
     private void checkEnterPrivateMemory(ScopeInfo recvScope,
             MethodInvocationTree node) {
         ScopeInfo target = recvScope.getRepresentedScope();
@@ -689,25 +686,18 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                     argRunsIn, currentScope());
 
         if (!scopeTree.isParentOf(argRunsIn,target))
-            fail(ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET, node,
-                    argRunsIn, target);
+            fail(ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET, node, argRunsIn, target);
 
         if (runnableScope.isCaller() || !runnableScope.equals(target))
-            fail(ERR_SCJRUNNABLE_BAD_SCOPE, node,
-                    argRunsIn, target);
+            fail(ERR_SCJRUNNABLE_BAD_SCOPE, node, argRunsIn, target);
     }
 
     private ScopeInfo checkExecuteInArea(ScopeInfo recvScope,
             MethodInvocationTree node) {
         ScopeInfo target = recvScope.getRepresentedScope();
-        ScopeInfo argRunsIn = getRunsInFromSCJRunnable(node.getArguments().get(
-                0));
-        ScopeInfo runnableScope = getRunnnableScope(node.getArguments().get(
-                0));
-
-        if (argRunsIn.isCaller())
-            // no @RunsIn on the Runnable
-            fail(ERR_RUNNABLE_WITHOUT_RUNS_IN, node);
+        ExpressionTree arg = node.getArguments().get(0);
+        ScopeInfo argRunsIn = getRunsInFromSCJRunnable(arg);
+        ScopeInfo runnableScope = getRunnnableScope(arg);
 
         if (!scopeTree.isAncestorOf(currentScope(), target))
             // the executeInArea must target an Ancestor scope
@@ -718,8 +708,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_BAD_EXECUTE_IN_AREA_RUNS_IN, node, target, argRunsIn);
 
         if (runnableScope.isCaller() || !runnableScope.equals(currentScope()))
-            fail(ERR_SCJRUNNABLE_BAD_SCOPE, node,
-                argRunsIn, target);
+            fail(ERR_SCJRUNNABLE_BAD_SCOPE, node, argRunsIn, target);
 
         // Leaving the failures in so the static imports don't get warnings
         // fail(ERR_BAD_ENTER_PARAM, node);
@@ -783,7 +772,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         // TODO: static methods ? :
         debugIndent("\n\t checkMethodInvocation : " + node);
 
-        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, recvScope);
+        ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, recvScope,
+                currentScope());
         checkMethodRunsIn(m, runsIn, node);
         checkMethodParameters(m, argScopes, node);
 
@@ -810,7 +800,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         case GET_CURRENT_MANAGED_MEMORY:
             return checkGetCurrentManagedMemory(node);
         default:
-            return ctx.getEffectiveMethodScope(m, recvScope);
+            return ctx.getEffectiveMethodScope(m, recvScope, currentScope());
         }
     }
 
@@ -839,13 +829,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      */
     private void checkMethodRunsIn(ExecutableElement m,
             ScopeInfo effectiveRunsIn, MethodInvocationTree node) {
-        if (Utils.isStatic(m)
-                && (effectiveRunsIn.isCaller() || effectiveRunsIn.isUnknown()))
-            return;
-
-        if (currentScope().isUnknown() && !effectiveRunsIn.isUnknown())
-            fail(ERR_BAD_METHOD_INVOKE, node, CALLER, UNKNOWN);
-        else if (!effectiveRunsIn.isUnknown()
+        if (currentScope().isCaller() && !effectiveRunsIn.isCaller())
+            fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, CALLER);
+        else if (!effectiveRunsIn.isCaller()
                 && !effectiveRunsIn.equals(currentScope()))
             fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, currentScope());
     }
@@ -963,8 +949,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         VariableElement var = TreeUtils.elementFromDeclaration(node);
         // We already have all of the information we need for fields
-        if (var.getKind() == ElementKind.FIELD)
-            return ctx.getFieldScope(var);
+        if (var.getKind() == ElementKind.FIELD) {
+            ScopeInfo f = ctx.getFieldScope(var);
+            return new FieldScopeInfo(currentScope(), f).representing(f
+                    .getRepresentedScope());
+        }
 
         // TODO: UNKNOWN parameters
         ScopeInfo ret;

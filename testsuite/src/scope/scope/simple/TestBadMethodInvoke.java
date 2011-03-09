@@ -35,7 +35,7 @@ public abstract class TestBadMethodInvoke extends Mission {
     static class Y {
         void method() { }
 
-        @RunsIn(Scope.UNKNOWN)
+        @RunsIn(Scope.CALLER)
         void methodRunsInUnknown() {
             //## checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE
             methodRunsInB();

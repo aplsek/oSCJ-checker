@@ -242,10 +242,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             ExecutableElement m, Tree errNode) {
         ScopeInfo scope = checkVariableScopeOverride(p, tree, errNode);
         ScopeInfo effectiveScope = scope;
-        if (scope.isCaller()) {
+        if (scope.isCaller())
             effectiveScope = ctx.getEffectiveMethodRunsIn(m,
-                    getEnclosingClassScope(m));
-        }
+                    getEnclosingClassScope(m), ScopeInfo.CALLER);
         scope = checkMemoryAreaVariable(p, effectiveScope, tree, errNode);
         return scope;
     }
@@ -258,11 +257,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             if (!scope.isValidStaticScope())
                 fail(ERR_ILLEGAL_STATIC_FIELD_SCOPE, node, errNode, scope);
             scope = ScopeInfo.IMMORTAL;
-        } else if (!isValidInstanceFieldScope(scope, classScope))
+        } else if (!scope.isValidInstanceFieldScope(classScope, scopeTree))
             fail(ERR_ILLEGAL_FIELD_SCOPE, node, errNode, scope, classScope);
 
-        if (scope.isCaller())
-            scope = classScope;
         scope = checkMemoryAreaVariable(f, scope, node, errNode);
         return scope;
     }
@@ -311,20 +308,28 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             Tree errNode) {
         debugIndentIncrement("checkVariableScopeOverride: " + v);
 
-        TypeMirror vMirror = v.asType();
         Scope s = v.getAnnotation(Scope.class);
-        ScopeInfo scope = ScopeInfo.CALLER;
+        // Arrays reside in the same scope as their element types, so if this
+        // field is an array, reduce it to its base component type.
+        TypeMirror vMirror = Utils.getBaseType(v.asType());
+        ScopeInfo vTypeScope = null;
+        if (vMirror.getKind() == TypeKind.DECLARED)
+            vTypeScope = getParentScopeAndVisit(Utils.getTypeElement(vMirror),
+                    errNode);
+
+        ScopeInfo scope = getDefaultVariableAnnotation(v);
         ScopeInfo ret;
         if (s != null)
             scope = new ScopeInfo(s.value());
 
-        if (!scopeTree.hasScope(scope) && !scope.isCaller()
-                && !scope.isUnknown())
+        if (!scopeTree.hasScope(scope) && !scope.isCaller() && !scope.isThis()
+                && !scope.isUnknown() && !scope.isPrimitive())
+            fail(ERR_BAD_SCOPE_NAME, node, errNode, scope);
+        if (Utils.isStatic(v) && scope.isThis())
+            fail(ERR_BAD_SCOPE_NAME, node, errNode, scope);
+        if (v.getKind() == ElementKind.FIELD && scope.isCaller())
             fail(ERR_BAD_SCOPE_NAME, node, errNode, scope);
 
-        // Arrays reside in the same scope as their element types, so if this
-        // field is an array, reduce it to its base component type.
-        vMirror = Utils.getBaseType(vMirror);
         if (vMirror.getKind() != TypeKind.DECLARED) {
             // The field type in here is either a primitive or a primitive
             // array. Only store a field scope if the field was an array.
@@ -334,50 +339,35 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 ret = ScopeInfo.PRIMITIVE; // Primitives have no scope
         } else {
             TypeElement t = Utils.getTypeElement(vMirror);
-            ScopeInfo tScope = ctx.getClassScope(t);
-            if (tScope == null)
-                checkClassScope(t, trees.getTree(t), errNode);
-
-            tScope = ctx.getClassScope(t);
-            if (s == null)
-                if (tScope.isCaller() && isUnknownMethodParameter(v))
-                    scope = ScopeInfo.UNKNOWN;
-                else
-                    scope = tScope;
-            if (tScope.isCaller())
+            if (vTypeScope.isCaller())
                 ret = scope;
             else {
-                ret = tScope;
-                if (scope.isUnknown() || !scope.equals(tScope))
+                ret = vTypeScope;
+                if (scope.isUnknown() || !scope.equals(vTypeScope))
                     fail(ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE, node, errNode,
-                            scope, tScope);
+                            scope, vTypeScope);
             }
         }
         debugIndentDecrement();
         return ret;
     }
 
-    private boolean isUnknownMethodParameter(VariableElement v) {
-        if (v.getKind() != ElementKind.PARAMETER)
-            return false;
-
-        ExecutableElement m = (ExecutableElement) v.getEnclosingElement();
-        return ctx.getMethodRunsIn(m).isUnknown();
-    }
-
     /**
      * Check that a method has a valid RunsIn annotation. A method's RunsIn
-     * annotation is valid as long as it exists in the scope tree, or is
-     * UNKNOWN, CALLER or THIS. It is also illegal to change the RunsIn of an
-     * overridden method, unless it is annotated SUPPORT.
+     * annotation is valid as long as it exists in the scope tree, or is CALLER
+     * or THIS. It is also illegal to change the RunsIn of an overridden method,
+     * unless it is annotated SUPPORT.
      */
     void checkMethodRunsIn(ExecutableElement m, MethodTree node, Tree errNode) {
         RunsIn ann = m.getAnnotation(RunsIn.class);
         ScopeInfo runsIn = ann != null ? new ScopeInfo(ann.value())
-                : ScopeInfo.CALLER;
+                : getDefaultMethodRunsIn(m);
 
-        if (!scopeTree.hasScope(runsIn) && !runsIn.isCaller()
-                && !runsIn.isUnknown())
+        // UNKNOWN is no longer a valid RunsIn annotation.
+        if (!(scopeTree.hasScope(runsIn) || runsIn.isCaller() || runsIn
+                .isThis()))
+            fail(ERR_BAD_SCOPE_NAME, node, errNode, runsIn);
+        if (Utils.isStatic(m) && runsIn.isThis())
             fail(ERR_BAD_SCOPE_NAME, node, errNode, runsIn);
 
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
@@ -396,10 +386,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         ctx.setMethodRunsIn(runsIn, m);
     }
 
-    void pln(String str) {
-        System.out.println("\t" + str);
-    }
-
     /**
      * Check that a method has a valid Scope annotation. A method's Scope
      * annotation is valid as long as it exists in the scope tree, or is
@@ -410,8 +396,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         Scope ann = m.getAnnotation(Scope.class);
         ScopeInfo scope = ann != null ? new ScopeInfo(ann.value())
                 : ScopeInfo.CALLER;
+        // TODO: Need to take class annotations into consideration
 
-        if (!scopeTree.hasScope(scope) && !scope.isCaller()
+        if (!scopeTree.hasScope(scope) && !scope.isCaller() && !scope.isThis()
                 && !scope.isUnknown())
             fail(ERR_BAD_SCOPE_NAME, node, errNode, scope);
 
@@ -428,7 +415,46 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if ((r.isPrimitive() || r == TypeKind.VOID) && ann != null)
             warn(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, node, errNode);
 
+        DefineScope ds = m.getAnnotation(DefineScope.class);
+        if (ds != null) {
+            ScopeInfo name = new ScopeInfo(ds.name());
+            ScopeInfo parent = new ScopeInfo(ds.parent());
+
+            if (!scopeTree.hasScope(name)
+                    || !scopeTree.isParentOf(name, parent))
+                fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node, errNode);
+
+            if (!scope.equals(parent))
+                fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
+                        errNode, scope, parent);
+
+            scope = scope.representing(name);
+        }
         ctx.setMethodScope(scope, m);
+    }
+
+    private ScopeInfo getDefaultMethodRunsIn(ExecutableElement m) {
+        if (Utils.isStatic(m))
+            return ScopeInfo.CALLER;
+        return ScopeInfo.THIS;
+    }
+
+    private ScopeInfo getDefaultVariableAnnotation(VariableElement v) {
+        TypeKind k = v.asType().getKind();
+        if (k.isPrimitive())
+            return ScopeInfo.PRIMITIVE;
+        if (k == TypeKind.DECLARED) {
+            TypeElement t = Utils.getTypeElement(v.asType());
+            ScopeInfo s = ctx.getClassScope(t);
+            if (!s.isCaller())
+                return s;
+        }
+        if (Utils.isStatic(v))
+            return ScopeInfo.IMMORTAL;
+        else if (v.getKind() == ElementKind.FIELD)
+            return ScopeInfo.THIS;
+        else
+            return ScopeInfo.CALLER;
     }
 
     /**
@@ -497,24 +523,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     }
 
     /**
-     * @param e
-     *            a field or method
-     * @return the Scope of the class enclosing the member
+     * Get a method or field's owning class.
      */
     private ScopeInfo getEnclosingClassScope(Element e) {
         return ctx.getClassScope((TypeElement) e.getEnclosingElement());
-    }
-
-    /**
-     * Check that a field has a valid Scope annotation.
-     * <p>
-     * Fields must live in the same scope or parent scope of the objects which
-     * refer to them. UNKNOWN annotations are accepted, since assignments to
-     * UNKNOWN fields are checked by a dynamic guard.
-     */
-    boolean isValidInstanceFieldScope(ScopeInfo fieldScope, ScopeInfo classScope) {
-        return fieldScope == null || fieldScope.isCaller()
-                || fieldScope.isUnknown() || fieldScope.isPrimitive()
-                || scopeTree.isAncestorOf(classScope, fieldScope);
     }
 }
