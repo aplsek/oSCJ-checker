@@ -213,6 +213,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         return false;
     }
 
+    void pln(String str) {System.out.println("\t" + str);}
+
     @Override
     public R visitMethodInvocation(MethodInvocationTree node, P p) {
         debugIndentIncrement("visit method invocation :" + node);

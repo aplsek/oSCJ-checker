@@ -28,8 +28,10 @@ import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("A")
@@ -41,6 +43,7 @@ public class SatCommServiceSequencer
   private final int SAT_PRIORITY;
   private final SatQueue sat_data;
 
+  @SCJRestricted(INITIALIZATION)
   public SatCommServiceSequencer(final int sat_priority, SatQueue sat_data)
   {
     super(new PriorityParameters(sat_priority),

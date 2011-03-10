@@ -36,7 +36,9 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
-@SCJAllowed
+import static javax.safetycritical.annotate.Level.LEVEL_1;;
+
+@SCJAllowed( members=true)
 @Scope("TM")
 public class TrainClock extends Clock {
 
@@ -64,6 +66,7 @@ public class TrainClock extends Clock {
     @RunsIn(THIS)
     // Not allowed to override
     @SCJAllowed
+    @SCJRestricted(maySelfSuspend = false)
     public AbsoluteTime getTime() {
         return null;
     }
@@ -78,6 +81,7 @@ public class TrainClock extends Clock {
     @RunsIn(THIS)
     // Not allowed to override
     @SCJAllowed
+    @SCJRestricted(maySelfSuspend = false, mayAllocate = false)
     public AbsoluteTime getTime(AbsoluteTime dest) {
         return null;
     }
@@ -105,6 +109,7 @@ public class TrainClock extends Clock {
     @Override
     @RunsIn(THIS)
     @SCJAllowed
+    @SCJRestricted(mayAllocate = false, maySelfSuspend = false)
     public final boolean drivesEvents() {
         return true;
     }

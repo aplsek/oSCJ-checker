@@ -28,8 +28,10 @@ import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -41,6 +43,7 @@ public class TrackModulatedCommServiceSequencer extends MissionSequencer // <Mod
     private final int MODULATED_PRIORITY;
     private final ModulatedQueue modulated_data;
 
+    @SCJRestricted(INITIALIZATION)
     public TrackModulatedCommServiceSequencer(final int modulated_priority,
             ModulatedQueue modulated_data) {
         super(new PriorityParameters(modulated_priority),

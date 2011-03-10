@@ -11,3 +11,11 @@ Changes in Annotations
 
 Generics
  - commenting out generics
+ 
+@SCJRestricted(INITIALIZATION)
+- adding this annotation on all constructors of sequencers/missions
+
+
+TrainClock:
+- getTime() and drivesEvents() method were missing @SCJRestricted(maySelfSuspend = false)
+- when overriding, the annotations must be restated.

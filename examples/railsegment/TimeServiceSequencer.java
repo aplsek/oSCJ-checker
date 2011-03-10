@@ -33,8 +33,10 @@ import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -47,6 +49,7 @@ public class TimeServiceSequencer extends MissionSequencer
     private final TrainClock train_clock;
     private final int TIMES_PRIORITY;
 
+    @SCJRestricted(INITIALIZATION)
     public TimeServiceSequencer(final int TIMES_PRIORITY,
             CommunicationsQueue comms_data,
             SynchronizedTime times_data,

@@ -33,8 +33,10 @@ import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -50,6 +52,7 @@ public class TimerTick extends PeriodicEventHandler
   private TrainClock train_clock;
 
   // This periodic task runs every 250 microseconds
+  @SCJRestricted(INITIALIZATION)
   public TimerTick(TimeService time_mission,
                    TrainClock train_clock, int priority) {
     super(new PriorityParameters(priority),

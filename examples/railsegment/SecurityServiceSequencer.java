@@ -29,8 +29,10 @@ import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -44,6 +46,7 @@ extends MissionSequencer //<SecurityService>
     private final int SECURITY_PRIORITY;
     private final CypherQueue cypher_data;
 
+    @SCJRestricted(INITIALIZATION)
     public SecurityServiceSequencer(final int security_priority,
             CypherQueue cypher_data)
     {

@@ -29,8 +29,10 @@ import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -43,6 +45,7 @@ public class CommunicationServiceSequencer
   private final int COMMS_PRIORITY;
   private final CommunicationsQueue comms_data;
 
+  @SCJRestricted(INITIALIZATION)
   public CommunicationServiceSequencer(final int COMMS_PRIORITY,
                                        final CommunicationsQueue comms_data)
   {

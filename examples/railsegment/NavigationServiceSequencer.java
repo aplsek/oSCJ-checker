@@ -31,8 +31,10 @@ import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -46,6 +48,7 @@ public class NavigationServiceSequencer
   private final NavigationInfo navs_data;
   private final TrainClock train_clock;
 
+  @SCJRestricted(INITIALIZATION)
   public NavigationServiceSequencer(final int NAVS_PRIORITY,
                                     final int GPS_PRIORITY,
                                     TrainClock train_clock,
@@ -65,7 +68,7 @@ public class NavigationServiceSequencer
   }
 
   @Override
-@RunsIn("D")
+  @RunsIn("D")
   public NavigationService getNextMission()
   {
     if (!did_mission) {

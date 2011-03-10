@@ -29,8 +29,10 @@ import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -49,6 +51,7 @@ public class TrainControlSequencer extends MissionSequencer // <TrainControl>
     private final SynchronizedTime times_data;
     private final NavigationInfo navs_data;
 
+    @SCJRestricted(INITIALIZATION)
     public TrainControlSequencer(final int CONTROL_PRIORITY,
             CommunicationsQueue comms_data, SynchronizedTime times_data,
             NavigationInfo navs_data) {
@@ -80,7 +83,6 @@ public class TrainControlSequencer extends MissionSequencer // <TrainControl>
 
     @Override
     protected Mission getInitialMission() {
-        // TODO Auto-generated method stub
         return null;
     }
 }
