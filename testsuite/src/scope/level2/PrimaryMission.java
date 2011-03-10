@@ -1,5 +1,9 @@
 package scope.level2;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.realtime.PriorityParameters;
 import javax.realtime.RelativeTime;
 import javax.safetycritical.ManagedMemory;
@@ -11,12 +15,9 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Level.LEVEL_2;
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-
 @SCJAllowed(members=true, value=LEVEL_2)
 @Scope("PrimaryMission")
-@DefineScope(name="PrimaryMission", parent=Scope.IMMORTAL)
+@DefineScope(name="PrimaryMission", parent=IMMORTAL)
 public class PrimaryMission extends Mission {
     final int MISSION_MEMORY_SIZE = 10000;
 

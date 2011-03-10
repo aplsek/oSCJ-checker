@@ -21,6 +21,10 @@ package scope.illegalStateEx;
  *   @authors  Ales Plsek
  */
 
+import static javax.safetycritical.annotate.Phase.CLEANUP;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.realtime.PriorityParameters;
 import javax.realtime.RelativeTime;
 import javax.safetycritical.CyclicExecutive;
@@ -28,17 +32,14 @@ import javax.safetycritical.CyclicSchedule;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.PrivateMemory;
 import javax.safetycritical.StorageParameters;
-
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-import static javax.safetycritical.annotate.Phase.CLEANUP;
 import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members=true)
 @Scope("MyApp")
-@DefineScope(name="MyApp", parent=Scope.IMMORTAL)
+@DefineScope(name="MyApp", parent=IMMORTAL)
 public class MyApp extends CyclicExecutive {
 
     public PrivateMemory pri;

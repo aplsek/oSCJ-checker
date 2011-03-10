@@ -1,19 +1,12 @@
-//scjAllowed/SCJMembersTest.java:29: Method call is not allowed at level 0.
-//        FakeSCJMembers.level1Call();
-//                                 ^
-//scjAllowed/SCJMembersTest.java:30: Field access is not allowed at level 0.
-//        int member = FakeSCJMembers.member;
-//                                   ^
-//2 errors
-
 package scjAllowed.simple;
 
-import javax.safetycritical.annotate.Level;
+import static javax.safetycritical.annotate.Level.LEVEL_1;
+
 import javax.safetycritical.annotate.SCJAllowed;
 
 @SCJAllowed(members=true)
 public class TestBadFieldAccessMembers {
-    @SCJAllowed(Level.LEVEL_1)
+    @SCJAllowed(LEVEL_1)
     static int x;
 
     public void foo() {

@@ -1,5 +1,6 @@
 package scope.illegalStateEx;
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
@@ -11,12 +12,11 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.PrivateMemory;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
-import javax.safetycritical.annotate.Level;
-import javax.safetycritical.annotate.DefineScope;
 
 @SCJAllowed(members=true)
 @Scope("MyApp")
@@ -41,7 +41,7 @@ class MyPEH1 extends PeriodicEventHandler {
 
     @Override
     @RunsIn("MyPEH1")
-    @SCJAllowed(Level.SUPPORT)
+    @SCJAllowed(SUPPORT)
     public void handleAsyncEvent() {
         MyApp m1 = (MyApp) Mission.getCurrentMission();
         m1.pri = (PrivateMemory) MemoryArea.getMemoryArea(new int[0]);

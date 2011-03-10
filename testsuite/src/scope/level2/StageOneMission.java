@@ -2,6 +2,7 @@ package scope.level2;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.realtime.RelativeTime;
 import javax.safetycritical.ManagedMemory;
@@ -13,7 +14,7 @@ import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members=true, value=LEVEL_2)
 @Scope("StageOneMission")
-@DefineScope(name="StageOneMission", parent=Scope.IMMORTAL)
+@DefineScope(name="StageOneMission", parent=IMMORTAL)
 public class StageOneMission extends Mission {
     private static final int MISSION_MEMORY_SIZE = 10000;
 

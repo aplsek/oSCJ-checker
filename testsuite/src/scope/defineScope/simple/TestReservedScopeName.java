@@ -1,23 +1,27 @@
 package scope.defineScope.simple;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import static javax.safetycritical.annotate.Scope.THIS;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
-import javax.safetycritical.annotate.Scope;
 
 public class TestReservedScopeName {
-    @DefineScope(name=Scope.CALLER, parent="a")
+    @DefineScope(name=CALLER, parent="a")
     //## checkers.scope.DefineScopeChecker.ERR_RESERVED_SCOPE_NAME
     static abstract class X extends Mission { }
 
-    @DefineScope(name=Scope.IMMORTAL, parent="a")
+    @DefineScope(name=IMMORTAL, parent="a")
     //## checkers.scope.DefineScopeChecker.ERR_RESERVED_SCOPE_NAME
     static abstract class Y extends Mission { }
 
-    @DefineScope(name=Scope.THIS, parent="a")
+    @DefineScope(name=THIS, parent="a")
     //## checkers.scope.DefineScopeChecker.ERR_RESERVED_SCOPE_NAME
     static abstract class Z extends Mission { }
 
-    @DefineScope(name=Scope.UNKNOWN, parent="a")
+    @DefineScope(name=UNKNOWN, parent="a")
     //## checkers.scope.DefineScopeChecker.ERR_RESERVED_SCOPE_NAME
     static abstract class W extends Mission { }
 }

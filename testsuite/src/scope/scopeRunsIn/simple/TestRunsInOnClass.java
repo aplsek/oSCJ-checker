@@ -1,8 +1,9 @@
 package scope.scopeRunsIn.simple;
 
-import javax.safetycritical.annotate.RunsIn;
-import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-@RunsIn(Scope.IMMORTAL)
+import javax.safetycritical.annotate.RunsIn;
+
+@RunsIn(IMMORTAL)
 //## checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS
 public class TestRunsInOnClass { }

@@ -1,21 +1,22 @@
 package scope.scope.simple;
 
-import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.annotate.DefineScope;
-import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.Scope;
 
-@DefineScope(name="a", parent=Scope.IMMORTAL)
+@DefineScope(name="a", parent=IMMORTAL)
 @Scope("a")
 public abstract class TestBadEnterPrivateMemorySCJRunnableScope extends Mission {
     public void bar() {
 
-        @Scope(Scope.IMMORTAL)
-        @DefineScope(name="a", parent=Scope.IMMORTAL)
+        @Scope(IMMORTAL)
+        @DefineScope(name="a", parent=IMMORTAL)
         ManagedMemory mem = null;
         Y y = new Y();
         //## checkers.scope.ScopeChecker.ERR_SCJ_RUNNABLE_BAD_SCOPE

@@ -1,5 +1,7 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.realtime.ImmortalMemory;
 import javax.realtime.MemoryArea;
 import javax.safetycritical.ManagedMemory;
@@ -8,14 +10,14 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-@DefineScope(name="a", parent=Scope.IMMORTAL)
+@DefineScope(name="a", parent=IMMORTAL)
 @Scope("a")
 public abstract class TestBadNewInstance extends Mission {
     @Scope("a")
     @DefineScope(name="b", parent="a")
     static abstract class X extends Mission {
-        @DefineScope(name="a", parent=Scope.IMMORTAL)
-        @Scope(Scope.IMMORTAL)
+        @DefineScope(name="a", parent=IMMORTAL)
+        @Scope(IMMORTAL)
         ManagedMemory mem;
 
         @DefineScope(name="b", parent="a")

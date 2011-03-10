@@ -1,13 +1,17 @@
 package scope.scopeRunsIn.simple;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 import javax.safetycritical.annotate.Scope;
 
 public class TestIllegalVariableScopeOverride {
-    @Scope(Scope.IMMORTAL)
+    @Scope(IMMORTAL)
     static class X { }
     //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE
-    @Scope(Scope.UNKNOWN) X x1;
+    @Scope(UNKNOWN) X x1;
     //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE
-    void foo(@Scope(Scope.CALLER) X x2) { }
-    @Scope(Scope.IMMORTAL) X x3;
+    void foo(@Scope(CALLER) X x2) { }
+    @Scope(IMMORTAL) X x3;
 }

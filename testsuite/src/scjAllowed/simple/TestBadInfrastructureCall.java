@@ -1,5 +1,7 @@
 package scjAllowed.simple;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.realtime.MemoryArea;
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
@@ -8,8 +10,8 @@ import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed
 public class TestBadInfrastructureCall {
-    @Scope(Scope.IMMORTAL)
-    @DefineScope(name="a", parent=Scope.IMMORTAL)
+    @Scope(IMMORTAL)
+    @DefineScope(name="a", parent=IMMORTAL)
     MemoryArea mem;
 
     @SCJAllowed
@@ -18,6 +20,6 @@ public class TestBadInfrastructureCall {
         mem.enter(null);
     }
 
-    @DefineScope(name="a", parent=Scope.IMMORTAL)
+    @DefineScope(name="a", parent=IMMORTAL)
     abstract static class X extends Mission { }
 }

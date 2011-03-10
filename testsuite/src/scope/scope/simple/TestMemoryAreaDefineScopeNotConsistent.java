@@ -1,12 +1,14 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.Scope;
 
 public abstract class TestMemoryAreaDefineScopeNotConsistent {
-    @DefineScope(name="a", parent=Scope.IMMORTAL)
+    @DefineScope(name="a", parent=IMMORTAL)
     static abstract class X extends Mission { }
 
     @Scope("a")
