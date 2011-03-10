@@ -73,7 +73,6 @@ public class CommunicationService extends Mission
   }
 
   @Override
-  @RunsIn(CALLER)
   public final long missionMemorySize()
   {
     // This must be large enough to hold each of the four submissions,
@@ -83,7 +82,6 @@ public class CommunicationService extends Mission
   }
 
   @Override
-  @RunsIn(CALLER)
   public void initialize()
   {
     cypherq = new CypherQueue(COMMS_PRIORITY);

@@ -37,6 +37,7 @@ import javax.safetycritical.annotate.Scope;
 import railsegment.clock.TrainClock;
 
 @Scope("D")
+@DefineScope(name="D:GPSD", parent="D")
 public class GPSDriver extends PeriodicEventHandler
 {
     // Determined by VM-specific static analysis tools
@@ -61,7 +62,6 @@ public class GPSDriver extends PeriodicEventHandler
     }
 
     @Override
-    @DefineScope(name="D:GPSD", parent="D")
     @RunsIn("D:GPSD")
     public void handleAsyncEvent() {
 

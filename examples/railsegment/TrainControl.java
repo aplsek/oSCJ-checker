@@ -103,11 +103,10 @@ public class TrainControl extends Mission
   }
 
   @Override
-@RunsIn(CALLER)
+  @RunsIn(CALLER)
   public void requestTermination()
   {
     // something special to coordinate with the NHRT thread
-
     super.requestTermination();
   }
 }
