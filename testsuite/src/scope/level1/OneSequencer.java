@@ -8,6 +8,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 
 import javax.realtime.PriorityParameters;
@@ -24,7 +25,7 @@ public class OneSequencer extends MissionSequencer {
     }
 
     @Override
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     protected Mission getNextMission() {
         return new OneMission();
     }
