@@ -1,7 +1,5 @@
 package checkers;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.lang.model.element.Element;
@@ -73,20 +71,6 @@ public final class Utils {
             return !r.mayAllocate();
         }
         return false;
-    }
-
-    public static HashSet<TypeElement> getAllInterfaces(TypeElement type) {
-        HashSet<TypeElement> ret = new LinkedHashSet<TypeElement>();
-        for (TypeMirror iface : type.getInterfaces()) {
-            TypeElement ifaceElement = getTypeElement(iface);
-            ret.add(ifaceElement);
-            ret.addAll(getAllInterfaces(ifaceElement));
-        }
-        if (type.getKind() == ElementKind.CLASS
-                && !TypesUtils.isObject(type.asType())) {
-            ret.addAll(getAllInterfaces(getTypeElement(type.getSuperclass())));
-        }
-        return ret;
     }
 
     public static TypeElement superType(TypeElement type) {

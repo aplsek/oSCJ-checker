@@ -7,7 +7,6 @@ import javax.lang.model.element.TypeElement;
 import javax.safetycritical.annotate.Level;
 
 import checkers.Utils;
-import checkers.scope.ScopeInfo;
 import checkers.util.TreeUtils;
 
 import com.sun.source.tree.ClassTree;

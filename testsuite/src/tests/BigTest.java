@@ -5,8 +5,6 @@ import java.util.Collection;
 
 import org.junit.runners.Parameterized.Parameters;
 
-
-
 public class BigTest extends ParameterizedCheckerTest {
 
     public BigTest(File testFile) {

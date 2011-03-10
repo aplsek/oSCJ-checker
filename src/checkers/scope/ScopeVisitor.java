@@ -39,7 +39,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.DefineScope;
-import javax.safetycritical.annotate.Scope;
 
 import checkers.SCJVisitor;
 import checkers.Utils;
