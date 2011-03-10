@@ -28,6 +28,7 @@ import javax.safetycritical.annotate.Scope;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 // This assumes there is at most one client for NavigationInfo, and
 // that the single client always waits for a response to a previously
@@ -57,7 +58,6 @@ public class ModulatedQueue {
     pending_request = RequestEncoding.NoRequest;
   }
 
-  @RunsIn(CURRENT)
   void initialize() {
     Services.setCeiling(this, CEILING_PRIORITY);
   }
@@ -70,7 +70,7 @@ public class ModulatedQueue {
    */
 
   // invoked by CommunicationsOversight thread
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   int transmit(@Scope(IMMORTAL) byte[] buffer, int length, int channel_no) {
     // by requiring an immortal buffer, this instance can keep a reference
     // to it.
@@ -100,7 +100,7 @@ public class ModulatedQueue {
   }
 
   // invoked by CommunicationsOversight thread
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   int receive(@Scope(IMMORTAL) byte[] buffer, int length, int channel_no) {
     // by requiring an immortal buffer, this instance can keep a reference
     // to it.
@@ -130,14 +130,14 @@ public class ModulatedQueue {
   }
 
   // invoked by CommunicationsOversight thread
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   void issueShutdownRequest() {
     pending_request = RequestEncoding.RequestShutdown;
     notifyAll();
   }
 
   // invoked by ModulatedService sub-mission
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized RequestEncoding awaitRequest() {
     while (pending_request == RequestEncoding.NoRequest) {
       try {
@@ -152,25 +152,25 @@ public class ModulatedQueue {
   // invoked by ModulatedService sub-mission
   // no synchronization necessary.  we already waited for notification
   // in awaitRequest().
-  @RunsIn(UNKNOWN) @Scope(IMMORTAL)
+  @RunsIn(CALLER) @Scope(IMMORTAL)
   byte[] getBuffer() {
     return pending_xmit_buffer;
   }
 
   // invoked by ModulatedService sub-mission
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   int getBufferLength() {
     return pending_length;
   }
 
   // invoked by ModulatedService sub-mission
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   int getChannel() {
     return pending_channel_no;
   }
 
   // invoked by ModulatedService sub-mission
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized void serviceRequest(int result) {
     int_response = result;
     pending_request = RequestEncoding.ResponseReady;
@@ -178,7 +178,7 @@ public class ModulatedQueue {
   }
 
   // invoked by ModulatedService sub-mission
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized void serviceRequest(long result) {
     long_response = result;
     pending_request = RequestEncoding.ResponseReady;

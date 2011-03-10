@@ -23,6 +23,7 @@ package railsegment;
 
 import javax.realtime.PriorityParameters;
 
+import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 
@@ -35,7 +36,7 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("A")
 public class MobileCommServiceSequencer
-  extends MissionSequencer<MobileCommService>
+  extends MissionSequencer //<MobileCommService>
 {
   private boolean did_mission;
 
@@ -55,7 +56,8 @@ public class MobileCommServiceSequencer
     did_mission = false;
   }
 
-  @RunsIn("H")
+  @Override
+@RunsIn("H")
   protected MobileCommService getNextMission()
   {
     if (!did_mission) {
@@ -66,4 +68,10 @@ public class MobileCommServiceSequencer
       return null;
     }
   }
+
+@Override
+protected Mission getInitialMission() {
+    // TODO Auto-generated method stub
+    return null;
+}
 }

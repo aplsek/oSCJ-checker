@@ -32,7 +32,7 @@ import javax.safetycritical.annotate.Scope;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
-
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 // This assumes there is at most one client for NavigationInfo, and
 // that the single client always waits for a response to a previously
@@ -70,7 +70,6 @@ public class NavigationInfo {
     time2_argument = new AbsoluteTime(0L, 0, train_clock);
   }
 
-  @RunsIn(CURRENT)
   void initialize() {
     Services.setCeiling(this, CEILING_PRIORITY);
   }
@@ -82,7 +81,7 @@ public class NavigationInfo {
    * Updates time_stamp to reflect the time at which the current speed
    * was calculated.
    */
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized int getCurrentSpeed(@Scope(UNKNOWN)
                                           AbsoluteTime time_stamp) {
     pending_request = RequestEncoding.CurrentSpeed;
@@ -106,7 +105,7 @@ public class NavigationInfo {
    * Updates time_stamp to reflect the time at which this returned current
    * position was sampled.
    */
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized long getCurrentPosition(@Scope(UNKNOWN)
                                               AbsoluteTime time_stamp) {
     // mimic the behavior of getCurrentSpeed to exchange request and
@@ -115,7 +114,7 @@ public class NavigationInfo {
     return 0L;
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized int trackSegmentLength(int segment_no) {
     // mimic the behavior of getCurrentSpeed to exchange request and
     // response with the NavigationOversight thread.
@@ -128,7 +127,7 @@ public class NavigationInfo {
    *
    * Assume the entire track segment has the same speed limit.
    */
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized int trackSegmentSpeed(int segment_no) {
     // mimic the behavior of getCurrentSpeed to exchange request and
     // response with the NavigationOversight thread.
@@ -143,7 +142,7 @@ public class NavigationInfo {
    *  -1: switch to the left
    *   1: switch to the right
    */
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized int trackSegmentSwitch(int segment_no) {
     // mimic the behavior of getCurrentSpeed to exchange request and
     // response with the NavigationOversight thread.
@@ -151,7 +150,7 @@ public class NavigationInfo {
     return 0;
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized int nextSegment(int segment_no) {
     // mimic the behavior of getCurrentSpeed to exchange request and
     // response with the NavigationOversight thread.
@@ -159,7 +158,7 @@ public class NavigationInfo {
     return 0;
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized int prevSegment(int segment_no) {
     // mimic the behavior of getCurrentSpeed to exchange request and
     // response with the NavigationOversight thread.
@@ -173,7 +172,7 @@ public class NavigationInfo {
    * Updates timestamp to reflect time of report.  Updates schedule to
    * reflect scheduled time of arrival.
    */
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized long nextStop(@Scope(UNKNOWN) AbsoluteTime time_stamp,
                                     @Scope(UNKNOWN) AbsoluteTime schedule) {
     // mimic the behavior of getCurrentSpeed to exchange request and
@@ -183,7 +182,7 @@ public class NavigationInfo {
   }
 
   // invoked by the NavigationOversight thread
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized RequestEncoding awaitRequest() {
     while (pending_request == RequestEncoding.NoRequest) {
       try {
@@ -195,18 +194,18 @@ public class NavigationInfo {
     return pending_request;
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   private final void overwriteTime1(long millis, int nanos) {
     time1_argument.set(millis, nanos);
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   private final void overwriteTime2(long millis, int nanos) {
     time2_argument.set(millis, nanos);
   }
 
   // invoked by the NavigationOversight thread
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized void serviceRequest(int result) {
     int_response = result;
     pending_request = RequestEncoding.ResponseReady;
@@ -214,7 +213,7 @@ public class NavigationInfo {
   }
 
   // invoked by the NavigationOversight thread
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized void serviceRequest(long result) {
     long_response = result;
     pending_request = RequestEncoding.ResponseReady;

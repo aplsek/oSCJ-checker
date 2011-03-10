@@ -28,9 +28,10 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.CURRENT;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 @DefineScope(name="B", parent="TM")
 @Scope("B")
@@ -65,7 +66,6 @@ public class TrainControl extends Mission
   }
 
   @Override
-@RunsIn(CURRENT)
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -74,7 +74,6 @@ public class TrainControl extends Mission
   }
 
   @Override
-@RunsIn(CURRENT)
   public void initialize()
   {
     // TODO: later, we should declare the various subtypes and
@@ -104,7 +103,7 @@ public class TrainControl extends Mission
   }
 
   @Override
-@RunsIn(UNKNOWN)
+@RunsIn(CALLER)
   public void requestTermination()
   {
     // something special to coordinate with the NHRT thread

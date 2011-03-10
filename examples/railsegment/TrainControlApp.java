@@ -35,7 +35,7 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope(IMMORTAL)
-public class TrainControlApp extends LinearMissionSequencer<TrainMission>
+public class TrainControlApp extends LinearMissionSequencer
   implements Safelet {
 
   public static final int SequencerPriority = 32;
@@ -51,17 +51,14 @@ public class TrainControlApp extends LinearMissionSequencer<TrainMission>
   // Inherits getNextMission() from LinearMissionSequencer
 
   // The following three methods implement the Safelet interface
-  @RunsIn(CURRENT)
   public LinearMissionSequencer getSequencer() {
     return this;
   }
 
-  @RunsIn(CURRENT)
   public void setUp() {
     // do nothing
   }
 
-  @RunsIn(CURRENT)
   public void tearDown() {
     // do nothing
   }

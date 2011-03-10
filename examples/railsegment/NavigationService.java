@@ -33,6 +33,8 @@ import javax.safetycritical.annotate.Scope;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.CALLER;
+
 
 @DefineScope(name="D", parent = "TM")
 @Scope("D")
@@ -74,7 +76,6 @@ class NavigationService extends Mission {
   }
 
   @Override
-@RunsIn(CURRENT)
   public final long missionMemorySize()
   {
     // This must be large enough to hold each of the four submissions,
@@ -84,7 +85,6 @@ class NavigationService extends Mission {
   }
 
   @Override
-@RunsIn(CURRENT)
   public void initialize() {
     // This is where I'd like to set my ceiling.  Confirm that it is
     // ok here.  The following assumes the GPS_PRIORITY > NAV_LOOKUP_PRIORITY
@@ -99,13 +99,12 @@ class NavigationService extends Mission {
                                          route_data, NAV_LOOKUP_PRIORITY);
   }
 
-  @RunsIn(CURRENT)
   public void cleanup() {
 
   }
 
   @Override
-@RunsIn(UNKNOWN)
+@RunsIn(CALLER)
   public void requestTermination() {
 
   }
@@ -117,7 +116,7 @@ class NavigationService extends Mission {
   AbsoluteTime update_time;
 
   // called periodically by the GPS Driver
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized void updatePosition(@Scope(UNKNOWN) AbsoluteTime time_stamp,
                                    int longitude, int lattitude) {
 
@@ -138,7 +137,7 @@ class NavigationService extends Mission {
   }
 
   // return the most recently measured speed in tenths of mile per hour
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized int getSpeed() {
     // calculate distance between prior_longitude, prior_lattitude and
     // current longitude, lattitude.
@@ -163,7 +162,7 @@ class NavigationService extends Mission {
    *     -------------- * --------------  = ----------------
    *      360 degrees     10^6 millionths   millionth degree
    */
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized long getPosition(@Scope(UNKNOWN) AbsoluteTime time_stamp) {
 
     if ((time_stamp != null) && (time_stamp.getClock() != train_clock)) {

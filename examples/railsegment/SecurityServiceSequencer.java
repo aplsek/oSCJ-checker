@@ -23,6 +23,7 @@ package railsegment;
 
 import javax.realtime.PriorityParameters;
 
+import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 
@@ -34,37 +35,45 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("A")
+
 public class SecurityServiceSequencer
-  extends MissionSequencer<SecurityService>
+extends MissionSequencer //<SecurityService>
 {
-  private boolean did_mission;
+    private boolean did_mission;
 
-  private final int SECURITY_PRIORITY;
-  private final CypherQueue cypher_data;
+    private final int SECURITY_PRIORITY;
+    private final CypherQueue cypher_data;
 
-  public SecurityServiceSequencer(final int security_priority,
-                                  CypherQueue cypher_data)
-  {
-    super(new PriorityParameters(security_priority),
-          new StorageParameters(SecurityService.BackingStoreRequirements,
-                                SecurityService.NativeStackRequirements,
-                                SecurityService.JavaStackRequirements),
-          "Communication Services Sequencer");
+    public SecurityServiceSequencer(final int security_priority,
+            CypherQueue cypher_data)
+    {
+        super(new PriorityParameters(security_priority),
+                new StorageParameters(SecurityService.BackingStoreRequirements,
+                        SecurityService.NativeStackRequirements,
+                        SecurityService.JavaStackRequirements),
+                        "Communication Services Sequencer");
 
-    SECURITY_PRIORITY = security_priority;
-    this.cypher_data = cypher_data;
-    did_mission = false;
-  }
-
-  @RunsIn("E")
-  protected SecurityService getNextMission()
-  {
-    if (!did_mission) {
-      did_mission = true;
-      return new SecurityService(SECURITY_PRIORITY, cypher_data);
+        SECURITY_PRIORITY = security_priority;
+        this.cypher_data = cypher_data;
+        did_mission = false;
     }
-    else {
-      return null;
+
+    @Override
+    @RunsIn("E")
+    protected SecurityService getNextMission()
+    {
+        if (!did_mission) {
+            did_mission = true;
+            return new SecurityService(SECURITY_PRIORITY, cypher_data);
+        }
+        else {
+            return null;
+        }
     }
-  }
+
+    @Override
+    protected Mission getInitialMission() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

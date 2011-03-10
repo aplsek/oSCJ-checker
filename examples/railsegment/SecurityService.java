@@ -29,7 +29,7 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
-
+import static javax.safetycritical.annotate.Scope.CALLER;
 @DefineScope(name="E", parent="A")
 @Scope("E")
 public class SecurityService extends Mission
@@ -59,7 +59,6 @@ public class SecurityService extends Mission
   }
 
   @Override
-@RunsIn(CURRENT)
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -68,7 +67,6 @@ public class SecurityService extends Mission
   }
 
   @Override
-@RunsIn(CURRENT)
   public void initialize()
   {
     // Let's assume there are two schedulables here.
@@ -84,7 +82,7 @@ public class SecurityService extends Mission
   }
 
   @Override
-@RunsIn(UNKNOWN)
+@RunsIn(CALLER)
   public void requestTermination()
   {
     // do something special to coordinate with the NHRT thread

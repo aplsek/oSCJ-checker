@@ -32,6 +32,7 @@ import javax.safetycritical.annotate.Scope;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 @Scope("F")
 class ModulatedOversight extends NoHeapRealtimeThread {
@@ -60,7 +61,7 @@ class ModulatedOversight extends NoHeapRealtimeThread {
 
   private boolean stop_me = false;
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized void requestTermination() {
     stop_me = true;
 
@@ -68,12 +69,13 @@ class ModulatedOversight extends NoHeapRealtimeThread {
     // comms_data.smc.issueApplicationRequest();
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   private synchronized boolean terminationRequested() {
     return stop_me;
   }
 
-  @DefineScope(name="MO_Private", parent="F")
+  @Override
+@DefineScope(name="MO_Private", parent="F")
   @RunsIn("MO_Private")
   public final void run() {
     byte[] buffer = null;

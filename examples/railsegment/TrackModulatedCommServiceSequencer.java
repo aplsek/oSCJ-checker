@@ -22,6 +22,7 @@
 package railsegment;
 
 import javax.realtime.PriorityParameters;
+import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 
@@ -33,37 +34,41 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("A")
-public class TrackModulatedCommServiceSequencer
-  extends MissionSequencer<ModulatedCommService>
+public class TrackModulatedCommServiceSequencer extends MissionSequencer // <ModulatedCommService>
 {
-  private boolean did_mission;
+    private boolean did_mission;
 
-  private final int MODULATED_PRIORITY;
-  private final ModulatedQueue modulated_data;
+    private final int MODULATED_PRIORITY;
+    private final ModulatedQueue modulated_data;
 
-  public TrackModulatedCommServiceSequencer(final int modulated_priority,
-                                            ModulatedQueue modulated_data)
-  {
-    super(new PriorityParameters(modulated_priority),
-          new StorageParameters(ModulatedCommService.BackingStoreRequirements,
-                                ModulatedCommService.NativeStackRequirements,
-                                ModulatedCommService.JavaStackRequirements),
-          "Communication Services Sequencer");
+    public TrackModulatedCommServiceSequencer(final int modulated_priority,
+            ModulatedQueue modulated_data) {
+        super(new PriorityParameters(modulated_priority),
+                new StorageParameters(
+                        ModulatedCommService.BackingStoreRequirements,
+                        ModulatedCommService.NativeStackRequirements,
+                        ModulatedCommService.JavaStackRequirements),
+                "Communication Services Sequencer");
 
-    MODULATED_PRIORITY = modulated_priority;
-    this.modulated_data = modulated_data;
-    did_mission = false;
-  }
-
-  @RunsIn("F")
-  protected ModulatedCommService getNextMission()
-  {
-    if (!did_mission) {
-      did_mission = true;
-      return new ModulatedCommService(MODULATED_PRIORITY, modulated_data);
+        MODULATED_PRIORITY = modulated_priority;
+        this.modulated_data = modulated_data;
+        did_mission = false;
     }
-    else {
-      return null;
+
+    @Override
+    @RunsIn("F")
+    protected ModulatedCommService getNextMission() {
+        if (!did_mission) {
+            did_mission = true;
+            return new ModulatedCommService(MODULATED_PRIORITY, modulated_data);
+        } else {
+            return null;
+        }
     }
-  }
+
+    @Override
+    protected Mission getInitialMission() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

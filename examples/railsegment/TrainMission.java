@@ -33,6 +33,8 @@ import javax.safetycritical.annotate.Scope;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.CALLER;
+
 
 @DefineScope(name="TM", parent=IMMORTAL)
 @Scope(IMMORTAL)
@@ -105,7 +107,6 @@ public class TrainMission extends Mission
   }
 
   @Override
-@RunsIn(CURRENT)
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -114,7 +115,6 @@ public class TrainMission extends Mission
   }
 
   @Override
-@RunsIn(CURRENT)
   public void initialize() {
     // it all happens here instead
 
@@ -155,7 +155,7 @@ public class TrainMission extends Mission
   // does nothing.
 
   @Override
-@RunsIn(UNKNOWN)
+@RunsIn(CALLER)
   public void requestTermination()
   {
     commsq.requestSequenceTermination();

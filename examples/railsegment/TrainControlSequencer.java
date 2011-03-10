@@ -23,6 +23,7 @@ package railsegment;
 
 import javax.realtime.PriorityParameters;
 
+import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 
@@ -35,47 +36,51 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 import railsegment.clock.SynchronizedTime;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+
 @Scope("TM")
-public class TrainControlSequencer extends MissionSequencer<TrainControl>
+public class TrainControlSequencer extends MissionSequencer // <TrainControl>
 {
-  private boolean did_mission;
+    private boolean did_mission;
 
-  private final int CONTROL_PRIORITY;
+    private final int CONTROL_PRIORITY;
 
-  private final CommunicationsQueue comms_data;
-  private final SynchronizedTime times_data;
-  private final NavigationInfo navs_data;
+    private final CommunicationsQueue comms_data;
+    private final SynchronizedTime times_data;
+    private final NavigationInfo navs_data;
 
-  public TrainControlSequencer(final int CONTROL_PRIORITY,
-                               CommunicationsQueue comms_data,
-                               SynchronizedTime times_data,
-                               NavigationInfo navs_data)
-  {
-    super(new PriorityParameters(CONTROL_PRIORITY),
-          new StorageParameters(TrainControl.BackingStoreRequirements,
-                                TrainControl.NativeStackRequirements,
-                                TrainControl.JavaStackRequirements),
-          "Train Control Sequencer");
+    public TrainControlSequencer(final int CONTROL_PRIORITY,
+            CommunicationsQueue comms_data, SynchronizedTime times_data,
+            NavigationInfo navs_data) {
+        super(new PriorityParameters(CONTROL_PRIORITY), new StorageParameters(
+                TrainControl.BackingStoreRequirements,
+                TrainControl.NativeStackRequirements,
+                TrainControl.JavaStackRequirements), "Train Control Sequencer");
 
-    this.CONTROL_PRIORITY = CONTROL_PRIORITY;
+        this.CONTROL_PRIORITY = CONTROL_PRIORITY;
 
-    this.comms_data = comms_data;
-    this.times_data = times_data;
-    this.navs_data = navs_data;
+        this.comms_data = comms_data;
+        this.times_data = times_data;
+        this.navs_data = navs_data;
 
-    did_mission = false;
-  }
-
-  @RunsIn("B")
-  public TrainControl getNextMission()
-  {
-    if (!did_mission) {
-      did_mission = true;
-      return new TrainControl(comms_data,
-                              times_data, navs_data, CONTROL_PRIORITY);
+        did_mission = false;
     }
-    else {
-      return null;
+
+    @Override
+    @RunsIn("B")
+    public TrainControl getNextMission() {
+        if (!did_mission) {
+            did_mission = true;
+            return new TrainControl(comms_data, times_data, navs_data,
+                    CONTROL_PRIORITY);
+        } else {
+            return null;
+        }
     }
-  }
+
+    @Override
+    protected Mission getInitialMission() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

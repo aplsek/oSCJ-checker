@@ -32,6 +32,7 @@ import javax.safetycritical.annotate.Scope;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 @Scope("G")
 class SatOversight extends NoHeapRealtimeThread {
@@ -58,19 +59,20 @@ class SatOversight extends NoHeapRealtimeThread {
 
   private boolean stop_me = false;
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized void requestTermination() {
     stop_me = true;
     // I think this serves to unblock blocked threads, including myself
     // comms_data.smc.issueApplicationRequest();
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   private synchronized boolean terminationRequested() {
     return stop_me;
   }
 
-  @DefineScope(name="SO_Private", parent="G")
+  @Override
+@DefineScope(name="SO_Private", parent="G")
   @RunsIn("SO_Private")
   public final void run() {
     byte[] buffer = null;

@@ -32,6 +32,7 @@ import javax.safetycritical.annotate.Scope;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 @Scope("E")
 class SecurityOversight extends NoHeapRealtimeThread {
@@ -60,19 +61,20 @@ class SecurityOversight extends NoHeapRealtimeThread {
 
   private boolean stop_me = false;
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized void requestTermination() {
     stop_me = true;
     // assume termination request is propagated top down.
     //   comms_data.smc.issueApplicationRequest();
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   private synchronized boolean terminationRequested() {
     return stop_me;
   }
 
-  @DefineScope(name="SO_Private", parent="E")
+  @Override
+@DefineScope(name="SO_Private", parent="E")
   @RunsIn("SO_Private")
   public final void run() {
     byte[] buffer = null;
@@ -173,7 +175,7 @@ class SecurityOversight extends NoHeapRealtimeThread {
   }
 
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   private void internalError() {
     System.exit(-1);
   }

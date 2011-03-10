@@ -4,3 +4,10 @@ Changes in Annotations
 
 @RunsIn on constructors
 - constructors run in the same scope as is the @Scope of the Type
+
+@RunsIn(CURRENT) 
+- deleted
+- now equivalent to @RunsIn(THIS) and this value is given by default
+
+Generics
+ - commenting out generics
