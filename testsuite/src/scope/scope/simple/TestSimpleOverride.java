@@ -8,7 +8,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 public class TestSimpleOverride {
 
     static class A extends Mission {

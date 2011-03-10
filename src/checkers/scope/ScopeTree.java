@@ -59,10 +59,6 @@ public class ScopeTree {
         scopeMap.put(name, node);
     }
 
-    public void printTree() {
-        System.out.println("SCOPE TREE : \n" + scopeTree.toString());
-    }
-
     public void dumpTree() {
         for (Map.Entry<ScopeInfo, ScopeInfo> entry : scopeTree.entrySet()) {
             ScopeInfo scope = entry.getKey();

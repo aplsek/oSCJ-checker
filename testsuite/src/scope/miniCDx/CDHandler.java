@@ -18,9 +18,9 @@ import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope("CDMission")
-@DefineScope(name = "CDHandler", parent = "CDMission")
+@DefineScope(name="CDHandler", parent="CDMission")
 public class CDHandler extends PeriodicEventHandler {
     StateTable st;
     boolean stop = false;

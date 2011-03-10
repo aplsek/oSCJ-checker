@@ -203,7 +203,7 @@
             <batchtest todir="${build.reports}">
                 <fileset dir="testsuite/src/">
                     <include name="tests/SCJAllowedTestSimple.java" />
-                  <include name="tests/SCJAllowedTestSanity.java" />
+                    <include name="tests/SCJAllowedTestSanity.java" />
                     <!-- Framework classes -->
                     <exclude name="tests/CheckerTest.java"/>
                     <exclude name="tests/ParameterizedCheckerTest.java"/>

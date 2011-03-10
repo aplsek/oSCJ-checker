@@ -102,6 +102,10 @@ public class ScopeInfo {
                 || isPrimitive() || isThis());
     }
 
+    public boolean isValidRunsIn(ScopeTree scopeTree) {
+        return scopeTree.hasScope(this) || isCaller() || isThis();
+    }
+
     public boolean isValidVariableScope(VariableElement v, ScopeTree scopeTree) {
         if (Utils.isStatic(v) && isThis())
             return false;

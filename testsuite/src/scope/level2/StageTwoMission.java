@@ -13,7 +13,7 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 @SCJAllowed(members=true, value=LEVEL_2)
 @Scope("StageTwoMission")
-@DefineScope(name = "StageTwoMission", parent = Scope.IMMORTAL)
+@DefineScope(name="StageTwoMission", parent=Scope.IMMORTAL)
 public class StageTwoMission extends Mission {
 	private static final int MISSION_MEMORY_SIZE = 10000;
 

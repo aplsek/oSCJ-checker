@@ -5,7 +5,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 
 import static javax.safetycritical.annotate.Scope.CALLER;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 public class Vector3d {
     @RunsIn(CALLER)
     public void update() {

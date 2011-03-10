@@ -35,9 +35,9 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope("APP")
-@DefineScope(name = "APP", parent = Scope.IMMORTAL)
+@DefineScope(name="APP", parent=Scope.IMMORTAL)
 public class MyApp4 extends CyclicExecutive {
 
 	static PriorityParameters p = new PriorityParameters(18);

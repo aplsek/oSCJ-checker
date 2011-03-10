@@ -19,9 +19,9 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope("MyApp")
-@DefineScope(name = "MyPEH", parent = "MyApp")
+@DefineScope(name="MyPEH", parent="MyApp")
 public class MyPEH extends PeriodicEventHandler {
 
     static PriorityParameters pri;
@@ -59,7 +59,7 @@ public class MyPEH extends PeriodicEventHandler {
         };
 
         @Scope("MyApp")
-        @DefineScope(name = "RunScope", parent = "MyPEH")
+        @DefineScope(name="RunScope", parent="MyPEH")
         ManagedMemory m = ManagedMemory.getCurrentManagedMemory();
         m.enterPrivateMemory(8000, r);
 

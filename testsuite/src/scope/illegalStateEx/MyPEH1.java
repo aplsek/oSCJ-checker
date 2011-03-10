@@ -18,9 +18,9 @@ import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.DefineScope;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope("MyApp")
-@DefineScope(name = "MyPEH1", parent = "MyApp")
+@DefineScope(name="MyPEH1", parent="MyApp")
 class MyPEH1 extends PeriodicEventHandler {
 
     static PriorityParameters pri;

@@ -16,7 +16,7 @@ import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 
 @Scope(IMMORTAL)
-@SCJAllowed(value = LEVEL_1, members = true)
+@SCJAllowed(value=LEVEL_1, members=true)
 public class OneSequencer extends MissionSequencer {
     @SCJRestricted(INITIALIZATION)
     OneSequencer(PriorityParameters p, StorageParameters s) {

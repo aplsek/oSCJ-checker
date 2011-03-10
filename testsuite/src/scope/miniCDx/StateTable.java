@@ -22,7 +22,7 @@ import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.RunsIn;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope("CDMission")
 public class StateTable {
     Vector3d[] allocatedVectors = new Vector3d[1000];
@@ -43,7 +43,7 @@ public class StateTable {
             r.cs = cs; // DYNAMIC GUARD
 
         @Scope(Scope.IMMORTAL)
-        @DefineScope(name = "CDMission", parent = Scope.IMMORTAL)
+        @DefineScope(name="CDMission", parent=Scope.IMMORTAL)
         MemoryArea m = MemoryArea.getMemoryArea(this);
         m.executeInArea(r);
     }

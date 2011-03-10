@@ -13,9 +13,9 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope("Level0App")
-@DefineScope(name = "Level0App", parent = IMMORTAL)
+@DefineScope(name="Level0App", parent=IMMORTAL)
 public class Level0App extends CyclicExecutive {
 
     @SCJRestricted(INITIALIZATION)

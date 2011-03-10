@@ -9,7 +9,7 @@ import javax.safetycritical.annotate.Scope;
 @SCJAllowed
 public class TestBadInfrastructureCall {
     @Scope(Scope.IMMORTAL)
-    @DefineScope(name = "a", parent = Scope.IMMORTAL)
+    @DefineScope(name="a", parent=Scope.IMMORTAL)
     MemoryArea mem;
 
     @SCJAllowed
@@ -18,6 +18,6 @@ public class TestBadInfrastructureCall {
         mem.enter(null);
     }
 
-    @DefineScope(name = "a", parent = Scope.IMMORTAL)
+    @DefineScope(name="a", parent=Scope.IMMORTAL)
     abstract static class X extends Mission { }
 }

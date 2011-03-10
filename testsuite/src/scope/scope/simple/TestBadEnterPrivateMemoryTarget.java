@@ -9,7 +9,7 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.RunsIn;
 
-@DefineScope(name = "a", parent = Scope.IMMORTAL)
+@DefineScope(name="a", parent=Scope.IMMORTAL)
 @Scope("a")
 public abstract class TestBadEnterPrivateMemoryTarget extends Mission {
     public void bar() {
@@ -25,7 +25,7 @@ public abstract class TestBadEnterPrivateMemoryTarget extends Mission {
     @DefineScope(name="b", parent="a")
     static abstract class X extends Mission { }
 
-    @SCJAllowed(members = true)
+    @SCJAllowed(members=true)
     @Scope("a")
     @DefineScope(name="c", parent="a")
     static class Z implements SCJRunnable {

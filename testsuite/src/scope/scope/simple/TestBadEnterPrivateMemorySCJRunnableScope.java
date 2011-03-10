@@ -9,13 +9,13 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.RunsIn;
 
-@DefineScope(name = "a", parent = Scope.IMMORTAL)
+@DefineScope(name="a", parent=Scope.IMMORTAL)
 @Scope("a")
 public abstract class TestBadEnterPrivateMemorySCJRunnableScope extends Mission {
     public void bar() {
 
         @Scope(Scope.IMMORTAL)
-        @DefineScope(name = "a", parent = Scope.IMMORTAL)
+        @DefineScope(name="a", parent=Scope.IMMORTAL)
         ManagedMemory mem = null;
         Y y = new Y();
         //## checkers.scope.ScopeChecker.ERR_SCJ_RUNNABLE_BAD_SCOPE
@@ -23,12 +23,12 @@ public abstract class TestBadEnterPrivateMemorySCJRunnableScope extends Mission 
     }
 
     @Scope("a")
-    @DefineScope(name = "b", parent = "a")
+    @DefineScope(name="b", parent="a")
     static abstract class X extends Mission {
     }
 
-    @SCJAllowed(members = true)
-    @DefineScope(name = "c", parent = "a")
+    @SCJAllowed(members=true)
+    @DefineScope(name="c", parent="a")
     static class Y implements SCJRunnable {
         @RunsIn("c")
         public void run() {

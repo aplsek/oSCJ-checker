@@ -18,9 +18,9 @@ import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope("APP")
-@DefineScope(name = "PEH", parent = "APP")
+@DefineScope(name="PEH", parent="APP")
 public class MyPEH4 extends PeriodicEventHandler {
 
     static PriorityParameters pri;
@@ -47,7 +47,7 @@ public class MyPEH4 extends PeriodicEventHandler {
     public void handleAsyncEvent() {
         try {
             @Scope(Scope.IMMORTAL)
-            @DefineScope(name = "APP", parent = Scope.IMMORTAL)
+            @DefineScope(name="APP", parent=Scope.IMMORTAL)
             ManagedMemory m = (ManagedMemory) MemoryArea.getMemoryArea(this);
 
             Tick time = (Tick) m.newInstance(Tick.class);

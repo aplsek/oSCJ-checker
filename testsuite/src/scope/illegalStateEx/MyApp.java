@@ -36,9 +36,9 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import javax.safetycritical.annotate.Scope;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope("MyApp")
-@DefineScope(name = "MyApp", parent = Scope.IMMORTAL)
+@DefineScope(name="MyApp", parent=Scope.IMMORTAL)
 public class MyApp extends CyclicExecutive {
 
     public PrivateMemory pri;

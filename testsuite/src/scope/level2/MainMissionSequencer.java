@@ -12,7 +12,7 @@ import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
-@SCJAllowed(members = true, value = LEVEL_2)
+@SCJAllowed(members=true, value=LEVEL_2)
 @Scope(Scope.IMMORTAL)
 public class MainMissionSequencer extends MissionSequencer {
 

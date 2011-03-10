@@ -16,9 +16,9 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope("MyApp")
-@DefineScope(name = "MyPEH", parent = "MyApp")
+@DefineScope(name="MyPEH", parent="MyApp")
 public class MyPEH extends PeriodicEventHandler {
 
     static PriorityParameters pri;
