@@ -361,12 +361,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         ScopeInfo runsIn = ann != null ? new ScopeInfo(ann.value())
                 : Utils.getDefaultMethodRunsIn(m);
 
-
         // UNKNOWN is no longer a valid RunsIn annotation.
-        if (!(scopeTree.hasScope(runsIn) || runsIn.isCaller() || runsIn
-                .isThis())) {
+        if (!runsIn.isValidRunsIn(scopeTree))
             fail(ERR_BAD_SCOPE_NAME, node, errNode, runsIn);
-        }
         if (Utils.isStatic(m) && runsIn.isThis())
             fail(ERR_BAD_SCOPE_NAME, node, errNode, runsIn);
 

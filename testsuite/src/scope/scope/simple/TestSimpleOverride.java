@@ -1,6 +1,7 @@
 package scope.scope.simple;
 
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
@@ -8,7 +9,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 public class TestSimpleOverride {
 
     static class A extends Mission {
@@ -34,7 +35,7 @@ public class TestSimpleOverride {
     }
 
     @Scope("ONE")
-    @DefineScope(name="ONE", parent=Scope.IMMORTAL)
+    @DefineScope(name="ONE", parent=IMMORTAL)
     static abstract class B extends A {
 
         A aa;

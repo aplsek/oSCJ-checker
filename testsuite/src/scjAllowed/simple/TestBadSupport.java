@@ -1,16 +1,17 @@
 package scjAllowed.simple;
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
+
 import javax.safetycritical.SCJRunnable;
-import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
 
 @SCJAllowed
 public class TestBadSupport implements SCJRunnable {
-    @SCJAllowed(Level.SUPPORT)
+    @SCJAllowed(SUPPORT)
     //## checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_SUPPORT
     public void foo() { }
 
     @Override
-    @SCJAllowed(Level.SUPPORT)
+    @SCJAllowed(SUPPORT)
     public void run() { }
 }

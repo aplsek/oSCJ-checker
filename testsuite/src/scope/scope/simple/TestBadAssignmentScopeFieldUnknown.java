@@ -1,17 +1,19 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.annotate.Scope;
 
 public class TestBadAssignmentScopeFieldUnknown {
     static class X {
         Y y1;
-        @Scope(Scope.UNKNOWN) Y y2;
+        @Scope(UNKNOWN) Y y2;
     }
     static class Y {
     }
 
-    void foo(final @Scope(Scope.UNKNOWN) X x, final Y y) {
+    void foo(final @Scope(UNKNOWN) X x, final Y y) {
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
         x.y1 = y;
         if (ManagedMemory.allocInSame(x, y)) {

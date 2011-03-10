@@ -1,12 +1,14 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-@DefineScope(name="a", parent=Scope.IMMORTAL)
+@DefineScope(name="a", parent=IMMORTAL)
 @Scope("a")
 public abstract class TestMemoryAreaDefineScopeNotConsistentWithScopeGetCurrentManagedMemory
         extends Mission {
@@ -15,8 +17,8 @@ public abstract class TestMemoryAreaDefineScopeNotConsistentWithScopeGetCurrentM
     @DefineScope(name="b", parent="a")
     static abstract class X extends Mission {
         public void foo() throws InstantiationException, IllegalAccessException {
-            @Scope(Scope.IMMORTAL)
-            @DefineScope(name="a", parent=Scope.IMMORTAL)
+            @Scope(IMMORTAL)
+            @DefineScope(name="a", parent=IMMORTAL)
             ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
         }
 

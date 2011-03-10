@@ -1,5 +1,10 @@
 package scope.level2;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
@@ -8,12 +13,8 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Level.LEVEL_2;
-import static javax.safetycritical.annotate.Level.SUPPORT;
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-
-@SCJAllowed(members = true, value = LEVEL_2)
-@Scope(Scope.IMMORTAL)
+@SCJAllowed(members=true, value=LEVEL_2)
+@Scope(IMMORTAL)
 public class MainMissionSequencer extends MissionSequencer {
 
     private boolean initialized, finalized;

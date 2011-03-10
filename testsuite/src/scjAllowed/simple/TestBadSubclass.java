@@ -1,9 +1,10 @@
 package scjAllowed.simple;
 
-import javax.safetycritical.annotate.Level;
+import static javax.safetycritical.annotate.Level.LEVEL_1;
+
 import javax.safetycritical.annotate.SCJAllowed;
 
-@SCJAllowed(Level.LEVEL_1)
+@SCJAllowed(LEVEL_1)
 public class TestBadSubclass { }
 
 @SCJAllowed

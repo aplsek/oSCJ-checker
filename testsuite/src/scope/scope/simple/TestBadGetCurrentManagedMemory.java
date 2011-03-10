@@ -1,20 +1,22 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
-import javax.safetycritical.annotate.Scope;
 
-@DefineScope(name="a", parent=Scope.IMMORTAL)
+@DefineScope(name="a", parent=IMMORTAL)
 public abstract class TestBadGetCurrentManagedMemory extends Mission {
-    @RunsIn(Scope.IMMORTAL)
+    @RunsIn(IMMORTAL)
     void foo() {
         //## checkers.scope.ScopeChecker.ERR_BAD_GET_CURRENT_MANAGED_MEMORY
         ManagedMemory.getCurrentManagedMemory();
     }
 
-    @RunsIn(Scope.CALLER)
+    @RunsIn(CALLER)
     void bar() {
         //## checkers.scope.ScopeChecker.ERR_BAD_GET_CURRENT_MANAGED_MEMORY
         ManagedMemory.getCurrentManagedMemory();

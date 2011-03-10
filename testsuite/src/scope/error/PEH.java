@@ -1,5 +1,6 @@
 package scope.error;
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
@@ -14,11 +15,10 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
-import javax.safetycritical.annotate.Level;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope("APP")
-@DefineScope(name = "PEH", parent = "APP")
+@DefineScope(name="PEH", parent="APP")
 class PEH extends PeriodicEventHandler {
 
     static PriorityParameters pri;
@@ -40,7 +40,7 @@ class PEH extends PeriodicEventHandler {
     List a = new List();
 
     @Override
-    @SCJAllowed(Level.SUPPORT)
+    @SCJAllowed(SUPPORT)
     @RunsIn("PEH")
     public void handleAsyncEvent() {
         List b = new List();

@@ -1,13 +1,15 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.realtime.MemoryArea;
-import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.Scope;
 
-@DefineScope(name="a", parent=Scope.IMMORTAL)
+@DefineScope(name="a", parent=IMMORTAL)
 @Scope("a")
 public abstract class TestBadGetMemoryArea2 extends Mission {
     @Scope("a")

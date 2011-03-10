@@ -1,30 +1,21 @@
 package scope.miniCDx;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 import java.util.HashMap;
 
+import javax.realtime.MemoryArea;
+import javax.safetycritical.ManagedMemory;
+import javax.safetycritical.SCJRunnable;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
-import javax.realtime.MemoryArea;
-import javax.realtime.PeriodicParameters;
-import javax.realtime.PriorityParameters;
-import javax.realtime.RelativeTime;
-import javax.safetycritical.ManagedMemory;
-import javax.safetycritical.Mission;
-import javax.safetycritical.PeriodicEventHandler;
-import javax.safetycritical.SCJRunnable;
-import javax.safetycritical.StorageParameters;
-import javax.safetycritical.annotate.DefineScope;
-import javax.safetycritical.annotate.SCJRestricted;
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-import static javax.safetycritical.annotate.Phase.CLEANUP;
-import javax.safetycritical.annotate.Scope;
-import javax.safetycritical.annotate.RunsIn;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 import static javax.safetycritical.annotate.Scope.CALLER;
 
-
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope("CDMission")
 public class StateTable {
     Vector3d[] allocatedVectors = new Vector3d[1000];
@@ -44,8 +35,8 @@ public class StateTable {
         if (ManagedMemory.allocInSame(r, cs))
             r.cs = cs; // DYNAMIC GUARD
 
-        @Scope(Scope.IMMORTAL)
-        @DefineScope(name = "CDMission", parent = Scope.IMMORTAL)
+        @Scope(IMMORTAL)
+        @DefineScope(name="CDMission", parent=IMMORTAL)
         MemoryArea m = MemoryArea.getMemoryArea(this);
         m.executeInArea(r);
     }

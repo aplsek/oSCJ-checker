@@ -14,9 +14,9 @@ import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
-@SCJAllowed(members = true, value = LEVEL_2)
+@SCJAllowed(members=true, value=LEVEL_2)
 @Scope("PrimaryMission")
-@DefineScope(name = "MyPeriodicEventHandler", parent = "PrimaryMission")
+@DefineScope(name="MyPeriodicEventHandler", parent="PrimaryMission")
 public class MyPeriodicEventHandler extends PeriodicEventHandler {
     private static final int _priority = 17;
     private static final int _memSize = 5000;

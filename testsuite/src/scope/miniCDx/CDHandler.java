@@ -4,10 +4,6 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import java.util.List;
 
-import javax.safetycritical.annotate.RunsIn;
-import javax.safetycritical.annotate.SCJAllowed;
-import javax.safetycritical.annotate.SCJRestricted;
-import javax.safetycritical.annotate.Scope;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.realtime.RelativeTime;
@@ -17,10 +13,14 @@ import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope("CDMission")
-@DefineScope(name = "CDHandler", parent = "CDMission")
+@DefineScope(name="CDHandler", parent="CDMission")
 public class CDHandler extends PeriodicEventHandler {
     StateTable st;
     boolean stop = false;

@@ -1,5 +1,9 @@
 package scope.miniCDx;
 
+import static javax.safetycritical.annotate.Phase.CLEANUP;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.realtime.PriorityParameters;
 import javax.realtime.RelativeTime;
 import javax.safetycritical.CyclicExecutive;
@@ -8,18 +12,15 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
-
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-import static javax.safetycritical.annotate.Phase.CLEANUP;
 import javax.safetycritical.annotate.Scope;
-import javax.safetycritical.annotate.RunsIn;
 
 @Scope("CDMission")
-@SCJAllowed(members = true)
-@DefineScope(name = "CDMission", parent = Scope.IMMORTAL)
+@SCJAllowed(members=true)
+@DefineScope(name="CDMission", parent=IMMORTAL)
 public class CDMission extends CyclicExecutive {
 
     static PriorityParameters p = new PriorityParameters(18);
@@ -42,8 +43,8 @@ public class CDMission extends CyclicExecutive {
     protected void initialize() {
         new CDHandler();
         MIRun miRun = new MIRun();
-        @DefineScope(name = "CDMissionInit", parent = "CDMission")
-        @Scope(Scope.IMMORTAL)
+        @DefineScope(name="CDMissionInit", parent="CDMission")
+        @Scope(IMMORTAL)
         ManagedMemory m = (ManagedMemory) ManagedMemory.getMemoryArea(this);
         m.enterPrivateMemory(2000, miRun);
     }
@@ -74,7 +75,7 @@ public class CDMission extends CyclicExecutive {
 
 @SCJAllowed(members=true)
 @Scope("CDMission")
-@DefineScope(name = "CDMissionInit", parent = "CDMission")
+@DefineScope(name="CDMissionInit", parent="CDMission")
 class MIRun implements SCJRunnable {
     @RunsIn("CDMissionInit")
     public void run() {

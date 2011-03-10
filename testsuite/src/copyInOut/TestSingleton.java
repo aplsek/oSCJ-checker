@@ -15,11 +15,11 @@ class MyBigInteger {
 	public static final MyBigInteger ZERO = new MyBigInteger(0);
 
 	public MyBigInteger(int value) {
-		this.value = value;
+		this.value=value;
 	}
 	
 	public MyBigInteger(MyBigInteger bI) {
-		this.value = bI.value;
+		this.value=bI.value;
 	}
 
 	public MyBigInteger add(MyBigInteger bI) {

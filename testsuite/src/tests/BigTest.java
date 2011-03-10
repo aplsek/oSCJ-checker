@@ -20,9 +20,9 @@ public class BigTest extends ParameterizedCheckerTest {
         //tests.addAll(testFiles("scope/level0"));
         //tests.addAll(testFiles("scope/level1"));
         //tests.addAll(testFiles("scope/level2"));
-       // tests.addAll(testFiles("scope/perReleaseAlloc"));
-       // tests.addAll(testFiles("scope/staticAlloc"));
-       // tests.addAll(testFiles("scope/illegalStateEx"));
+        //tests.addAll(testFiles("scope/perReleaseAlloc"));
+        //tests.addAll(testFiles("scope/staticAlloc"));
+        //tests.addAll(testFiles("scope/illegalStateEx"));
         //tests.addAll(testFiles("scope/error"));
         //tests.addAll(testFiles("scope/advancedMM"));
 

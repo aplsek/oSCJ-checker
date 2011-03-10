@@ -1,8 +1,8 @@
 package scope.error;
 
-import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.realtime.PriorityParameters;
 import javax.realtime.RelativeTime;
@@ -11,11 +11,12 @@ import javax.safetycritical.CyclicSchedule;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members=true)
-@DefineScope(name="APP", parent=Scope.IMMORTAL)
+@DefineScope(name="APP", parent=IMMORTAL)
 @Scope("APP")
 public class MyAppErr extends CyclicExecutive {
 	static PriorityParameters p = new PriorityParameters(18);

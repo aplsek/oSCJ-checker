@@ -12,7 +12,7 @@ import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members=true)
 @Scope("Level0App")
-@DefineScope(name = "WordHandler", parent = "Level0App")
+@DefineScope(name="WordHandler", parent="Level0App")
 public class WordHandler extends PeriodicEventHandler {
 
     @SCJAllowed()

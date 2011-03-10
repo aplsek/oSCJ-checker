@@ -1,8 +1,9 @@
 package scope.defineScope.simple;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
-import javax.safetycritical.annotate.Scope;
 
 public class TestCyclicalScopes {
     @DefineScope(name="a", parent="b")
@@ -13,6 +14,6 @@ public class TestCyclicalScopes {
     //## checkers.scope.DefineScopeChecker.ERR_CYCLICAL_SCOPES
     static abstract class Z extends Mission { }
     // Suppresses the error on class Y.
-    @DefineScope(name="c", parent=Scope.IMMORTAL)
+    @DefineScope(name="c", parent=IMMORTAL)
     static abstract class W extends Mission { }
 }

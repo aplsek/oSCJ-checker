@@ -1,8 +1,9 @@
 package scjAllowed.simple;
 
-import javax.safetycritical.annotate.Level;
+import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
+
 import javax.safetycritical.annotate.SCJAllowed;
 
-@SCJAllowed(Level.INFRASTRUCTURE)
+@SCJAllowed(INFRASTRUCTURE)
 //## checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_USER_LEVEL
 public class TestBadUserLevel { }

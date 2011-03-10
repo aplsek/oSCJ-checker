@@ -1,53 +1,53 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.Scope;
 
-import scope.scope.simple.TestBadAssignmentScopeField.X;
-
 public class TestBadAssignmentScopeLocalUpcast {
-    @DefineScope(name="a", parent=Scope.IMMORTAL)
+    @DefineScope(name="a", parent=IMMORTAL)
     static abstract class X extends Mission {
         Y y1;
-        @Scope(Scope.IMMORTAL) Y y2;
+        @Scope(IMMORTAL) Y y2;
         static Y y3;
     }
     static class Y { }
 
-    void foo(X x, Y y, @Scope(Scope.IMMORTAL) Y yImm) {
-        Object o = (Object) x;
-        o = (Object) y;
-        o = (Object) x.y1;
-        @Scope(Scope.IMMORTAL) Object oImm = x.y2;
-        oImm = (Object) yImm;
+    void foo(X x, Y y, @Scope(IMMORTAL) Y yImm) {
+        Object o = x;
+        o = y;
+        o = x.y1;
+        @Scope(IMMORTAL) Object oImm = x.y2;
+        oImm = yImm;
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-        oImm = (Object) x;
+        oImm = x;
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-        o = (Object) x.y2;
+        o = x.y2;
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-        o = (Object) X.y3;
+        o = X.y3;
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-        oImm = (Object) x.y1;
+        oImm = x.y1;
     }
 
-    void bar(@Scope(Scope.IMMORTAL) X x, Y y, @Scope(Scope.IMMORTAL) Y yImm) {
+    void bar(@Scope(IMMORTAL) X x, Y y, @Scope(IMMORTAL) Y yImm) {
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-        Object o = (Object) x;
-        o = (Object) y;
+        Object o = x;
+        o = y;
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-        o = (Object) x.y1;
-        @Scope(Scope.IMMORTAL) Object oImm = (Object) x.y2;
-        oImm = (Object) x;
+        o = x.y1;
+        @Scope(IMMORTAL) Object oImm = x.y2;
+        oImm = x;
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-        o = (Object) x.y2;
+        o = x.y2;
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-        o = (Object) X.y3;
-        oImm = (Object) x.y1;
+        o = X.y3;
+        oImm = x.y1;
     }
 
-    void baz(Y y, @Scope(Scope.IMMORTAL) Y yImm) {
+    void baz(Y y, @Scope(IMMORTAL) Y yImm) {
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-        Object o = (Object) X.y3;
+        Object o = X.y3;
     }
 }

@@ -1,32 +1,35 @@
 package scope.scopeRunsIn.simple;
 
-import javax.safetycritical.annotate.Level;
+import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 public class TestIllegalMethodRunsInOverride {
-    @Scope(Scope.IMMORTAL)
+    @Scope(IMMORTAL)
     static class X {
-        @SCJAllowed(Level.SUPPORT)
-        @RunsIn(Scope.IMMORTAL)
+        @SCJAllowed(SUPPORT)
+        @RunsIn(IMMORTAL)
         void foo(Y y) { }
-        @RunsIn(Scope.IMMORTAL)
+        @RunsIn(IMMORTAL)
         void bar() { }
-        @RunsIn(Scope.IMMORTAL)
+        @RunsIn(IMMORTAL)
         Object baz() { return null; }
     }
-    @Scope(Scope.IMMORTAL)
+    @Scope(IMMORTAL)
     static class Y extends X {
         @Override
-        @RunsIn(Scope.CALLER)
+        @RunsIn(CALLER)
         void foo(Y y) { }
         @Override
-        @RunsIn(Scope.CALLER)
+        @RunsIn(CALLER)
         //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE
         void bar() { }
         @Override
-        @RunsIn(Scope.IMMORTAL)
+        @RunsIn(IMMORTAL)
         Object baz() { return super.baz(); }
     }
 }

@@ -15,7 +15,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.SCJAllowed;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope("MyApp")
 class MyPEH2 extends PeriodicEventHandler {
 

@@ -1,11 +1,14 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-@DefineScope(name="a", parent=Scope.IMMORTAL)
+@DefineScope(name="a", parent=IMMORTAL)
 @Scope("a")
 public abstract class TestBadMethodInvoke extends Mission {
 
@@ -35,7 +38,7 @@ public abstract class TestBadMethodInvoke extends Mission {
     static class Y {
         void method() { }
 
-        @RunsIn(Scope.CALLER)
+        @RunsIn(CALLER)
         void methodRunsInUnknown() {
             //## checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE
             methodRunsInB();

@@ -7,7 +7,7 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 
-@SCJAllowed(value = LEVEL_1, members = true)
+@SCJAllowed(value=LEVEL_1, members=true)
 public class TestMethodOverride extends Mission {
     @Override
     public long missionMemorySize() {
@@ -16,6 +16,5 @@ public class TestMethodOverride extends Mission {
 
     @Override
     @SCJRestricted(INITIALIZATION)
-    protected void initialize() {
-    }
+    protected void initialize() { }
 }

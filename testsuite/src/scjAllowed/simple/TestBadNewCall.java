@@ -1,11 +1,13 @@
 package scjAllowed.simple;
 
-import javax.safetycritical.annotate.Level;
+import static javax.safetycritical.annotate.Level.LEVEL_0;
+import static javax.safetycritical.annotate.Level.LEVEL_1;
+
 import javax.safetycritical.annotate.SCJAllowed;
 
-@SCJAllowed(value=Level.LEVEL_0, members=true)
+@SCJAllowed(value=LEVEL_0, members=true)
 public class TestBadNewCall {
-    @SCJAllowed(Level.LEVEL_1)
+    @SCJAllowed(LEVEL_1)
     public TestBadNewCall() { }
 
     void foo() {

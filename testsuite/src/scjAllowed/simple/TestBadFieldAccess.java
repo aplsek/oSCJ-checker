@@ -1,14 +1,16 @@
 package scjAllowed.simple;
 
-import javax.safetycritical.annotate.Level;
+import static javax.safetycritical.annotate.Level.LEVEL_0;
+import static javax.safetycritical.annotate.Level.LEVEL_1;
+
 import javax.safetycritical.annotate.SCJAllowed;
 
-@SCJAllowed(members=true, value=Level.LEVEL_0)
+@SCJAllowed(members=true, value=LEVEL_0)
 public class TestBadFieldAccess {
-    @SCJAllowed(Level.LEVEL_1)
+    @SCJAllowed(LEVEL_1)
     static int x;
 
-    @SCJAllowed(Level.LEVEL_0)
+    @SCJAllowed(LEVEL_0)
     public void foo() {
         //## checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_FIELD_ACCESS
         int x = TestBadFieldAccess.x;

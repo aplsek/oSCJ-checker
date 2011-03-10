@@ -1,14 +1,17 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-@DefineScope(name="a", parent=Scope.IMMORTAL)
+@DefineScope(name="a", parent=IMMORTAL)
 @Scope("a")
 public abstract class TestBadReturnScope extends Mission {
-    @Scope(Scope.IMMORTAL) @RunsIn("b")
+    @Scope(IMMORTAL) @RunsIn("b")
     public Y getFooErr() {
         //## checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE
         return new Y();
@@ -22,7 +25,7 @@ public abstract class TestBadReturnScope extends Mission {
         return;
     }
 
-    @Scope(Scope.IMMORTAL)
+    @Scope(IMMORTAL)
     public int[] getArray() {
         //## checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE
         return new int[] { 1 };
@@ -33,7 +36,7 @@ public abstract class TestBadReturnScope extends Mission {
         return null;
     }
 
-    @Scope(Scope.UNKNOWN)
+    @Scope(UNKNOWN)
     public Y methUNK() {
         @Scope("a") Y y = new Y();
         return y;
@@ -41,7 +44,7 @@ public abstract class TestBadReturnScope extends Mission {
 
     @Scope("a")
     public Y meth() {
-        @Scope(Scope.UNKNOWN) Y y = new Y();
+        @Scope(UNKNOWN) Y y = new Y();
         //## checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE
         return y;
     }
