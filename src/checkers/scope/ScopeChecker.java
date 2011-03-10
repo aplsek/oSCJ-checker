@@ -38,8 +38,6 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE = "err.mem.type.def.scope.not.consistent.with.scope";
     public static final String ERR_SCJ_RUNNABLE_BAD_SCOPE = "bad.scjrunnable.bad.scope";
     public static final String ERR_SCOPE_RUNS_IN_DISAGREEMENT = "scope.runs.in.disagreement";
-    // TODO: Remove?
-    public static final String ERR_INTERFACE_ANNOTATION_MISMATCH = "interface.annotation.mismatch";
 
     private ScopeCheckerContext ctx;
 
@@ -95,8 +93,6 @@ public class ScopeChecker extends SinglePassChecker {
         p.put(ERR_BAD_VARIABLE_SCOPE,
                 "Variables of type %s are not allowed in this allocation context (%s).");
         p.put(ERR_ESCAPING_NONANNOTATED_FIELD, ERR_ESCAPING_NONANNOTATED_FIELD);
-        p.put(ERR_INTERFACE_ANNOTATION_MISMATCH,
-                "One or more interfaces has a mismatching @%s annotation.");
         p.put(ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR,
                 "Local Variable of a type that implements AllocationContext interface must have a @DefineScope annotation.");
         p.put(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT,
