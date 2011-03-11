@@ -29,7 +29,7 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-@DefineScope(name = "G", parent = "A")
+@DefineScope(name="G", parent="A")
 @Scope("G")
 public class SatCommService extends Mission {
     // These three constants determined by static analysis or other

@@ -38,7 +38,7 @@ import static javax.safetycritical.annotate.Scope.CALLER;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;;
 
-@SCJAllowed( members=true)
+@SCJAllowed(members=true)
 @Scope("TM")
 public class TrainClock extends Clock {
 
@@ -66,7 +66,7 @@ public class TrainClock extends Clock {
     @RunsIn(THIS)
     // Not allowed to override
     @SCJAllowed
-    @SCJRestricted(maySelfSuspend = false)
+    @SCJRestricted(maySelfSuspend=false)
     public AbsoluteTime getTime() {
         return null;
     }
@@ -81,7 +81,7 @@ public class TrainClock extends Clock {
     @RunsIn(THIS)
     // Not allowed to override
     @SCJAllowed
-    @SCJRestricted(maySelfSuspend = false, mayAllocate = false)
+    @SCJRestricted(maySelfSuspend=false, mayAllocate=false)
     public AbsoluteTime getTime(AbsoluteTime dest) {
         return null;
     }
@@ -109,7 +109,7 @@ public class TrainClock extends Clock {
     @Override
     @RunsIn(THIS)
     @SCJAllowed
-    @SCJRestricted(mayAllocate = false, maySelfSuspend = false)
+    @SCJRestricted(mayAllocate=false, maySelfSuspend=false)
     public final boolean drivesEvents() {
         return true;
     }
@@ -127,7 +127,7 @@ public class TrainClock extends Clock {
     }
 
     @Override
-    @SCJRestricted(maySelfSuspend = false)
+    @SCJRestricted(maySelfSuspend=false)
     protected boolean resetTargetTime(AbsoluteTime time) {
 
         // skeleton implementation
@@ -163,7 +163,7 @@ public class TrainClock extends Clock {
     @Override
     @RunsIn(THIS)
     @SCJAllowed
-    @SCJRestricted(mayAllocate = false, maySelfSuspend = false)
+    @SCJRestricted(mayAllocate=false, maySelfSuspend=false)
     public final RelativeTime getResolution(RelativeTime dest) {
         return null;
     }

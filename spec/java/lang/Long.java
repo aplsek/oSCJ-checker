@@ -35,7 +35,7 @@ public class Long extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public Long(long val) {
   }
@@ -44,7 +44,7 @@ public class Long extends Number
    * Allocates no memory. Does not allow "this" or "str" argument to escape
    * local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public Long(String str) throws NumberFormatException {
   }
@@ -52,7 +52,7 @@ public class Long extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int bitCount(long i)
   {
@@ -62,7 +62,7 @@ public class Long extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public byte byteValue() {
     return (byte) 0; // skeleton
@@ -72,7 +72,7 @@ public class Long extends Number
    * Allocates no memory. Does not allow "this" or "other" argument to escape
    * local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public int compareTo(Long other) {
     return 0; // skeleton
@@ -82,7 +82,7 @@ public class Long extends Number
    * Does not allow "str" argument to escape local variables. Allocates a Long
    * result object in the caller's scope.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Long decode(String str) throws NumberFormatException {
     return null; // skeleton
@@ -91,7 +91,7 @@ public class Long extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public double doubleValue() {
     return (double) 0.0; // skeleton
@@ -101,7 +101,7 @@ public class Long extends Number
    * Allocates no memory. Does not allow "this" or "obj" argument to escape
    * local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public boolean equals(Object obj) {
     return false; // skeleton
@@ -110,7 +110,7 @@ public class Long extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public float floatValue() {
     return (float) 0; // skeleton
@@ -120,7 +120,7 @@ public class Long extends Number
    * Does not allow "str" argument to escape local variables. Allocates a Long
    * result object in the caller's scope.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Long getLong(String str) {
     return null; // skeleton
@@ -130,7 +130,7 @@ public class Long extends Number
    * Does not allow "str" argument to escape local variables. Allocates a Long
    * result object in the caller's scope.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Long getLong(String str, long v) {
     return null; // skeleton
@@ -140,7 +140,7 @@ public class Long extends Number
    * Does not allow "str" argument to escape local variables. Allocates a Long
    * result object in the caller's scope.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Long getLong(String str, Long v) {
     return null; // skeleton
@@ -149,7 +149,7 @@ public class Long extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public int hashCode() {
     return 0; // skeleton
@@ -159,7 +159,7 @@ public class Long extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static long highestOneBit(long i)
   {
@@ -169,7 +169,7 @@ public class Long extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public int intValue() {
     return 0; // skeleton
@@ -178,7 +178,7 @@ public class Long extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public long longValue() {
     return (long) 0; // skeleton
@@ -187,7 +187,7 @@ public class Long extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static long lowestOneBit(long i)
   {
@@ -197,7 +197,7 @@ public class Long extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int numberOfLeadingZeros(long i)
   {
@@ -207,7 +207,7 @@ public class Long extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int numberOfTrailingZeros(long i)
   {
@@ -218,7 +218,7 @@ public class Long extends Number
    * Allocates no memory. Does not allow "this" or "other" argument to escape
    * local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static long parseLong(String str) throws NumberFormatException {
     return (long) 0; // skeleton
@@ -228,7 +228,7 @@ public class Long extends Number
    * Allocates no memory. Does not allow "this" or "other" argument to escape
    * local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static long parseLong(String str, int base)
     throws NumberFormatException {
@@ -238,7 +238,7 @@ public class Long extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static long reverse(long i)
   {
@@ -248,7 +248,7 @@ public class Long extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static long reverseBytes(long i)
   {
@@ -258,7 +258,7 @@ public class Long extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static long rotateLeft(long i, int distance)
   {
@@ -268,7 +268,7 @@ public class Long extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static long rotateRight(long i, int distance)
   {
@@ -278,7 +278,7 @@ public class Long extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public short shortValue() {
     return (short) 0; // skeleton
@@ -287,7 +287,7 @@ public class Long extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int signum(long i)
   {
@@ -299,7 +299,7 @@ public class Long extends Number
    * associated internal "structure" (e.g. char[]) in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static String toBinaryString(long v) {
     return null; // skeleton
@@ -310,7 +310,7 @@ public class Long extends Number
    * associated internal "structure" (e.g. char[]) in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static String toHexString(long v) {
     return null; // skeleton
@@ -321,7 +321,7 @@ public class Long extends Number
    * associated internal "structure" (e.g. char[]) in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static String toOctalString(long v) {
     return null; // skeleton
@@ -335,7 +335,7 @@ public class Long extends Number
    * Object.toString()).
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public String toString() {
     return null; // skeleton
@@ -346,7 +346,7 @@ public class Long extends Number
    * caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static String toString(long v) {
     return null; // skeleton
@@ -357,7 +357,7 @@ public class Long extends Number
    * caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static String toString(long v, int base) {
     return null; // skeleton
@@ -367,7 +367,7 @@ public class Long extends Number
    * Allocates a Long in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Long valueOf(long val) {
     return null; // skeleton
@@ -378,7 +378,7 @@ public class Long extends Number
    * in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Long valueOf(String str) throws NumberFormatException {
     return null; // skeleton
@@ -389,7 +389,7 @@ public class Long extends Number
    * in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Long valueOf(String str, int base)
     throws NumberFormatException {

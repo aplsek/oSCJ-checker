@@ -202,7 +202,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	/**
 	 * Allocates no memory. Does not allow "this" to escape local variables.
 	 */
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public int hashCode() {
 		return 0; // skeleton
@@ -211,7 +211,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	/**
 	 * Allocates no memory. Does not allow "this" to escape local variables.
 	 */
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public int intValue() {
 		return 0; // skeleton
@@ -220,7 +220,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	/**
 	 * Allocates no memory. Does not allow "this" to escape local variables.
 	 */
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public boolean isProbablePrime(int certainty) {
 		return false; // skeleton
@@ -229,7 +229,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	/**
 	 * Allocates no memory. Does not allow "this" to escape local variables.
 	 */
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public long longValue() {
 		return 0L; // skeleton
@@ -239,7 +239,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" or "max" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger max(BigInteger val) {
 		return null; // skeleton
@@ -249,7 +249,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" or "val" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger min(BigInteger val) {
 		return null; // skeleton
@@ -259,7 +259,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" or "val" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger mod(BigInteger val) {
 		return null; // skeleton
@@ -269,7 +269,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" or "val" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger modInverse(BigInteger val) {
 		return null; // skeleton
@@ -279,7 +279,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this", "exponent", or "m" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger modPow(BigInteger exponent, BigInteger m) {
 		return null; // skeleton
@@ -289,7 +289,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" or val to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger multiply(BigInteger val) {
 		return null; // skeleton
@@ -299,7 +299,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger negate() {
 		return null; // skeleton
@@ -309,7 +309,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger nextProbablePrime() {
 		return null; // skeleton
@@ -319,7 +319,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger not() {
 		return null; // skeleton
@@ -329,7 +329,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" or "val" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger or(BigInteger val) {
 		return null; // skeleton
@@ -339,7 +339,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger pow(int exponent) {
 		return null; // skeleton
@@ -360,7 +360,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" or "val" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger remainder(BigInteger val) {
 		return null; // skeleton
@@ -370,7 +370,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger setBit(int n) {
 		return null; // skeleton
@@ -380,7 +380,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger shiftLeft(int n) {
 		return null; // skeleton
@@ -390,7 +390,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger shiftRight(int n) {
 		return null; // skeleton
@@ -399,7 +399,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	/**
 	 * Allocates no memory. Does not allow "this" to escape local variables.
 	 */
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public int signum() {
 		return 0; // skeleton
@@ -409,7 +409,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" or "val" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger subtract(BigInteger val) {
 		return null; // skeleton
@@ -418,7 +418,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	/**
 	 * Allocates no memory. Does not allow "this" to escape local variables.
 	 */
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public boolean testBit(int n) {
 		return false; // skeleton
@@ -428,7 +428,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger toByteArray() {
 		return null; // skeleton
@@ -438,7 +438,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public String toString() {
 		return null; // skeleton
@@ -448,14 +448,14 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public String toString(int radix) {
 		return null; // skeleton
 	}
 
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public static BigInteger valueOf(long val) {
 		return null; // skeleton
@@ -465,7 +465,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * Does not allow "this" or "val" to escape local variables.
 	 */
 	@Allocate({ CURRENT })
-	@SCJRestricted(maySelfSuspend = false)
+	@SCJRestricted(maySelfSuspend=false)
 	@SCJAllowed
 	public BigInteger xor(BigInteger val) {
 		return null; // skeleton

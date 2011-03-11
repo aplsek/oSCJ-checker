@@ -33,7 +33,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public Integer(int val) {
   }
@@ -42,7 +42,7 @@ public class Integer extends Number
    * Allocates no memory. Does not allow "this" or "str" argument to escape
    * local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public Integer(String str) throws NumberFormatException {
   }
@@ -50,7 +50,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int bitCount(int i) {
     return 0; // skeleton
@@ -59,7 +59,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public byte byteValue() {
     return (byte) 0; // skeleton
@@ -69,7 +69,7 @@ public class Integer extends Number
    * Allocates no memory. Does not allow "this" or "other" argument to escape
    * local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public int compareTo(Integer other) {
     return 0; // skeleton
@@ -79,7 +79,7 @@ public class Integer extends Number
    * Does not allow "str" argument to escape local variables. Allocates an
    * Integer in caller's scope.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Integer decode(String str) throws NumberFormatException {
     return null; // skeleton
@@ -88,7 +88,7 @@ public class Integer extends Number
   /**
    * Allocates no memory.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public double doubleValue() {
     return 0.0; // skeleton
@@ -98,7 +98,7 @@ public class Integer extends Number
    * Allocates no memory. Does not allow "this" or "obj" argument to escape
    * local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public boolean equals(Object obj) {
     return false; // skeleton
@@ -107,7 +107,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public float floatValue() {
     return (float) 0.0; // sksleton
@@ -118,7 +118,7 @@ public class Integer extends Number
    * Integer in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Integer getInteger(String str) {
     return null; // skeleton
@@ -129,7 +129,7 @@ public class Integer extends Number
    * Integer in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Integer getInteger(String str, int v) {
     return null; // skeleton
@@ -141,7 +141,7 @@ public class Integer extends Number
    * Allocates Integer in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Integer getInteger(String str, Integer v) {
     return null; // skeleton
@@ -150,7 +150,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public int hashCode() {
     return 0; // skeleton
@@ -159,7 +159,7 @@ public class Integer extends Number
   /**
    * Allocates no memory.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int highestOneBit(int i) {
     return 0; // skeleton
@@ -168,7 +168,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public int intValue() {
     return 0; // skeleton
@@ -177,7 +177,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public long longValue() {
     return 0; // skeleton
@@ -186,7 +186,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int lowestOneBit(int i) {
     return 0; // skeleton
@@ -195,7 +195,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int numberOfLeadingZeros(int i) {
     return 0; // skeleton
@@ -205,7 +205,7 @@ public class Integer extends Number
    * Allocates no memory. Does not allow "str" argument to escape local
    * variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int parseInt(String str) throws NumberFormatException {
     return 0; // skeleton
@@ -215,7 +215,7 @@ public class Integer extends Number
    * Allocates no memory. Does not allow "str" argument to escape local
    * variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int parseInt(String str, int radix)
     throws NumberFormatException {
@@ -225,7 +225,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int reverse(int i) {
     return 0; // skeleton
@@ -234,7 +234,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int reverseBytes(int i) {
     return 0; // skeleton
@@ -243,7 +243,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int rotateLeft(int i, int distance) {
     return 0; // skeleton
@@ -252,7 +252,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int rotateRight(int i, int distance) {
     return 0; // skeleton
@@ -261,7 +261,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public short shortValue() {
     return (short) 0; // skeleton
@@ -270,7 +270,7 @@ public class Integer extends Number
   /**
    * Allocates no memory. 
    */
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static int sigNum(int i) {
     return 0; // skeleton
@@ -281,7 +281,7 @@ public class Integer extends Number
    * associated internal "structure" (e.g. char[]) in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static String toBinaryString(int v) {
     return null; // skeleton
@@ -292,7 +292,7 @@ public class Integer extends Number
    * associated internal "structure" (e.g. char[]) in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static String toHexString(int v) {
     return null; // skeleton
@@ -303,7 +303,7 @@ public class Integer extends Number
    * associated internal "structure" (e.g. char[]) in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static String toOctalString(int v) {
     return null; // skeleton
@@ -317,7 +317,7 @@ public class Integer extends Number
    * Object.toString()).
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public String toString() {
     return null; // skeleton
@@ -328,7 +328,7 @@ public class Integer extends Number
    * caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static String toString(int v) {
     return null; // skeleton
@@ -339,7 +339,7 @@ public class Integer extends Number
    * associated internal "structure" (e.g. char[]) in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static String toString(int v, int base) {
     return null; // skeleton
@@ -349,7 +349,7 @@ public class Integer extends Number
    * Allocates an Integer in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Integer valueOf(int val) {
     return null; // skeleton
@@ -360,7 +360,7 @@ public class Integer extends Number
    * Integer in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Integer valueOf(String str) throws NumberFormatException {
     return null;
@@ -371,7 +371,7 @@ public class Integer extends Number
    * Integer in caller's scope.
    */
   @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
+  @SCJRestricted(maySelfSuspend=false)
   @SCJAllowed
   public static Integer valueOf(String str, int base)
     throws NumberFormatException {
