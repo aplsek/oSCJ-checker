@@ -1,10 +1,9 @@
-plsek@:~/fiji/scj-dan/oSCJ/tools/checker$ hg pull
-#!/bin/bash                                                                                                                  
+#!/bin/bash
 
 set -e
 set -x
-cd .. && ./build.sh && cd examples/                                                                                                                  
+cd .. && ./build.sh && cd examples/
 
-../localbin/javac -proc:only -cp ../lib/scj.jar:../lib/scj-checker.jar  -processor checkers.SCJChecker `find ./railsegment -name "*.java"` 
+../localbin/javac -proc:only -cp ../lib/scj.jar:../lib/scj-checker.jar  -processor checkers.SCJChecker `find ./railsegment -name "*.java"`
 
 
