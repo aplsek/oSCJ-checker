@@ -62,7 +62,7 @@ public class CommunicationsQueue
 
     // This is how I implement the equivalent of Unix select.  This is
     // invoked from the CommunicationsOversight thread.
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized int waitForWork() {
       while (status == 0) {
         try {
@@ -75,7 +75,7 @@ public class CommunicationsQueue
     }
 
     // invoked by Application component
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void issueApplicationRequest() {
       status |= APPLICATION_REQUEST;
       notifyAll();
@@ -89,46 +89,46 @@ public class CommunicationsQueue
     //    CommunicationsOversight thread invokes
     //    unissueApplicationRequest. The application waits on a
     //    different condition for the response to the issued request.
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void unissueApplicationRequest() {
       status &= ~APPLICATION_REQUEST;
     }
 
     // invoked by ModulatedServices submission
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void finishModulatedService() {
       status |= MODULATED_SERVICE_DONE;
       notifyAll();
     }
 
     // invoked by CommunicationsOversight
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void unfinishModulatedService() {
       status &= ~MODULATED_SERVICE_DONE;
     }
 
     // invoked by SatelliteServices submission
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void finishSatelliteService() {
       status |= SATELLITE_SERVICE_DONE;
       notifyAll();
     }
 
     // invoked by CommunicationsOversight
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void unfinishSatelliteService() {
       status &= ~SATELLITE_SERVICE_DONE;
     }
 
     // invoked by MobileServices submission
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void finishMobileService() {
       status |= MOBILE_SERVICE_DONE;
       notifyAll();
     }
 
     // invoked by CommunicationsOversight
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void unfinishMobileService() {
       status &= ~MOBILE_SERVICE_DONE;
     }
@@ -146,7 +146,7 @@ public class CommunicationsQueue
 
 
     // invoked by MobileServices sub-mission
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void mobileMessageReady() {
       mobile_message_count++;
       status |= MOBILE_SERVICE_RECEIVED_MESSAGE;
@@ -154,7 +154,7 @@ public class CommunicationsQueue
     }
 
     // invoked by ModulatedServices sub-mission
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void modulatedMessageReady() {
       mobile_message_count++;
       status |= MODULATED_SERVICE_RECEIVED_MESSAGE;
@@ -162,7 +162,7 @@ public class CommunicationsQueue
     }
 
     // invoked by SatelliteServices sub-mission
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void satelliteMessageReady() {
       mobile_message_count++;
       status |= SATELLITE_SERVICE_RECEIVED_MESSAGE;
@@ -170,7 +170,7 @@ public class CommunicationsQueue
     }
 
     // invoked by CommunicationsOversight
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void acknowledgeMobileMessage() {
       mobile_message_count--;
       if (mobile_message_count <= 0) {
@@ -179,7 +179,7 @@ public class CommunicationsQueue
     }
 
     // invoked by CommunicationsOversight
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void acknowledgeModulatedMessage() {
       modulated_message_count--;
       if (modulated_message_count <= 0) {
@@ -188,7 +188,7 @@ public class CommunicationsQueue
     }
 
     // invoked by CommunicationsOversight
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     final synchronized void acknowledgeSatelliteMessage() {
       satellite_message_count--;
       if (satellite_message_count <= 0) {
@@ -271,7 +271,7 @@ public class CommunicationsQueue
 
   // In order to transmit data, application components must first copy
   // the requested data into a reserved buffer.
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   private synchronized int reserveBuffer() {
     int reserved_index;
 
@@ -295,12 +295,12 @@ public class CommunicationsQueue
   }
 
   // assume trustworthy clients...
-  @RunsIn(UNKNOWN) @Scope(IMMORTAL)
+  @RunsIn(CALLER) @Scope(IMMORTAL)
   private byte[] getBuffer(int index) {
     return buffers[index];
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   private synchronized void issueRequest(int buffer_no, RequestType command) {
 
     activity_codes[buffer_no] = command;
@@ -330,7 +330,7 @@ public class CommunicationsQueue
     smc.issueApplicationRequest();
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   private synchronized void freeBufferFromResponse(int buffer_no) {
 
     // remove buffer from response list
@@ -358,7 +358,7 @@ public class CommunicationsQueue
     notifyAll();
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   private synchronized void awaitResponse(int buffer_no, RequestType initial) {
     while (activity_codes[buffer_no] == initial) {
       try {
@@ -369,7 +369,7 @@ public class CommunicationsQueue
     }
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   final private void internalError(String msg) {
     // not sure how to print out an error message
     // Note that System.exit() is @SCJAllowed, surprisingly...
@@ -387,7 +387,7 @@ public class CommunicationsQueue
    * services to decide whether the supplied channel_name is expressed
    * in an appropriate syntax.
    */
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public int open(byte[] channel_name, int byte_count, int mode) {
     if ((mode == RD_ONLY) || (mode == WR_ONLY)) {
       if (byte_count > BUFFER_LENGTH) {
@@ -415,7 +415,7 @@ public class CommunicationsQueue
     }
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public int write(int file_no, byte[] buffer, int byte_count) {
     int buffer_no = reserveBuffer();
     byte[] internal_buffer = getBuffer(buffer_no);
@@ -432,7 +432,7 @@ public class CommunicationsQueue
     return result;
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public int read(int file_no, byte[] buffer, int byte_count) {
     int buffer_no = reserveBuffer();
     byte[] internal_buffer = getBuffer(buffer_no);
@@ -449,7 +449,7 @@ public class CommunicationsQueue
     return result;
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public int close(int file_no) {
     int buffer_no = reserveBuffer();
     command_args[buffer_no] = file_no;
@@ -465,7 +465,7 @@ public class CommunicationsQueue
 
   private int file_status[] = new int[MAXIMUM_FILES];
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized int fileStatus(int file_no) {
     return file_status[file_no];
   }
@@ -479,7 +479,7 @@ public class CommunicationsQueue
   // worry about that later...
 
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public final synchronized void setFileStatus(int file_no, int status) {
     file_status[file_no] = status;
   }
@@ -487,7 +487,7 @@ public class CommunicationsQueue
   /**
    * Return the buffer_no of the issued command
    */
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public final synchronized int getCommandNumber() {
     while (command_count <= 0) {
       try {
@@ -510,22 +510,22 @@ public class CommunicationsQueue
     return command_ndx;
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public final RequestType getCommandCode(int command_ndx) {
     return activity_codes[command_ndx];
   }
 
-  @RunsIn(UNKNOWN) @Scope(IMMORTAL)
+  @RunsIn(CALLER) @Scope(IMMORTAL)
   public final byte[] getCommandBuffer(int command_ndx) {
     return buffers[command_ndx];
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public final int getCommandArg(int command_ndx) {
     return command_args[command_ndx];
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public final synchronized void
   putCommandResponse(int command_ndx, int response_code)
   {

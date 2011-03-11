@@ -25,19 +25,22 @@ import railsegment.clock.TrainClock;
 
 import javax.realtime.PriorityParameters;
 
+import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("TM")
 public class NavigationServiceSequencer
-  extends MissionSequencer<NavigationService>
+  extends MissionSequencer //<NavigationService>
 {
   boolean did_mission;
   private final int NAVS_PRIORITY;
@@ -45,6 +48,7 @@ public class NavigationServiceSequencer
   private final NavigationInfo navs_data;
   private final TrainClock train_clock;
 
+  @SCJRestricted(INITIALIZATION)
   public NavigationServiceSequencer(final int NAVS_PRIORITY,
                                     final int GPS_PRIORITY,
                                     TrainClock train_clock,
@@ -63,6 +67,7 @@ public class NavigationServiceSequencer
     this.navs_data = navs_data;
   }
 
+  @Override
   @RunsIn("D")
   public NavigationService getNextMission()
   {
@@ -75,4 +80,10 @@ public class NavigationServiceSequencer
       return null;
     }
   }
+
+@Override
+protected Mission getInitialMission() {
+    // TODO Auto-generated method stub
+    return null;
+}
 }

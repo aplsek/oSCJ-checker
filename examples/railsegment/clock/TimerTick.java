@@ -1,19 +1,19 @@
 /**
- *  Name: Railsegment 
+ *  Name: Railsegment
  *  Author : Kelvin Nilsen, <kelvin.nilsen@atego.com>
- *  
+ *
  *  Copyright (C) 2011  Kelvin Nilsen
- *  
+ *
  *  Railsegment is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
- *  
+ *
  *  Railsegment is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -33,9 +33,10 @@ import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.CURRENT;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -51,7 +52,7 @@ public class TimerTick extends PeriodicEventHandler
   private TrainClock train_clock;
 
   // This periodic task runs every 250 microseconds
-  @Scope(CURRENT)
+  @SCJRestricted(INITIALIZATION)
   public TimerTick(TimeService time_mission,
                    TrainClock train_clock, int priority) {
     super(new PriorityParameters(priority),
@@ -63,11 +64,18 @@ public class TimerTick extends PeriodicEventHandler
     this.train_clock = train_clock;
   }
 
-  @DefineScope(name="C:TT", parent="C")
+  @Override
+@DefineScope(name="C:TT", parent="C")
   @Scope("C:TT")
   public void handleAsyncEvent() {
     AbsoluteTime t = new AbsoluteTime(0L, 0, train_clock);
     time_mission.getGlobalTime(t);
     train_clock.updateTime(t);
   }
+
+@Override
+public StorageParameters getThreadConfigurationParameters() {
+    // TODO Auto-generated method stub
+    return null;
+}
 }

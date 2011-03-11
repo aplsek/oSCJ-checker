@@ -33,6 +33,7 @@ import javax.safetycritical.annotate.Scope;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 @DefineScope(name="F", parent="A")
 @Scope("F")
@@ -64,7 +65,6 @@ public class ModulatedCommService extends Mission
   }
 
   @Override
-@RunsIn(CURRENT)
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -73,7 +73,6 @@ public class ModulatedCommService extends Mission
   }
 
   @Override
-@RunsIn(CURRENT)
   public void initialize()
   {
     // assume I'll provide shared variables for coordination between
@@ -94,7 +93,7 @@ public class ModulatedCommService extends Mission
   }
 
   @Override
-@RunsIn(UNKNOWN)
+@RunsIn(CALLER)
   public void requestTermination()
   {
     // do something special to coordinate with the NHRT thread

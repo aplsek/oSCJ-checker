@@ -3,4 +3,30 @@
 Changes in Annotations
 
 @RunsIn on constructors
+- RunsIn annotations are not allowed on constructors.
 - constructors run in the same scope as is the @Scope of the Type
+
+
+@RunsIn(CURRENT) 
+- deleted
+- now equivalent to @RunsIn(THIS) and this value is given by default
+
+Generics
+ - commenting out generics
+ 
+@SCJRestricted(INITIALIZATION)
+- adding this annotation on all constructors of sequencers/missions
+
+
+TrainClock:
+- getTime() and drivesEvents() method were missing @SCJRestricted(maySelfSuspend = false)
+- when overriding, the annotations must be restated.
+
+
+LEVEL_0 issues
+- TrainClock
+ - is using ClockCallBack which is LEVEL 1.
+ 
+SynchronizedTime
+- Services.setCeiling(this, CEILING) method is LEVEL_1
+-  

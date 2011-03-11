@@ -21,15 +21,9 @@
 package railsegment;
 
 import javax.realtime.InterruptServiceRoutine;
-
-import javax.safetycritical.StorageParameters;
-
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
-
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("F")
 class ModulatedInterruptHandler extends InterruptServiceRoutine {
@@ -51,7 +45,8 @@ class ModulatedInterruptHandler extends InterruptServiceRoutine {
     this.mission = my_mission;
   }
 
-  @DefineScope(name="MIH_Private", parent="F")
+  @Override
+@DefineScope(name="MIH_Private", parent="F")
   @RunsIn("MIH_Private")
   public final void handle() {
     // this interrupt means the previously issued security operation

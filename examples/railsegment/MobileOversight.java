@@ -33,6 +33,7 @@ import javax.safetycritical.annotate.Scope;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 @Scope("H")
 public class MobileOversight extends NoHeapRealtimeThread {
@@ -69,14 +70,15 @@ public class MobileOversight extends NoHeapRealtimeThread {
   }
 
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public void requestTermination()
   {
     // do something special to coordinate with the NHRT thread
     mobile_data.requestTermination();
   }
 
-  @DefineScope(name="MO_Private", parent="H")
+  @Override
+@DefineScope(name="MO_Private", parent="H")
   @RunsIn("MO_Private")
   public void run() {
 

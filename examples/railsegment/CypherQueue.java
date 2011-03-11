@@ -20,13 +20,14 @@
  */
 package railsegment;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import static javax.safetycritical.annotate.Scope.THIS;
+
 import javax.safetycritical.Services;
-import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 // This assumes there is at most one client for NavigationInfo, and
 // that the single client always waits for a response to a previously
@@ -55,28 +56,27 @@ public class CypherQueue {
     private int int_response;
     private long long_response;
 
-    @RunsIn(CURRENT)
     HardwareCoordination() {
       hardware_idle = true;
       pending_request = RequestEncoding.NoRequest;
     }
 
-    @RunsIn(CURRENT)
+    @RunsIn(THIS)
     synchronized void initialize() {
       Services.setCeiling(this, INTERRUPT_PRIORITY);
     }
 
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized boolean idle() {
       return hardware_idle;
     }
 
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized void scheduleHardware() {
       hardware_idle = false;
     }
 
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized void finishHardware() {
       hardware_idle = true;
       // set status code to HardwareCompletion
@@ -86,7 +86,7 @@ public class CypherQueue {
     // we need to move the implementation of awaitRequest here,
     // because the implementation includes coordination with hardware,
     // at interrupt-level priorities.
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized RequestEncoding awaitRequest()
     {
       while (pending_request == RequestEncoding.NoRequest) {
@@ -99,7 +99,7 @@ public class CypherQueue {
       return pending_request;
     }
 
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized int issueDecryptRequest(@Scope(IMMORTAL) byte[] buffer,
                                          int length, long cypher)
       throws InterruptedException
@@ -139,7 +139,7 @@ public class CypherQueue {
       return int_response;
     }
 
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized int issueEncryptRequest(@Scope(IMMORTAL) byte[] buffer,
                                          int length, long cypher)
       throws InterruptedException
@@ -185,7 +185,7 @@ public class CypherQueue {
       return int_response;
     }
 
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized final void issueShutdownRequest() {
       // unblock all pending threads ...
 
@@ -196,25 +196,25 @@ public class CypherQueue {
     // invoked by SecurityService sub-mission
     // no synchronization necessary.  we already waited for notification
     // in awaitRequest().
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized final byte[] getBuffer() {
       return encryption_buffer;
     }
 
     // invoked by SecurityService sub-mission
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized final int getBufferLength() {
       return encryption_length;
     }
 
     // invoked by SecurityService sub-mission
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized final long getKey() {
       return encryption_key;
     }
 
     // invoked by SecurityService sub-mission
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized final void serviceRequest(int result) {
       int_response = result;
       pending_request = RequestEncoding.ResponseReady;
@@ -222,14 +222,14 @@ public class CypherQueue {
     }
 
     // invoked by SecurityService sub-mission
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized final void serviceRequest(long result) {
       long_response = result;
       pending_request = RequestEncoding.ResponseReady;
       notifyAll();
     }
 
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized final void issueHardwareRequest(boolean encrypt,
                                                  @Scope(IMMORTAL) byte[] buffer,
                                                  int length, long cypher) {
@@ -239,7 +239,7 @@ public class CypherQueue {
       hardware_idle = false;
     }
 
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized final void awaitHardwareCompletion() {
       while (hardware_idle == false) {
         try {
@@ -252,20 +252,20 @@ public class CypherQueue {
 
 
     // return true iff the hardware is currently busy
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized final boolean busy() {
       return !hardware_idle;
     }
 
     // invoked by the hardware interrupt service routine
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized final void completeHardwareRequest(int status) {
       hardware_status = status;
       hardware_idle = true;
       notifyAll();
     }
 
-    @RunsIn(UNKNOWN)
+    @RunsIn(CALLER)
     synchronized int getHardwareStatus() {
       return hardware_status;
     }
@@ -303,7 +303,7 @@ public class CypherQueue {
    */
 
   // invoked by CommunicationsOversight thread
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   final void encrypt(@Scope(IMMORTAL) byte[] buffer, int length, long cypher)
     throws InterruptedException
   {
@@ -311,7 +311,7 @@ public class CypherQueue {
   }
 
   // invoked by CommunicationsOversight thread
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   final void decrypt(@Scope(IMMORTAL) byte[] buffer, int length, long cypher)
     throws InterruptedException
   {
@@ -323,7 +323,7 @@ public class CypherQueue {
   // synchronization, because that might suspend while holding lock.)
 
   // invoked by SecurityService sub-mission
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   final RequestEncoding awaitRequest() {
     return hardware.awaitRequest();
   }
@@ -331,42 +331,42 @@ public class CypherQueue {
   // invoked by SecurityService sub-mission
   // no synchronization necessary.  we already waited for notification
   // in awaitRequest().
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   final byte[] getBuffer() {
     return hardware.getBuffer();
   }
 
   // invoked by SecurityService sub-mission
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   final int getBufferLength() {
     return hardware.getBufferLength();
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   // invoked by SecurityService sub-mission
   final long getKey() {
     return hardware.getKey();
   }
 
   // invoked by SecurityService sub-mission
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   final void serviceRequest(int result) {
     hardware.serviceRequest(result);
   }
 
   // invoked by SecurityService sub-mission
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   final void serviceRequest(long long_result) {
     hardware.serviceRequest(long_result);
   }
 
   // returns true if encryption hardware is busy
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   final boolean hardwareBusy() {
     return hardware.busy();
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   final void issueHardwareRequest(boolean encrypt,
                                   @Scope(IMMORTAL) byte[] buffer,
                                   int length, long cypher) {
@@ -375,17 +375,17 @@ public class CypherQueue {
 
 
   // invoked by the hardware interrupt service routine
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   final void completeHardwareRequest(int status) {
     hardware.completeHardwareRequest(status);
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   final int getHardwareStatus() {
     return hardware.getHardwareStatus();
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized final void issueShutdownRequest() {
     hardware.issueShutdownRequest();
   }

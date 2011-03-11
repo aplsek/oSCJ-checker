@@ -22,26 +22,30 @@ package railsegment;
 
 import javax.realtime.PriorityParameters;
 
+import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 
 import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("TM")
 public class CommunicationServiceSequencer
-  extends MissionSequencer<CommunicationService>
+  extends MissionSequencer //<CommunicationService>
 {
   private boolean did_mission;
 
   private final int COMMS_PRIORITY;
   private final CommunicationsQueue comms_data;
 
+  @SCJRestricted(INITIALIZATION)
   public CommunicationServiceSequencer(final int COMMS_PRIORITY,
                                        final CommunicationsQueue comms_data)
   {
@@ -56,7 +60,8 @@ public class CommunicationServiceSequencer
     did_mission = false;
   }
 
-  @RunsIn("A")
+  @Override
+@RunsIn("A")
   protected CommunicationService getNextMission()
   {
     if (!did_mission) {
@@ -67,4 +72,10 @@ public class CommunicationServiceSequencer
       return null;
     }
   }
+
+@Override
+protected Mission getInitialMission() {
+    // TODO Auto-generated method stub
+    return null;
+}
 }

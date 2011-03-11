@@ -1,19 +1,19 @@
 /**
- *  Name: Railsegment 
+ *  Name: Railsegment
  *  Author : Kelvin Nilsen, <kelvin.nilsen@atego.com>
- *  
+ *
  *  Copyright (C) 2011  Kelvin Nilsen
- *  
+ *
  *  Railsegment is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
- *  
+ *
  *  Railsegment is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -37,9 +37,9 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.CURRENT;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 @DefineScope(name="C", parent=IMMORTAL)
 @Scope("C")
@@ -67,7 +67,6 @@ public class TimeService extends Mission
   private long synchronized_ms;
   private int synchronized_ns;
 
-  @RunsIn(CURRENT)
   public TimeService(final SynchronizedTime times_data,
                      final CommunicationsQueue comms_data,
                      final TrainClock train_clock,
@@ -79,7 +78,7 @@ public class TimeService extends Mission
     this.TIME_PRIORITY = TIME_PRIORITY;
   }
 
-  @RunsIn(CURRENT)
+  @Override
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -87,7 +86,7 @@ public class TimeService extends Mission
     return MissionMemorySize;
   }
 
-  @RunsIn(CURRENT)
+  @Override
   public void initialize()
   {
     // How is synchronized time implemented?  Let's
@@ -100,7 +99,7 @@ public class TimeService extends Mission
     timer_tick = new TimerTick(this, train_clock, TIME_PRIORITY);
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized void updateGlobalTime(long ms, int ns) {
 
     // TODO: should normalize numbers, maybe...
@@ -109,7 +108,7 @@ public class TimeService extends Mission
     synchronized_ns = ns;
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized void getGlobalTime(AbsoluteTime t) {
     if ((t != null) && (t.getClock() == train_clock)) {
       t.set(synchronized_ms, synchronized_ns);
@@ -120,11 +119,12 @@ public class TimeService extends Mission
     }
   }
 
-  @RunsIn(UNKNOWN)
+  @Override
+@RunsIn(CALLER)
   public void requestTermination()
   {
     // something special to coordinate with the NHRT thread
-    
+
     super.requestTermination();
   }
 }

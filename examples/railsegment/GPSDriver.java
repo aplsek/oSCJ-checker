@@ -21,26 +21,23 @@
 
 package railsegment;
 
-import railsegment.clock.TrainClock;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.AbsoluteTime;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.realtime.RelativeTime;
-
-import javax.safetycritical.NoHeapRealtimeThread;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
-
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
-import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import railsegment.clock.TrainClock;
 
 @Scope("D")
+@DefineScope(name="D:GPSD", parent="D")
 public class GPSDriver extends PeriodicEventHandler
 {
     // Determined by VM-specific static analysis tools
@@ -52,6 +49,7 @@ public class GPSDriver extends PeriodicEventHandler
     private TrainClock train_clock;
 
     // This periodic task runs every 1 ms
+    @SCJRestricted(INITIALIZATION)
     public GPSDriver(NavigationService nav_mission,
             TrainClock train_clock, int priority) {
         super(new PriorityParameters(priority),
@@ -64,7 +62,6 @@ public class GPSDriver extends PeriodicEventHandler
     }
 
     @Override
-    @DefineScope(name="D:GPSD", parent="D")
     @RunsIn("D:GPSD")
     public void handleAsyncEvent() {
 

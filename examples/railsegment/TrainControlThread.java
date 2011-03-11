@@ -34,6 +34,8 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 import railsegment.clock.SynchronizedTime;
+import static javax.safetycritical.annotate.Scope.CALLER;
+
 
 @Scope("B")
 public class TrainControlThread extends NoHeapRealtimeThread
@@ -62,17 +64,18 @@ public class TrainControlThread extends NoHeapRealtimeThread
 
   private boolean shutting_down = false;
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized void requestTermination() {
     shutting_down = true;
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   private synchronized boolean terminationRequested() {
     return shutting_down;
   }
 
-  @DefineScope(name="B:TCT", parent="B")
+  @Override
+@DefineScope(name="B:TCT", parent="B")
   @RunsIn("B:TCT")
   public void run()
   {

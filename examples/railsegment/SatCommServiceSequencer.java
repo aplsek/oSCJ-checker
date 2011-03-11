@@ -23,23 +23,27 @@ package railsegment;
 
 import javax.realtime.PriorityParameters;
 
+import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("A")
 public class SatCommServiceSequencer
-  extends MissionSequencer<SatCommService>
+  extends MissionSequencer //<SatCommService>
 {
   private boolean did_mission;
 
   private final int SAT_PRIORITY;
   private final SatQueue sat_data;
 
+  @SCJRestricted(INITIALIZATION)
   public SatCommServiceSequencer(final int sat_priority, SatQueue sat_data)
   {
     super(new PriorityParameters(sat_priority),
@@ -53,7 +57,8 @@ public class SatCommServiceSequencer
     did_mission = false;
   }
 
-  @RunsIn("G")
+  @Override
+@RunsIn("G")
   protected SatCommService getNextMission()
   {
     if (!did_mission) {
@@ -64,4 +69,10 @@ public class SatCommServiceSequencer
       return null;
     }
   }
+
+@Override
+protected Mission getInitialMission() {
+    // TODO Auto-generated method stub
+    return null;
+}
 }

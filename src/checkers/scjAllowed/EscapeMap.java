@@ -15,6 +15,7 @@ public class EscapeMap {
     public static final Map<String, Level> escape = new HashMap<String, Level>();
 
     static {
+        escape.put("java.lang", Level.LEVEL_0);
         escape.put("java.lang.Object", Level.LEVEL_0);
         escape.put("java.lang.String", Level.LEVEL_0);
         escape.put("java.lang.StringBuffer", Level.LEVEL_0);

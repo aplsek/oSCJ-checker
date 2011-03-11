@@ -13,6 +13,8 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+
 @SCJAllowed(members=true)
 @Scope("CDMission")
 public class StateTable {
@@ -22,13 +24,13 @@ public class StateTable {
     final HashMap motionVectors = new HashMap();
     final VectorRunnable r = new VectorRunnable();
 
-    @RunsIn(UNKNOWN)
-    public Vector3d get(Callsign cs) {
+    @RunsIn(CALLER)
+    public Vector3d get(@Scope(UNKNOWN) Callsign cs) {   // TODO: should this be UNKNOWN??
         return (Vector3d) motionVectors.get(cs);
     }
 
-    @RunsIn(UNKNOWN)
-    public void put(final Callsign cs) {
+    @RunsIn(CALLER)
+    public void put(@Scope(UNKNOWN) final Callsign cs) {
 
         if (ManagedMemory.allocInSame(r, cs))
             r.cs = cs; // DYNAMIC GUARD

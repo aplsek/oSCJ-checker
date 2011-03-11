@@ -1,19 +1,19 @@
 /**
- *  Name: Railsegment 
+ *  Name: Railsegment
  *  Author : Kelvin Nilsen, <kelvin.nilsen@atego.com>
- *  
+ *
  *  Copyright (C) 2011  Kelvin Nilsen
- *  
+ *
  *  Railsegment is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
- *  
+ *
  *  Railsegment is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -29,16 +29,17 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.CURRENT;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 // SynchronizedTime is used in the implementation of a globally
 // synchronized time service.  The implementation assures
 // monotonically increasing time.
 
 @Scope("TM")
-@SCJAllowed
+@SCJAllowed(members = true)
 public class SynchronizedTime
 {
   private long synchronized_ms;
@@ -54,7 +55,6 @@ public class SynchronizedTime
   TrainClock train_clock;
   private boolean initialized;
 
-  @RunsIn(CURRENT)
   public SynchronizedTime(int ceiling)
   {
     CEILING = ceiling;
@@ -62,7 +62,6 @@ public class SynchronizedTime
   }
 
   // package access
-  @RunsIn(CURRENT)
   public synchronized TrainClock initialize() {
 
     Services.setCeiling(this, CEILING);
@@ -74,7 +73,7 @@ public class SynchronizedTime
     return train_clock;
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public synchronized final AbsoluteTime getTime()
   {
     while (!initialized) {
@@ -90,7 +89,7 @@ public class SynchronizedTime
                             synchronized_ns, train_clock);
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   private synchronized void updateTime(long new_ms, int new_ns)
   {
     if (((synchronized_ms < new_ms) ||
@@ -105,7 +104,7 @@ public class SynchronizedTime
     }
   }
 
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized void setCallBackTime(@Scope(UNKNOWN) AbsoluteTime new_timeout)
   {
     callback_time.set(new_timeout.getMilliseconds(),
@@ -114,10 +113,10 @@ public class SynchronizedTime
   }
 
   // package access
-  @RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   synchronized void awaitCallBackTime()
   {
-    while ((callback_time != null) && 
+    while ((callback_time != null) &&
            (synchronized_ms < callback_time.getMilliseconds()) ||
            ((synchronized_ms == callback_time.getMilliseconds()) &&
             (synchronized_ns < callback_time.getNanoseconds()))) {

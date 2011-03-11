@@ -29,10 +29,14 @@ import railsegment.clock.TrainClock;
 
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Scope.CALLER;
+
 
 @DefineScope(name="TM", parent=IMMORTAL)
 @Scope(IMMORTAL)
@@ -99,13 +103,12 @@ public class TrainMission extends Mission
   private NavigationServiceSequencer navsq;
   private TrainControlSequencer controlsq;
 
+  @SCJRestricted(INITIALIZATION)
   public TrainMission() {
     // nothing much happens here
-
   }
 
   @Override
-@RunsIn(CURRENT)
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -114,7 +117,7 @@ public class TrainMission extends Mission
   }
 
   @Override
-@RunsIn(CURRENT)
+  @SCJRestricted(INITIALIZATION)
   public void initialize() {
     // it all happens here instead
 
@@ -155,7 +158,7 @@ public class TrainMission extends Mission
   // does nothing.
 
   @Override
-@RunsIn(UNKNOWN)
+  @RunsIn(CALLER)
   public void requestTermination()
   {
     commsq.requestSequenceTermination();
