@@ -39,7 +39,7 @@ import static javax.safetycritical.annotate.Scope.CALLER;
 
 
 @DefineScope(name="TM", parent=IMMORTAL)
-@Scope(IMMORTAL)
+@Scope("TM")  // Scope(IMMORTAL)
 public class TrainMission extends Mission
 {
   public final static long BackingStoreRequirements = 10000;

@@ -43,24 +43,23 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 @DefineScope(name="C:TO", parent="C")
 public class TimerOversight extends NoHeapRealtimeThread
 {
-  // Determined by VM-specific static analysis tools
+// Determined by VM-specific static analysis tools
   private static final long BackingStoreRequirements = 500;
   private static final long NativeStackRequirements = 2000;
   private static final long JavaStackRequirements = 300;
 
-  private CommunicationsQueue comms_data;
+ // private CommunicationsQueue comms_data;
   private TimeService time_mission;
 
   public TimerOversight(TimeService time_mission,
                         CommunicationsQueue comms_data,
                         int priority) {
-    super(new PriorityParameters(priority),
+      super(new PriorityParameters(priority),
           new StorageParameters(BackingStoreRequirements,
                                 NativeStackRequirements,
                                 JavaStackRequirements));
-    this.comms_data = comms_data;
+    //this.comms_data = comms_data;
   }
-
   @Override
   @RunsIn("C:TO")
   public void run() {

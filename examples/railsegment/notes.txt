@@ -21,6 +21,7 @@ Changes in Annotations
 - now equivalent to @RunsIn(THIS) and this value is given by default
 
 Generics
+ - not supported by the checker yet.
  - commenting out generics
  
 @SCJRestricted(INITIALIZATION)
@@ -31,8 +32,8 @@ TrainClock:
 - when overriding, the annotations must be restated.
 
 @DefineScope
-- can be placed only on classes and on variables/fields of types that implement AllocaitonContext
-- all other @DefineScope annotaitons are ignored. Eg.g placing @DefineSCope at "handleAsyncEvent()" does not have any effect.
+- can be placed only on classes and on variables/fields of types that implement AllocationContext
+- all other @DefineScope annotaitons are ignored. Eg.g placing @DefineScope at "handleAsyncEvent()" does not have any effect.
 
 handleAsyncEvent
 - some of these methods were annotated @Scope(..), it should probably be @RunsIn
@@ -41,21 +42,37 @@ handleAsyncEvent
 
 NoHeapRealtimeThread
 - the example is using javax.safetycritical.NoHeapRealtimeThread but the SPEC does not define this class.
-- the run() method is from @Runnable, its @RunsIn cannot be overriden!!
-
 
 @SCJAllowed
 - most of the classes have missing @SCJAllowed
 - LEVEL_0 issues
     - TrainClock
     - is using ClockCallBack which is LEVEL 1.
-SynchronizedTime
-    - Services.setCeiling(this, CEILING) method is LEVEL_1
-    - 
+    SynchronizedTime
+        - Services.setCeiling(this, CEILING) method is LEVEL_1
+- I have commented out these lines so that the checker may continue with the checking. The order of the verification is 1. SCJAllowed errors 2. SCJRestricted errors 3. @Scope related errors. 
     
-Duplicate @DefineScope definition
+Duplicate @DefineScope definitions
 - MO_Private for  MobileOversight and for ModulatedOversight, changed to MOB_Private and MOD_Private
 - SO_Private for SecurityOversight, 
-- SIH_Private
-- MIH_Private
+- the same for SIH_Private and MIH_Private
+
+
+InterruptServiceRoutine
+the "handle()" method, it should be @SCJAllowed(SUPPORT) , no?
+
+
+TrainMission 
+- there was a problem with the TrainMission scope
+- originally, the class was @Scope(IMMORTAL) but several of its fields (e.g. TrainControlSequencer controlsq) are annotated @Scope("TM") --> this produces an error, since we can not reference objects in child scopes
+- after putting TrainMission class into @Scope("TM"), checker is happy.
+
+- a similar problem occurs with "TimverOversight" and "TimeService" classes that lives in @Scope("C") but reference e.g. CommunicationsQueue that lives in @Scope("TM") - a sibling scope to "C".
+--> Thanks to this I discovered one of the bugs in our checker - the report of this error is misleading, we will need to fix this. It should not be difficult.
+
+
+Runnable interface
+- at all places where a run method from a Runnable interface is implemented (e.g. NoHeapRealtimeThread) and has a @RunsIn annotation, the checker reports an error - @RunsIn cannot be overriden. The solution using SCJRunnable (which is implemented by the Checker) does not fully covers all the cases : e.g. MemoryArea.executeInArea(), NoHeapRealtimeThread.run(), etc. 
+We will probably need to find a better solution to this problem.
+ 
 
