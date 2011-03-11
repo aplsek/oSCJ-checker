@@ -21,6 +21,7 @@ import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.MethodInvocationTree;
+import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
 
 public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
@@ -103,5 +104,17 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
             else
                 scopeTree.put(childScope, parentScope, node);
         }
+    }
+
+    void pln(String str) {System.out.println("\t"+str);}
+
+    @Override
+    public R visitMethod(MethodTree node, P p) {
+        ExecutableElement m = TreeUtils.elementFromDeclaration(node);
+        DefineScope ds = m.getAnnotation(DefineScope.class);
+        if (ds != null)
+            warn(ERR_UNUSED_DEFINE_SCOPE, node);
+
+        return super.visitMethod(node, p);
     }
 }

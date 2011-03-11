@@ -131,6 +131,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         return super.visitVariable(node, p);
     }
 
+    void pln(String str) {System.out.println("\t" + str);}
+
     /**
      * Check that a class has a valid Scope annotation.
      * <ul>
@@ -215,8 +217,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     private void checkConstructor(ExecutableElement m, MethodTree mTree,
             Tree mErr) {
         RunsIn runsIn = m.getAnnotation(RunsIn.class);
-        if (runsIn != null)
-            fail(ERR_RUNS_IN_ON_CONSTRUCTOR, mTree, mErr);
+        if (runsIn != null) {
+            String msg = "\n\t ERROR class is :" + m.getEnclosingElement() + "." + m;
+            fail(ERR_RUNS_IN_ON_CONSTRUCTOR, mTree, mErr, msg);
+        }
 
         checkMethod(m, mTree, mErr);
     }
@@ -293,12 +297,14 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         ScopeInfo scope = new ScopeInfo(ds.name());
         ScopeInfo parent = new ScopeInfo(ds.parent());
 
-        if (!scopeTree.hasScope(scope) || !scopeTree.isParentOf(scope, parent))
+        if (!scopeTree.hasScope(scope) || !scopeTree.isParentOf(scope, parent)) {
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node, errNode);
+        }
 
         if (!effectiveVarScope.equals(parent))
             fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
                     errNode, effectiveVarScope, parent);
+
         return effectiveVarScope.representing(scope);
     }
 
