@@ -7,10 +7,8 @@ Changes in Annotations
 - e.g.  
   @Scope("TM")
   static class SubmissionCoordination {
-
     int status;
-
-    @RunsIn(IMMORTAL)  // TODO: should this class bi @Scope(IMMORTAL?)
+    @RunsIn(IMMORTAL)  // TODO: shouldn't this class be @Scope(IMMORTAL)?
     SubmissionCoordination() {
       status = 0;
     }
