@@ -36,6 +36,7 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 @Scope("H")
+@DefineScope(name="MOB_Private", parent="H")
 public class MobileOversight extends NoHeapRealtimeThread {
 
   // These three constants determined by static analysis or other
@@ -78,8 +79,7 @@ public class MobileOversight extends NoHeapRealtimeThread {
   }
 
   @Override
-@DefineScope(name="MO_Private", parent="H")
-  @RunsIn("MO_Private")
+  @RunsIn("MOB_Private")
   public void run() {
 
     while (true) {

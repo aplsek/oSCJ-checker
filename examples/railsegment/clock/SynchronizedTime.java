@@ -64,7 +64,7 @@ public class SynchronizedTime
   // package access
   public synchronized TrainClock initialize() {
 
-    Services.setCeiling(this, CEILING);
+    //Services.setCeiling(this, CEILING);
     train_clock = new TrainClock(this);
     train_clock.initialize();
     callback_time = new AbsoluteTime(0L, 0, train_clock);

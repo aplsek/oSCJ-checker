@@ -36,6 +36,7 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 @Scope("A")
+@DefineScope(name="CO_Private", parent="A")
 class CommunicationsOversight extends NoHeapRealtimeThread {
 
   // Determined by VM-specific static analysis tools
@@ -84,7 +85,6 @@ class CommunicationsOversight extends NoHeapRealtimeThread {
   }
 
   @Override
-@DefineScope(name="CO_Private", parent="A")
   @RunsIn("CO_Private")
   public final void run() {
     // details not shown, but generally, this thread acts as follows.

@@ -35,6 +35,7 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 @Scope("F")
+@DefineScope(name="MO_Private", parent="F")
 class ModulatedOversight extends NoHeapRealtimeThread {
 
   // Determined by VM-specific static analysis tools
@@ -75,7 +76,6 @@ class ModulatedOversight extends NoHeapRealtimeThread {
   }
 
   @Override
-@DefineScope(name="MO_Private", parent="F")
   @RunsIn("MO_Private")
   public final void run() {
     byte[] buffer = null;

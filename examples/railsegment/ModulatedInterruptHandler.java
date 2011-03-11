@@ -26,6 +26,7 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
 @Scope("F")
+@DefineScope(name="MIH_Private", parent="F")
 class ModulatedInterruptHandler extends InterruptServiceRoutine {
   // Determined by VM-specific static analysis tools
   private static final long BackingStoreRequirements = 500;
@@ -46,7 +47,6 @@ class ModulatedInterruptHandler extends InterruptServiceRoutine {
   }
 
   @Override
-@DefineScope(name="MIH_Private", parent="F")
   @RunsIn("MIH_Private")
   public final void handle() {
     // this interrupt means the previously issued security operation

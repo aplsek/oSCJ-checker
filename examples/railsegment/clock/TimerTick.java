@@ -41,6 +41,7 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("C")
+@DefineScope(name="C:TT", parent="C")
 public class TimerTick extends PeriodicEventHandler
 {
   // Determined by VM-specific static analysis tools
@@ -65,8 +66,7 @@ public class TimerTick extends PeriodicEventHandler
   }
 
   @Override
-@DefineScope(name="C:TT", parent="C")
-  @Scope("C:TT")
+  @RunsIn("C:TT")
   public void handleAsyncEvent() {
     AbsoluteTime t = new AbsoluteTime(0L, 0, train_clock);
     time_mission.getGlobalTime(t);

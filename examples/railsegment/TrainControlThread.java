@@ -38,6 +38,7 @@ import static javax.safetycritical.annotate.Scope.CALLER;
 
 
 @Scope("B")
+@DefineScope(name="B:TCT", parent="B")
 public class TrainControlThread extends NoHeapRealtimeThread
 {
   private final static int BackingStoreSize = 1000;
@@ -75,7 +76,6 @@ public class TrainControlThread extends NoHeapRealtimeThread
   }
 
   @Override
-@DefineScope(name="B:TCT", parent="B")
   @RunsIn("B:TCT")
   public void run()
   {

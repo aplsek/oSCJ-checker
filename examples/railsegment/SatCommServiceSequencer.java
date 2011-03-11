@@ -36,43 +36,43 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("A")
 public class SatCommServiceSequencer
-  extends MissionSequencer //<SatCommService>
+extends MissionSequencer //<SatCommService>
 {
-  private boolean did_mission;
+    private boolean did_mission;
 
-  private final int SAT_PRIORITY;
-  private final SatQueue sat_data;
+    private final int SAT_PRIORITY;
+    private final SatQueue sat_data;
 
-  @SCJRestricted(INITIALIZATION)
-  public SatCommServiceSequencer(final int sat_priority, SatQueue sat_data)
-  {
-    super(new PriorityParameters(sat_priority),
-          new StorageParameters(SatCommService.BackingStoreRequirements,
-                                SatCommService.NativeStackRequirements,
-                                SatCommService.JavaStackRequirements),
-          "Communication Services Sequencer");
+    @SCJRestricted(INITIALIZATION)
+    public SatCommServiceSequencer(final int sat_priority, SatQueue sat_data)
+    {
+        super(new PriorityParameters(sat_priority),
+                new StorageParameters(SatCommService.BackingStoreRequirements,
+                        SatCommService.NativeStackRequirements,
+                        SatCommService.JavaStackRequirements),
+        "Communication Services Sequencer");
 
-    SAT_PRIORITY = sat_priority;
-    this.sat_data = sat_data;
-    did_mission = false;
-  }
-
-  @Override
-@RunsIn("G")
-  protected SatCommService getNextMission()
-  {
-    if (!did_mission) {
-      did_mission = true;
-      return new SatCommService(SAT_PRIORITY, sat_data);
+        SAT_PRIORITY = sat_priority;
+        this.sat_data = sat_data;
+        did_mission = false;
     }
-    else {
-      return null;
-    }
-  }
 
-@Override
-protected Mission getInitialMission() {
-    // TODO Auto-generated method stub
-    return null;
-}
+    @Override
+    @RunsIn("G")
+    protected SatCommService getNextMission()
+    {
+        if (!did_mission) {
+            did_mission = true;
+            return new SatCommService(SAT_PRIORITY, sat_data);
+        }
+        else {
+            return null;
+        }
+    }
+
+    @Override
+    protected Mission getInitialMission() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

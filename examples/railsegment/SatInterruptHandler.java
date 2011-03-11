@@ -31,6 +31,7 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("G")
+@DefineScope(name="SIH_Private", parent="G")
 class SatInterruptHandler extends InterruptServiceRoutine {
 
   // Determined by VM-specific static analysis tools
@@ -50,16 +51,10 @@ class SatInterruptHandler extends InterruptServiceRoutine {
     this.mission = my_mission;
   }
 
-  @DefineScope(name="SIH_Private", parent="G")
+  @Override
   @RunsIn("SIH_Private")
   public final void handle() {
     // this interrupt means the previously issued security operation
     // has completed its execution.
-
-
-
   }
-
-
-
 }

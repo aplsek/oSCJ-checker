@@ -1,11 +1,20 @@
-
-
 Changes in Annotations
+==========================================
 
 @RunsIn on constructors
 - RunsIn annotations are not allowed on constructors.
 - constructors run in the same scope as is the @Scope of the Type
+- e.g.  
+  @Scope("TM")
+  static class SubmissionCoordination {
 
+    int status;
+
+    @RunsIn(IMMORTAL)  // TODO: should this class bi @Scope(IMMORTAL?)
+    SubmissionCoordination() {
+      status = 0;
+    }
+   
 
 @RunsIn(CURRENT) 
 - deleted
@@ -17,16 +26,36 @@ Generics
 @SCJRestricted(INITIALIZATION)
 - adding this annotation on all constructors of sequencers/missions
 
-
 TrainClock:
 - getTime() and drivesEvents() method were missing @SCJRestricted(maySelfSuspend = false)
 - when overriding, the annotations must be restated.
 
+@DefineScope
+- can be placed only on classes and on variables/fields of types that implement AllocaitonContext
+- all other @DefineScope annotaitons are ignored. Eg.g placing @DefineSCope at "handleAsyncEvent()" does not have any effect.
 
-LEVEL_0 issues
-- TrainClock
- - is using ClockCallBack which is LEVEL 1.
- 
+handleAsyncEvent
+- some of these methods were annotated @Scope(..), it should probably be @RunsIn
+- also, @Scope on a method that returns void/primitive is prohibited
+
+
+NoHeapRealtimeThread
+- the example is using javax.safetycritical.NoHeapRealtimeThread but the SPEC does not define this class.
+- the run() method is from @Runnable, its @RunsIn cannot be overriden!!
+
+
+@SCJAllowed
+- most of the classes have missing @SCJAllowed
+- LEVEL_0 issues
+    - TrainClock
+    - is using ClockCallBack which is LEVEL 1.
 SynchronizedTime
-- Services.setCeiling(this, CEILING) method is LEVEL_1
--  
+    - Services.setCeiling(this, CEILING) method is LEVEL_1
+    - 
+    
+Duplicate @DefineScope definition
+- MO_Private for  MobileOversight and for ModulatedOversight, changed to MOB_Private and MOD_Private
+- SO_Private for SecurityOversight, 
+- SIH_Private
+- MIH_Private
+

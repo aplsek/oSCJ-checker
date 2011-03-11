@@ -147,9 +147,9 @@ public class TrainClock extends Clock {
 
         if ((callback_event != null)
                 && (new_time.compareTo(callback_time) >= 0)) {
-            ClockCallBack tmp = callback_event;
+            //ClockCallBack tmp = callback_event;
             callback_event = null;
-            tmp.atTime(this);
+            //tmp.atTime(this);
         }
     }
 

@@ -35,6 +35,7 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 @Scope("E")
+@DefineScope(name="SEC_Private", parent="E")
 class SecurityOversight extends NoHeapRealtimeThread {
 
   // Determined by VM-specific static analysis tools
@@ -74,7 +75,6 @@ class SecurityOversight extends NoHeapRealtimeThread {
   }
 
   @Override
-@DefineScope(name="SO_Private", parent="E")
   @RunsIn("SO_Private")
   public final void run() {
     byte[] buffer = null;

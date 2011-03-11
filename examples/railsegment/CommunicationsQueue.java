@@ -55,7 +55,7 @@ public class CommunicationsQueue
 
     int status;
 
-    @RunsIn(IMMORTAL)
+   // @RunsIn(IMMORTAL)  // TODO: should this class bi @Scope(IMMORTAL?)
     SubmissionCoordination() {
       status = 0;
     }

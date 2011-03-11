@@ -30,6 +30,8 @@ import javax.safetycritical.annotate.Scope;
 
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import static javax.safetycritical.annotate.Scope.CALLER;
+
+
 @DefineScope(name="E", parent="A")
 @Scope("E")
 public class SecurityService extends Mission

@@ -40,6 +40,7 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("C")
+@DefineScope(name="C:TO", parent="C")
 public class TimerOversight extends NoHeapRealtimeThread
 {
   // Determined by VM-specific static analysis tools
@@ -61,10 +62,8 @@ public class TimerOversight extends NoHeapRealtimeThread
   }
 
   @Override
-  @DefineScope(name="C:TO", parent="C")
-  @Scope("C:TO")
+  @RunsIn("C:TO")
   public void run() {
-
     // I assume there's a fairly complicated algorithm required to
     // implement globally synchronized clocks.  I don't begin to
     // understand what this algorithm is.  But I know it involves
@@ -75,7 +74,5 @@ public class TimerOversight extends NoHeapRealtimeThread
     // Based on my interactions with other nodes, I'll refine my
     // understanding of the current time, and will update a field in
     //  write: time_mission.updateGlobalTime()
-
-
   }
 }

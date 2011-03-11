@@ -35,6 +35,7 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 @Scope("G")
+@DefineScope(name="SO_Private", parent="G")
 class SatOversight extends NoHeapRealtimeThread {
   // Determined by VM-specific static analysis tools
   private static final long BackingStoreRequirements = 500;
@@ -72,7 +73,6 @@ class SatOversight extends NoHeapRealtimeThread {
   }
 
   @Override
-@DefineScope(name="SO_Private", parent="G")
   @RunsIn("SO_Private")
   public final void run() {
     byte[] buffer = null;

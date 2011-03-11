@@ -32,6 +32,7 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("H")
+//@DefineScope(name="MIH_Private", parent="H")
 class MobileInterruptHandler extends InterruptServiceRoutine {
 
   // Determined by VM-specific static analysis tools
@@ -51,7 +52,7 @@ class MobileInterruptHandler extends InterruptServiceRoutine {
     this.mission = my_mission;
   }
 
-  @DefineScope(name="MIH_Private", parent="H")
+  @Override
   @RunsIn("MIH_Private")
   public final void handle() {
     // this interrupt means the previously issued security operation

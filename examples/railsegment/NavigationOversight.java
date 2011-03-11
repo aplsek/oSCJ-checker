@@ -43,6 +43,7 @@ import static railsegment.NavigationInfo.RequestEncoding.NextStop;
 
 
 @Scope("D")
+@DefineScope(name="D:NO", parent="D")
 public class NavigationOversight extends NoHeapRealtimeThread
 {
   // Determined by VM-specific static analysis tools
@@ -67,8 +68,8 @@ public class NavigationOversight extends NoHeapRealtimeThread
     this.route_data = route_data;
   }
 
-  @DefineScope(name="D:NO", parent="D")
-  @Scope("D:NO")
+  @Override
+  @RunsIn("D:NO")
   public void run() {
 
     while (true) {
