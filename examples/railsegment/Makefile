@@ -25,7 +25,8 @@ all: CommunicationService.class CommunicationsOversight.class \
   SecurityServiceSequencer.class TimeServiceSequencer.class \
   TrackModulatedCommServiceSequencer.class TrainControl.class \
   TrainControlApp.class TrainControlSequencer.class \
-  TrainControlThread.class TrainMission.class clock/SynchronizedTime.class \
+  TrainControlThread.class TrainMission.class TrainMissionSequencer.class \
+  clock/SynchronizedTime.class \
   clock/TimeService.class clock/TimerOversight.class \
   clock/TimerTick.class clock/TrainClock.class
 

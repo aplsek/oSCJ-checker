@@ -61,7 +61,7 @@ public class TrainMission extends Mission
   //        overflows and to "serve" time synchronization), priority 24
   //   comms_responses (on behalf of global time synchronization),
   //        priority 24.  note that some of comms_responses are in
-  //        behalf of train control, which has lower priority.  but it
+  //        behalf of train control, which has lower priority but it
   //        will inherit the highest priority of its clients.
   //
   //   timer_tick, deadline 500 microseconds, priority 20
