@@ -167,8 +167,9 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
                 fail(ERR_BAD_OVERRIDE, node);
         }
 
-        if (topLevel().compareTo(level) > 0)
-            fail(ERR_BAD_ENCLOSED, node);
+        //
+        //if (topLevel().compareTo(level) > 0)
+        //    fail(ERR_BAD_ENCLOSED, node);
 
         scjAllowedStack.push(level);
         R r = super.visitMethod(node, p);
@@ -391,7 +392,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      * in SCJ API returns HIDDEN if no annotation: if in SCJ returns HIDDEN else
      * returns 0
      */
-    private Level getSCJAllowedLevelValue(Element e) {
+    private static Level getSCJAllowedLevelValue(Element e) {
         SCJAllowed a = e.getAnnotation(SCJAllowed.class);
         return a == null ? HIDDEN : a.value();
     }
@@ -430,7 +431,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     /**
      * Returns true if element is annotated by SCJAllowed
      */
-    private boolean isSCJAllowed(Element e) {
+    private static boolean isSCJAllowed(Element e) {
         return e.getAnnotation(SCJAllowed.class) != null;
     }
 

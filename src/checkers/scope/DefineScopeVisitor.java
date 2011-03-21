@@ -106,8 +106,6 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         }
     }
 
-    void pln(String str) {System.out.println("\t"+str);}
-
     @Override
     public R visitMethod(MethodTree node, P p) {
         ExecutableElement m = TreeUtils.elementFromDeclaration(node);

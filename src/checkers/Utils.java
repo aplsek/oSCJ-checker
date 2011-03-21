@@ -1,6 +1,9 @@
 package checkers;
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
+
 import java.util.List;
+import java.util.Map;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -20,6 +23,7 @@ import javax.safetycritical.annotate.Scope;
 
 import checkers.scope.ScopeCheckerContext;
 import checkers.scope.ScopeInfo;
+import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
 import checkers.util.TypesUtils;
 
 public final class Utils {

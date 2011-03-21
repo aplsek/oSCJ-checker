@@ -1,5 +1,6 @@
 package checkers.scope;
 
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_SUPPORT;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_LIBRARY_ANNOTATION;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE;
@@ -14,6 +15,7 @@ import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
 import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CONSTRUCTOR;
 import static checkers.scope.ScopeRunsInChecker.ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN;
+import static javax.safetycritical.annotate.Level.HIDDEN;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
 import java.util.List;
@@ -76,7 +78,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     @Override
     public Void visitClass(ClassTree node, Void p) {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
-        checkClassScope(t, node, node);
+        checkClassScope(t, node, node, true);
         return super.visitClass(node, p);
     }
 
@@ -89,7 +91,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (elem.getKind() == ElementKind.CLASS
                 || elem.getKind() == ElementKind.INTERFACE) {
             TypeElement t = (TypeElement) elem;
-            checkClassScope(t, trees.getTree(t), node);
+            checkClassScope(t, trees.getTree(t), node, false);
         }
         return super.visitIdentifier(node, p);
     }
@@ -104,7 +106,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         TypeMirror mirror = InternalUtils.typeOf(node);
         if (mirror.getKind() == TypeKind.DECLARED) {
             TypeElement t = Utils.getTypeElement(mirror);
-            checkClassScope(t, trees.getTree(t), node);
+            checkClassScope(t, trees.getTree(t), node, false);
         }
         return super.visitMethodInvocation(node, p);
     }
@@ -113,7 +115,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     public Void visitPrimitiveType(PrimitiveTypeTree node, Void p) {
         TypeMirror m = InternalUtils.typeOf(node);
         TypeElement boxed = types.boxedClass((PrimitiveType) m);
-        checkClassScope(boxed, null, node);
+        checkClassScope(boxed, null, node, false);
         return super.visitPrimitiveType(node, p);
     }
 
@@ -130,8 +132,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         }
         return super.visitVariable(node, p);
     }
-
-    void pln(String str) {System.out.println("\t" + str);}
 
     /**
      * Check that a class has a valid Scope annotation.
@@ -150,9 +150,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      * If C has no explicit Scope annotation, it is assumed to be annotated as
      * Scope(CALLER).
      */
-    void checkClassScope(TypeElement t, ClassTree node, Tree errNode) {
+    void checkClassScope(TypeElement t, ClassTree node, Tree errNode,
+            boolean forceVisit) {
         debugIndentIncrement("checkClassScope: " + t);
-        if (ctx.getClassScope(t) != null) {
+        if (!(ctx.getClassScope(t) == null || forceVisit)) {
             // Already visited or is in the process of being visited
             debugIndentDecrement();
             return;
@@ -191,13 +192,13 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         for (ExecutableElement c : Utils.constructorsIn(t)) {
             MethodTree mTree = trees.getTree(c);
             Tree mErr = mTree != null ? mTree : errNode;
-            checkConstructor(c, mTree, mErr);
+            checkConstructor(c, mTree, mErr, true);
         }
 
         for (ExecutableElement m : Utils.methodsIn(t)) {
             MethodTree mTree = trees.getTree(m);
             Tree mErr = mTree != null ? mTree : errNode;
-            checkMethod(m, mTree, mErr);
+            checkMethod(m, mTree, mErr, true);
         }
 
         for (VariableElement f : Utils.fieldsIn(t)) {
@@ -215,20 +216,21 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     }
 
     private void checkConstructor(ExecutableElement m, MethodTree mTree,
-            Tree mErr) {
+            Tree mErr, boolean forceVisit) {
         RunsIn runsIn = m.getAnnotation(RunsIn.class);
         if (runsIn != null) {
-            String msg = "\n\t ERROR class is :" + m.getEnclosingElement() + "." + m;
+            String msg = "\n\t ERROR class is :" + Utils.getMethodClass(m) + "." + m;
             fail(ERR_RUNS_IN_ON_CONSTRUCTOR, mTree, mErr, msg);
         }
 
-        checkMethod(m, mTree, mErr);
+        checkMethod(m, mTree, mErr, forceVisit);
     }
 
-    void checkMethod(ExecutableElement m, MethodTree mTree, Tree errNode) {
+    void checkMethod(ExecutableElement m, MethodTree mTree, Tree errNode,
+    		boolean forceVisit) {
         debugIndentIncrement("checkMethod: " + m);
 
-        if (ctx.getMethodRunsIn(m) != null) {
+        if (!(ctx.getMethodRunsIn(m) == null || forceVisit)) {
             // Already visited or in the process of being visited
             debugIndentDecrement();
             return;
@@ -383,11 +385,39 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             // INFRASTRUCTURE method in user code is illegal. This part is
             // checked in SCJAllowedVisitor; we include INFRASTRUCTURE here
             // because we're pulling in SCJ types.
-            if (!eRunsIn.equals(runsIn) && Utils.isUserLevel(eLevel))
+            if (!eRunsIn.equals(runsIn) && !checkSCJSupport(m))
                 fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
         }
         ctx.setMethodRunsIn(runsIn, m);
     }
+
+    private boolean checkSCJSupport(ExecutableElement m) {
+       boolean res = false;
+       // If we're in the user level with an SUPPORT annotation, we have
+       // to see if the method overrides a @SCJAllowed(SUPPORT) method
+       Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
+       .overriddenMethods(m);
+       for (ExecutableElement override : overrides.values()) {
+           Level overLevel = getSCJAllowedLevelValue(override);
+           if (overLevel == SUPPORT) {
+               res = true;
+               break;
+           }
+       }
+       return res;
+    }
+
+    /**
+     * extracting SCJAllowed LEVEL value from a list of annotations if
+     * SCJAllowed non-specified we are level 0? if in SCJ API returns 0 if not
+     * in SCJ API returns HIDDEN if no annotation: if in SCJ returns HIDDEN else
+     * returns 0
+     */
+    private static Level getSCJAllowedLevelValue(Element e) {
+        SCJAllowed a = e.getAnnotation(SCJAllowed.class);
+        return a == null ? HIDDEN : a.value();
+    }
+
 
     /**
      * Check that a method has a valid Scope annotation. A method's Scope
@@ -449,6 +479,11 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      * </ol>
      */
     void report(Result r, Tree node, Tree errNode) {
+        if (node != null && trees.getPath(root, errNode) == null)
+            // If the node is not in the current compilation unit, don't report
+            // an error. It will be reported later when it is visited properly
+            // by the checker.
+            return;
         if (node != null)
             // Current item being visited. Report the error as usual.
             checker.report(r, errNode);
@@ -478,7 +513,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     private ScopeInfo getParentScopeAndVisit(TypeElement p, Tree errNode) {
         ScopeInfo parent = ctx.getClassScope(p);
         if (parent == null) {
-            checkClassScope(p, trees.getTree(p), errNode);
+            checkClassScope(p, trees.getTree(p), errNode, false);
             parent = ctx.getClassScope(p);
         }
         return parent;
@@ -488,7 +523,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         ScopeInfo scope = ctx.getMethodScope(m);
         if (scope != null)
             return scope;
-        checkMethod(m, trees.getTree(m), errNode);
+        checkMethod(m, trees.getTree(m), errNode, false);
         return ctx.getMethodScope(m);
     }
 
