@@ -33,7 +33,7 @@ public class ScopeInfo {
      * an object that represents a named scope. For all other objects, this is a
      * null value.
      */
-    private final ScopeInfo represented;
+    private ScopeInfo represented;
 
     public ScopeInfo(String scope) {
         this(scope, null);
@@ -155,6 +155,10 @@ public class ScopeInfo {
      */
     public ScopeInfo getRepresentedScope() {
         return represented;
+    }
+
+    public void setRepresentedScope(ScopeInfo scope) {
+       represented = scope;
     }
 
     /**

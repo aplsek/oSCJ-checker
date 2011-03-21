@@ -427,8 +427,16 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      */
     void checkMethodScope(ExecutableElement m, MethodTree node, Tree errNode) {
         Scope ann = m.getAnnotation(Scope.class);
-        ScopeInfo scope = ann != null ? new ScopeInfo(ann.value())
-                : ScopeInfo.CALLER;
+        ScopeInfo scope = null;
+        if (ann != null) {
+            if (ann.value().equals("IMMORTAL"))
+                scope = ScopeInfo.IMMORTAL;
+            else
+                scope = new ScopeInfo(ann.value());
+        } else
+            scope = ScopeInfo.CALLER;
+
+
         // TODO: Need to take class annotations into consideration
 
         if (!scopeTree.hasScope(scope) && !scope.isCaller() && !scope.isThis()

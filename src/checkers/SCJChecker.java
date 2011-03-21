@@ -9,6 +9,7 @@ import checkers.scjRestricted.SCJRestrictedChecker;
 import checkers.scope.DefineScopeChecker;
 import checkers.scope.ScopeChecker;
 import checkers.scope.ScopeCheckerContext;
+import checkers.scope.ScopeInfo;
 import checkers.scope.ScopeRunsInChecker;
 
 public class SCJChecker extends MultiPassChecker {
@@ -20,6 +21,9 @@ public class SCJChecker extends MultiPassChecker {
         addPass(new DefineScopeChecker(ctx));
         addPass(new ScopeRunsInChecker(ctx));
         addPass(new ScopeChecker(ctx));
+
+        // IMMORTAL represents IMMORTAL
+        ScopeInfo.IMMORTAL.setRepresentedScope(ScopeInfo.IMMORTAL);
     }
 
     @Override
