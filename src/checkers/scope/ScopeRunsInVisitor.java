@@ -51,7 +51,6 @@ import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.PrimitiveTypeTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
-import com.sun.source.util.TreePath;
 
 /**
  * This visitor is responsible for retrieving Scope and RunsIn annotations from
@@ -191,13 +190,13 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         for (ExecutableElement c : Utils.constructorsIn(t)) {
             MethodTree mTree = trees.getTree(c);
             Tree mErr = mTree != null ? mTree : errNode;
-            checkConstructor(c, mTree, mErr);
+            checkConstructor(c, mTree, mErr, true);
         }
 
         for (ExecutableElement m : Utils.methodsIn(t)) {
             MethodTree mTree = trees.getTree(m);
             Tree mErr = mTree != null ? mTree : errNode;
-            checkMethod(m, mTree, mErr);
+            checkMethod(m, mTree, mErr, true);
         }
 
         for (VariableElement f : Utils.fieldsIn(t)) {
@@ -215,20 +214,21 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     }
 
     private void checkConstructor(ExecutableElement m, MethodTree mTree,
-            Tree mErr) {
+            Tree mErr, boolean forceVisit) {
         RunsIn runsIn = m.getAnnotation(RunsIn.class);
         if (runsIn != null) {
             String msg = "\n\t ERROR class is :" + Utils.getMethodClass(m) + "." + m;
             fail(ERR_RUNS_IN_ON_CONSTRUCTOR, mTree, mErr, msg);
         }
 
-        checkMethod(m, mTree, mErr);
+        checkMethod(m, mTree, mErr, forceVisit);
     }
 
-    void checkMethod(ExecutableElement m, MethodTree mTree, Tree errNode) {
+    void checkMethod(ExecutableElement m, MethodTree mTree, Tree errNode,
+    		boolean forceVisit) {
         debugIndentIncrement("checkMethod: " + m);
 
-        if (ctx.getMethodRunsIn(m) != null) {
+        if (!(ctx.getMethodRunsIn(m) == null || forceVisit)) {
             // Already visited or in the process of being visited
             debugIndentDecrement();
             return;
@@ -493,7 +493,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         ScopeInfo scope = ctx.getMethodScope(m);
         if (scope != null)
             return scope;
-        checkMethod(m, trees.getTree(m), errNode);
+        checkMethod(m, trees.getTree(m), errNode, false);
         return ctx.getMethodScope(m);
     }
 
