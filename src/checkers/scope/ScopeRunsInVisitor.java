@@ -51,6 +51,7 @@ import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.PrimitiveTypeTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
+import com.sun.source.util.TreePath;
 
 /**
  * This visitor is responsible for retrieving Scope and RunsIn annotations from
@@ -76,7 +77,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     @Override
     public Void visitClass(ClassTree node, Void p) {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
-        checkClassScope(t, node, node);
+        checkClassScope(t, node, node, true);
         return super.visitClass(node, p);
     }
 
@@ -89,7 +90,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (elem.getKind() == ElementKind.CLASS
                 || elem.getKind() == ElementKind.INTERFACE) {
             TypeElement t = (TypeElement) elem;
-            checkClassScope(t, trees.getTree(t), node);
+            checkClassScope(t, trees.getTree(t), node, false);
         }
         return super.visitIdentifier(node, p);
     }
@@ -104,7 +105,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         TypeMirror mirror = InternalUtils.typeOf(node);
         if (mirror.getKind() == TypeKind.DECLARED) {
             TypeElement t = Utils.getTypeElement(mirror);
-            checkClassScope(t, trees.getTree(t), node);
+            checkClassScope(t, trees.getTree(t), node, false);
         }
         return super.visitMethodInvocation(node, p);
     }
@@ -113,7 +114,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     public Void visitPrimitiveType(PrimitiveTypeTree node, Void p) {
         TypeMirror m = InternalUtils.typeOf(node);
         TypeElement boxed = types.boxedClass((PrimitiveType) m);
-        checkClassScope(boxed, null, node);
+        checkClassScope(boxed, null, node, false);
         return super.visitPrimitiveType(node, p);
     }
 
@@ -130,8 +131,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         }
         return super.visitVariable(node, p);
     }
-
-    void pln(String str) {System.out.println("\t" + str);}
 
     /**
      * Check that a class has a valid Scope annotation.
@@ -150,9 +149,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      * If C has no explicit Scope annotation, it is assumed to be annotated as
      * Scope(CALLER).
      */
-    void checkClassScope(TypeElement t, ClassTree node, Tree errNode) {
+    void checkClassScope(TypeElement t, ClassTree node, Tree errNode,
+            boolean forceVisit) {
         debugIndentIncrement("checkClassScope: " + t);
-        if (ctx.getClassScope(t) != null) {
+        if (!(ctx.getClassScope(t) == null || forceVisit)) {
             // Already visited or is in the process of being visited
             debugIndentDecrement();
             return;
@@ -218,7 +218,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             Tree mErr) {
         RunsIn runsIn = m.getAnnotation(RunsIn.class);
         if (runsIn != null) {
-            String msg = "\n\t ERROR class is :" + m.getEnclosingElement() + "." + m;
+            String msg = "\n\t ERROR class is :" + Utils.getMethodClass(m) + "." + m;
             fail(ERR_RUNS_IN_ON_CONSTRUCTOR, mTree, mErr, msg);
         }
 
@@ -449,6 +449,11 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      * </ol>
      */
     void report(Result r, Tree node, Tree errNode) {
+        if (node != null && trees.getPath(root, errNode) == null)
+            // If the node is not in the current compilation unit, don't report
+            // an error. It will be reported later when it is visited properly
+            // by the checker.
+            return;
         if (node != null)
             // Current item being visited. Report the error as usual.
             checker.report(r, errNode);
@@ -478,7 +483,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     private ScopeInfo getParentScopeAndVisit(TypeElement p, Tree errNode) {
         ScopeInfo parent = ctx.getClassScope(p);
         if (parent == null) {
-            checkClassScope(p, trees.getTree(p), errNode);
+            checkClassScope(p, trees.getTree(p), errNode, false);
             parent = ctx.getClassScope(p);
         }
         return parent;
