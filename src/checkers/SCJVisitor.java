@@ -51,38 +51,35 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         checker.report(Result.warning(msg, msgParams), src);
     }
 
-    protected final TypeMirror allocationContextMirror = Utils.getTypeMirror(
+    protected final TypeMirror allocationContext = Utils.getTypeMirror(
             elements, "javax.realtime.AllocationContext");
-    protected final TypeMirror managedMemoryMirror = Utils.getTypeMirror(
-            elements, "javax.safetycritical.ManagedMemory");
-    protected final TypeMirror memoryAreaMirror = Utils.getTypeMirror(elements,
-            "javax.realtime.MemoryArea");
-    protected final TypeMirror missionMirror = Utils.getTypeMirror(elements,
-            "javax.safetycritical.Mission");
-    protected final TypeMirror managedEventHandlerMirror = Utils.getTypeMirror(
-            elements, "javax.safetycritical.ManagedEventHandler");
-    protected final TypeMirror scjRunnableMirror = Utils.getTypeMirror(
-            elements, "javax.safetycritical.SCJRunnable");
-
-    protected final TypeMirror noHeapRealtimeThread = Utils.getTypeMirror(
-            elements, "javax.safetycritical.NoHeapRealtimeThread");
-
     protected final TypeMirror interruptServiceRoutine = Utils.getTypeMirror(
             elements, "javax.realtime.InterruptServiceRoutine");
-
+    protected final TypeMirror managedMemory = Utils.getTypeMirror(
+            elements, "javax.safetycritical.ManagedMemory");
+    protected final TypeMirror memoryArea = Utils.getTypeMirror(elements,
+            "javax.realtime.MemoryArea");
+    protected final TypeMirror mission = Utils.getTypeMirror(elements,
+            "javax.safetycritical.Mission");
+    protected final TypeMirror managedEventHandler = Utils.getTypeMirror(
+            elements, "javax.safetycritical.ManagedEventHandler");
+    protected final TypeMirror noHeapRealtimeThread = Utils.getTypeMirror(
+            elements, "javax.safetycritical.NoHeapRealtimeThread");
+    protected final TypeMirror scjRunnable = Utils.getTypeMirror(
+            elements, "javax.safetycritical.SCJRunnable");
 
     protected boolean alwaysImplicitlyDefinesScope(TypeElement t) {
         TypeMirror m = t.asType();
-        return types.isSubtype(m, missionMirror)
+        return types.isSubtype(m, mission)
                 || types.isSubtype(m, noHeapRealtimeThread)
-                || types.isSubtype(m, managedEventHandlerMirror)
+                || types.isSubtype(m, managedEventHandler)
                 || types.isSubtype(m, interruptServiceRoutine);
     }
 
     protected boolean implicitlyDefinesScope(TypeElement t) {
         TypeMirror m = t.asType();
         return alwaysImplicitlyDefinesScope(t)
-                || types.isSubtype(m, scjRunnableMirror);
+                || types.isSubtype(m, scjRunnable);
     }
 
     protected boolean needsDefineScope(TypeElement t) {
@@ -90,19 +87,19 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     }
 
     protected boolean needsDefineScope(TypeMirror t) {
-        return types.isSubtype(t, allocationContextMirror);
+        return types.isSubtype(t, allocationContext);
     }
 
     protected boolean isManagedMemoryType(TypeElement t) {
-        return types.isSubtype(t.asType(), managedMemoryMirror);
+        return types.isSubtype(t.asType(), managedMemory);
     }
 
     protected boolean isMemoryAreaType(TypeElement t) {
-        return types.isSubtype(t.asType(), memoryAreaMirror);
+        return types.isSubtype(t.asType(), memoryArea);
     }
 
     protected boolean implementsAllocationContext(TypeElement t) {
-        return types.isSubtype(t.asType(), allocationContextMirror);
+        return types.isSubtype(t.asType(), allocationContext);
     }
 
     protected SCJMethod compareName(ExecutableElement method) {
