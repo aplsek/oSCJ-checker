@@ -448,21 +448,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if ((r.isPrimitive() || r == TypeKind.VOID) && ann != null)
             warn(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, node, errNode);
 
-        DefineScope ds = m.getAnnotation(DefineScope.class);
-        if (ds != null) {
-            ScopeInfo name = new ScopeInfo(ds.name());
-            ScopeInfo parent = new ScopeInfo(ds.parent());
-
-            if (!scopeTree.hasScope(name)
-                    || !scopeTree.isParentOf(name, parent))
-                fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT, node, errNode);
-
-            if (!scope.equals(parent))
-                fail(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE, node,
-                        errNode, scope, parent);
-
-            scope = scope.representing(name);
-        }
         ctx.setMethodScope(scope, m);
     }
 
