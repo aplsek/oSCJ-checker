@@ -385,7 +385,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             // INFRASTRUCTURE method in user code is illegal. This part is
             // checked in SCJAllowedVisitor; we include INFRASTRUCTURE here
             // because we're pulling in SCJ types.
-            if (!eRunsIn.equals(runsIn) && !checkSCJSupport(m))
+            if (!eRunsIn.equals(runsIn) && !checkSCJSupport(m) && Utils.isUserLevel(m))
                 fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
         }
         ctx.setMethodRunsIn(runsIn, m);
@@ -472,13 +472,14 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (node != null)
             // Current item being visited. Report the error as usual.
             checker.report(r, errNode);
-        else if (r.isFailure())
+        else if (r.isFailure()) {
             // Current item is something from a library. Can't put an error on
             // it, so put an error on the node being visited stating that
             // something from the parent class or interface is broken. If the
             // result is a warning, we ignore it, since they are purely
             // informational.
             fail(ERR_BAD_LIBRARY_ANNOTATION, errNode);
+        }
     }
 
     void fail(String msg, Tree src, Tree err, Object... msgParams) {
