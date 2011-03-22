@@ -72,10 +72,4 @@ public class TimerTick extends PeriodicEventHandler
     time_mission.getGlobalTime(t);
     train_clock.updateTime(t);
   }
-
-@Override
-public StorageParameters getThreadConfigurationParameters() {
-    // TODO Auto-generated method stub
-    return null;
-}
 }

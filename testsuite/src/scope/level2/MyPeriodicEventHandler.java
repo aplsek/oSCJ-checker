@@ -38,10 +38,4 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
     @SCJRestricted(CLEANUP)
     public void cleanup() {
     }
-
-    @Override
-    public StorageParameters getThreadConfigurationParameters() {
-        return null;
-    }
-
 }

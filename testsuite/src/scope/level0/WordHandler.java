@@ -32,9 +32,4 @@ public class WordHandler extends PeriodicEventHandler {
     @SCJAllowed()
     public void cleanUp() {
     }
-
-    @Override
-    public StorageParameters getThreadConfigurationParameters() {
-        return null;
-    }
 }

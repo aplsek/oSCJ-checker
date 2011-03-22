@@ -167,11 +167,4 @@ public class TrainClock extends Clock {
     public final RelativeTime getResolution(RelativeTime dest) {
         return null;
     }
-
-    @Override
-    public AbsoluteTime getTimePrecise() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }
