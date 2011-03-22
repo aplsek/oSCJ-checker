@@ -1,5 +1,6 @@
 package checkers;
 
+import static javax.safetycritical.annotate.Level.HIDDEN;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
 import java.util.List;
@@ -18,12 +19,14 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.safetycritical.annotate.Level;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 import checkers.scope.ScopeCheckerContext;
 import checkers.scope.ScopeInfo;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
+import checkers.types.AnnotatedTypes;
 import checkers.util.TypesUtils;
 
 public final class Utils {
@@ -329,5 +332,22 @@ public final class Utils {
 
     public static boolean isPrimitiveArray(TypeMirror m) {
         return Utils.getBaseType(m).getKind().isPrimitive();
+    }
+
+    public static Level getSCJAllowedLevel(Element e) {
+        SCJAllowed a = e.getAnnotation(SCJAllowed.class);
+        return a == null ? HIDDEN : a.value();
+    }
+
+    public static boolean isSCJSupport(ExecutableElement m, AnnotatedTypes ats) {
+       // If we're in the user level with an SUPPORT annotation, we have
+       // to see if the method overrides a @SCJAllowed(SUPPORT) method
+        Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
+                .overriddenMethods(m);
+       for (ExecutableElement override : overrides.values()) {
+           if (getSCJAllowedLevel(override) == SUPPORT)
+               return true;
+       }
+       return false;
     }
 }

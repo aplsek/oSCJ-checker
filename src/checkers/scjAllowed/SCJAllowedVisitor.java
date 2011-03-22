@@ -361,18 +361,18 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         if (m.getSimpleName().toString().equals("<init>"))
             if (Utils.isPublic(m))
                 if (isSCJAllowed(m))
-                    return getSCJAllowedLevelValue(m);
+                    return Utils.getSCJAllowedLevel(m);
                 else
-                    return getSCJAllowedLevelValue(t);
+                    return Utils.getSCJAllowedLevel(t);
 
         if (isSCJAllowed(m))
-            return getSCJAllowedLevelValue(m);
+            return Utils.getSCJAllowedLevel(m);
 
         // Note: @SCJAllowed level cannot be inherited from an overriden method
         // for (ExecutableElement override : ats.overriddenMethods(m).values())
         // if (!isEscaped(override.getEnclosingElement().toString())
         // && isSCJAllowed(override))
-        // return getSCJAllowedLevelValue(override);
+        // return Utils.getSCJAllowedLevel(override);
 
         return getEnclosingLevel(m);
     }
@@ -383,19 +383,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      */
     private Level scjAllowedLevel(Element f) {
         if (isSCJAllowed(f))
-            return getSCJAllowedLevelValue(f);
+            return Utils.getSCJAllowedLevel(f);
         return getEnclosingLevel(f);
-    }
-
-    /**
-     * extracting SCJAllowed LEVEL value from a list of annotations if
-     * SCJAllowed non-specified we are level 0? if in SCJ API returns 0 if not
-     * in SCJ API returns HIDDEN if no annotation: if in SCJ returns HIDDEN else
-     * returns 0
-     */
-    private static Level getSCJAllowedLevelValue(Element e) {
-        SCJAllowed a = e.getAnnotation(SCJAllowed.class);
-        return a == null ? HIDDEN : a.value();
     }
 
     /**
@@ -413,7 +402,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         if (isSCJAllowed(e))
             if (scjAllowedMembers(e))
-                return getSCJAllowedLevelValue(e);
+                return Utils.getSCJAllowedLevel(e);
             else
                 return HIDDEN;
         return getEnclosingLevel(e);
@@ -437,22 +426,15 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     }
 
     private boolean isSCJInternal(Element e, Tree node) {
-        if (e.getAnnotation(SCJAllowed.class) != null)
-            return scjAllowedLevel(e) == INFRASTRUCTURE;
-        // TODO: what about HIDDEN?
-
-        return false;
+        return Utils.getSCJAllowedLevel(e) == INFRASTRUCTURE;
     }
 
-    private boolean isSCJSupport(Element e, Tree node) {
-        if (e.getAnnotation(SCJAllowed.class) != null)
-            if (scjAllowedLevel(e) == SUPPORT)
-                return true;
-        return false;
+    private boolean isSCJSupport(Element e) {
+        return Utils.getSCJAllowedLevel(e) == SUPPORT;
     }
 
     private boolean checkSCJSupport(ExecutableElement m, Tree node) {
-        boolean isValid = !(isSCJSupport(m, node) && Utils.isUserLevel(m));
+        boolean isValid = !(isSCJSupport(m) && Utils.isUserLevel(m));
 
         if (!isValid) {
             // If we're in the user level with an SUPPORT annotation, we have
@@ -460,12 +442,10 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                     .overriddenMethods(m);
             for (ExecutableElement override : overrides.values()) {
-                Level overLevel = getSCJAllowedLevelValue(override);
-                if (overLevel != SUPPORT) {
-                    isValid = false;
+                if (isSCJSupport(override)) {
+                    isValid = true;
                     break;
                 }
-                isValid = true;
             }
         }
         if (!isValid)

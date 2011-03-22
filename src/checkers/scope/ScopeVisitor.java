@@ -830,8 +830,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, currentScope());
     }
 
-    void pln(String str) {System.out.println("\t" + str);}
-
     private ScopeInfo checkNewInstance(ScopeInfo recvScope, ExpressionTree arg,
             MethodInvocationTree node) {
         TypeMirror instType = getNewInstanceType(arg);

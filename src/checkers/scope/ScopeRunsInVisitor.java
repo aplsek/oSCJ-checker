@@ -1,6 +1,5 @@
 package checkers.scope;
 
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_SUPPORT;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_LIBRARY_ANNOTATION;
 import static checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME;
 import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE;
@@ -15,7 +14,6 @@ import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE;
 import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
 import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CONSTRUCTOR;
 import static checkers.scope.ScopeRunsInChecker.ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN;
-import static javax.safetycritical.annotate.Level.HIDDEN;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
 import java.util.List;
@@ -379,45 +377,16 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 .overriddenMethods(m);
         for (ExecutableElement e : overrides.values()) {
             ScopeInfo eRunsIn = getOverrideRunsInAndVisit(e, errNode);
-            SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
-            Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
             // eLevel can be SUPPORT or INFRASTRUCTURE, though overriding an
             // INFRASTRUCTURE method in user code is illegal. This part is
             // checked in SCJAllowedVisitor; we include INFRASTRUCTURE here
             // because we're pulling in SCJ types.
-            if (!eRunsIn.equals(runsIn) && !checkSCJSupport(m) && Utils.isUserLevel(m))
+            if (!eRunsIn.equals(runsIn) && !Utils.isSCJSupport(m, ats)
+                    && Utils.isUserLevel(m))
                 fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
         }
         ctx.setMethodRunsIn(runsIn, m);
     }
-
-    private boolean checkSCJSupport(ExecutableElement m) {
-       boolean res = false;
-       // If we're in the user level with an SUPPORT annotation, we have
-       // to see if the method overrides a @SCJAllowed(SUPPORT) method
-       Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
-       .overriddenMethods(m);
-       for (ExecutableElement override : overrides.values()) {
-           Level overLevel = getSCJAllowedLevelValue(override);
-           if (overLevel == SUPPORT) {
-               res = true;
-               break;
-           }
-       }
-       return res;
-    }
-
-    /**
-     * extracting SCJAllowed LEVEL value from a list of annotations if
-     * SCJAllowed non-specified we are level 0? if in SCJ API returns 0 if not
-     * in SCJ API returns HIDDEN if no annotation: if in SCJ returns HIDDEN else
-     * returns 0
-     */
-    private static Level getSCJAllowedLevelValue(Element e) {
-        SCJAllowed a = e.getAnnotation(SCJAllowed.class);
-        return a == null ? HIDDEN : a.value();
-    }
-
 
     /**
      * Check that a method has a valid Scope annotation. A method's Scope
@@ -480,14 +449,13 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (node != null)
             // Current item being visited. Report the error as usual.
             checker.report(r, errNode);
-        else if (r.isFailure()) {
+        else if (r.isFailure())
             // Current item is something from a library. Can't put an error on
             // it, so put an error on the node being visited stating that
             // something from the parent class or interface is broken. If the
             // result is a warning, we ignore it, since they are purely
             // informational.
             fail(ERR_BAD_LIBRARY_ANNOTATION, errNode);
-        }
     }
 
     void fail(String msg, Tree src, Tree err, Object... msgParams) {
