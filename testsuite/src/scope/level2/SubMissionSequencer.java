@@ -37,10 +37,4 @@ public class SubMissionSequencer  extends MissionSequencer {
 			return new StageOneMission();
 		}
 	}
-
-	@Override
-	protected Mission getInitialMission() {
-		return null;
-	}
-
 }

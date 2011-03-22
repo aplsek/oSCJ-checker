@@ -30,8 +30,4 @@ public class OneSequencer extends MissionSequencer {
         return new OneMission();
     }
 
-    @Override
-    protected Mission getInitialMission() {
-        return null;
-    }
 }

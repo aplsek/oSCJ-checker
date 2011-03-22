@@ -73,10 +73,4 @@ extends MissionSequencer //<SecurityService>
             return null;
         }
     }
-
-    @Override
-    protected Mission getInitialMission() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }

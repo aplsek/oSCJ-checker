@@ -80,9 +80,4 @@ public class TrainControlSequencer extends MissionSequencer // <TrainControl>
             return null;
         }
     }
-
-    @Override
-    protected Mission getInitialMission() {
-        return null;
-    }
 }

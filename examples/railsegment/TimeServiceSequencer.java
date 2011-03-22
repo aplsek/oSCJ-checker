@@ -73,11 +73,4 @@ public class TimeServiceSequencer extends MissionSequencer
         return new TimeService(times_data,
                 comms_data, train_clock, TIMES_PRIORITY);
     }
-
-    @Override
-    protected Mission getInitialMission() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }

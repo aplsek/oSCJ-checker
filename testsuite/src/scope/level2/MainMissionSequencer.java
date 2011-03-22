@@ -41,9 +41,4 @@ public class MainMissionSequencer extends MissionSequencer {
         }
     }
 
-    @Override
-    protected Mission getInitialMission() {
-        return null;
-    }
-
 }

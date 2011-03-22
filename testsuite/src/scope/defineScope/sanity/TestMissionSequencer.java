@@ -22,11 +22,6 @@ public class TestMissionSequencer extends MissionSequencer {
     }
 
     @Override
-    protected Mission getInitialMission() {
-        return null;
-    }
-
-    @Override
     protected Mission getNextMission() {
         return null;
     }
