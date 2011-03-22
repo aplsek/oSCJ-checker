@@ -171,8 +171,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         }
 
         // ISSUE: 79: allowing e.g. a method of LEVEL_0 to be enclosed by a class that is LEVEL_1
-        // if (topLevel().compareTo(level) > 0)
-        //     fail(ERR_BAD_ENCLOSED, node);
+         if (topLevel().compareTo(level) > 0)
+             fail(ERR_BAD_ENCLOSED, node);
 
         scjAllowedStack.push(level);
         R r = super.visitMethod(node, p);
