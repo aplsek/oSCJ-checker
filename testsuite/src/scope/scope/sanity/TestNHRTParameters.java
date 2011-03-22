@@ -14,23 +14,21 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("D")
 @DefineScope(name="D", parent=IMMORTAL)
-@SCJAllowed(value= LEVEL_2, members=true)
+@SCJAllowed(value=LEVEL_2, members=true)
 public class TestNHRTParameters extends NoHeapRealtimeThread
 {
-  private static final long BackingStoreRequirements = 500;
-  private static final long NativeStackRequirements = 2000;
-  private static final long JavaStackRequirements = 300;
+    private static final long BackingStoreRequirements = 500;
+    private static final long NativeStackRequirements = 2000;
+    private static final long JavaStackRequirements = 300;
 
-  public TestNHRTParameters(int priority) {
-    super(new PriorityParameters(priority),
-          new StorageParameters(BackingStoreRequirements,
-                                NativeStackRequirements,
-                                JavaStackRequirements));
-  }
+    public TestNHRTParameters(int priority) {
+        super(new PriorityParameters(priority), new StorageParameters(
+                BackingStoreRequirements, NativeStackRequirements,
+                JavaStackRequirements));
+    }
 
-  @Override
-  @RunsIn("D")
-  public void run() {
-  }
+    @Override
+    @RunsIn("D")
+    public void run() { }
 }
 

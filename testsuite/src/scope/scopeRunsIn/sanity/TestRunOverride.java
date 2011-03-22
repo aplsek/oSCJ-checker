@@ -14,19 +14,13 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("D")
 @DefineScope(name="D", parent=IMMORTAL)
-@SCJAllowed(value= LEVEL_2, members=true)
-public class TestRunOverride extends NoHeapRealtimeThread
-{
-  public TestRunOverride(int priority) {
-    super(new PriorityParameters(priority),
-          new StorageParameters(0,
-                                0,
-                                0));
-  }
+@SCJAllowed(value=LEVEL_2, members=true)
+public class TestRunOverride extends NoHeapRealtimeThread {
+    public TestRunOverride(int priority) {
+        super(new PriorityParameters(priority), new StorageParameters(0, 0, 0));
+    }
 
-  @Override
-  @RunsIn("D")
-  public void run() {
-  }
+    @Override
+    @RunsIn("D")
+    public void run() { }
 }
-
