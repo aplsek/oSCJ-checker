@@ -10,7 +10,7 @@ import javax.safetycritical.annotate.Scope;
 @Scope("a")
 public abstract class TestUnusedDefineScopeMethod extends Mission {
     @DefineScope(name="b", parent=IMMORTAL)
-    //## warning: checkers.scope.DefineScopeChecker.ERR_UNUSED_DEFINE_SCOPE ## checkers.scope.ScopeRunsInVisitor.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT
+    //## warning: checkers.scope.DefineScopeChecker.ERR_UNUSED_DEFINE_SCOPE
     public void handleAsyncEvent() {
     }
 }
