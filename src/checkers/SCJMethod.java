@@ -32,7 +32,7 @@ public enum SCJMethod {
     ENTER_PRIVATE_MEMORY("javax.safetycritical.ManagedMemory",
         "enterPrivateMemory(long,javax.safetycritical.SCJRunnable)"),
 
-    GET_CURRENT_MANAGED_MEMORY("ManagedMemory", "getCurrentManagedMemory()"),
+    GET_CURRENT_MANAGED_MEMORY("javax.safetycritical.ManagedMemory", "getCurrentManagedMemory()"),
 
     ALLOC_IN_SAME("javax.safetycritical.ManagedMemory",
         "allocInSame(java.lang.Object,java.lang.Object)"),
