@@ -70,9 +70,11 @@ extends MissionSequencer //<SatCommService>
         }
     }
 
+  /*
     @Override
     protected Mission getInitialMission() {
         // TODO Auto-generated method stub
         return null;
     }
+  */
 }

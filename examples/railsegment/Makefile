@@ -1,7 +1,7 @@
 
 
 ifdef WINDIR
-  SEP=\;
+  SEP=;
   EXT=.exe
   RM=cmd /c del
 else
@@ -10,7 +10,7 @@ else
   SEP=:
 endif
 
-MYCLASSPATH="..$(SEP)../../specsrc"
+MYCLASSPATH=..$(SEP)$(JSR302_HOME)
 
 all: CommunicationService.class CommunicationsOversight.class \
   CommunicationsQueue.class CypherQueue.class GPSDriver.class \
@@ -32,11 +32,11 @@ all: CommunicationService.class CommunicationsOversight.class \
 
 
 %.class: %.java
-	javac -classpath $(MYCLASSPATH) $*.java
+	javac -classpath "$(MYCLASSPATH)" $*.java
 
 
 clock/%.class: clock/%.java
-	javac -classpath $(MYCLASSPATH) clock/%.java
+	javac -classpath "$(MYCLASSPATH)" clock/%.java
 
 
 clean:

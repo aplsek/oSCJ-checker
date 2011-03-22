@@ -69,9 +69,11 @@ public class TrackModulatedCommServiceSequencer extends MissionSequencer // <Mod
         }
     }
 
+  /*
     @Override
     protected Mission getInitialMission() {
         // TODO Auto-generated method stub
         return null;
     }
+  */
 }
