@@ -36,11 +36,11 @@ class ManagedThread {
 
 @Scope(IMMORTAL)
 class ImmortalEntry {
-	
+
 	MyManagedRunnable logic;
 	PriorityParameters pp;
 	StorageParameters mem;
-	
+
 }
 
 
@@ -50,10 +50,11 @@ class MyOtherMission2 extends Mission {
 	MyManagedRunnable logic;
 	PriorityParameters pp;
 	StorageParameters mem;
-	
-	public void initialize() {
+
+	@Override
+    public void initialize() {
 		MyHandler handler = new MyHandler();
-		
+
 		ManagedThread mThread = new ManagedThread(pp, mem, logic);
 	}
 
@@ -78,14 +79,11 @@ class MyHandler2 extends PeriodicEventHandler {
 	@Scope(UNKNOWN)
 	public LinkedList list;
 
-	public void handleAsyncEvent() {
+	@Override
+    public void handleAsyncEvent() {
 		// ....
 	}
 
-	@Override
-	public StorageParameters getThreadConfigurationParameters() {
-		return null;
-	}
 }
 
 

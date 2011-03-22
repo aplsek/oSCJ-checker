@@ -24,7 +24,8 @@ public class TestFileSharing extends Mission {
 
 	public MyOutputStream output;
 
-	protected void initialize() {
+	@Override
+    protected void initialize() {
 		new MyHandler(null, null, null, 0);
 
 		// init the output stream
@@ -43,11 +44,6 @@ public class TestFileSharing extends Mission {
 				PeriodicParameters parameters, StorageParameters scp,
 				long memSize) {
 			super(priority, parameters, scp);
-		}
-
-		@Override
-		public StorageParameters getThreadConfigurationParameters() {
-			return null;
 		}
 
 		@Scope("Unknown") MyOutputStream myOutput;

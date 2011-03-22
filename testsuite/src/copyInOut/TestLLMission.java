@@ -21,7 +21,8 @@ public class TestLLMission extends Mission {
 
 	LL ll;
 
-	protected void initialize() {
+	@Override
+    protected void initialize() {
 		new MyHandler(null, null, null, 0, this);
 	}
 
@@ -58,13 +59,14 @@ public class TestLLMission extends Mission {
 			this.myMission = mission;
 		}
 
-		public void handleAsyncEvent() {
+		@Override
+        public void handleAsyncEvent() {
 
 			LL myList = new LL();
 
 			LL list = myMission.getLL();
 
-			@Scope("copyInOut.TestLLMission") 
+			@Scope("copyInOut.TestLLMission")
 			LL realLL = myMission.getRealLL();
 
 			// to copy from down to up???
@@ -99,11 +101,6 @@ public class TestLLMission extends Mission {
 			public void run() {
 				myMission.putLL(ll.copyDown());
 			}
-		}
-
-		@Override
-		public StorageParameters getThreadConfigurationParameters() {
-			return null;
 		}
 	}
 }

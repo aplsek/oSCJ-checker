@@ -10,7 +10,7 @@ import javax.safetycritical.annotate.Scope;
 
 public class TestScopeUnknown extends Mission {
 
-	
+
 	@Scope("copyInOut.TestLLMission")
 	@RunsIn("copyInOut.MyHandler")
 	class MyHandler extends PeriodicEventHandler {
@@ -21,18 +21,12 @@ public class TestScopeUnknown extends Mission {
 		}
 
 		@Override
-		public StorageParameters getThreadConfigurationParameters() {
-			// TODO Auto-generated method stub
-			return null;
+		public void handleAsyncEvent() {
+
 		}
 
-		@Override
-		public void handleAsyncEvent() {
-			
-		}
-	
-	
-	
+
+
 	}
 
 	@Override
@@ -43,5 +37,5 @@ public class TestScopeUnknown extends Mission {
 	@Override
 	protected void initialize() {
 	}
-	
+
 }

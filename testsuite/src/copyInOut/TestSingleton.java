@@ -17,13 +17,13 @@ class MyBigInteger {
 	public MyBigInteger(int value) {
 		this.value=value;
 	}
-	
+
 	public MyBigInteger(MyBigInteger bI) {
 		this.value=bI.value;
 	}
 
 	public MyBigInteger add(MyBigInteger bI) {
-		return ZERO;												// ERROR: returns a singleton!!!! 
+		return ZERO;												// ERROR: returns a singleton!!!!
 	}
 
 	public MyBigInteger add2(MyBigInteger bI) {
@@ -31,13 +31,13 @@ class MyBigInteger {
 		if (bool)
 			return bI;												// OK
 		else
-			return ZERO;											// ERROR: returns a singleton!!!! 
+			return ZERO;											// ERROR: returns a singleton!!!!
 	}
 
 	public MyBigInteger add4(MyBigInteger bI) {
 		return new MyBigInteger(ZERO);								// OK, copying into the current scope
 	}
-	
+
 }
 
 
@@ -55,11 +55,6 @@ public class TestSingleton extends Mission {
 		}
 
 		@Override
-		public StorageParameters getThreadConfigurationParameters() {
-			return null;
-		}
-
-		@Override
 		public void handleAsyncEvent() {
 			MyBigInteger bI = new MyBigInteger(0);						// OK
 			MyBigInteger bI2 = new MyBigInteger(0);						// OK
@@ -70,10 +65,12 @@ public class TestSingleton extends Mission {
 
 	}
 
-	public long missionMemorySize() {
+	@Override
+    public long missionMemorySize() {
 		return 0;
 	}
 
-	protected void initialize() {
+	@Override
+    protected void initialize() {
 	}
 }

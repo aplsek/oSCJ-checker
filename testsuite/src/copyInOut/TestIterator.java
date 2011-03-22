@@ -21,11 +21,11 @@ public class TestIterator extends Mission {
 	protected void initialize() {
 		Iterator iterator = this.list.iterator();
 
-		@Scope("Unknown") Node node = (Node) iterator.getNext();
+		@Scope("Unknown") Node node = iterator.getNext();
 		while (node != null) {
 			//if (mem_node == mem_current)
 			//	node.methodNoCS();
-			node = (Node) iterator.getNext();
+			node = iterator.getNext();
 		}
 	}
 }
@@ -41,11 +41,6 @@ class MyHandlerIterator extends PeriodicEventHandler {
 		super(priority, parameters, scp);
 	}
 
-	@Override
-	public StorageParameters getThreadConfigurationParameters() {
-		return null;
-	}
-
 	@Scope("Mission/Unknown") MyLinkedList myList;
 
 	@Override
@@ -54,7 +49,7 @@ class MyHandlerIterator extends PeriodicEventHandler {
 		@Scope("Unknown") MyLinkedList mylist =  mission.list;  			 // LOCAL INFERENCE .....  ///mission.getList();
 		this.myList = mission.list;  									// WE PROPOSE @LivesIN to have mission.getList();
 		Iterator iterator = this.myList.iterator();  				  // returns object in the current scope!!!!
-		@Scope("Unknown") Node node = (Node) iterator.getNext();       // should return the reference to Node living in @Scope("Mission")
+		@Scope("Unknown") Node node = iterator.getNext();       // should return the reference to Node living in @Scope("Mission")
 		node.method();
 	}
 }
@@ -108,7 +103,7 @@ class Node {
 	public Node() {
 		//...
 	}
-	
+
 	@RunsIn(UNKNOWN)
 	public Node(Node node) {
 		//...
