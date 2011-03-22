@@ -61,7 +61,7 @@ public class CommunicationServiceSequencer
   }
 
   @Override
-@RunsIn("A")
+  @RunsIn("A")
   protected CommunicationService getNextMission()
   {
     if (!did_mission) {
@@ -73,9 +73,11 @@ public class CommunicationServiceSequencer
     }
   }
 
-@Override
-protected Mission getInitialMission() {
+  /*
+  @Override
+  protected Mission getInitialMission() {
     // TODO Auto-generated method stub
     return null;
-}
+  }
+  */
 }

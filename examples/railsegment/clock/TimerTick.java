@@ -73,9 +73,11 @@ public class TimerTick extends PeriodicEventHandler
     train_clock.updateTime(t);
   }
 
-@Override
-public StorageParameters getThreadConfigurationParameters() {
+  /*
+    @Override
+    public StorageParameters getThreadConfigurationParameters() {
     // TODO Auto-generated method stub
     return null;
-}
+    }
+  */
 }

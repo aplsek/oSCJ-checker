@@ -74,10 +74,12 @@ public class TimeServiceSequencer extends MissionSequencer
                 comms_data, train_clock, TIMES_PRIORITY);
     }
 
+  /*
     @Override
     protected Mission getInitialMission() {
         // TODO Auto-generated method stub
         return null;
     }
+  */
 
 }

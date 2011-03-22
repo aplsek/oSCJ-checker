@@ -168,10 +168,11 @@ public class TrainClock extends Clock {
         return null;
     }
 
+  /*
     @Override
     public AbsoluteTime getTimePrecise() {
         // TODO Auto-generated method stub
         return null;
     }
-
+  */
 }

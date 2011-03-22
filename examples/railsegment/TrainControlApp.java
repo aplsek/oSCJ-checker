@@ -23,6 +23,7 @@ package railsegment;
 
 import javax.realtime.PriorityParameters;
 
+import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.Safelet;
 import javax.safetycritical.StorageParameters;
 
@@ -42,11 +43,6 @@ public class TrainControlApp implements Safelet {
 
   @SCJRestricted(INITIALIZATION)
   public TrainControlApp() {
-    super(new PriorityParameters(SequencerPriority),
-          new StorageParameters(TrainMission.BackingStoreRequirements,
-                                TrainMission.NativeStackRequirements,
-                                TrainMission.JavaStackRequirements),
-          new TrainMission());
   }
 
   // The following three methods implement the Safelet interface

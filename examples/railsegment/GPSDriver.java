@@ -78,9 +78,11 @@ public class GPSDriver extends PeriodicEventHandler
         nav_mission.updatePosition(now, longitude, lattitude);
     }
 
+  /*
     @Override
     public StorageParameters getThreadConfigurationParameters() {
         // TODO Auto-generated method stub
         return null;
     }
+  */
 }

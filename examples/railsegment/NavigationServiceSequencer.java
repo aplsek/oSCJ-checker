@@ -81,9 +81,11 @@ public class NavigationServiceSequencer
     }
   }
 
-@Override
-protected Mission getInitialMission() {
+  /*
+    @Override
+    protected Mission getInitialMission() {
     // TODO Auto-generated method stub
     return null;
-}
+    }
+  */
 }

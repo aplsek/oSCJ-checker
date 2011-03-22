@@ -23,6 +23,7 @@ package railsegment;
 
 import javax.realtime.PriorityParameters;
 
+import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 
@@ -37,7 +38,9 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope(IMMORTAL)
 public class TrainMissionSequencer extends MissionSequencer {
-  private returned_mission;
+  private static final int SequencerPriority = 20;
+
+  private boolean returned_mission;
 
   public TrainMissionSequencer() {
     super(new PriorityParameters(SequencerPriority),
