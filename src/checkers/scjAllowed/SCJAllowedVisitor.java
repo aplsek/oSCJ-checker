@@ -128,6 +128,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         return super.visitMemberSelect(node, p);
     }
 
+    void pln(String str) {System.out.println("\t " + str);}
+
     /**
      * Errors: - we can not override a method by a method with a higher
      * SCJallowed level
@@ -156,6 +158,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(m);
         for (ExecutableElement override : overrides.values()) {
+
             if (Utils.isUserLevel(m)
                     && !isLegalOverride(overrides, node)
                     && scjAllowedLevel(override, node)
@@ -167,7 +170,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
                 fail(ERR_BAD_OVERRIDE, node);
         }
 
-        //
         // ISSUE: 79: allowing e.g. a method of LEVEL_0 to be enclosed by a class that is LEVEL_1
         // if (topLevel().compareTo(level) > 0)
         //     fail(ERR_BAD_ENCLOSED, node);
