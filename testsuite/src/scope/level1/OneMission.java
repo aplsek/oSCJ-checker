@@ -30,6 +30,7 @@ public class OneMission extends Mission {
     }
 
     @Override
+    @SCJAllowed
     public long missionMemorySize() {
         return 1000L;
     }

@@ -32,6 +32,7 @@ public class CleanupMission extends Mission {
     }
 
     @Override
+    @SCJAllowed
     public long missionMemorySize() {
         return MISSION_MEMORY_SIZE;
     }

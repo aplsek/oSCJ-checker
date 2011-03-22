@@ -27,6 +27,7 @@ public class StageOneMission extends Mission {
     }
 
     @Override
+    @SCJAllowed
     public long missionMemorySize() {
         return MISSION_MEMORY_SIZE;
     }
