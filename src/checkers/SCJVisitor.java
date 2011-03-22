@@ -7,23 +7,23 @@ import static checkers.Utils.SCJMethod.ENTER_PRIVATE_MEMORY;
 import static checkers.Utils.SCJMethod.EXECUTE_IN_AREA;
 import static checkers.Utils.SCJMethod.GET_CURRENT_MANAGED_MEMORY;
 import static checkers.Utils.SCJMethod.GET_MEMORY_AREA;
+import static checkers.Utils.SCJMethod.IMMORTAL_MEMORY_INSTANCE;
 import static checkers.Utils.SCJMethod.NEW_ARRAY;
 import static checkers.Utils.SCJMethod.NEW_ARRAY_IN_AREA;
 import static checkers.Utils.SCJMethod.NEW_INSTANCE;
 import static checkers.Utils.SCJMethod.NEW_INSTANCE_IN_AREA;
 
-
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
-
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.Tree;
 
 import checkers.Utils.SCJMethod;
 import checkers.source.Result;
 import checkers.source.SourceChecker;
 import checkers.source.SourceVisitor;
+
+import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.Tree;
 
 public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     public SCJVisitor(SourceChecker checker, CompilationUnitTree root) {
@@ -53,16 +53,18 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
 
     protected final TypeMirror allocationContext = Utils.getTypeMirror(
             elements, "javax.realtime.AllocationContext");
+    protected final TypeMirror immortalMemory = Utils.getTypeMirror(
+            elements, "javax.realtime.ImmortalMemory");
     protected final TypeMirror interruptServiceRoutine = Utils.getTypeMirror(
             elements, "javax.realtime.InterruptServiceRoutine");
+    protected final TypeMirror managedEventHandler = Utils.getTypeMirror(
+            elements, "javax.safetycritical.ManagedEventHandler");
     protected final TypeMirror managedMemory = Utils.getTypeMirror(
             elements, "javax.safetycritical.ManagedMemory");
     protected final TypeMirror memoryArea = Utils.getTypeMirror(elements,
             "javax.realtime.MemoryArea");
     protected final TypeMirror mission = Utils.getTypeMirror(elements,
             "javax.safetycritical.Mission");
-    protected final TypeMirror managedEventHandler = Utils.getTypeMirror(
-            elements, "javax.safetycritical.ManagedEventHandler");
     protected final TypeMirror noHeapRealtimeThread = Utils.getTypeMirror(
             elements, "javax.safetycritical.NoHeapRealtimeThread");
     protected final TypeMirror scjRunnable = Utils.getTypeMirror(
@@ -90,12 +92,16 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         return types.isSubtype(t, allocationContext);
     }
 
-    protected boolean isManagedMemoryType(TypeElement t) {
-        return types.isSubtype(t.asType(), managedMemory);
+    protected boolean isImmortalMemoryType(TypeElement t) {
+        return types.isSameType(t.asType(), immortalMemory);
     }
 
     protected boolean isMemoryAreaType(TypeElement t) {
         return types.isSubtype(t.asType(), memoryArea);
+    }
+
+    protected boolean isManagedMemoryType(TypeElement t) {
+        return types.isSubtype(t.asType(), managedMemory);
     }
 
     protected boolean implementsAllocationContext(TypeElement t) {
@@ -140,6 +146,11 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
                 && Utils.getMethodSignature(method).equals(
                         GET_MEMORY_AREA.toString()))
             return GET_MEMORY_AREA;
+
+        if (isImmortalMemoryType(type)
+                && Utils.getMethodSignature(method).equals(
+                        IMMORTAL_MEMORY_INSTANCE.toString()))
+            return IMMORTAL_MEMORY_INSTANCE;
 
         return DEFAULT;
     }

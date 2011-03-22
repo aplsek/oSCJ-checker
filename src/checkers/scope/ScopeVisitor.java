@@ -793,6 +793,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return checkGetMemoryArea(argScopes.get(0), node);
         case GET_CURRENT_MANAGED_MEMORY:
             return checkGetCurrentManagedMemory(node);
+        case IMMORTAL_MEMORY_INSTANCE:
+            return ScopeInfo.IMMORTAL.representing(ScopeInfo.IMMORTAL);
         default:
             return ctx.getEffectiveMethodScope(m, recvScope, currentScope());
         }

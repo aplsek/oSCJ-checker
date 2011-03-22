@@ -246,6 +246,12 @@ public final class Utils {
 
         ALLOC_IN_PARENT {
             @Override public String toString() { return "allocInParent(java.lang.Object,java.lang.Object)"; }
+        },
+
+        /* ImmortalMemory */
+
+        IMMORTAL_MEMORY_INSTANCE {
+            @Override public String toString() { return "instance()"; }
         };
     }
 
