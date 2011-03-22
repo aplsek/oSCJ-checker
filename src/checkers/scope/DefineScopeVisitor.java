@@ -10,9 +10,9 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.safetycritical.annotate.DefineScope;
 
+import checkers.SCJMethod;
 import checkers.SCJVisitor;
 import checkers.Utils;
-import checkers.Utils.SCJMethod;
 import checkers.source.SourceChecker;
 import checkers.util.InternalUtils;
 import checkers.util.TreeUtils;
@@ -55,7 +55,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         TypeElement t = Utils.getMethodClass(m);
 
         if (isManagedMemoryType(t)
-                && compareName(m) == SCJMethod.ENTER_PRIVATE_MEMORY) {
+                && SCJMethod.fromMethod(m, elements, types) == SCJMethod.ENTER_PRIVATE_MEMORY) {
             ExpressionTree runnable = node.getArguments().get(1);
             TypeElement t2 = Utils.getTypeElement(InternalUtils
                     .typeOf(runnable));

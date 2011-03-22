@@ -1,7 +1,7 @@
 package checkers.scope;
 
 import static checkers.Utils.isFinal;
-import static checkers.Utils.SCJMethod.ALLOC_IN_PARENT;
+import static checkers.SCJMethod.ALLOC_IN_PARENT;
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
 import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION;
@@ -40,9 +40,9 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.DefineScope;
 
+import checkers.SCJMethod;
 import checkers.SCJVisitor;
 import checkers.Utils;
-import checkers.Utils.SCJMethod;
 import checkers.source.SourceChecker;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.util.InternalUtils;
@@ -740,7 +740,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return;
         MethodInvocationTree method = (MethodInvocationTree) condition;
         ExecutableElement m = TreeUtils.elementFromUse(method);
-        SCJMethod sig = compareName(m);
+        SCJMethod sig = SCJMethod.fromMethod(m, elements, types);
         switch (sig) {
         case ALLOC_IN_PARENT:
         case ALLOC_IN_SAME:
@@ -771,7 +771,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         checkMethodRunsIn(m, runsIn, node);
         checkMethodParameters(m, argScopes, node);
 
-        switch (compareName(m)) {
+        switch (SCJMethod.fromMethod(m, elements, types)) {
         case ENTER_PRIVATE_MEMORY:
             checkEnterPrivateMemory(recvScope, node);
             return null; // void methods don't return a scope
