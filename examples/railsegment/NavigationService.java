@@ -99,7 +99,8 @@ class NavigationService extends Mission {
                                          route_data, NAV_LOOKUP_PRIORITY);
   }
 
-  public void cleanup() {
+  @Override
+  public void cleanUp() {
 
   }
 
