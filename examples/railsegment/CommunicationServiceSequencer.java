@@ -61,7 +61,7 @@ public class CommunicationServiceSequencer
   }
 
   @Override
-@RunsIn("A")
+  @RunsIn("A")
   protected CommunicationService getNextMission()
   {
     if (!did_mission) {

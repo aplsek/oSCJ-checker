@@ -23,8 +23,8 @@ package railsegment;
 
 import javax.realtime.PriorityParameters;
 
+import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
-import javax.safetycritical.Safelet;
 import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.DefineScope;
@@ -37,24 +37,27 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope(IMMORTAL)
-public class TrainControlApp implements Safelet {
+public class TrainMissionSequencer extends MissionSequencer {
+  private static final int SequencerPriority = 20;
 
-  public static final int SequencerPriority = 32;
+  private boolean returned_mission;
 
-  @SCJRestricted(INITIALIZATION)
-  public TrainControlApp() {
+  public TrainMissionSequencer() {
+    super(new PriorityParameters(SequencerPriority),
+          new StorageParameters(TrainMission.BackingStoreRequirements,
+                                TrainMission.NativeStackRequirements,
+                                TrainMission.JavaStackRequirements));
+    returned_mission = false;
   }
 
-  // The following three methods implement the Safelet interface
-  public MissionSequencer getSequencer() {
-    return new TrainMissionSequencer();
-  }
-
-  public void setUp() {
-    // do nothing
-  }
-
-  public void tearDown() {
-    // do nothing
+  @RunsIn("TM")
+  public Mission getNextMission() {
+    if (returned_mission) {
+      return null;
+    }
+    else {
+      returned_mission = true;
+      return new TrainMission();
+    }
   }
 }
