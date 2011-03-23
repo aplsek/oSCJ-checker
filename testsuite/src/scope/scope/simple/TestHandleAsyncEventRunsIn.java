@@ -1,6 +1,6 @@
 // no error here
 
-package scope.scope.sanity;
+package scope.scope.simple;
 
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
@@ -20,7 +20,7 @@ import javax.safetycritical.annotate.Scope;
 @SCJAllowed(members=true)
 @Scope("Level0App")
 @DefineScope(name="Level0App", parent=IMMORTAL)
-public class Level0App extends CyclicExecutive {
+public class TestHandleAsyncEventRunsIn extends CyclicExecutive {
 
     @DefineScope(name="Level007", parent=IMMORTAL)
     abstract class Level007 extends CyclicExecutive {
@@ -30,7 +30,7 @@ public class Level0App extends CyclicExecutive {
         }}
 
     @SCJRestricted(INITIALIZATION)
-    public Level0App() {
+    public TestHandleAsyncEventRunsIn() {
         super(null);
     }
 
@@ -48,9 +48,6 @@ public class Level0App extends CyclicExecutive {
     @Override
     public long missionMemorySize() {
         return 5000000;
-    }
-
-    public static void main(final String[] args) {
     }
 
     @Override
@@ -72,10 +69,11 @@ public class Level0App extends CyclicExecutive {
             super(null, null, null);
         }
 
+        //## ERROR
         @Override
         @SCJAllowed(SUPPORT)
         //@RunsIn("WordHandler")
-        @RunsIn("Level0App")                // ERROR!!!!!    or   @RunsIn("Level007")
+        //@RunsIn("Level0App")                // ERROR!!!!!    or   @RunsIn("Level007") is also ERROR!!!
         public void handleAsyncEvent() {
             // printing HelloWorld!!!!
         }
