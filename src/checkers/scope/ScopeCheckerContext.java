@@ -66,14 +66,25 @@ public class ScopeCheckerContext {
             return ScopeInfo.IMMORTAL;
         }
         ClassInfo ci = classScopes.get(clazz);
+
+        if (ci == null) {
+            // TODO: handle the classes that were not encountered by the ScopeRunInVisitor
+            //       for example "java.lang.Array"
+            return ScopeInfo.CALLER;
+            //this.dumpClassScopes();
+        }
+
         return ci.fieldScopes.get(field);
     }
+
+    void pln(String str) {System.out.println("\t" + str);}
 
     /**
      * Get the Scope annotation of a field by its declaration.
      */
     public ScopeInfo getFieldScope(VariableElement f) {
         TypeElement t = Utils.getFieldClass(f);
+
         return getFieldScope(t.getQualifiedName().toString(), f.getSimpleName()
                 .toString());
     }
@@ -385,7 +396,7 @@ public class ScopeCheckerContext {
         System.err.println("\n\n============ CLASS SCOPES-=========");
         for (Entry<String, ClassInfo> e : classScopes.entrySet()) {
             System.err.println("class: " + e.getKey() + ",@Scope("
-                    + e.getValue() + ")");
+                    + e.getValue().scope + ")");
         }
         System.err.println("============ CLASS SCOPES-=========\n\n");
     }

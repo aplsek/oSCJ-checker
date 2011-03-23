@@ -355,6 +355,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo ret;
 
         debugIndentIncrement("visitMemberSelect: " + node.toString());
+
         if (elem.getKind() == ElementKind.METHOD)
             // If a MemberSelectTree is not a field, then it is a method
             // that is part of a MethodInvocationTree. In this case, we
@@ -1016,4 +1017,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         String s = node.getName().toString();
         return s.equals("this") || s.equals("super");
     }
+
+    /* FOR DEBUG ONLY */
+    void pln(String str) {System.out.println("\t" + str);}
 }
