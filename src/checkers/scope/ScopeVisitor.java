@@ -669,7 +669,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private ScopeInfo concretize(ScopeInfo scope) {
-        return scope.isCaller() ? currentScope() : scope;
+        if (scope.isCaller())
+            return currentScope();
+        if (scope.isThis())
+            return varScopes.getVariableScope("this");
+        return scope;
     }
 
     private void checkEnterPrivateMemory(ScopeInfo recvScope,
