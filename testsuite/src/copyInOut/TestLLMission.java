@@ -1,6 +1,5 @@
 package copyInOut;
 
-
 import javax.realtime.ImmortalMemory;
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
@@ -16,91 +15,100 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("copyInOut.TestLLMission")
-@DefineScope(name="copyInOut.TestLLMission",parent=IMMORTAL)
+@DefineScope(name = "copyInOut.TestLLMission", parent = IMMORTAL)
 public class TestLLMission extends Mission {
 
-	LL ll;
+    LL ll;
 
-	@Override
+    @Override
     protected void initialize() {
-		new MyHandler(null, null, null, 0, this);
-	}
+        new MyHandler(null, null, null, 0, this);
+    }
 
-	@Override
-	public long missionMemorySize() {
-		return 0;
-	}
+    @Override
+    public long missionMemorySize() {
+        return 0;
+    }
 
-	@RunsIn(UNKNOWN)
-	public LL getLL() {
-		return ll.copyDown();
-	}
+    @RunsIn(UNKNOWN)
+    public LL getLL() {
+        return ll.copyDown();
+    }
 
-	public LL getRealLL() {
-		return this.ll;
-	}
+    public LL getRealLL() {
+        return this.ll;
+    }
 
-	@RunsIn(UNKNOWN)
-	public void putLL(LL h) { // ---> does not return a reference!!
-		this.ll.copyUp(h);
-	}
+    @RunsIn(UNKNOWN)
+    public void putLL(LL h) { // ---> does not return a reference!!
+        this.ll.copyUp(h);
+    }
 
-	@Scope("copyInOut.TestLLMission")
-	@RunsIn("copyInOut.MyHandler")
-	@DefineScope(name="copyInOut.MyHandler",parent="copyInOut.TestLLMission")
-	class MyHandler extends PeriodicEventHandler {
+    @Scope("copyInOut.TestLLMission")
+    @RunsIn("copyInOut.MyHandler")
+    @DefineScope(name = "copyInOut.MyHandler", parent = "copyInOut.TestLLMission")
+    class MyHandler extends PeriodicEventHandler {
 
-		TestLLMission myMission;
+        TestLLMission myMission;
 
-		public MyHandler(PriorityParameters priority,
-				PeriodicParameters parameters, StorageParameters scp,
-				long memSize, TestLLMission mission) {
-			super(priority, parameters, scp);
-			this.myMission = mission;
-		}
+        public MyHandler(PriorityParameters priority,
+                PeriodicParameters parameters, StorageParameters scp,
+                long memSize, TestLLMission mission) {
+            super(priority, parameters, scp);
+            this.myMission = mission;
+        }
 
-		@Override
+        @Override
         public void handleAsyncEvent() {
 
-			LL myList = new LL();
+            LL myList = new LL();
 
-			LL list = myMission.getLL();
+            LL list = myMission.getLL();
 
-			@Scope("copyInOut.TestLLMission")
-			LL realLL = myMission.getRealLL();
+            @Scope("copyInOut.TestLLMission")
+            LL realLL = myMission.getRealLL();
 
-			// to copy from down to up???
-			myMission.putLL(myList);
+            // to copy from down to up???
+            myMission.putLL(myList);
 
-			@Scope("copyInOut.TestLLMission")
-			Mission mission = Mission.getCurrentMission(); // where this lives?
-															// mission can't be passed into any method, only into @CS method
-															// all mission's method visible from here must be @CS
-															// --> implicit or explicit inference, these limitations holds
+            @Scope("copyInOut.TestLLMission")
+            Mission mission = Mission.getCurrentMission(); // where this lives?
+                                                           // mission can't be
+                                                           // passed into any
+                                                           // method, only into
+                                                           // @CS method
+                                                           // all mission's
+                                                           // method visible
+                                                           // from here must be
+                                                           // @CS
+                                                           // --> implicit or
+                                                           // explicit
+                                                           // inference, these
+                                                           // limitations holds
 
-			@Scope(IMMORTAL)
-			MemoryArea immMemory = ImmortalMemory.instance();
-			@Scope("copyInOut.TestLLMission")
-			MemoryArea mem = RealtimeThread.getCurrentMemoryArea();
+            @Scope(IMMORTAL)
+            MemoryArea immMemory = ImmortalMemory.instance();
+            @Scope("copyInOut.TestLLMission")
+            MemoryArea mem = RealtimeThread.getCurrentMemoryArea();
 
-			// MyRun run = new MyRun();
-			// run.ll = myList;
-			// run.myMission = myMission;
-			// MemoryArea mem = MemoryArea.areaOf(myMission);
-			// mem.executeInArea(run);
+            // MyRun run = new MyRun();
+            // run.ll = myList;
+            // run.myMission = myMission;
+            // MemoryArea mem = MemoryArea.areaOf(myMission);
+            // mem.executeInArea(run);
 
-		}
+        }
 
-		@RunsIn("MyMission")
-		@Scope("Handler")
-		class MyRun implements Runnable {
+        @RunsIn("MyMission")
+        @Scope("Handler")
+        class MyRun implements Runnable {
 
-			LL ll;
-			TestLLMission myMission;
+            LL ll;
+            TestLLMission myMission;
 
-			public void run() {
-				myMission.putLL(ll.copyDown());
-			}
-		}
-	}
+            public void run() {
+                myMission.putLL(ll.copyDown());
+            }
+        }
+    }
 }

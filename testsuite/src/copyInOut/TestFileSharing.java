@@ -22,61 +22,54 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 @Scope("copyInOut.TestFileSharing")
 public class TestFileSharing extends Mission {
 
-	public MyOutputStream output;
+    public MyOutputStream output;
 
-	@Override
+    @Override
     protected void initialize() {
-		new MyHandler(null, null, null, 0);
+        new MyHandler(null, null, null, 0);
 
-		// init the output stream
-	}
+        // init the output stream
+    }
 
-	@Override
-	public long missionMemorySize() {
-		return 0;
-	}
+    @Override
+    public long missionMemorySize() {
+        return 0;
+    }
 
-	@Scope("copyInOut.TestFileSharing")
-	@RunsIn("copyInOut.MyHandler")
-	class MyHandler extends PeriodicEventHandler {
+    @Scope("copyInOut.TestFileSharing")
+    @RunsIn("copyInOut.MyHandler")
+    class MyHandler extends PeriodicEventHandler {
 
-		public MyHandler(PriorityParameters priority,
-				PeriodicParameters parameters, StorageParameters scp,
-				long memSize) {
-			super(priority, parameters, scp);
-		}
+        public MyHandler(PriorityParameters priority,
+                PeriodicParameters parameters, StorageParameters scp,
+                long memSize) {
+            super(priority, parameters, scp);
+        }
 
-		@Scope("Unknown") MyOutputStream myOutput;
+        @Scope("Unknown")
+        MyOutputStream myOutput;
 
-		@Override
-		public void handleAsyncEvent() {
-			TestFileSharing mission = (TestFileSharing) Mission.getCurrentMission();
+        @Override
+        public void handleAsyncEvent() {
+            TestFileSharing mission = (TestFileSharing) Mission
+                    .getCurrentMission();
 
-			myOutput = mission.output;
+            myOutput = mission.output;
 
-			byte[] b = null;  //  = ... initialize";
-			myOutput.write(b);
-		}
-	}
+            byte[] b = null; // = ... initialize";
+            myOutput.write(b);
+        }
+    }
 }
-
 
 class MyOutputStream {
-	@RunsIn(UNKNOWN)
-	public void write(byte[] b) {
+    @RunsIn(UNKNOWN)
+    public void write(byte[] b) { }
 
-	}
-
-	@Scope(UNKNOWN)
-	public FileChannel getChannel() {
-		return null;
-	}
+    @Scope(UNKNOWN)
+    public FileChannel getChannel() {
+        return null;
+    }
 }
 
-
-class FileChannel {
-
-}
-
-
-
+class FileChannel { }

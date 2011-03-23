@@ -10,32 +10,24 @@ import javax.safetycritical.annotate.Scope;
 
 public class TestScopeUnknown extends Mission {
 
+    @Scope("copyInOut.TestLLMission")
+    @RunsIn("copyInOut.MyHandler")
+    class MyHandler extends PeriodicEventHandler {
 
-	@Scope("copyInOut.TestLLMission")
-	@RunsIn("copyInOut.MyHandler")
-	class MyHandler extends PeriodicEventHandler {
+        public MyHandler(PriorityParameters priority,
+                PeriodicParameters period, StorageParameters storage) {
+            super(priority, period, storage);
+        }
 
-		public MyHandler(PriorityParameters priority,
-				PeriodicParameters period, StorageParameters storage) {
-			super(priority, period, storage);
-		}
+        @Override
+        public void handleAsyncEvent() { }
+    }
 
-		@Override
-		public void handleAsyncEvent() {
+    @Override
+    public long missionMemorySize() {
+        return 0;
+    }
 
-		}
-
-
-
-	}
-
-	@Override
-	public long missionMemorySize() {
-		return 0;
-	}
-
-	@Override
-	protected void initialize() {
-	}
-
+    @Override
+    protected void initialize() { }
 }

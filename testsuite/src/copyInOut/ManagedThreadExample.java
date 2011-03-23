@@ -21,74 +21,62 @@ public class ManagedThreadExample {
 }
 
 class ManagedThread {
-
-	//@MemoryAreaEncloses(inner = { "this", "this", "this" }, outer = {
-	//		"schedule", "mem_info", "logic" })
-	@SCJAllowed(LEVEL_2)
-	@SCJRestricted(INITIALIZATION)
-	public ManagedThread(PriorityParameters priority,
-			StorageParameters mem_info, Runnable logic) {
-		// ....
-	}
-
+    @SCJAllowed(LEVEL_2)
+    @SCJRestricted(INITIALIZATION)
+    public ManagedThread(PriorityParameters priority,
+            StorageParameters mem_info, Runnable logic) {
+        // ....
+    }
 }
-
 
 @Scope(IMMORTAL)
 class ImmortalEntry {
-
-	MyManagedRunnable logic;
-	PriorityParameters pp;
-	StorageParameters mem;
-
+    MyManagedRunnable logic;
+    PriorityParameters pp;
+    StorageParameters mem;
 }
-
 
 @Scope("copyInOut.MyOtherMission2")
 class MyOtherMission2 extends Mission {
+    MyManagedRunnable logic;
+    PriorityParameters pp;
+    StorageParameters mem;
 
-	MyManagedRunnable logic;
-	PriorityParameters pp;
-	StorageParameters mem;
-
-	@Override
+    @Override
     public void initialize() {
-		MyHandler handler = new MyHandler();
+        MyHandler handler = new MyHandler();
+        ManagedThread mThread = new ManagedThread(pp, mem, logic);
+    }
 
-		ManagedThread mThread = new ManagedThread(pp, mem, logic);
-	}
-
-	@Override
-	public long missionMemorySize() {
-		return 0;
-	}
+    @Override
+    public long missionMemorySize() {
+        return 0;
+    }
 }
 
 @Scope("MyOtherMission2")
 @RunsIn("MyHandler2")
 class MyHandler2 extends PeriodicEventHandler {
-	public MyHandler2() {
-		super(null, null, null);
-	}
+    public MyHandler2() {
+        super(null, null, null);
+    }
 
-	public MyHandler2(PriorityParameters priority, PeriodicParameters period,
-			StorageParameters storage) {
-		super(priority, period, storage);
-	}
+    public MyHandler2(PriorityParameters priority, PeriodicParameters period,
+            StorageParameters storage) {
+        super(priority, period, storage);
+    }
 
-	@Scope(UNKNOWN)
-	public LinkedList list;
+    @Scope(UNKNOWN)
+    public LinkedList list;
 
-	@Override
+    @Override
     public void handleAsyncEvent() {
-		// ....
-	}
-
+        // ....
+    }
 }
 
-
 class MyManagedRunnable implements Runnable {
-	public void run() {
-		//....
-	}
+    public void run() {
+        // ....
+    }
 }

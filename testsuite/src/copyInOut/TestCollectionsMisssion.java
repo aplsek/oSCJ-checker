@@ -11,91 +11,89 @@ import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-
 @Scope("copyInOut.TestSingletonMission")
 public class TestCollectionsMisssion extends Mission {
 
-	private LinkedList list;
-	private Iterator iterator = null;
+    private LinkedList list;
+    private Iterator iterator = null;
 
-	public LinkedList getList() {
-		return list;   											// ERROR????
-	}
+    public LinkedList getList() {
+        return list; // ERROR????
+    }
 
+    /**
+     * TODO : should we return an iterator???
+     *
+     * @return
+     */
+    public Iterator getIterator() {
+        //
+        // Iterator iter = list.iterator();
+        // Iterator res = new ListIterator(iter);
+        //
+        // return iter;
 
-	/**
-	 * TODO : should we return an iterator???
-	 * @return
-	 */
-	public Iterator getIterator() {
-		//
-		//Iterator iter = list.iterator();
-		//Iterator res = new ListIterator(iter);
-		//
-		//return iter;
+        return null;
+    }
 
-		return null;
-	}
+    public Foo getNode() {
+        if (iterator == null)
+            iterator = list.iterator();
 
+        if (!iterator.hasNext())
+            return null;
 
-	public Foo getNode() {
-		if (iterator == null)
-			iterator = list.iterator();
+        Foo foo = (Foo) iterator.next();
+        return new Foo(foo); // DEEP-COPY Foo!
+    }
 
-		if (!iterator.hasNext())
-			return null;
-
-		Foo foo = (Foo) iterator.next();
-		return new Foo(foo);					// DEEP-COPY Foo!
-	}
-
-	@Override
+    @Override
     protected void initialize() {
         new MyHandler(null, null, null, 0);
     }
 
-	@Scope("copyInOut.TestCollections")
-	@RunsIn("copyInOut.MyHandler")
-	class MyHandler extends PeriodicEventHandler {
+    @Scope("copyInOut.TestCollections")
+    @RunsIn("copyInOut.MyHandler")
+    class MyHandler extends PeriodicEventHandler {
 
-		public MyHandler(PriorityParameters priority,
-				PeriodicParameters parameters, StorageParameters scp,
-				long memSize) {
-			super(priority, parameters, scp);
-		}
+        public MyHandler(PriorityParameters priority,
+                PeriodicParameters parameters, StorageParameters scp,
+                long memSize) {
+            super(priority, parameters, scp);
+        }
 
-		@Override
-		public void handleAsyncEvent() {
-			TestCollectionsMisssion mission = (TestCollectionsMisssion) Mission.getCurrentMission();
-			//LinkedList<Foo> list = mission.getList();
-			//Iterator<Foo> iter = list.iterator();
+        @Override
+        public void handleAsyncEvent() {
+            TestCollectionsMisssion mission = (TestCollectionsMisssion) Mission
+                    .getCurrentMission();
+            // LinkedList<Foo> list = mission.getList();
+            // Iterator<Foo> iter = list.iterator();
 
-			Foo node = mission.getNode();						// iterate through the list
-			while (node != null) {
-				node.method();
-				node = mission.getNode();
-			}
-		}
-	}
+            Foo node = mission.getNode(); // iterate through the list
+            while (node != null) {
+                node.method();
+                node = mission.getNode();
+            }
+        }
+    }
 
+    @Override
+    public long missionMemorySize() {
+        return 0;
+    }
 
-	@Override
-	public long missionMemorySize() {
-		return 0;
-	}
+    class Foo {
+        int id;
 
-	class Foo {
-		int id;
+        public Foo() {
+            id = 0;
+        }
 
-		public Foo() {
-			id = 0;
-		}
+        public Foo(Foo foo) {
+            id = foo.id;
+        }
 
-		public Foo(Foo foo) {
-			id = foo.id;
-		}
-
-		public void method() {
-		}
-	}
+        public void method() {
+        }
+    }
 }

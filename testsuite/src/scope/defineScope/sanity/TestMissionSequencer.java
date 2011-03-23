@@ -12,7 +12,7 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("A")
-@DefineScope(name = "A", parent = IMMORTAL)
+@DefineScope(name="A", parent=IMMORTAL)
 public class TestMissionSequencer extends MissionSequencer {
 
     @SCJRestricted(INITIALIZATION)
