@@ -18,7 +18,7 @@ import javax.safetycritical.StorageParameters;
 @SCJAllowed(value=LEVEL_1, members=true)
 public class One implements Safelet {
 
-    @SCJRestricted(INITIALIZATION)
+    @SCJRestricted(INITIALIZATION) @Scope(IMMORTAL)
     public MissionSequencer getSequencer() {
         return new OneSequencer(new PriorityParameters(PriorityScheduler
                 .instance().getNormPriority()), new StorageParameters(100000L,
