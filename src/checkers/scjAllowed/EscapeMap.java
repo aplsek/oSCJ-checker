@@ -12,7 +12,7 @@ import checkers.util.TreeUtils;
 import com.sun.source.tree.ClassTree;
 
 public class EscapeMap {
-    public static final Map<String, Level> escape = new HashMap<String, Level>();
+    private static final Map<String, Level> escape = new HashMap<String, Level>();
 
     static {
         escape.put("java.lang", Level.LEVEL_0);
@@ -64,6 +64,18 @@ public class EscapeMap {
                 return true;
 
         return false;
+    }
+
+    public static Level get(String str) {
+        if (escape.containsKey(str))
+            return escape.get(str);
+
+        // this allows also package names
+        for (Map.Entry<String, Level> entry : escape.entrySet())
+            if (str.startsWith(entry.getKey()))
+                return escape.get(entry.getKey());
+
+        return null;
     }
 
     public static boolean escapeEnum(ClassTree node) {

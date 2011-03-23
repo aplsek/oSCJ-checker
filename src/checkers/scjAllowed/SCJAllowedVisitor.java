@@ -128,6 +128,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         return super.visitMemberSelect(node, p);
     }
 
+    void pln(String str) {System.out.println(str);}
+
     /**
      * Errors: - we can not override a method by a method with a higher
      * SCJallowed level
@@ -179,7 +181,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      * A legal sequence of overrides is Level 1 (user code) ---> SUPPORT (scj
      * code) ---> INFRASTRUCTURE (scj code)
      *
-     * a illegal sequence is: Level 1 (user code) ---> INFRASTRUCTURE (scj code)
+     * an illegal sequence is: Level 1 (user code) ---> INFRASTRUCTURE (scj code)
      *
      * --> so by this we rule out all cases where an INFRASTRUCTURE method was
      * overriden by SUPPORT or lower level in the SCJ packages -------> since
@@ -197,9 +199,11 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     private boolean isLegalOverride(
             Map<AnnotatedDeclaredType, ExecutableElement> overrides,
             MethodTree node) {
+
         for (ExecutableElement override : overrides.values())
             if (scjAllowedLevel(override, node).compareTo(SUPPORT) <= 0)
                 return true;
+
         return false;
     }
 
@@ -327,8 +331,10 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      */
     private Level scjAllowedLevel(ExecutableElement m, Tree node) {
         TypeElement t = Utils.getMethodClass(m);
-        if (isEscaped(t.getQualifiedName().toString()))
-            return EscapeMap.escape.get(t.getQualifiedName().toString());
+
+        if (isEscaped(t.getQualifiedName().toString())) {
+            return EscapeMap.get(t.getQualifiedName().toString());
+        }
 
         if (node.toString().equals("super()"))
             if (!isSCJAllowed(m))
@@ -364,10 +370,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             return Utils.getSCJAllowedLevel(m);
 
         // Note: @SCJAllowed level cannot be inherited from an overriden method
-        // for (ExecutableElement override : ats.overriddenMethods(m).values())
-        // if (!isEscaped(override.getEnclosingElement().toString())
-        // && isSCJAllowed(override))
-        // return Utils.getSCJAllowedLevel(override);
 
         return getEnclosingLevel(m);
     }
