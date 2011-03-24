@@ -505,6 +505,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     @Override
     public ScopeInfo visitTypeCast(TypeCastTree node, P p) {
         debugIndentIncrement("visitTypeCast " + node);
+
         if (isPrimitiveExpression(node)) {
             debugIndentDecrement();
             return ScopeInfo.PRIMITIVE;
@@ -512,7 +513,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         ScopeInfo scope = node.getExpression().accept(this, p);
         TypeMirror m = Utils.getBaseType(InternalUtils.typeOf(node));
-        ScopeInfo cast = ctx.getClassScope(Utils.getTypeElement(m));
+        ScopeInfo cast = null;
+        if (m.getKind().isPrimitive()) {
+            // if we are casting to a primitive type, we take on the ScopeInfo of the rhs expresion
+            // e.g. for: (byte []) MemoryArea.newArayInArea(...)
+            cast = scope;
+        } else
+            cast = ctx.getClassScope(Utils.getTypeElement(m));
 
         debugIndentDecrement();
         return cast.isCaller() ? scope : cast;

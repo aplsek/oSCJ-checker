@@ -85,5 +85,5 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     }
 
     /* FOR DEBUG ONLY */
-    void pln(String str) {System.out.println("\t" + str);}
+    protected void pln(String str) {System.out.println("\t" + str);}
 }

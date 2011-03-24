@@ -83,6 +83,4 @@ public class TestHandleAsyncEventRunsIn extends CyclicExecutive {
         public void cleanUp() {
         }
     }
-
-
 }
