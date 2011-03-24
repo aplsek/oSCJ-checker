@@ -41,8 +41,12 @@ public class FieldScopeInfo extends ScopeInfo {
             return false;
         else if (obj instanceof FieldScopeInfo) {
             FieldScopeInfo o = (FieldScopeInfo) obj;
-            return super.equals(obj) && receiverScope.equals(o.receiverScope)
-                    && fieldScope.equals(o.receiverScope);
+            if (receiverScope == null) {        // this branch is added to avoid failing on ScopeInfo.IMMORTAL
+                if (o.receiverScope == null)
+                    return super.equals(obj) && fieldScope.equals(o.receiverScope);
+            } else
+                return super.equals(obj) && receiverScope.equals(o.receiverScope)
+                        && fieldScope.equals(o.receiverScope);
         } else if (obj instanceof ScopeInfo)
             return super.equals(obj);
         return false;
