@@ -365,6 +365,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         } else if (elem.getKind() == ElementKind.CLASS) {
             // TODO: inner class?, issue 22
             ret = null;
+        }  else if (elem.getKind() == ElementKind.ENUM) {
+            // TODO:  inner enum type class?, issue 22
+            ret = null;
         } else {
             VariableElement f = (VariableElement) elem;
             ScopeInfo fScope = ctx.getFieldScope(f);
