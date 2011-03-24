@@ -571,9 +571,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndentIncrement("checkAssignment: " + node.toString());
         if (lhs.isFieldScope())
             checkFieldAssignment((FieldScopeInfo) lhs, rhs, node);
-        else
+        else {
             // TODO: Do we need an extra case for arrays?
             checkLocalAssignment(lhs, rhs, node);
+        }
         debugIndentDecrement();
     }
 
@@ -613,6 +614,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("lhs field scope = " + lhs.getFieldScope());
         debugIndent("lhs scope = " + lhs);
         debugIndent("rhs scope = " + rhs);
+
+
         if (!lhs.isUnknown()) {
             if (lhs.getFieldScope().isThis()) {
                 if (!lhs.getReceiverScope().equals(rhs))
@@ -672,8 +675,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private void checkLocalAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
         if (lhs.isUnknown() || rhs.isNull())
             return;
-        if (!concretize(lhs).equals(concretize(rhs)))
+        if (!concretize(lhs).equals(concretize(rhs))) {
+            //pln("\n\ncheckLocalAssignment : " + node);
+            //pln("lhs: " + lhs);
+            //pln("rhs : " + rhs);
+            //pln(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n");
+            //ctx.dumpClassInfo("scope.miniCDx.CDMission");
+
             fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
+        }
         ScopeInfo rhsDsi = rhs.getRepresentedScope();
         if (rhsDsi != null && !rhsDsi.equals(lhs.getRepresentedScope()))
             fail(ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT, node);
@@ -946,8 +956,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return ScopeInfo.UNKNOWN;
         }
         scope = concretize(scope);
-
         ScopeInfo parent = scopeTree.getParent(scope);
+
         return new ScopeInfo(parent.getScope(), scope);
     }
 
