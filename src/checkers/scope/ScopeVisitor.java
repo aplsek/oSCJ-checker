@@ -356,13 +356,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         debugIndentIncrement("visitMemberSelect: " + node.toString());
 
-        if (elem.getKind() == ElementKind.METHOD)
+        if (elem.getKind() == ElementKind.METHOD) {
             // If a MemberSelectTree is not a field, then it is a method
             // that is part of a MethodInvocationTree. In this case, we
             // want to return the scope of the receiver object so that
             // visitMethodInvocation has its scope.
             ret = node.getExpression().accept(this, p);
-        else {
+        } else if (elem.getKind() == ElementKind.CLASS) {
+            // TODO: inner class?, issue 22
+            ret = null;
+        } else {
             VariableElement f = (VariableElement) elem;
             ScopeInfo fScope = ctx.getFieldScope(f);
             ret = new FieldScopeInfo(receiver, fScope);

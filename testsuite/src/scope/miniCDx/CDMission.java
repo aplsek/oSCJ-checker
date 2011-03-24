@@ -29,9 +29,11 @@ public class CDMission extends CyclicExecutive {
 
     @Override
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
-        return new CyclicSchedule(
-                new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(t,
-                        handlers) });
+       return null;
+      // TODO: issue 22:
+      //  return new CyclicSchedule(
+      //          new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(t,
+      //                  handlers) });
     }
 
     public CDMission() {
