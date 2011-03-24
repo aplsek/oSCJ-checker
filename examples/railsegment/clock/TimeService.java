@@ -41,7 +41,7 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
-@DefineScope(name="C", parent=IMMORTAL)
+@DefineScope(name="C", parent="TM")
 @Scope("C")
 public class TimeService extends Mission
 {
