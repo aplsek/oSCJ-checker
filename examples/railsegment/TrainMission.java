@@ -61,7 +61,7 @@ public class TrainMission extends Mission
   //        overflows and to "serve" time synchronization), priority 24
   //   comms_responses (on behalf of global time synchronization),
   //        priority 24.  note that some of comms_responses are in
-  //        behalf of train control, which has lower priority.  but it
+  //        behalf of train control, which has lower priority but it
   //        will inherit the highest priority of its clients.
   //
   //   timer_tick, deadline 500 microseconds, priority 20
@@ -75,24 +75,19 @@ public class TrainMission extends Mission
   //        priority 8
   //
 
-  // TODO
-  // TODO
-  // TODO
-  // TODO: rectify priority assignments with above table
-  // TODO
-  // TODO
-  // TODO
+  public final int COMMS_CEILING = 24;
+  public final int COMMS_PRIORITY = 24;
 
+  public final int TIMES_CEILING = 20;
+  public final int TIMES_PRIORITY = 20;
 
-  public final int COMMS_CEILING = 16;
-  public final int TIMES_CEILING = 24;
-  public final int NAVS_CEILING = 16;
-
-  public final int COMMS_PRIORITY = 16;
-  public final int TIMES_PRIORITY = 24;
-  public final int NAVS_PRIORITY = 16;
   public final int GPS_PRIORITY = 16;
-  public final int CONTROL_PRIORITY = 16;
+
+  public final int CONTROL_PRIORITY = 8;
+
+  public final int NAVS_CEILING = 8;
+  public final int NAVS_PRIORITY = 8;
+
 
   private CommunicationsQueue comms_data;
   private SynchronizedTime times_data;
