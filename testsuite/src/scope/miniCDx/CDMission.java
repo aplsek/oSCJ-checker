@@ -29,9 +29,11 @@ public class CDMission extends CyclicExecutive {
 
     @Override
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
-        return new CyclicSchedule(
-                new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(t,
-                        handlers) });
+       return null;
+      // TODO: issue 22:
+      //  return new CyclicSchedule(
+      //          new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(t,
+      //                  handlers) });
     }
 
     public CDMission() {
@@ -44,7 +46,7 @@ public class CDMission extends CyclicExecutive {
         new CDHandler();
         MIRun miRun = new MIRun();
         @DefineScope(name="CDMissionInit", parent="CDMission")
-        @Scope(IMMORTAL)
+        @Scope("CDMission")
         ManagedMemory m = (ManagedMemory) ManagedMemory.getMemoryArea(this);
         m.enterPrivateMemory(2000, miRun);
     }
