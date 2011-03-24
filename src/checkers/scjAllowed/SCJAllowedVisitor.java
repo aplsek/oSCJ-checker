@@ -128,8 +128,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         return super.visitMemberSelect(node, p);
     }
 
-    void pln(String str) {System.out.println(str);}
-
     /**
      * Errors: - we can not override a method by a method with a higher
      * SCJallowed level
