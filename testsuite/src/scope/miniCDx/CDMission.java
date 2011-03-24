@@ -27,6 +27,10 @@ public class CDMission extends CyclicExecutive {
     static StorageParameters s = new StorageParameters(1000L, 1000L, 1000L);
     static RelativeTime t = new RelativeTime(5, 0);
 
+    public CDMission() {
+        super(p, s);
+    }
+
     @Override
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
        return null;
@@ -36,17 +40,13 @@ public class CDMission extends CyclicExecutive {
       //                  handlers) });
     }
 
-    public CDMission() {
-        super(p, s);
-    }
-
     @Override
     @SCJRestricted(INITIALIZATION)
     protected void initialize() {
         new CDHandler();
         MIRun miRun = new MIRun();
-        @DefineScope(name="CDMissionInit", parent="CDMission")
-        @Scope("CDMission")
+        @DefineScope(name="CDMission", parent=IMMORTAL)
+        @Scope(IMMORTAL)
         ManagedMemory m = (ManagedMemory) ManagedMemory.getMemoryArea(this);
         m.enterPrivateMemory(2000, miRun);
     }
