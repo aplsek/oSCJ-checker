@@ -373,10 +373,16 @@ public class ScopeCheckerContext {
         }
 
         public void dumpCSI() {
-            System.out.println("\n\n\t size : " + methodScopes.size());
-            for (String key : methodScopes.keySet())
+            System.out.println(" methodScopes : " + methodScopes.size());
+            for (String key : methodScopes.keySet()) {
+                System.out.print("\t key:" + key + "  - ");
+                methodScopes.get(key).dump();
+            }
+
+            System.out.println(" fieldScopes : " +fieldScopes.size());
+            for (String key : fieldScopes.keySet())
                 System.out.println("\t key:" + key + "  - "
-                        + methodScopes.get(key));
+                        + fieldScopes.get(key));
         }
     }
 
@@ -390,6 +396,24 @@ public class ScopeCheckerContext {
             for (int i = 0; i < params; i++)
                 parameters.add(null);
         }
+
+        public void dump() {
+            for (ScopeInfo sc : parameters) {
+                System.out.print(sc.getScope() + ", ");
+            }
+            System.out.println();
+        }
+    }
+
+    public void dumpClassInfo(String str) {
+        System.err.println("\n\n============ CLASS INFO-=========");
+        for (Entry<String, ClassInfo> e : classScopes.entrySet()) {
+           if (e.getKey().contains(str))  {
+               e.getValue().dumpCSI();
+           }
+
+        }
+        System.err.println("============ CLASS SCOPES-=========\n\n");
     }
 
     public void dumpClassScopes() {
