@@ -46,7 +46,7 @@ public class CDMission extends CyclicExecutive {
         new CDHandler();
         MIRun miRun = new MIRun();
         @DefineScope(name="CDMissionInit", parent="CDMission")
-        @Scope(IMMORTAL)
+        @Scope("CDMission")
         ManagedMemory m = (ManagedMemory) ManagedMemory.getMemoryArea(this);
         m.enterPrivateMemory(2000, miRun);
     }
