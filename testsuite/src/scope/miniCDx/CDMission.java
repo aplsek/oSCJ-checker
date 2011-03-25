@@ -23,12 +23,18 @@ import javax.safetycritical.annotate.Scope;
 @DefineScope(name="CDMission", parent=IMMORTAL)
 public class CDMission extends CyclicExecutive {
 
-    static PriorityParameters p = new PriorityParameters(18);
-    static StorageParameters s = new StorageParameters(1000L, 1000L, 1000L);
+    //static PriorityParameters p = new PriorityParameters(18);
+    // static StorageParameters s = new StorageParameters(1000L, 1000L, 1000L);
+
+    static int priorityParameter = 18;
+    static long totalBackingStore = 1000L;
+    static long nativeStackSize = 1000L;
+    static long javaStackSize = 1000L;
     static RelativeTime t = new RelativeTime(5, 0);
 
     public CDMission() {
-        super(p, s);
+        super(new PriorityParameters(priorityParameter),
+              new StorageParameters(totalBackingStore, nativeStackSize, javaStackSize));
     }
 
     @Override
