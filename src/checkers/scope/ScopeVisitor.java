@@ -700,17 +700,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private void checkLocalAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
-        if (lhs.isUnknown() || rhs.isNull())
+        if (lhs.isUnknown() || rhs.isNull() || lhs.isPrimitive())
             return;
-        if (!concretize(lhs).equals(concretize(rhs))) {
-            //pln("\n\ncheckLocalAssignment : " + node);
-            //pln("lhs: " + lhs);
-            //pln("rhs : " + rhs);
-            //pln(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n");
-            //ctx.dumpClassInfo("scope.miniCDx.CDMission");
-
+        if (!concretize(lhs).equals(concretize(rhs)))
             fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
-        }
         ScopeInfo rhsDsi = rhs.getRepresentedScope();
         if (rhsDsi != null && !rhsDsi.equals(lhs.getRepresentedScope()))
             fail(ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT, node);
