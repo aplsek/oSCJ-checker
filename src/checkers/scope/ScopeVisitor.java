@@ -25,7 +25,10 @@ import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSI
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR;
 import static checkers.scope.ScopeChecker.ERR_SCJ_RUNNABLE_BAD_SCOPE;
+import static checkers.scope.ScopeChecker.ERR_BAD_CONTEXT_CHANGE_CALLER;
+
 import static checkers.scope.ScopeInfo.CALLER;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -179,16 +182,18 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     @Override
     public ScopeInfo visitClass(ClassTree node, P p) {
         if (!set) {
+            // TODO: issue 85
             ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "wait", "");
             ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "notifyAll", "");
             ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "notify", "");
             ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "wait", "long");
             ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "wait", "long","int");
             //ctx.dumpClassInfo("java.lang.Object");
+
+            //ctx.dumpClassInfo("javax.realtime.MemoryArea");
+
             set = true;
         }
-
-
 
         debugIndentIncrement("visitClass " + node.getSimpleName());
         debugIndent("visitClass :"
@@ -819,10 +824,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         switch (SCJMethod.fromMethod(m, elements, types)) {
         case ENTER_PRIVATE_MEMORY:
-            checkEnterPrivateMemory(recvScope, node);
+            if (isCallerContext(currentScope(), node))
+                checkEnterPrivateMemory(recvScope, node);
             return null; // void methods don't return a scope
         case EXECUTE_IN_AREA:
-            checkExecuteInArea(recvScope, node);
+            if (isCallerContext(currentScope(), node))
+                    checkExecuteInArea(recvScope, node);
             return null;
         case ENTER:
             // this method cannot be invoked by user
@@ -844,6 +851,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         default:
             return ctx.getEffectiveMethodScope(m, recvScope, currentScope());
         }
+    }
+
+    private boolean isCallerContext(ScopeInfo currentScope,
+            MethodInvocationTree node) {
+        if (currentScope.isCaller()) {
+            fail(ERR_BAD_CONTEXT_CHANGE_CALLER,node);
+            return false;
+        }
+        return true;
     }
 
     private void checkMethodParameters(ExecutableElement m,

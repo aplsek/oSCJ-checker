@@ -32,6 +32,7 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_RETURN_SCOPE = "bad.return.scope";
     public static final String ERR_BAD_RUNS_IN_METHOD = "bad.runs.in.method";
     public static final String ERR_BAD_VARIABLE_SCOPE = "bad.variable.scope";
+    public static final String ERR_BAD_CONTEXT_CHANGE_CALLER = "bad.context.change.in.caller";
     public static final String ERR_ESCAPING_NONANNOTATED_FIELD = "escaping.nonannotated.field";
     public static final String ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR = "err.mem.area.no.def.scope.on.var";
     public static final String ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT = "err.mem.type.def.scope.not.consistent";
@@ -66,6 +67,8 @@ public class ScopeChecker extends SinglePassChecker {
                 "The Runnable's @RunsIn must be a child scope of the CurrentScope\n\t @RunsIn: %s\n\t Current Scope: %s");
         p.put(ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET,
                 "The Runnable's @RunsIn must be a child scope of the scope represented by the @DefineScope annotation on the memory area variable.\n\t @RunsIn: %s\n\t Target Scope: %s");
+        p.put(ERR_BAD_CONTEXT_CHANGE_CALLER,
+        "Changing allocation context using enterPrivateMemory()/executeInArea() in scope CALLER is not allowed.");
         p.put(ERR_BAD_EXECUTE_IN_AREA_RUNS_IN,
                 "Runnable and PrivateMemory scopes disagree. Target is %s, while Runnable's @RunsIn is %s.");
         p.put(ERR_BAD_EXECUTE_IN_AREA_TARGET,
