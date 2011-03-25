@@ -731,8 +731,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (!scopeTree.isParentOf(argRunsIn, target))
             fail(ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET, node, argRunsIn, target);
 
-        if (runnableScope.isCaller() || !runnableScope.equals(target))
-            fail(ERR_SCJ_RUNNABLE_BAD_SCOPE, node, argRunsIn, target);
+        // NOTE: uncomment this to enforce @Scope annotation on SCJRunnable
+        //if (runnableScope.isCaller() || !runnableScope.equals(target))
+        //    fail(ERR_SCJ_RUNNABLE_BAD_SCOPE, node, argRunsIn, target);
     }
 
     private ScopeInfo checkExecuteInArea(ScopeInfo recvScope,
@@ -750,14 +751,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // target and @RunsIn on runnable must be the same
             fail(ERR_BAD_EXECUTE_IN_AREA_RUNS_IN, node, target, argRunsIn);
 
-        if (runnableScope.isCaller() || !runnableScope.equals(currentScope()))
-            fail(ERR_SCJ_RUNNABLE_BAD_SCOPE, node, argRunsIn, target);
+        // NOTE: uncomment this to enforce @Scope annotation on SCJRunnable
+        // if (runnableScope.isCaller() || !runnableScope.equals(currentScope()))
+        //    fail(ERR_SCJ_RUNNABLE_BAD_SCOPE, node, argRunsIn, target);
 
-        // Leaving the failures in so the static imports don't get warnings
-        // fail(ERR_BAD_ENTER_PARAM, node);
-        // fail(ERR_TYPE_CAST_BAD_ENTER_PARAMETER, node);
-        // fail(ERR_DEFAULT_BAD_ENTER_PARAMETER, node);
-        // fail(ERR_BAD_ENTER_TARGET, node);
         return null;
     }
 
