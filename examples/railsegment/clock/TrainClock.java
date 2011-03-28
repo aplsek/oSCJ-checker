@@ -20,23 +20,17 @@
  */
 package railsegment.clock;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.THIS;
+
 import javax.realtime.AbsoluteTime;
 import javax.realtime.Clock;
 import javax.realtime.ClockCallBack;
 import javax.realtime.RelativeTime;
-
-import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
-
-import static javax.safetycritical.annotate.Scope.THIS;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-import static javax.safetycritical.annotate.Scope.CALLER;
-
-import static javax.safetycritical.annotate.Level.LEVEL_1;;
 
 @SCJAllowed(members=true)
 @Scope("TM")

@@ -542,11 +542,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo scope = node.getExpression().accept(this, p);
         TypeMirror m = Utils.getBaseType(InternalUtils.typeOf(node));
         ScopeInfo cast = null;
-        if (m.getKind().isPrimitive()) {
+        if (m.getKind().isPrimitive())
             // if we are casting to a primitive type, we take on the ScopeInfo of the rhs expresion
             // e.g. for: (byte []) MemoryArea.newArayInArea(...)
             cast = scope;
-        } else
+        else
             cast = ctx.getClassScope(Utils.getTypeElement(m));
 
         debugIndentDecrement();
@@ -597,10 +597,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         if (lhs.isFieldScope())
             checkFieldAssignment((FieldScopeInfo) lhs, rhs, node);
-        else {
+        else
             // TODO: Do we need an extra case for arrays?
             checkLocalAssignment(lhs, rhs, node);
-        }
         debugIndentDecrement();
     }
 

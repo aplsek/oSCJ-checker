@@ -20,14 +20,13 @@
  */
 package railsegment;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.safetycritical.Services;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
-
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-import static javax.safetycritical.annotate.Scope.CALLER;
 
 @SCJAllowed
 @Scope("TM")
@@ -201,6 +200,7 @@ public class CommunicationsQueue
   public final static int O_WRONLY = 0x02;
 
   // Purdue team: all enums are presumed to reside in IMMORTAL?
+  @Scope(IMMORTAL)
   private static enum RequestType {
     REQUEST_READ,
     REQUEST_WRITE,

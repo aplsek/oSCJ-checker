@@ -20,26 +20,15 @@
  */
 package railsegment.clock;
 
-import railsegment.CommunicationsQueue;
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.realtime.AbsoluteTime;
-import javax.realtime.MemoryArea;
-import javax.realtime.PeriodicParameters;
-import javax.realtime.RelativeTime;
-
-import javax.realtime.PriorityParameters;
-
 import javax.safetycritical.Mission;
-import javax.safetycritical.NoHeapRealtimeThread;
-import javax.safetycritical.StorageParameters;
-
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-import static javax.safetycritical.annotate.Scope.CALLER;
+import railsegment.CommunicationsQueue;
 
 @DefineScope(name="C", parent="TM")
 @Scope("C")

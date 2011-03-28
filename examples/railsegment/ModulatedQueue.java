@@ -20,15 +20,12 @@
  */
 package railsegment;
 
-import javax.safetycritical.Services;
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.Services;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
-
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-import static javax.safetycritical.annotate.Scope.CALLER;
 
 // This assumes there is at most one client for NavigationInfo, and
 // that the single client always waits for a response to a previously
@@ -36,6 +33,7 @@ import static javax.safetycritical.annotate.Scope.CALLER;
 
 @Scope("A")
 public class ModulatedQueue {
+  @Scope(IMMORTAL)
   static enum RequestEncoding {
     NoRequest, ResponseReady,
     RequestShutdown,

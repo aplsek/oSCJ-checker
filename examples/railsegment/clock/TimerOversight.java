@@ -21,23 +21,14 @@
 
 package railsegment.clock;
 
-import railsegment.CommunicationsQueue;
-
-import javax.realtime.AbsoluteTime;
-import javax.realtime.PeriodicParameters;
-import javax.realtime.RelativeTime;
-
 import javax.realtime.PriorityParameters;
-
 import javax.safetycritical.NoHeapRealtimeThread;
 import javax.safetycritical.StorageParameters;
-
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import railsegment.CommunicationsQueue;
 
 @Scope("C")
 @DefineScope(name="C:TO", parent="C")

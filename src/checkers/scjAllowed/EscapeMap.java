@@ -25,7 +25,7 @@ public class EscapeMap {
         escape.put("java.lang.Runtime", Level.LEVEL_0);
         escape.put("java.lang.Runnable", Level.LEVEL_0);
 
-        escape.put("java.lang.Eception", Level.LEVEL_0);
+        escape.put("java.lang.Exception", Level.LEVEL_0);
         escape.put("System", Level.LEVEL_0);
         escape.put("System.out.println", Level.LEVEL_0);
         escape.put("java.lang.System", Level.LEVEL_0);

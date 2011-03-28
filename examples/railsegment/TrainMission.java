@@ -21,21 +21,18 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.safetycritical.Mission;
-import javax.safetycritical.Services;
-
-import railsegment.clock.SynchronizedTime;
-import railsegment.clock.TrainClock;
-
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-import static javax.safetycritical.annotate.Scope.CALLER;
+import railsegment.clock.SynchronizedTime;
+import railsegment.clock.TrainClock;
 
 
 @DefineScope(name="TM", parent=IMMORTAL)

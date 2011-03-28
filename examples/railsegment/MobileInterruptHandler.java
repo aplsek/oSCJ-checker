@@ -21,15 +21,8 @@
 package railsegment;
 
 import javax.realtime.InterruptServiceRoutine;
-
-import javax.safetycritical.StorageParameters;
-
-import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
-
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("H")
 //@DefineScope(name="MIH_Private", parent="H")

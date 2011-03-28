@@ -21,14 +21,12 @@
 
 package railsegment;
 
-import javax.safetycritical.Mission;
+import static javax.safetycritical.annotate.Scope.CALLER;
 
+import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
-
-import static javax.safetycritical.annotate.Scope.CALLER;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 /**
  * Assume the CommunicationService class provides reliable

@@ -382,7 +382,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             // checked in SCJAllowedVisitor; we include INFRASTRUCTURE here
             // because we're pulling in SCJ types.
             if (!eRunsIn.equals(runsIn) && !Utils.isSCJSupport(m, ats)
-                    && Utils.isUserLevel(m))
+                    && Utils.isUserLevel(m) && !runsIn.isCaller())
                 fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
         }
         ctx.setMethodRunsIn(runsIn, m);

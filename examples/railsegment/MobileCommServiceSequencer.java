@@ -21,20 +21,14 @@
 
 package railsegment;
 
-import javax.realtime.PriorityParameters;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
-import javax.safetycritical.Mission;
+import javax.realtime.PriorityParameters;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
-
-import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
-
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 @Scope("A")
 public class MobileCommServiceSequencer

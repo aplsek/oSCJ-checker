@@ -20,18 +20,13 @@
  */
 package railsegment;
 
-import javax.realtime.MemoryArea;
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.safetycritical.Mission;
 import javax.safetycritical.Services;
-
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
-
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-import static javax.safetycritical.annotate.Scope.CALLER;
 
 @DefineScope(name="H", parent="A")
 @Scope("H")
