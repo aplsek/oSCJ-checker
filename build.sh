@@ -24,7 +24,6 @@ CLASSPATH=$CLASSPATH:./lib/scj.jar
 
 echo "Compiling SCJChecker"
 find ./src -name "*.java" > sources
-find ./spec -name "*.java" >> sources
 $JAVAC -cp $CLASSPATH -d $BUILD @sources
 rm -rf sources
 cd $BUILD && find . -name "*.class" | xargs jar cf ../lib/scj-checker.jar && cd ..
