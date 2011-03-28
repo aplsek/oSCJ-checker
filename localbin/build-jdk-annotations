@@ -36,7 +36,7 @@ TMP_DIR=$(mktemp -d -t test)
 
 # Variables for annotation utils
 JAVAC_JAR=$OUT_DIR/jsr308-all.jar
-CLASSPATH=$(basename $CHECKER_JAR)
+export CLASSPATH=$(basename $CHECKER_JAR)
 
 cp $CHECKER_JAR $TMP_DIR
 cp $SPEC_JAR $TMP_DIR
@@ -47,6 +47,8 @@ mkdir spec jdk
 cd spec; jar xf ../$(basename $SPEC_JAR); cd ..
 
 SPEC_CLASSES=$(cd spec; find . -name "*.class")
+
+jar tf scj.jar
 
 # For each class that has an annotation spec, extract the JDK implementation
 # and annotate it.
