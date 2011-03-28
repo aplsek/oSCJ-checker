@@ -46,7 +46,7 @@ extends MissionSequencer //<SatCommService>
                 new StorageParameters(SatCommService.BackingStoreRequirements,
                         SatCommService.NativeStackRequirements,
                         SatCommService.JavaStackRequirements),
-        "Communication Services Sequencer");
+        new String ("Communication Services Sequencer"));
 
         SAT_PRIORITY = sat_priority;
         this.sat_data = sat_data;

@@ -405,8 +405,8 @@ public class ScopeCheckerContext {
     }
 
     public void dumpClassInfo(String str) {
-        System.err.println("\n\n============ CLASS INFO-=========");
-        System.err.println("class:" + str);
+        System.out.println("\n\n============ CLASS INFO-=========");
+        System.out.println("class:" + str);
         for (Entry<String, ClassInfo> e : classScopes.entrySet()) {
            if (e.getKey().contains(str))  {
                e.getValue().dumpCSI();
@@ -417,11 +417,11 @@ public class ScopeCheckerContext {
     }
 
     public void dumpClassScopes() {
-        System.err.println("\n\n============ CLASS SCOPES-=========");
+        System.out.println("\n\n============ CLASS SCOPES-=========");
         for (Entry<String, ClassInfo> e : classScopes.entrySet()) {
-            System.err.println("class: " + e.getKey() + ",@Scope("
+            System.out.println("class: " + e.getKey() + ",@Scope("
                     + e.getValue().scope + ")");
         }
-        System.err.println("============ CLASS SCOPES-=========\n\n");
+        System.out.println("============ CLASS SCOPES-=========\n\n");
     }
 }

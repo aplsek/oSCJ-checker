@@ -128,7 +128,7 @@ public class TrainClock extends Clock {
         return false;
     }
 
-    @RunsIn(THIS)
+    @RunsIn(CALLER)   //@RunsIn(THIS)
     // This is the tick. It gets called 4 times per ms. If there is
     // a pending callback, invoke the service
     synchronized void updateTime(AbsoluteTime new_time) {

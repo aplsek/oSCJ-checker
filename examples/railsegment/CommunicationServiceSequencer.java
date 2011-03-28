@@ -46,7 +46,7 @@ public class CommunicationServiceSequencer
           new StorageParameters(CommunicationService.BackingStoreRequirements,
                                 CommunicationService.NativeStackRequirements,
                                 CommunicationService.JavaStackRequirements),
-          "Communication Services Sequencer");
+          new String("Communication Services Sequencer"));
 
     this.COMMS_PRIORITY = COMMS_PRIORITY;
     this.comms_data = comms_data;

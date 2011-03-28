@@ -47,7 +47,7 @@ public class MobileCommServiceSequencer
           new StorageParameters(MobileCommService.BackingStoreRequirements,
                                 MobileCommService.NativeStackRequirements,
                                 MobileCommService.JavaStackRequirements),
-          "Communication Services Sequencer");
+          new String("Communication Services Sequencer"));
     MOBILE_PRIORITY = mobile_priority;
     this.mobile_data = mobile_data;
     did_mission = false;

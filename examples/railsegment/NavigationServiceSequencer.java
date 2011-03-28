@@ -52,7 +52,7 @@ public class NavigationServiceSequencer
           new StorageParameters(NavigationService.BackingStoreRequirements,
                                 NavigationService.NativeStackRequirements,
                                 NavigationService.JavaStackRequirements),
-          "Navigation Service Sequencer");
+          new String("Navigation Service Sequencer"));
 
     did_mission = false;
     this.NAVS_PRIORITY = NAVS_PRIORITY;

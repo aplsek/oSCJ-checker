@@ -1,0 +1,42 @@
+package scope.scope.sanity;
+
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
+import javax.realtime.PriorityParameters;
+import javax.safetycritical.NoHeapRealtimeThread;
+import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.Scope;
+
+
+@Scope("D")
+@DefineScope(name="D", parent=IMMORTAL)
+public abstract class TestEnumAssignment extends NoHeapRealtimeThread {
+
+    public TestEnumAssignment(PriorityParameters scheduling,
+            StorageParameters mem_info) {
+        super(scheduling, mem_info);
+    }
+
+
+    @Scope(IMMORTAL)
+    enum MyEnum {
+      ONE, TWO
+    };
+
+    private MyEnum myEnum;
+
+    @Override
+    @RunsIn("D")
+    public void run() {
+        MyEnum m = getEnum();
+    }
+
+    @RunsIn(CALLER)
+    MyEnum getEnum() {
+        return myEnum;
+    }
+
+}

@@ -271,6 +271,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (Utils.isStatic(f)) {
             if (!scope.isValidStaticScope())
                 fail(ERR_ILLEGAL_STATIC_FIELD_SCOPE, node, errNode, scope);
+
             scope = ScopeInfo.IMMORTAL;
         } else if (!scope.isValidInstanceFieldScope(classScope, scopeTree))
             fail(ERR_ILLEGAL_FIELD_SCOPE, node, errNode, scope, classScope);
@@ -398,11 +399,34 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         Scope ann = m.getAnnotation(Scope.class);
         ScopeInfo scope = ann != null ? new ScopeInfo(ann.value())
                 : ScopeInfo.CALLER;
-        // TODO: Need to take class annotations into consideration
 
         if (!scopeTree.hasScope(scope) && !scope.isCaller() && !scope.isThis()
                 && !scope.isUnknown())
             fail(ERR_BAD_SCOPE_NAME, node, errNode, scope);
+
+        TypeKind r = m.getReturnType().getKind();
+        if ((r.isPrimitive() || r == TypeKind.VOID)) {
+            if (ann != null)
+                warn(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, node, errNode);
+            scope = ScopeInfo.PRIMITIVE;
+        }
+        else {
+            // TODO: Need to take class annotations into consideration
+            TypeMirror type = m.getReturnType();
+            if (type.getKind() == TypeKind.DECLARED) {
+                ScopeInfo classScope = ctx.getClassScope(Utils.getTypeElement(type));
+                if (classScope == null) {
+
+                    /// TODO: we should probably be calling this:
+                    //
+                    //checkClassScope(Utils.getTypeElement(type), trees.getTree(Utils.getTypeElement(type)), errNode, false);
+                    //classScope = ctx.getClassScope(Utils.getTypeElement(type));
+
+                    classScope = scopeOfClassDefinition(Utils.getTypeElement(type));
+                }
+                scope = classScope;
+            }
+        }
 
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(m);
@@ -413,9 +437,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             if (!eScope.equals(scope) && eLevel != SUPPORT)
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
         }
-        TypeKind r = m.getReturnType().getKind();
-        if ((r.isPrimitive() || r == TypeKind.VOID) && ann != null)
-            warn(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, node, errNode);
+
 
         ctx.setMethodScope(scope, m);
     }

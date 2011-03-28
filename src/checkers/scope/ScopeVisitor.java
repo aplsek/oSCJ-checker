@@ -294,6 +294,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ret = new FieldScopeInfo(receiver, scope, defineScope);
         } else if (elem.getKind() == ElementKind.LOCAL_VARIABLE
                 || elem.getKind() == ElementKind.PARAMETER) {
+
             ret = varScopes.getVariableScope(node.getName().toString());
         } else if (elem.getKind() == ElementKind.METHOD
                 || elem.getKind() == ElementKind.CONSTRUCTOR
@@ -623,6 +624,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("lhs scope = " + lhs);
         debugIndent("rhs scope = " + rhs);
 
+        rhs = concretize(rhs);
+
         if (!rhs.isNull()) {
             if (!lhs.isUnknown()) {
                 if (lhs.getFieldScope().isThis()) {
@@ -684,6 +687,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private void checkLocalAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
         if (lhs.isUnknown() || rhs.isNull())
             return;
+
+        // TODO: request for comment : a primitive value that is "static final" is inferred to be
+        // IMMORTAL, but still want to pass it around.
+        if (lhs.isPrimitive())
+            return;
+
         if (!concretize(lhs).equals(concretize(rhs)))
             fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
         ScopeInfo rhsDsi = rhs.getRepresentedScope();
@@ -791,7 +800,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private ScopeInfo checkMethodInvocation(ExecutableElement m,
             ScopeInfo recvScope, List<ScopeInfo> argScopes,
             MethodInvocationTree node) {
-        // TODO: static methods ? :
         debugIndent("\n\t checkMethodInvocation : " + node);
 
         ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, recvScope,
@@ -826,7 +834,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         case IMMORTAL_MEMORY_INSTANCE:
             return ScopeInfo.IMMORTAL.representing(ScopeInfo.IMMORTAL);
         default:
-            return ctx.getEffectiveMethodScope(m, recvScope, currentScope());
+            return concretize(ctx.getEffectiveMethodScope(m, recvScope, currentScope()));
         }
     }
 

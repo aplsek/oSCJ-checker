@@ -226,7 +226,7 @@ public class CommunicationsQueue
   int[] command_args;
   int[] file_numbers;
   int response_codes[];
-  RequestType[] activity_codes;
+  @Scope(IMMORTAL) RequestType[] activity_codes;
 
   // todo: why do I have SubmissionCoordination?  Is it supposed to
   // have a different ceiling priority than me?
@@ -295,7 +295,7 @@ public class CommunicationsQueue
   }
 
   // assume trustworthy clients...
-  @RunsIn(CALLER) @Scope(IMMORTAL)
+  @RunsIn(CALLER)  @Scope("TM")                     // XXX: @Scope("IMMORTAL") --> @Scope("TM")
   private byte[] getBuffer(int index) {
     return buffers[index];
   }
@@ -319,7 +319,7 @@ public class CommunicationsQueue
         break;
       }
       else if (response_ndx < 0) {
-        internalError("Buffer not found on reserved list");
+         internalError(new String("Buffer not found on reserved list"));
       }
     }
 
@@ -347,7 +347,7 @@ public class CommunicationsQueue
         break;
       }
       else if (response_ndx < 0) {
-        internalError("Buffer not found on response list");
+          internalError(new String("Buffer not found on reserved list"));
       }
     }
 
@@ -394,7 +394,7 @@ public class CommunicationsQueue
         return -1;
       }
       int buffer_no = reserveBuffer();
-      byte buffer[] = getBuffer(buffer_no);
+      @Scope("TM") byte buffer[] = getBuffer(buffer_no);
       for (int i = 0; i < byte_count; i++) {
         buffer[i] = channel_name[i];
       }
@@ -418,7 +418,7 @@ public class CommunicationsQueue
   @RunsIn(CALLER)
   public int write(int file_no, byte[] buffer, int byte_count) {
     int buffer_no = reserveBuffer();
-    byte[] internal_buffer = getBuffer(buffer_no);
+    @Scope("TM") byte[] internal_buffer = getBuffer(buffer_no);
     for (int i = 0; i < byte_count; i++) {
       internal_buffer[i] = buffer[i];
     }
@@ -435,7 +435,7 @@ public class CommunicationsQueue
   @RunsIn(CALLER)
   public int read(int file_no, byte[] buffer, int byte_count) {
     int buffer_no = reserveBuffer();
-    byte[] internal_buffer = getBuffer(buffer_no);
+    @Scope("TM") byte[] internal_buffer = getBuffer(buffer_no);
     command_args[buffer_no] = byte_count;
     file_numbers[buffer_no] = file_no;
     issueRequest(buffer_no, RequestType.REQUEST_READ);
@@ -515,7 +515,7 @@ public class CommunicationsQueue
     return activity_codes[command_ndx];
   }
 
-  @RunsIn(CALLER) @Scope(IMMORTAL)
+  @RunsIn(CALLER)  @Scope("TM") //@Scope(IMMORTAL)
   public final byte[] getCommandBuffer(int command_ndx) {
     return buffers[command_ndx];
   }

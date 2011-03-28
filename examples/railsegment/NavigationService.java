@@ -115,7 +115,7 @@ class NavigationService extends Mission {
 
   // called periodically by the GPS Driver
   @RunsIn(CALLER)
-  synchronized void updatePosition(@Scope(UNKNOWN) AbsoluteTime time_stamp,
+  synchronized void updatePosition(AbsoluteTime time_stamp,    // before, it was @Scope(UNKNOWN) AbsoluteTime time_stamp
                                    int longitude, int lattitude) {
 
     if (time_stamp.getClock() != train_clock) {
