@@ -308,6 +308,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ret = new FieldScopeInfo(receiver, scope, defineScope);
         } else if (elem.getKind() == ElementKind.LOCAL_VARIABLE
                 || elem.getKind() == ElementKind.PARAMETER) {
+
             ret = varScopes.getVariableScope(node.getName().toString());
         } else if (elem.getKind() == ElementKind.METHOD
                 || elem.getKind() == ElementKind.CONSTRUCTOR
