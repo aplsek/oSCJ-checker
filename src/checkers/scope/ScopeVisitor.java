@@ -794,7 +794,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private ScopeInfo checkMethodInvocation(ExecutableElement m,
             ScopeInfo recvScope, List<ScopeInfo> argScopes,
             MethodInvocationTree node) {
-        // TODO: static methods ? :
         debugIndent("\n\t checkMethodInvocation : " + node);
 
         ScopeInfo runsIn = ctx.getEffectiveMethodRunsIn(m, recvScope,
@@ -829,7 +828,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         case IMMORTAL_MEMORY_INSTANCE:
             return ScopeInfo.IMMORTAL.representing(ScopeInfo.IMMORTAL);
         default:
-            return ctx.getEffectiveMethodScope(m, recvScope, currentScope());
+            return concretize(ctx.getEffectiveMethodScope(m, recvScope, currentScope()));
         }
     }
 
