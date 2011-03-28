@@ -688,10 +688,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (lhs.isUnknown() || rhs.isNull())
             return;
 
-        // TODO: request for comment : this is really useful when assigning an ENUM to "int"
-        //    without this we have error: "IMMORTAL" beign assigned to "primitive"
-        //   I dont see where this "special-case: can cause a problem, but anyway we will
-        //   need to special case checking of ENUM assignments anyway.
+        // TODO: request for comment : a primitive value that is "static final" is inferred to be
+        // IMMORTAL, but still want to pass it around.
         if (lhs.isPrimitive())
             return;
 
