@@ -8,4 +8,10 @@ public class TestEnclosed {
         X a;
         public void methodY() { }
     }
+
+    class Y { }
+
+    void foo() {
+        Y y = new Y();
+    }
 }
