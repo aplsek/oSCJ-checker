@@ -285,9 +285,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         TypeMirror type = Utils.getBaseType(elem.asType());
 
-        if (type.getKind().isPrimitive()) {
-            ret =  currentScope();  //TODO: primitive values are ScopeInfo.PRIMITIVE or currentScope??
-        } else if (elem.getKind() == ElementKind.FIELD && !isThis(node)) {
+        if (elem.getKind() == ElementKind.FIELD && !isThis(node)) {
             // when accessing this.method(), then this is type of FIELD, but
             // we need to handle the this case specially.
 
@@ -296,7 +294,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ScopeInfo defineScope = null;
             ScopeInfo receiver;
 
-            if (needsDefineScope(Utils.getTypeElement(type)))
+            if (!type.getKind().isPrimitive()
+                    && needsDefineScope(Utils.getTypeElement(type)))
                 defineScope = ctx.getFieldScope(v).getRepresentedScope();
 
             // Since the receiver is implicit, we need to figure out whether
