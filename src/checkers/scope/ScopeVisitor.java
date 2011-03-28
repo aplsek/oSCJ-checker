@@ -550,6 +550,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         if (node.getType().getKind() == Kind.PRIMITIVE_TYPE) {
             debugIndentDecrement();
+            varScopes.addVariableScope(node.getName().toString(),
+                    ScopeInfo.PRIMITIVE);
             return null;
         }
 
