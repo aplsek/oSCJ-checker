@@ -394,7 +394,7 @@ public class CommunicationsQueue
         return -1;
       }
       int buffer_no = reserveBuffer();
-      byte buffer[] = getBuffer(buffer_no);
+      @Scope("TM") byte buffer[] = getBuffer(buffer_no);
       for (int i = 0; i < byte_count; i++) {
         buffer[i] = channel_name[i];
       }
@@ -418,7 +418,7 @@ public class CommunicationsQueue
   @RunsIn(CALLER)
   public int write(int file_no, byte[] buffer, int byte_count) {
     int buffer_no = reserveBuffer();
-    byte[] internal_buffer = getBuffer(buffer_no);
+    @Scope("TM") byte[] internal_buffer = getBuffer(buffer_no);
     for (int i = 0; i < byte_count; i++) {
       internal_buffer[i] = buffer[i];
     }
@@ -435,7 +435,7 @@ public class CommunicationsQueue
   @RunsIn(CALLER)
   public int read(int file_no, byte[] buffer, int byte_count) {
     int buffer_no = reserveBuffer();
-    byte[] internal_buffer = getBuffer(buffer_no);
+    @Scope("TM") byte[] internal_buffer = getBuffer(buffer_no);
     command_args[buffer_no] = byte_count;
     file_numbers[buffer_no] = file_no;
     issueRequest(buffer_no, RequestType.REQUEST_READ);

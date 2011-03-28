@@ -271,6 +271,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (Utils.isStatic(f)) {
             if (!scope.isValidStaticScope())
                 fail(ERR_ILLEGAL_STATIC_FIELD_SCOPE, node, errNode, scope);
+
             scope = ScopeInfo.IMMORTAL;
         } else if (!scope.isValidInstanceFieldScope(classScope, scopeTree))
             fail(ERR_ILLEGAL_FIELD_SCOPE, node, errNode, scope, classScope);

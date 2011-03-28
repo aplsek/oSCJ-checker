@@ -22,6 +22,7 @@
 package railsegment;
 
 import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.NoHeapRealtimeThread;
@@ -73,7 +74,7 @@ class SecurityOversight extends NoHeapRealtimeThread {
   @Override
   @RunsIn("SO_Private")
   public final void run() {
-    byte[] buffer = null;
+    @Scope(IMMORTAL) byte[] buffer = null;
     long key = 0L;
     int length = 0;
     boolean queued_operation = false;
