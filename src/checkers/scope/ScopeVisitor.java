@@ -624,6 +624,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("lhs scope = " + lhs);
         debugIndent("rhs scope = " + rhs);
 
+        rhs = concretize(rhs);
+
         if (!rhs.isNull()) {
             if (!lhs.isUnknown()) {
                 if (lhs.getFieldScope().isThis()) {
