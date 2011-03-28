@@ -177,24 +177,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return null;
     }
 
-    static boolean set = false;
-
     @Override
     public ScopeInfo visitClass(ClassTree node, P p) {
-        if (!set) {
-            // TODO: issue 85
-            ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "wait", "");
-            ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "notifyAll", "");
-            ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "notify", "");
-            ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "wait", "long");
-            ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "wait", "long","int");
-            //ctx.dumpClassInfo("java.lang.Object");
-
-            //ctx.dumpClassInfo("javax.realtime.MemoryArea");
-
-            set = true;
-        }
-
         debugIndentIncrement("visitClass " + node.getSimpleName());
         debugIndent("visitClass :"
                 + TreeUtils.elementFromDeclaration(node).getQualifiedName());

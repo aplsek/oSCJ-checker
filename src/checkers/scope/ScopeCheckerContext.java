@@ -308,16 +308,6 @@ public class ScopeCheckerContext {
         msi.scope = scope;
     }
 
-    public void updateMethodScope(ScopeInfo runsIn, ScopeInfo scope, String clazz, String method, String... params) {
-        ClassInfo ci = classScopes.get(clazz);
-        String sig = Utils.buildSignatureString(method, params);
-        MethodScopeInfo msi = ci.methodScopes.get(sig);
-        if (msi != null) {
-            msi.scope = scope;
-            msi.runsIn = runsIn;
-        }
-    }
-
     /**
      * Store the Scope annotation of a class, given its class declaration. Does
      * not work if a different Scope annotation is already stored.
@@ -381,7 +371,7 @@ public class ScopeCheckerContext {
         }
 
         public void dumpCSI() {
-            System.out.println("Method Scopes : " );
+            System.out.println("Method Scopes : " + methodScopes.size());
             for (String key : methodScopes.keySet()) {
                 System.out.print("\t key:" + key + "  - ");
                 methodScopes.get(key).dump();
