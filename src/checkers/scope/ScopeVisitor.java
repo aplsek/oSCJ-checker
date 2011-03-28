@@ -134,6 +134,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         // elements.
         ScopeInfo s = node.getExpression().accept(this, p);
         node.getIndex().accept(this, p);
+        if (InternalUtils.typeOf(node).getKind().isPrimitive())
+            s = ScopeInfo.PRIMITIVE;
         return s;
     }
 
@@ -177,24 +179,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return null;
     }
 
-    static boolean set = false;
-
     @Override
     public ScopeInfo visitClass(ClassTree node, P p) {
-        if (!set) {
-            // TODO: issue 85
-            ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "wait", "");
-            ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "notifyAll", "");
-            ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "notify", "");
-            ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "wait", "long");
-            ctx.updateMethodScope(ScopeInfo.CALLER, ScopeInfo.CALLER, "java.lang.Object", "wait", "long","int");
-            //ctx.dumpClassInfo("java.lang.Object");
-
-            //ctx.dumpClassInfo("javax.realtime.MemoryArea");
-
-            set = true;
-        }
-
         debugIndentIncrement("visitClass " + node.getSimpleName());
         debugIndent("visitClass :"
                 + TreeUtils.elementFromDeclaration(node).getQualifiedName());
@@ -567,6 +553,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         if (node.getType().getKind() == Kind.PRIMITIVE_TYPE) {
             debugIndentDecrement();
+            varScopes.addVariableScope(node.getName().toString(),
+                    ScopeInfo.PRIMITIVE);
             return null;
         }
 
