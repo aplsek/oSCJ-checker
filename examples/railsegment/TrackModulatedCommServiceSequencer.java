@@ -46,7 +46,7 @@ public class TrackModulatedCommServiceSequencer extends MissionSequencer // <Mod
                         ModulatedCommService.BackingStoreRequirements,
                         ModulatedCommService.NativeStackRequirements,
                         ModulatedCommService.JavaStackRequirements),
-                "Communication Services Sequencer");
+                new String("Communication Services Sequencer"));
 
         MODULATED_PRIORITY = modulated_priority;
         this.modulated_data = modulated_data;

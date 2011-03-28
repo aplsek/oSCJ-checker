@@ -45,7 +45,7 @@ public class CypherQueue {
 
     private boolean hardware_idle;
     private RequestEncoding pending_request;
-    byte[] encryption_buffer;
+    @Scope(IMMORTAL) byte[] encryption_buffer;
     int encryption_length;
     long encryption_key;
 
@@ -196,7 +196,7 @@ public class CypherQueue {
     // invoked by SecurityService sub-mission
     // no synchronization necessary.  we already waited for notification
     // in awaitRequest().
-    @RunsIn(CALLER)
+    @RunsIn(CALLER) @Scope(IMMORTAL)
     synchronized final byte[] getBuffer() {
       return encryption_buffer;
     }
@@ -332,7 +332,7 @@ public class CypherQueue {
   // invoked by SecurityService sub-mission
   // no synchronization necessary.  we already waited for notification
   // in awaitRequest().
-  @RunsIn(CALLER)
+  @RunsIn(CALLER) @Scope(IMMORTAL)
   final byte[] getBuffer() {
     return hardware.getBuffer();
   }

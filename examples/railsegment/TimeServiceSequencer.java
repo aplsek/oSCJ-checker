@@ -53,7 +53,7 @@ public class TimeServiceSequencer extends MissionSequencer
                 new StorageParameters(TimeService.BackingStoreRequirements,
                         TimeService.NativeStackRequirements,
                         TimeService.JavaStackRequirements),
-                        "Time Service Sequencer");
+                        new String ("Time Service Sequencer"));
         this.TIMES_PRIORITY = TIMES_PRIORITY;
         this.times_data = times_data;
         this.comms_data = comms_data;

@@ -74,3 +74,59 @@ Runnable interface
 We will probably need to find a better solution to this problem.
  
 
+=========================
+
+Second Phase:
+
+
+1)  missing annotation in SCJ API:
+CommunicationsQueue.java : 269: Cannot assign expression in scope TM to variable in scope CALLER
+@RunsIn(CALLER)
+  void initialize() {
+    Services.setCeiling(this, my_ceiling);
+  }
+---> the Services.setCeiling is @RunsIn(THIS)
+
+
+2)  String "...." : 
+/Users/plsek/fiji/scj-dan/oSCJ/tools/checker/examples/railsegment/CommunicationsQueue.java:322: Cannot assign expression in scope IMMORTAL to variable in scope CALLER.
+        internalError("Buffer not found on reserved list");
+                     ^
+changed to :  internalError(new String("Buffer not found on reserved list"));
+  
+the same in:
+ -  CommunicationsQueue.java:322  
+ - ModulatedInterruptHandler.java:45
+ - SecurityInterruptHandler.java:48
+ - SatInterruptHandler.java:45
+ MobileInterruptHandler.java:44
+ 
+3) bad assignment:
+/Users/plsek/fiji/scj-dan/oSCJ/tools/checker/examples/railsegment/CypherQueue.java:121: Cannot assign expression in scope IMMORTAL to variable in scope A.
+      encryption_buffer = buffer;
+                        ^
+  where:
+      @Scope("A")       encryption_buffer         
+       @Scope(IMMORTAL) buffer                 
+
+changed to : @Scope(IMMORTAL) encryption_buffer    
+
+and then CypherQueue.java:201 and 336:  the  getBuffer() method made to return @Scope(IMMORTAL)
+
+
+4)   CommunicationsQueue : 520
+should the buffer be @Scope(IMMORTAL) or @Scope("TM")??
+
+ @RunsIn(CALLER)  @Scope("TM") //BEFORE: @Scope(IMMORTAL)
+  public final byte[] getCommandBuffer(int command_ndx) {
+    return buffers[command_ndx];
+  }
+
+5) NavigationService:
+
+ @RunsIn(CALLER)
+  synchronized void updatePosition( @Scope(UNKNOWN) AbsoluteTime time_stamp) {
+     update_time.set(time_stamp);
+  }
+  
+ 

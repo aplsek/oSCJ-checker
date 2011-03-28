@@ -226,7 +226,7 @@ public class CommunicationsQueue
   int[] command_args;
   int[] file_numbers;
   int response_codes[];
-  RequestType[] activity_codes;
+  @Scope(IMMORTAL) RequestType[] activity_codes;
 
   // todo: why do I have SubmissionCoordination?  Is it supposed to
   // have a different ceiling priority than me?
@@ -295,7 +295,7 @@ public class CommunicationsQueue
   }
 
   // assume trustworthy clients...
-  @RunsIn(CALLER) @Scope(IMMORTAL)
+  @RunsIn(CALLER)  @Scope("TM")                     // XXX: @Scope("IMMORTAL") --> @Scope("TM")
   private byte[] getBuffer(int index) {
     return buffers[index];
   }
@@ -319,7 +319,7 @@ public class CommunicationsQueue
         break;
       }
       else if (response_ndx < 0) {
-        internalError("Buffer not found on reserved list");
+         internalError(new String("Buffer not found on reserved list"));
       }
     }
 
@@ -347,7 +347,7 @@ public class CommunicationsQueue
         break;
       }
       else if (response_ndx < 0) {
-        internalError("Buffer not found on response list");
+          internalError(new String("Buffer not found on reserved list"));
       }
     }
 
@@ -515,7 +515,7 @@ public class CommunicationsQueue
     return activity_codes[command_ndx];
   }
 
-  @RunsIn(CALLER) @Scope(IMMORTAL)
+  @RunsIn(CALLER)  @Scope("TM") //@Scope(IMMORTAL)
   public final byte[] getCommandBuffer(int command_ndx) {
     return buffers[command_ndx];
   }

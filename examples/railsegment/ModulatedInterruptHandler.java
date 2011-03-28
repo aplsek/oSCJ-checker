@@ -42,7 +42,7 @@ class ModulatedInterruptHandler extends InterruptServiceRoutine {
     //      new StorageParameters(BackingStoreRequirements,
     //                            NativeStackRequirements,
     //                            JavaStackRequirements));
-    super("ModulatedCommsInterfaceControllerInterrupt");
+    super(new String("ModulatedCommsInterfaceControllerInterrupt"));
     this.mission = my_mission;
   }
 

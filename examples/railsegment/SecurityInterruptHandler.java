@@ -45,7 +45,7 @@ class SecurityInterruptHandler extends InterruptServiceRoutine {
     //          new StorageParameters(BackingStoreRequirements,
     //                                NativeStackRequirements,
     //                                JavaStackRequirements));
-    super("CypherHardwareInterrupt");
+    super(new String("CypherHardwareInterrupt"));
     this.mission = my_mission;
     this.cypher_data = cypher_data;
 

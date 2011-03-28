@@ -42,7 +42,7 @@ class SatInterruptHandler extends InterruptServiceRoutine {
     //          new StorageParameters(BackingStoreRequirements,
     //                                NativeStackRequirements,
     //                                JavaStackRequirements));
-    super("SatCommsInterfaceControllerInterrupt");
+    super(new String("SatCommsInterfaceControllerInterrupt"));
     this.mission = my_mission;
   }
 

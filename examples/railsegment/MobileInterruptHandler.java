@@ -41,7 +41,7 @@ class MobileInterruptHandler extends InterruptServiceRoutine {
     //          new StorageParameters(BackingStoreRequirements,
     //                                NativeStackRequirements,
     //                                JavaStackRequirements));
-    super("SatelliteCommunicationsInterfaceControllerInterrupt");
+    super(new String("SatelliteCommunicationsInterfaceControllerInterrupt"));
     this.mission = my_mission;
   }
 

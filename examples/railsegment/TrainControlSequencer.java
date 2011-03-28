@@ -51,7 +51,7 @@ public class TrainControlSequencer extends MissionSequencer // <TrainControl>
     super(new PriorityParameters(CONTROL_PRIORITY), new StorageParameters(
             TrainControl.BackingStoreRequirements,
             TrainControl.NativeStackRequirements,
-            TrainControl.JavaStackRequirements), "Train Control Sequencer");
+            TrainControl.JavaStackRequirements), new String("Train Control Sequencer"));
 
     this.CONTROL_PRIORITY = CONTROL_PRIORITY;
 

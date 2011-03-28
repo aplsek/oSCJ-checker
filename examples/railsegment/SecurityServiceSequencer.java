@@ -47,7 +47,7 @@ extends MissionSequencer //<SecurityService>
                 new StorageParameters(SecurityService.BackingStoreRequirements,
                         SecurityService.NativeStackRequirements,
                         SecurityService.JavaStackRequirements),
-                        "Communication Services Sequencer");
+                        new String("Communication Services Sequencer"));
 
         SECURITY_PRIORITY = security_priority;
         this.cypher_data = cypher_data;
