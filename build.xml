@@ -16,7 +16,7 @@
 
     <target name="compile">
         <mkdir dir="build/classes"/>
-        <javac srcdir="src:spec" destdir="build/classes"
+        <javac srcdir="src" destdir="build/classes"
                includeAntRuntime="yes" debug="true"
                debuglevel="lines,vars,source">
             <classpath>
@@ -29,6 +29,21 @@
 
     <target name="jar" depends="compile">
         <jar destfile="lib/scj-checker.jar" basedir="build/classes"/>
+    </target>
+
+    <target name="compile-jdk-spec">
+        <mkdir dir="build/spec"/>
+        <javac srcdir="spec" destdir="build/spec"
+               includeAntRuntime="yes" debug="true"
+               debuglevel="lines,vars,source">
+            <classpath>
+                <pathelement path="${scj.classpath}"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="spec-jar" depends="compile-jdk-spec">
+        <jar destfile="lib/scj-jdk-spec.jar" basedir="build/spec"/>
     </target>
 
     <target name="check-hello" depends="jar">
