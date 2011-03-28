@@ -404,6 +404,13 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 && !scope.isUnknown())
             fail(ERR_BAD_SCOPE_NAME, node, errNode, scope);
 
+        TypeKind r = m.getReturnType().getKind();
+        if ((r.isPrimitive() || r == TypeKind.VOID)) {
+            if (ann != null)
+                warn(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, node, errNode);
+            scope = ScopeInfo.PRIMITIVE;
+        }
+
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(m);
         for (ExecutableElement e : overrides.values()) {
@@ -413,9 +420,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             if (!eScope.equals(scope) && eLevel != SUPPORT)
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
         }
-        TypeKind r = m.getReturnType().getKind();
-        if ((r.isPrimitive() || r == TypeKind.VOID) && ann != null)
-            warn(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, node, errNode);
+
 
         ctx.setMethodScope(scope, m);
     }
