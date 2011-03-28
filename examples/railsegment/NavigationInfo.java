@@ -20,19 +20,15 @@
  */
 package railsegment;
 
-import railsegment.clock.TrainClock;
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 import javax.realtime.AbsoluteTime;
-
 import javax.safetycritical.Services;
-
-import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-import static javax.safetycritical.annotate.Scope.CALLER;
+import railsegment.clock.TrainClock;
 
 // This assumes there is at most one client for NavigationInfo, and
 // that the single client always waits for a response to a previously

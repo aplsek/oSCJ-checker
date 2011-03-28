@@ -21,25 +21,11 @@
 package railsegment;
 
 import javax.realtime.PriorityParameters;
-
 import javax.safetycritical.NoHeapRealtimeThread;
 import javax.safetycritical.StorageParameters;
-
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
-
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-
-import static railsegment.NavigationInfo.RequestEncoding.CurrentSpeed;
-import static railsegment.NavigationInfo.RequestEncoding.CurrentPosition;
-import static railsegment.NavigationInfo.RequestEncoding.SegmentLength;
-import static railsegment.NavigationInfo.RequestEncoding.SegmentSpeed;
-import static railsegment.NavigationInfo.RequestEncoding.SegmentSwitch;
-import static railsegment.NavigationInfo.RequestEncoding.NextTrackSegment;
-import static railsegment.NavigationInfo.RequestEncoding.PrevTrackSegment;
-import static railsegment.NavigationInfo.RequestEncoding.NextStop;
 
 
 @Scope("D")

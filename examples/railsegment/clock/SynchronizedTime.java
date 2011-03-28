@@ -20,19 +20,13 @@
  */
 package railsegment.clock;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 import javax.realtime.AbsoluteTime;
-
-import javax.safetycritical.Services;
-
-import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
-
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-
-import static javax.safetycritical.annotate.Scope.CALLER;
 
 // SynchronizedTime is used in the implementation of a globally
 // synchronized time service.  The implementation assures

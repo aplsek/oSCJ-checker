@@ -21,19 +21,14 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+
 import javax.realtime.PriorityParameters;
-
 import javax.safetycritical.NoHeapRealtimeThread;
-
 import javax.safetycritical.StorageParameters;
-
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
-
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-import static javax.safetycritical.annotate.Scope.CALLER;
 
 @Scope("A")
 @DefineScope(name="CO_Private", parent="A")

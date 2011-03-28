@@ -77,8 +77,6 @@ public class ScopeCheckerContext {
         return ci.fieldScopes.get(field);
     }
 
-    void pln(String str) {System.out.println("\t" + str);}
-
     /**
      * Get the Scope annotation of a field by its declaration.
      */

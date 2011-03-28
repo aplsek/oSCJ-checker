@@ -20,18 +20,14 @@
  */
 package railsegment;
 
-import railsegment.clock.SynchronizedTime;
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.safetycritical.Mission;
-
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-
-import static javax.safetycritical.annotate.Scope.CALLER;
+import railsegment.clock.SynchronizedTime;
 
 @DefineScope(name="B", parent="TM")
 @Scope("B")

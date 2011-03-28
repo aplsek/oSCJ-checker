@@ -21,24 +21,16 @@
 
 package railsegment;
 
-import javax.realtime.PriorityParameters;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
-import javax.safetycritical.Mission;
+import javax.realtime.PriorityParameters;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
-
-import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-
 import railsegment.clock.SynchronizedTime;
-
-import static javax.safetycritical.annotate.Scope.CALLER;
 
 @Scope("TM")
 public class TrainControlSequencer extends MissionSequencer // <TrainControl>
@@ -46,11 +38,11 @@ public class TrainControlSequencer extends MissionSequencer // <TrainControl>
   private boolean did_mission;
 
   private final int CONTROL_PRIORITY;
-  
+
   private final CommunicationsQueue comms_data;
   private final SynchronizedTime times_data;
   private final NavigationInfo navs_data;
-  
+
   @SCJRestricted(INITIALIZATION)
   public TrainControlSequencer(final int CONTROL_PRIORITY,
                                CommunicationsQueue comms_data,
@@ -60,16 +52,16 @@ public class TrainControlSequencer extends MissionSequencer // <TrainControl>
             TrainControl.BackingStoreRequirements,
             TrainControl.NativeStackRequirements,
             TrainControl.JavaStackRequirements), "Train Control Sequencer");
-    
+
     this.CONTROL_PRIORITY = CONTROL_PRIORITY;
-    
+
     this.comms_data = comms_data;
     this.times_data = times_data;
     this.navs_data = navs_data;
-    
+
     did_mission = false;
   }
-  
+
   @Override
   @RunsIn("B")
   public TrainControl getNextMission() {
@@ -81,7 +73,7 @@ public class TrainControlSequencer extends MissionSequencer // <TrainControl>
       return null;
     }
   }
-  
+
   /*
     @Override
     protected Mission getInitialMission() {

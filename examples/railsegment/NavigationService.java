@@ -20,20 +20,17 @@
  */
 package railsegment;
 
-import railsegment.clock.TrainClock;
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 import javax.realtime.AbsoluteTime;
-
 import javax.safetycritical.Mission;
 import javax.safetycritical.Services;
-
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
-import static javax.safetycritical.annotate.Scope.CALLER;
+import railsegment.clock.TrainClock;
 
 
 @DefineScope(name="D", parent = "TM")

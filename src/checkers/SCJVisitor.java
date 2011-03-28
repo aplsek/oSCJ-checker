@@ -83,7 +83,4 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     protected boolean implementsAllocationContext(TypeElement t) {
         return types.isSubtype(t.asType(), allocationContext);
     }
-
-    /* FOR DEBUG ONLY */
-    protected void pln(String str) {System.out.println("\t" + str);}
 }
