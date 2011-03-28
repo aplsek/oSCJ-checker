@@ -59,8 +59,15 @@ for C in $SPEC_CLASSES; do
     $INSERT_ANNOTATIONS jdk/$C "spec/${C%%.class}.jaif"
 done
 
+
 # Create the JDK JAR
 cd jdk
+
+# Copy the annotations to the JDK files
+#for C in $(jar tf ../scj.jar | grep javax/safetycritical/annotate); do
+#    jar xf ../scj.jar $C
+#done
+
 jar cf $OUT_JAR .
 cp $OUT_JAR $OUT_DIR
 
