@@ -398,7 +398,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         Scope ann = m.getAnnotation(Scope.class);
         ScopeInfo scope = ann != null ? new ScopeInfo(ann.value())
                 : ScopeInfo.CALLER;
-        // TODO: Need to take class annotations into consideration
 
         if (!scopeTree.hasScope(scope) && !scope.isCaller() && !scope.isThis()
                 && !scope.isUnknown())
@@ -409,6 +408,23 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             if (ann != null)
                 warn(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, node, errNode);
             scope = ScopeInfo.PRIMITIVE;
+        }
+        else {
+            // TODO: Need to take class annotations into consideration
+            TypeMirror type = m.getReturnType();
+            if (type.getKind() == TypeKind.DECLARED) {
+                ScopeInfo classScope = ctx.getClassScope(Utils.getTypeElement(type));
+                if (classScope == null) {
+
+                    /// TODO: we should probably be calling this:
+                    //
+                    //checkClassScope(Utils.getTypeElement(type), trees.getTree(Utils.getTypeElement(type)), errNode, false);
+                    //classScope = ctx.getClassScope(Utils.getTypeElement(type));
+
+                    classScope = scopeOfClassDefinition(Utils.getTypeElement(type));
+                }
+                scope = classScope;
+            }
         }
 
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
