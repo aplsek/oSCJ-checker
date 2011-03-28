@@ -41,7 +41,7 @@ one of the following:
 
 
 Checker Implementation
-==============================================
+======================
 The SCJ checker is implemented using the Checker Framework and the annotations
 work in JSR 308.
 
