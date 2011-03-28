@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+# This script builds a jdk.jar for use in checking. It takes three arguments:
+#   1. The SCJ jar. This has the annotations used in:
+#   2. A spec jar. This contains skeletons of JDK classes with annotations.
+#   3. A JDK classes JAR. On Windows, this will be a file called rt.jar. On
+#      OS X, this will be a file called classes.jar (under Classes, not Home).
+#
+# Here is an example of how to run this program:
+#   $ ant spec-jar
+#   $ localbin/build-jdk-annotations lib/scj.jar lib/scj-jdk-spec.jar \
+#       /System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Classes/classes.jar
+#
+# The result is stored in a file called jdk.jar in the same directory as this
+# script. Warning: UNDER NO CIRCUMSTANCES SHOULD YOU ADD JDK.JAR TO VERSION
+# CONTROL. JDK.JAR IS VERY MUCH COMPUTER-SPECIFIC AND PROBABLY WILL NOT WORK ON
+# ANYBODY'S MACHINE BUT YOUR OWN. DO NOT ADD JDK.JAR TO VERSION CONTROL, IT IS
+# IGNORED BY MERCURIAL FOR A REASON!
+
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 <scj jar> <spec jar> <jdk input jar>"
+    exit 1
+fi
+
+set -x
+
+CHECKER_JAR=$1
+SPEC_JAR=$2
+JDK_INPUT_JAR=$3
+OUT_DIR_REL=$(dirname $0)
+OUT_DIR=$(cd $OUT_DIR_REL; pwd)
+OUT_JAR="jdk.jar"
+EXTRACT_ANNOTATIONS=$OUT_DIR/extract-annotations
+INSERT_ANNOTATIONS=$OUT_DIR/insert-annotations
+TMP_DIR=$(mktemp -d -t test)
+
+# Variables for annotation utils
+JAVAC_JAR=$OUT_DIR/jsr308-all.jar
+CLASSPATH=$(basename $CHECKER_JAR)
+
+cp $CHECKER_JAR $TMP_DIR
+cp $SPEC_JAR $TMP_DIR
+cp $JDK_INPUT_JAR $TMP_DIR
+
+cd $TMP_DIR
+mkdir spec jdk
+cd spec; jar xf ../$(basename $SPEC_JAR); cd ..
+
+SPEC_CLASSES=$(cd spec; find . -name "*.class")
+
+# For each class that has an annotation spec, extract the JDK implementation
+# and annotate it.
+for C in $SPEC_CLASSES; do
+    PACKAGE=${C%%/*.class}
+    cd jdk; jar xf ../$(basename $JDK_INPUT_JAR) ${C#./}; cd ..
+    $EXTRACT_ANNOTATIONS spec/$C
+    $INSERT_ANNOTATIONS jdk/$C "spec/${C%%.class}.jaif"
+done
+
+# Create the JDK JAR
+cd jdk
+jar cf $OUT_JAR .
+cp $OUT_JAR $OUT_DIR
+
+rm -rf $TMP_DIR

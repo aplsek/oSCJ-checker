@@ -21,6 +21,7 @@
 package railsegment;
 
 import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 import javax.realtime.AbsoluteTime;
@@ -36,6 +37,7 @@ import railsegment.clock.TrainClock;
 
 @Scope("TM")
 public class NavigationInfo {
+  @Scope(IMMORTAL)
   static enum RequestEncoding {
     NoRequest, ResponseReady,
     CurrentSpeed, CurrentPosition,

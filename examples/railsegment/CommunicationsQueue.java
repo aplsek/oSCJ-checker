@@ -200,6 +200,7 @@ public class CommunicationsQueue
   public final static int O_WRONLY = 0x02;
 
   // Purdue team: all enums are presumed to reside in IMMORTAL?
+  @Scope(IMMORTAL)
   private static enum RequestType {
     REQUEST_READ,
     REQUEST_WRITE,

@@ -247,8 +247,9 @@ public final class Utils {
         Scope s = v.getAnnotation(Scope.class);
         if (s != null)
             return new ScopeInfo(s.value());
-        if (k == TypeKind.DECLARED) {
-            TypeElement t = Utils.getTypeElement(v.asType());
+        TypeMirror b = Utils.getBaseType(v.asType());
+        if (b.getKind() == TypeKind.DECLARED) {
+            TypeElement t = Utils.getTypeElement(b);
             ScopeInfo si = ctx.getClassScope(t);
             if (!si.isCaller())
                 return si;

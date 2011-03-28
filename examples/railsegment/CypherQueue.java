@@ -273,6 +273,7 @@ public class CypherQueue {
   // End of HardwareCoordination
 
   // Presumed to reside in IMMORTAL
+  @Scope(IMMORTAL)
   static enum RequestEncoding {
     NoRequest, ResponseReady,
     Encrypt, Decrypt,

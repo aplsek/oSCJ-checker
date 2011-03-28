@@ -33,6 +33,7 @@ import javax.safetycritical.annotate.Scope;
 
 @Scope("A")
 public class ModulatedQueue {
+  @Scope(IMMORTAL)
   static enum RequestEncoding {
     NoRequest, ResponseReady,
     RequestShutdown,

@@ -33,6 +33,7 @@ import javax.safetycritical.annotate.Scope;
 
 @Scope("A")
 public class MobileQueue {
+  @Scope(IMMORTAL)
   static enum RequestEncoding {
     NoRequest, ResponseReady,
     RequestShutdown,
