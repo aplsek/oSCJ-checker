@@ -1,13 +1,10 @@
 package copyInOut;
 
-import static javax.safetycritical.annotate.Allocate.Area.THIS;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 import javax.realtime.MemoryArea;
 import javax.realtime.ScopedMemory;
-import javax.safetycritical.annotate.Allocate;
 import javax.safetycritical.annotate.RunsIn;
-import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 public class LL {
 	int id;
@@ -34,7 +31,7 @@ public class LL {
 			try {
 				if (this.next == null) {
 					final MemoryArea memT = ScopedMemory.getMemoryArea(this);
-					final LL c = (LL) memT.newInstance(LL.class);				// inference 
+					final LL c = (LL) memT.newInstance(LL.class);				// inference
 					this.next = c;
 				}
 				this.next.copyUp(h.next);
@@ -46,7 +43,6 @@ public class LL {
 		}
 	}
 
-	@Allocate({THIS})				                // OK: Returns value because it uses @Allocate
 	@RunsIn(UNKNOWN)
 	public LL copyDown2Up(LL h) { 					// XXX: This is valid only in our new annotation system!
 		if (h == null)

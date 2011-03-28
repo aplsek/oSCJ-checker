@@ -16,8 +16,5 @@ public class MyHashMap {
     }
 
     public void put(Object key, Object value) {
-        // TODO Auto-generated method stub
-
     }
-
 }
