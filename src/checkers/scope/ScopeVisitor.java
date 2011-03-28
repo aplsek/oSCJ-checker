@@ -974,6 +974,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private void checkReturnScope(ScopeInfo exprScope, ScopeInfo expectedScope,
             ReturnTree node) {
         debugIndent("checkReturnScope");
+        expectedScope = concretize(expectedScope);
         if (expectedScope.isUnknown() || expectedScope.equals(exprScope)
                 || exprScope == null || exprScope.isNull())
             return;
