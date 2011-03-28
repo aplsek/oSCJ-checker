@@ -134,6 +134,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         // elements.
         ScopeInfo s = node.getExpression().accept(this, p);
         node.getIndex().accept(this, p);
+        if (InternalUtils.typeOf(node).getKind().isPrimitive())
+            s = ScopeInfo.PRIMITIVE;
         return s;
     }
 
