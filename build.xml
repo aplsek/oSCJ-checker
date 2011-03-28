@@ -1,4 +1,5 @@
 <project default="all">
+    <property file="build.properties"/>
     <property name="checker.classpath" value="localbin/jsr308-all.jar"/>
     <property name="junit.classpath" value="lib/junit-4.7.jar"/>
     <property name="scj.classpath" value="lib/scj.jar"/>
@@ -8,7 +9,7 @@
     <property name="run.tests.should.fork" value="true"/>
     <property name="halt.on.test.failure" value="false"/>
 
-    <target name="all" depends="clean, jar, spec-jar"/>
+    <target name="all" depends="clean, jar, jdk-jar"/>
 
     <target name="clean">
         <delete dir="build"/>
@@ -46,6 +47,14 @@
 
     <target name="spec-jar" depends="compile-jdk-spec">
         <jar destfile="lib/scj-jdk-spec.jar" basedir="build/spec"/>
+    </target>
+
+    <target name="jdk-jar" depends="spec-jar">
+        <exec executable="localbin/build-jdk-annotations">
+            <arg value="lib/scj.jar"/>
+            <arg value="lib/scj-jdk-spec.jar"/>
+            <arg value="${jdk.input.jar}"/>
+        </exec>
     </target>
 
     <target name="check-hello" depends="jar">

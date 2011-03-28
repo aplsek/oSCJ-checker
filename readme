@@ -1,54 +1,55 @@
-SCJ Checker README
-Contact:
-Date
-Version :
-============================================================================================
+Compilation
+===========
+Compiling the SCJ checker currently relies on some bash scripts, which means
+you probably need Cygwin to compile on Windows.
+
+  1. Create a file named build.properties in the current directory. Inside this
+     file, add a single line in the format "jdk.input.jar=<jdk jar>". The JDK
+     JAR is the path to either rt.jar on Windows/Linux or classes.jar on OS X.
+
+     On OS X, this *might* look like:
+
+     jdk.input.jar=/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/classes.jar
+
+     On Windows, it *might* look like:
+
+     jdk.input.jar=C:\Program Files (x86)\Java\jdk1.6.0_23\jre\lib\rt.jar
+
+     You may need to use the Cygwin path format on Windows. This would look
+     something like:
+
+     jdk.input.jar=/cygdrive/c/Program\ Files\ \(x86\)/Java/jdk1.6.0_23/jre/lib/rt.jar
+
+  2. Compile simply by running "ant".
 
 
+Testing and Checking
+====================
+To run the SCJ checker tests, simply run "ant simple-tests". There are a few
+other test targets, but they do not usually need to be run. To check your own
+program with the SCJ checker, you may use the included check.sh script or do
+one of the following:
 
-INSTALL
+  1. On UNIX:
+
+     localbin/javac -proc:only -cp lib/scj.jar:lib/scj-checker.jar \
+         -processor checkers.SCJChecker <program files to check...>
+
+  2. On Windows:
+     localbin/javac.bat -proc:only -cp lib/scj/jar:lib/scj-checker.jar
+         -processor checkers.SCJChecker <program files to check...>
+
+
+Checker Implementation
 ==============================================
-run:
-$ .build.sh
+The SCJ checker is implemented using the Checker Framework and the annotations
+work in JSR 308.
 
-
-
-TEST-SUITE
-==============================================
-
-Compile:
-$ cs testsuite
-$ ./build.sh
-
-Run TestSuite:
-python runtests.py  --scj-path ./build/src/
-
-
-RUN
-==============================================
-
-
-
-
-
-CHECKER IMPLEMENTATION
-==============================================
-
-Checker framework documentation: 
+Checker framework documentation:
 http://types.cs.washington.edu/checker-framework/
 
-Checker framework API: 
+Checker framework API:
 http://types.cs.washington.edu/checker-framework/doc/overview-summary.html
 
-
-
-
-NOTES
-==============================================
-
-PYTHON SCRIPT:
-
-#  TODO: path to the checker must be also specified!!!!! e.g. python runtests.py  --scj-path ./build/src/
-#
-# ./distribution/scjChecker/checkers/binary/javac -proc:only -cp build/tests:build/src -processor checkers.SCJChecker /Users/plsek/_work/workspace_RT/scj-annotations/tests/scjRestricted/TestOverrideInitialize2.java
-#
+JSR 308 documentation:
+http://types.cs.washington.edu/jsr308/
