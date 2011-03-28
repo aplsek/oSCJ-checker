@@ -147,11 +147,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("> lhs : " + lhs.getScope());
         debugIndent("> rhs : " + rhs.getScope());
 
-        // we do not check assignments of primitive expressions.
-        if (!isPrimitiveExpression(node.getVariable())) {
-            if (!lhs.equals(rhs) || lhs.isUnknown())
-                checkAssignment(lhs, rhs, node);
-        }
+        if (!lhs.equals(rhs) || lhs.isUnknown())
+            checkAssignment(lhs, rhs, node);
         debugIndentDecrement();
         return lhs;
     }
@@ -594,7 +591,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private void checkAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
         debugIndentIncrement("checkAssignment: " + node.toString());
-
         if (lhs.isFieldScope())
             checkFieldAssignment((FieldScopeInfo) lhs, rhs, node);
         else
@@ -699,7 +695,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private void checkLocalAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
-        if (lhs.isUnknown() || rhs.isNull() || lhs.isPrimitive())
+        if (lhs.isUnknown() || rhs.isNull())
             return;
         if (!concretize(lhs).equals(concretize(rhs)))
             fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
