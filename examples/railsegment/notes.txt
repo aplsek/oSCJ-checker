@@ -74,6 +74,10 @@ Runnable interface
 We will probably need to find a better solution to this problem.
  
 
+
+
+
+
 =========================
 
 Second Phase:
@@ -101,6 +105,8 @@ the same in:
  - SatInterruptHandler.java:45
  MobileInterruptHandler.java:44
  
+ (perhaps this is a limitaiton of the checker, but it automatically assumes the "..." strings to be IMMORTAL)
+ 
 3) bad assignment:
 /Users/plsek/fiji/scj-dan/oSCJ/tools/checker/examples/railsegment/CypherQueue.java:121: Cannot assign expression in scope IMMORTAL to variable in scope A.
       encryption_buffer = buffer;
@@ -115,12 +121,27 @@ and then CypherQueue.java:201 and 336:  the  getBuffer() method made to return @
 
 
 4)   CommunicationsQueue : 520
-should the buffer be @Scope(IMMORTAL) or @Scope("TM")??
+should the "buffer" be @Scope(IMMORTAL) or @Scope("TM")?? 
+- probably @Scope("TM") - because that is a scope of the enclosing class
 
+And then, for the set method I have changed:
  @RunsIn(CALLER)  @Scope("TM") //BEFORE: @Scope(IMMORTAL)
   public final byte[] getCommandBuffer(int command_ndx) {
     return buffers[command_ndx];
   }
+
+Finally, everytime the getBuffer() is called, we store the result in @Scope("TM") var,
+this is OK since in all the cases the internal_buffer is treated as read-only:  
+  @Scope("TM") byte[] internal_buffer = getBuffer(buffer_no);
+
+
+An oposite example of an immortal buffer is a buffer in CypherQueue that is explicitly annotated: 
+@Scope(IMMORTAL) byte[] encryption_buffer;
+
+This buffer is used by "SecurityOversight":   buffer = cypher_data.getBuffer();
+And so this local variable must be also explicitly immortal:
+ @Scope(IMMORTAL) byte[] buffer
+
 
 5) NavigationService:
 
