@@ -80,7 +80,7 @@ public class ScopeChecker extends SinglePassChecker {
         p.put(ERR_BAD_GUARD_ARGUMENT,
                 "Only final variables may be passed as arguments into guards.");
         p.put(ERR_BAD_METHOD_INVOKE,
-                "Illegal invocation of method of object in scope %s while in scope %s.");
+                "Illegal invocation of method of object in scope %s while in scope %s. The @RunsIn annotaiton is not set properly.");
         p.put(ERR_BAD_NEW_ARRAY,
                 "Cannot allocate objects of type %s inside scope %s.");
         p.put(ERR_BAD_NEW_ARRAY_TYPE,
