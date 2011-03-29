@@ -164,7 +164,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (p == null)
             ctx.setClassScope(scope, t); // t == java.lang.Object
         else {
-            ScopeInfo parent = getParentScopeAndVisit(p, errNode);
+            ScopeInfo parent = getClassScopeAndVisit(p, errNode);
             if (parent.isCaller())
                 ctx.setClassScope(scope, t);
             else if (scope.equals(parent))
@@ -182,7 +182,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         // they should be visited as well prior to this point.
         for (TypeMirror i : t.getInterfaces()) {
             TypeElement ie = Utils.getTypeElement(i);
-            ScopeInfo is = getParentScopeAndVisit(ie, errNode);
+            ScopeInfo is = getClassScopeAndVisit(ie, errNode);
             if (!is.isCaller() && !is.equals(scope))
                 fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, ie);
         }
@@ -330,7 +330,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         ScopeInfo ret;
 
         if (bmv.getKind() == TypeKind.DECLARED)
-            getParentScopeAndVisit(Utils.getTypeElement(bmv), errNode);
+            getClassScopeAndVisit(Utils.getTypeElement(bmv), errNode);
 
         ScopeInfo defaultScope = Utils.getDefaultVariableScope(v, ctx);
 
@@ -404,27 +404,18 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 && !scope.isUnknown())
             fail(ERR_BAD_SCOPE_NAME, node, errNode, scope);
 
-        TypeKind r = m.getReturnType().getKind();
-        if ((r.isPrimitive() || r == TypeKind.VOID)) {
+        TypeMirror r = m.getReturnType();
+        TypeKind k = r.getKind();
+        if ((k.isPrimitive() || k == TypeKind.VOID)) {
             if (ann != null)
                 warn(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, node, errNode);
             scope = ScopeInfo.PRIMITIVE;
-        }
-        else {
-            // TODO: Need to take class annotations into consideration
-            TypeMirror type = m.getReturnType();
-            if (type.getKind() == TypeKind.DECLARED) {
-                ScopeInfo classScope = ctx.getClassScope(Utils.getTypeElement(type));
-                if (classScope == null) {
-
-                    /// TODO: we should probably be calling this:
-                    //
-                    //checkClassScope(Utils.getTypeElement(type), trees.getTree(Utils.getTypeElement(type)), errNode, false);
-                    //classScope = ctx.getClassScope(Utils.getTypeElement(type));
-
-                    classScope = scopeOfClassDefinition(Utils.getTypeElement(type));
-                }
-                scope = classScope;
+        } else {
+            if (r.getKind() == TypeKind.DECLARED) {
+                TypeElement t = Utils.getTypeElement(r);
+                ScopeInfo classScope = getClassScopeAndVisit(t, errNode);
+                if (!classScope.isCaller())
+                    scope = classScope;
             }
         }
 
@@ -437,8 +428,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             if (!eScope.equals(scope) && eLevel != SUPPORT)
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
         }
-
-
         ctx.setMethodScope(scope, m);
     }
 
@@ -486,7 +475,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 : ScopeInfo.CALLER;
     }
 
-    private ScopeInfo getParentScopeAndVisit(TypeElement p, Tree errNode) {
+    private ScopeInfo getClassScopeAndVisit(TypeElement p, Tree errNode) {
         ScopeInfo parent = ctx.getClassScope(p);
         if (parent == null) {
             checkClassScope(p, trees.getTree(p), errNode, false);

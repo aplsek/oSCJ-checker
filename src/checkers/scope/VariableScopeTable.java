@@ -35,7 +35,8 @@ public class VariableScopeTable {
             if (scope != null)
                 return scope;
         }
-        throw new RuntimeException("Variable not defined in scope table : " + var );
+        throw new RuntimeException("Variable not defined in scope table: "
+                + var);
     }
 
     public void addParentRelation(String childVar, String parentVar) {
