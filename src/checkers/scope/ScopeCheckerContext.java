@@ -70,6 +70,9 @@ public class ScopeCheckerContext {
         if (ci == null) {
             // TODO: handle the classes that were not encountered by the ScopeRunInVisitor
             //       for example "java.lang.Array"
+            if (clazz.equals("Array") && field.equals("length"))
+                return ScopeInfo.PRIMITIVE;
+
             return ScopeInfo.CALLER;
             //this.dumpClassScopes();
         }
