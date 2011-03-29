@@ -687,11 +687,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (lhs.isUnknown() || rhs.isNull())
             return;
 
-        // TODO: request for comment : a primitive value that is "static final" is inferred to be
-        // IMMORTAL, but still want to pass it around.
-        if (lhs.isPrimitive())
-            return;
-
         if (!concretize(lhs).equals(concretize(rhs)))
             fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
         ScopeInfo rhsDsi = rhs.getRepresentedScope();
