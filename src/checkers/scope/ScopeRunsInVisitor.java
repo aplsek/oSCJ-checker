@@ -437,8 +437,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             if (!eScope.equals(scope) && eLevel != SUPPORT)
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
         }
-
-
         ctx.setMethodScope(scope, m);
     }
 
