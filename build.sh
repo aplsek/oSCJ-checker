@@ -7,8 +7,8 @@ BUILD=./build
 
 rm -rf $BUILD
 rm -rf sources
-rm -rf SCJChecker.jar
-rm -rf lib/SCJChecker.jar
+rm -rf scj-checker.jar
+rm -rf lib/scj-checker.jar
 mkdir $BUILD
 
 CHECKERS=./localbin
