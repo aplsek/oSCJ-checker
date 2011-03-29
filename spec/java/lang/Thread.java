@@ -7,12 +7,14 @@ import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.annotate.Allocate;
 import javax.safetycritical.annotate.MemoryAreaEncloses;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed
 public class Thread implements Runnable {
@@ -240,4 +242,6 @@ public class Thread implements Runnable {
   public static void yield() {
   }
 
+  @Scope(IMMORTAL)
+  public static enum State { }
 }
