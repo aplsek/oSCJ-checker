@@ -565,7 +565,13 @@ public class MD5 {
             index = (int) (fin.count & 0x3f);
             padlen = (index < 56) ? (56 - index) : (120 - index);
 
-            Update(fin, padding, 0, padlen);
+            byte padding[] = {
+                    (byte) 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                };
+
+            Update(fin, padding , 0, padlen);            // CHECKER : changed from "this.padding"
             Update(fin, bits, 0, 8);
 
             /* Update() sets finals to null */
