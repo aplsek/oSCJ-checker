@@ -150,4 +150,12 @@ And so this local variable must be also explicitly immortal:
      update_time.set(time_stamp);
   }
   
+6) SCJ API annotations changed:
+
+javax.safetycritical.Services
+
+@RunsIn(CALLER)
+public static void setCeiling(@Scope(UNKNOWN) Object o, int pri) {}  
+  
+7)
  
