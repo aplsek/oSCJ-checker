@@ -105,7 +105,7 @@ the same in:
  - SatInterruptHandler.java:45
  MobileInterruptHandler.java:44
  
- (perhaps this is a limitaiton of the checker, but it automatically assumes the "..." strings to be IMMORTAL)
+ (perhaps this is a limitation of the checker: it automatically assumes the "..." strings to be IMMORTAL)
  
 3) bad assignment:
 /Users/plsek/fiji/scj-dan/oSCJ/tools/checker/examples/railsegment/CypherQueue.java:121: Cannot assign expression in scope IMMORTAL to variable in scope A.
