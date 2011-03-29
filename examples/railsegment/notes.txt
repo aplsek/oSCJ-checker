@@ -135,7 +135,7 @@ this is OK since in all the cases the internal_buffer is treated as read-only:
   @Scope("TM") byte[] internal_buffer = getBuffer(buffer_no);
 
 
-An oposite example of an immortal buffer is a buffer in CypherQueue that is explicitly annotated: 
+An opposite example of an immortal buffer is a buffer in CypherQueue that is explicitly annotated: 
 @Scope(IMMORTAL) byte[] encryption_buffer;
 
 This buffer is used by "SecurityOversight":   buffer = cypher_data.getBuffer();

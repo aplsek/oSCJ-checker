@@ -36,8 +36,8 @@ one of the following:
          -processor checkers.SCJChecker <program files to check...>
 
   2. On Windows:
-     localbin/javac.bat -proc:only -cp lib/scj/jar:lib/scj-checker.jar
-         -processor checkers.SCJChecker <program files to check...>
+     localbin\javac.bat -proc:only -cp lib\scj.jar:lib\scj-checker.jar
+         -processor <program files to check...>
 
 
 Checker Implementation
