@@ -43,7 +43,7 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
         Object privateMemPortalObj = new Object();
 
         @Scope("ThrusterControl")
-        @DefineScope(name = "MyPeriodicEventHandler", parent = "ThrusterControl")
+        @DefineScope(name = "MyAperiodicEventHandler", parent = "ThrusterControl")
         PrivateMemory curPrivateMemory = (PrivateMemory) ManagedMemory
         .getCurrentManagedMemory();
         curPrivateMemory.setPortal(privateMemPortalObj);
@@ -58,7 +58,7 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
             //        + curPrivateMemory.getPortal().toString());
         }
 
-        @DefineScope(name = "MyPeriodicEventHandler", parent = "ThrusterControl")
+        @DefineScope(name = "MyAperiodicEventHandler", parent = "ThrusterControl")
         @Scope("ThrusterControl")
         ManagedMemory curManagedMem = ManagedMemory.getCurrentManagedMemory();
         if (curManagedMem instanceof PrivateMemory) {
