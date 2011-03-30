@@ -54,7 +54,7 @@ public class VariableScopeTable {
         while (iter.hasNext()) {
             LexicalBlock b = iter.next();
             Relation r = b.relation;
-            if (r != null && r.equals(childVar, parentVar, RelationKind.PARENT))
+            if (r != null && r.isParentRelation(childVar, parentVar))
                 return true;
         }
         return false;
@@ -65,17 +65,24 @@ public class VariableScopeTable {
         while (iter.hasNext()) {
             LexicalBlock b = iter.next();
             Relation r = b.relation;
-            if (r != null
-                    && (r.equals(var1, var2, RelationKind.SAME) || r.equals(
-                            var2, var2, RelationKind.SAME)))
+            if (r != null && r.isSameRelation(var1, var2))
                 return true;
         }
         return false;
     }
 
+    @Override
+    public String toString() {
+        String ret = "";
+        Iterator<LexicalBlock> iter = blocks.descendingIterator();
+        while (iter.hasNext()) {
+            ret += "Block:\n" + iter.next() + "\n";
+        }
+        return ret;
+    }
+
     private static class LexicalBlock {
         Map<String, ScopeInfo> scopes = new HashMap<String, ScopeInfo>();
-
         Relation relation = null;
 
         public boolean contains(String var) {
@@ -95,6 +102,15 @@ public class VariableScopeTable {
                 throw new RuntimeException("Relation already set for block");
             relation = r;
         }
+
+        @Override
+        public String toString() {
+            String ret = "";
+            for (Map.Entry<String, ScopeInfo> e : scopes.entrySet())
+                ret += e.getKey() + " = @Scope(" + e.getValue() + ")\n";
+            ret += "Relation: " + relation + "\n";
+            return ret;
+        }
     }
 
     private static enum RelationKind {
@@ -112,9 +128,15 @@ public class VariableScopeTable {
             this.kind = kind;
         }
 
-        boolean equals(String var1, String var2, RelationKind kind) {
-            return this.var1.equals(var1) && this.var2.equals(var2)
-                    && this.kind == kind;
+        boolean isParentRelation(String child, String parent) {
+            return (this.kind == RelationKind.PARENT && this.var1.equals(child) && this.var2
+                    .equals(parent)) || isSameRelation(child, parent);
+        }
+
+        boolean isSameRelation(String var1, String var2) {
+            return this.kind == RelationKind.SAME
+                    && ((this.var1.equals(var1) && this.var2.equals(var2) || this.var1
+                            .equals(var2) && this.var2.equals(var1)));
         }
 
         @Override
@@ -125,6 +147,14 @@ public class VariableScopeTable {
                         && kind == r.kind;
             }
             return false;
+        }
+
+        @Override
+        public String toString() {
+            if (kind == RelationKind.SAME)
+                return var1 + " is in the same scope as " + var2;
+            else
+                return var1 + " is in a child scope of " + var2;
         }
     }
 }

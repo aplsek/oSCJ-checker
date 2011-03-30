@@ -1,12 +1,13 @@
 package checkers.scope;
 
-import static checkers.Utils.isFinal;
 import static checkers.SCJMethod.ALLOC_IN_PARENT;
+import static checkers.Utils.isFinal;
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
 import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION;
 import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT;
 import static checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE;
+import static checkers.scope.ScopeChecker.ERR_BAD_CONTEXT_CHANGE_CALLER;
 import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH;
 import static checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET;
 import static checkers.scope.ScopeChecker.ERR_BAD_EXECUTE_IN_AREA_RUNS_IN;
@@ -24,11 +25,7 @@ import static checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR;
-import static checkers.scope.ScopeChecker.ERR_SCJ_RUNNABLE_BAD_SCOPE;
-import static checkers.scope.ScopeChecker.ERR_BAD_CONTEXT_CHANGE_CALLER;
-
 import static checkers.scope.ScopeInfo.CALLER;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -625,18 +622,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("rhs scope = " + rhs);
 
         rhs = concretize(rhs);
+        String rhsVar = getRhsVariableNameFromAssignment(node);
+        String lhsVar = getLhsVariableNameFromAssignment(node);
 
         if (!rhs.isNull()) {
             if (!lhs.isUnknown()) {
                 if (lhs.getFieldScope().isThis()) {
-                    if (!lhs.getReceiverScope().equals(rhs))
+                    if (!lhs.getReceiverScope().equals(rhs)
+                            && !varScopes.hasSameRelation(lhsVar, rhsVar))
                         fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
                 } else if (!lhs.getFieldScope().equals(rhs))
                     fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
             } else {
                 ScopeInfo fScope = lhs.getFieldScope();
-                String rhsVar = getRhsVariableNameFromAssignment(node);
-                String lhsVar = getLhsVariableNameFromAssignment(node);
                 if (fScope.isThis()) {
                     if (!varScopes.hasSameRelation(lhsVar, rhsVar))
                         fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
@@ -660,6 +658,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 if (mst.getExpression().getKind() == Kind.IDENTIFIER)
                     return mst.getExpression().toString();
             }
+            else
+                // If we don't see a member select, we have an implicit this
+                return "this";
             return null;
         } else if (node.getKind() == Kind.VARIABLE)
             return "this";
@@ -708,7 +709,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo target = recvScope.getRepresentedScope();
         ExpressionTree arg = node.getArguments().get(1);
         ScopeInfo argRunsIn = getRunsInFromSCJRunnable(arg);
-        ScopeInfo runnableScope = getRunnnableScope(arg);
+        //ScopeInfo runnableScope = getRunnnableScope(arg);
 
         if (!scopeTree.isParentOf(argRunsIn, currentScope()))
             fail(ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH, node,
@@ -727,7 +728,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo target = recvScope.getRepresentedScope();
         ExpressionTree arg = node.getArguments().get(0);
         ScopeInfo argRunsIn = getRunsInFromSCJRunnable(arg);
-        ScopeInfo runnableScope = getRunnnableScope(arg);
+        //ScopeInfo runnableScope = getRunnnableScope(arg);
 
         if (!scopeTree.isAncestorOf(currentScope(), target))
             // the executeInArea must target an Ancestor scope

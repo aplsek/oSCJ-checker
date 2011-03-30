@@ -17,7 +17,7 @@ public class SanityTest extends ParameterizedCheckerTest {
 
         tests.addAll(testFiles("scope/scopeRunsIn/sanity"));
         tests.addAll(testFiles("scope/scope/sanity"));
-        tests.addAll(testFiles( "scjAllowed/sanity"));
+        tests.addAll(testFiles("scjAllowed/sanity"));
 
         return tests;
     }
