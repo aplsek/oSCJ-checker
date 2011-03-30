@@ -1,4 +1,4 @@
-package button;
+package thruster.myMission;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;

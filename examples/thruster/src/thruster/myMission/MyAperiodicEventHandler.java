@@ -1,4 +1,4 @@
-package button;
+package thruster.myMission;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import static javax.safetycritical.annotate.Level.SUPPORT;
@@ -42,8 +42,8 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
 
         Object privateMemPortalObj = new Object();
 
-        @DefineScope(name = "MyPeriodicEventHandler", parent = "ThrusterControl")
         @Scope("ThrusterControl")
+        @DefineScope(name = "MyPeriodicEventHandler", parent = "ThrusterControl")
         PrivateMemory curPrivateMemory = (PrivateMemory) ManagedMemory
         .getCurrentManagedMemory();
         curPrivateMemory.setPortal(privateMemPortalObj);

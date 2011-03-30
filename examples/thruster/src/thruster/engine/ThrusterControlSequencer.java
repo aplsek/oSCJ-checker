@@ -1,4 +1,4 @@
-package tmp;
+package thruster.engine;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import static javax.safetycritical.annotate.Level.SUPPORT;
@@ -14,32 +14,21 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-import button.MyMission;
-
-import thruster.MyDummyMission;
-import thruster.MyTerminatorMission;
 
 /**
- * This mission sequencer managed three missions: MyMission runs a PEH and an
- * APEH to test the fundamental features provided by the implementation.
- * MyTerminatorMission runs a PEH to terminate the whole mission sequencer.
- * MyDummyMission is a dummy mission that should never be executed as the
- * mission sequencer is already terminated.
- *
- * @author Lilei Zhai
- *
  */
 @SCJAllowed(value = LEVEL_1, members = true)
-@Scope("...")
-@DefineScope(name = "MyMissionSequencer", parent = "...")
-public class MyMissionSequencer extends MissionSequencer {
+@Scope(IMMORTAL)
+@DefineScope(name = "ThrusterMission", parent = IMMORTAL)
+public class ThrusterControlSequencer extends MissionSequencer {
 
     private static final int NORM_PRIORITY = PriorityScheduler.instance()
             .getNormPriority();
 
     // singleton pattern
-    private static MyMissionSequencer myMissionSequencer;
+    private static ThrusterControlSequencer thrusterControlSequencer;
 
     private static final int NO_MISSION = 0;
     private static final int NORMAL_MISSION = 1;
@@ -48,43 +37,43 @@ public class MyMissionSequencer extends MissionSequencer {
     private static int curMissionNum = NO_MISSION;
 
     @SCJRestricted(INITIALIZATION)
-    private MyMissionSequencer(PriorityParameters priority,
+    private ThrusterControlSequencer(PriorityParameters priority,
             StorageParameters storage) {
         super(priority, storage);
-        // System.out.println("My sequencer created");
+        // System.out.println("Sequencer created");
     }
 
+    @Scope(IMMORTAL) @RunsIn(IMMORTAL)
     public static MissionSequencer getInstance() {
-        // System.out.println("getInstance called");
-        if (myMissionSequencer == null) {
+        // System.out.println("Thruster getInstance called");
+        if (thrusterControlSequencer == null) {
             PriorityParameters myPriorityPar = new PriorityParameters(
                     NORM_PRIORITY);
             StorageParameters myStoragePar = new StorageParameters(100000L,
                     1000, 1000);
 
-            myMissionSequencer = new MyMissionSequencer(myPriorityPar,
-                    myStoragePar);
-            // System.out.println("myMissionSequencer created");
+            thrusterControlSequencer = new ThrusterControlSequencer(
+                    myPriorityPar, myStoragePar);
+            // System.out.println("Sequencer created");
         }
 
         // return null;
-        return myMissionSequencer;
+        return thrusterControlSequencer;
     }
 
     @Override
     @SCJAllowed(SUPPORT)
-    @RunsIn("MyMissionSequencer")
-    @Scope("MyMissionSequencer")
+    @RunsIn("ThrusterMission")
+    @Scope("ThrusterMission")
     protected Mission getNextMission() {
         /*
          * Use boolean instead of MyMission reference here, because Immortal
          * can't refer to Scoped
          */
-        // System.out
-        // .println("TestCase 03: PASS. MissionSequencer.getNextMission() is executed.");
+        // System.out.println("TestCase 03: PASS. MissionSequencer.getNextMission() is executed.");
         switch (curMissionNum++) {
         case NO_MISSION:
-            return new MyMission();
+            return new ThrusterMission();
         case NORMAL_MISSION:
             return new MyTerminatorMission();
         case TERMINATOR_MISSION:
@@ -92,8 +81,7 @@ public class MyMissionSequencer extends MissionSequencer {
         case DUMMY_MISSION:
             return null;
         default:
-            // System.err
-            // .println("Error: invalid curMissionNum: " + curMissionNum);
+            // System.err.println("Error: invalid curMissionNum: "+curMissionNum);
             return null;
         }
     }

@@ -1,8 +1,9 @@
-package tmp;
+package thruster.myMission;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.MissionSequencer;
@@ -41,7 +42,7 @@ public class MySafelet implements Safelet {
     @Scope(IMMORTAL) @RunsIn(IMMORTAL)
 	public MissionSequencer getSequencer() {
       //System.out.println("TestCase 02: PASS. MissionSequencer.getSequencer() is executed.");
-        return MyMissionSequencer.getInstance();
+        return ThrusterControlMissionSequencer.getInstance();
         //return null;
     }
 
@@ -65,7 +66,7 @@ public class MySafelet implements Safelet {
 	 * It frees all resources used by the application.
 	 */
     @SCJAllowed(SUPPORT)
-    @SCJRestricted(INITIALIZATION)
+    @SCJRestricted(CLEANUP)
 	public void tearDown() {
 		/*
 		 * This testing method doesn't contain any operation, just print
