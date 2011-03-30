@@ -1,0 +1,28 @@
+
+
+Mission.missionMemorySize() - is LEVEL_0, but is override by Missions of all levels
+
+System.out.println - not allowed in SCJ
+
+TODO: getNextMission - add annotations!
+
+
+
+Our improvements:
+- example is using a lot of SCJ API methods
+- updating the annotations - LEVELs in our SCJ LIB
+
+Two different Sequencers = TODO:
+--> means two different sets of mission for each sequencer
+- we cannot reuse missions between different sequencers!
+
+
+RelativeTime computations:
+
+@RunsIn("EngineControl")
+    public synchronized void handleAsyncEvent() {
+         burnTime.subtract(myPeriodicParams.getPeriod());
+    }
+- burnTime and myPeriodicParams are both in "Mission", how do we substract them in PEH?
+- if we will make the "substract" method @RunsIn(CALLER) then the result is @Scope(UNKNOWN) and the nwe cannot use this method in the same context
+- we could add a new substract method that will be @RunsIn(CALLER)
