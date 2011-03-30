@@ -1,10 +1,19 @@
 package thruster;
 
+import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
 
 /**
  * This class terminates the mission sequencer once it is released.
@@ -12,20 +21,27 @@ import javax.safetycritical.StorageParameters;
  * @author Lilei Zhai
  *
  */
+@SCJAllowed(value = LEVEL_1, members = true)
+@Scope("...")
+@DefineScope(name = "MyTerminatorPeriodicEventHandler", parent = "...")
 public class MyTerminatorPeriodicEventHandler extends PeriodicEventHandler {
 
-	public MyTerminatorPeriodicEventHandler(PriorityParameters priority,
-			PeriodicParameters release, StorageParameters storage, long memSize, String name) {
-		super(priority, release, storage, name);
-	}
+    @SCJRestricted(INITIALIZATION)
+    public MyTerminatorPeriodicEventHandler(PriorityParameters priority,
+            PeriodicParameters release, StorageParameters storage,
+            long memSize, String name) {
+        super(priority, release, storage, name);
+    }
 
-	@Override
+    @Override
+    @SCJAllowed(SUPPORT)
+    @RunsIn("MyTerminatorPeriodicEventHandler")
     public void handleAsyncEvent() {
-		System.out.println("TestCase 22: PASS. the terminator PEH of terminator Mission is released.");
-		Mission.getCurrentMission().requestSequenceTermination();
-	}
+        // System.out.println("TestCase 22: PASS. the terminator PEH of terminator Mission is released.");
+        Mission.getCurrentMission().requestSequenceTermination();
+    }
 
-	public void cleanup() {
-	}
+    public void cleanup() {
+    }
 
 }

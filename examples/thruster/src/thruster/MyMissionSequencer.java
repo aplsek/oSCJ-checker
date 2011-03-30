@@ -1,10 +1,14 @@
 package thruster;
 
+import static javax.safetycritical.annotate.Level.LEVEL_1;
+
 import javax.realtime.PriorityParameters;
 import javax.realtime.PriorityScheduler;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.Terminal;
+import javax.safetycritical.annotate.SCJAllowed;
 
 /**
  * This mission sequencer managed three missions: MyMission runs a PEH and an
@@ -12,10 +16,11 @@ import javax.safetycritical.StorageParameters;
  * MyTerminatorMission runs a PEH to terminate the whole mission sequencer.
  * MyDummyMission is a dummy mission that should never be executed as the
  * mission sequencer is already terminated.
- * 
+ *
  * @author Lilei Zhai
- * 
+ *
  */
+@SCJAllowed(value = LEVEL_1, members=true)
 public class MyMissionSequencer extends MissionSequencer {
 
     private static final int NORM_PRIORITY = PriorityScheduler.instance()
@@ -33,7 +38,7 @@ public class MyMissionSequencer extends MissionSequencer {
     private MyMissionSequencer(PriorityParameters priority,
             StorageParameters storage) {
         super(priority, storage);
-        System.out.println("My sequencer created");
+        //System.out.println("My sequencer created");
     }
 
     public static MissionSequencer getInstance() {
@@ -46,7 +51,7 @@ public class MyMissionSequencer extends MissionSequencer {
 
             myMissionSequencer = new MyMissionSequencer(myPriorityPar,
                     myStoragePar);
-            System.out.println("myMissionSequencer created");
+            //System.out.println("myMissionSequencer created");
         }
 
         // return null;
@@ -59,8 +64,8 @@ public class MyMissionSequencer extends MissionSequencer {
          * Use boolean instead of MyMission reference here, because Immortal
          * can't refer to Scoped
          */
-        System.out
-                .println("TestCase 03: PASS. MissionSequencer.getNextMission() is executed.");
+        //System.out
+        //        .println("TestCase 03: PASS. MissionSequencer.getNextMission() is executed.");
         switch (curMissionNum++) {
         case NO_MISSION:
             return new MyMission();
@@ -71,8 +76,8 @@ public class MyMissionSequencer extends MissionSequencer {
         case DUMMY_MISSION:
             return null;
         default:
-            System.err
-                    .println("Error: invalid curMissionNum: " + curMissionNum);
+            //System.err
+            //        .println("Error: invalid curMissionNum: " + curMissionNum);
             return null;
         }
     }

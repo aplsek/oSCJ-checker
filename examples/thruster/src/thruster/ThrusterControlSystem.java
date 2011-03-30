@@ -1,12 +1,19 @@
 package thruster;
 
+import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.Safelet;
+import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 
+@SCJAllowed(value = LEVEL_1, members = true)
 public class ThrusterControlSystem implements Safelet {
 
+    @SCJRestricted(INITIALIZATION)
     public ThrusterControlSystem() {
-        System.out.println("Safelet being created");
+        // System.out.println("Safelet being created");
     }
 
     /**
@@ -17,7 +24,7 @@ public class ThrusterControlSystem implements Safelet {
      */
     @Override
     public MissionSequencer getSequencer() {
-        System.out.println("MissionSequencer.getSequencer() is executed.");
+        // System.out.println("MissionSequencer.getSequencer() is executed.");
         return ThrusterControlSequencer.getInstance();
     }
 
@@ -32,8 +39,8 @@ public class ThrusterControlSystem implements Safelet {
          * This testing method doesn't contain any operation, just print
          * something to the console showing it is called.
          */
-        System.out
-                .println("TestCase 01: PASS. MissionSequencer.setUp() is executed.");
+        // System.out
+        // .println("TestCase 01: PASS. MissionSequencer.setUp() is executed.");
     }
 
     /**
@@ -46,8 +53,8 @@ public class ThrusterControlSystem implements Safelet {
          * This testing method doesn't contain any operation, just print
          * something to the console showing it is called.
          */
-        System.out
-                .println("TestCase 24: PASS. MissionSequencer.tearDown() is executed.");
+        // System.out
+        // .println("TestCase 24: PASS. MissionSequencer.tearDown() is executed.");
     }
 
 }

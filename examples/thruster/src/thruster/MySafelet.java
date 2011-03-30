@@ -1,7 +1,12 @@
 package thruster;
 
+import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.Safelet;
+import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 
 /**
  * This class is the Safelet for unit test. This unit test program is also an example level one
@@ -10,10 +15,12 @@ import javax.safetycritical.Safelet;
  * @author Lilei Zhai
  *
  */
+@SCJAllowed(value = LEVEL_1, members=true)
 public class MySafelet implements Safelet {
 
+    @SCJRestricted(INITIALIZATION)
 	public MySafelet() {
-		System.out.println("Safelet being created");
+		//System.out.println("Safelet being created");
 	}
 
 	/**
@@ -23,7 +30,7 @@ public class MySafelet implements Safelet {
 	 * return the "myMissionSequencer" directly.
 	 */
 	public MissionSequencer getSequencer() {
-		System.out.println("TestCase 02: PASS. MissionSequencer.getSequencer() is executed.");
+		//System.out.println("TestCase 02: PASS. MissionSequencer.getSequencer() is executed.");
 		return MyMissionSequencer.getInstance();
 		//return null;
 	}
@@ -38,7 +45,7 @@ public class MySafelet implements Safelet {
 		 * This testing method doesn't contain any operation, just print
 		 * something to the console showing it is called.
 		 */
-		System.out.println("TestCase 01: PASS. MissionSequencer.setUp() is executed.");
+		//System.out.println("TestCase 01: PASS. MissionSequencer.setUp() is executed.");
 	}
 
 	/**
@@ -50,7 +57,7 @@ public class MySafelet implements Safelet {
 		 * This testing method doesn't contain any operation, just print
 		 * something to the console showing it is called.
 		 */
-		System.out.println("TestCase 24: PASS. MissionSequencer.tearDown() is executed.");
+		//System.out.println("TestCase 24: PASS. MissionSequencer.tearDown() is executed.");
 	}
 
 }
