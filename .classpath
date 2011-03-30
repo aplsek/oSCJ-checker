@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="examples/thruster/src"/>
+	<classpathentry kind="src" path="examples/fast-md5/src"/>
 	<classpathentry excluding="copyInOut/LinkedList.java" kind="src" path="testsuite/src"/>
-	<classpathentry kind="src" path="examples"/>
+	<classpathentry excluding="src/|fast-md5/src/|jpapabench/jpapabench/jpapabench-scj/src/|jpapabench/jpapabench/jpapabench-core/src/|jpapabench/jpapabench/jpapabench-core-flightplans/src/|build/|jpapabench/|thruster/src/" kind="src" path="examples"/>
 	<classpathentry kind="lib" path="localbin/jsr308-all.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.7.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
