@@ -61,6 +61,9 @@ public class MyMission extends Mission {
             //                + ((MissionMemory) curManagedMem).toString());
 
             Object missionMemPortalObj = new Object();
+
+            @DefineScope(name = "ThrusterControl", parent = IMMORTAL)
+            @Scope("IMMORTAL")
             MissionMemory curMissionMemory = (MissionMemory) curManagedMem;
             curMissionMemory.setPortal(missionMemPortalObj);
             if (curMissionMemory.getPortal().toString()

@@ -84,6 +84,9 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
 
         @RunsIn("aperiodic-child-scope-1")
         public void run() {
+
+            @Scope("MyAperiodicEventHandler")
+            @DefineScope(name = "aperiodic-child-scope-1", parent = "MyAperiodicEventHandler")
             ManagedMemory curManagedMem = ManagedMemory
             .getCurrentManagedMemory();
             if (curManagedMem instanceof PrivateMemory) {
@@ -106,6 +109,9 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
 
         @RunsIn("aperiodic-child-scope-2")
         public void run() {
+
+            @Scope("MyAperiodicEventHandler")
+            @DefineScope(name = "aperiodic-child-scope-2", parent = "MyAperiodicEventHandler")
             ManagedMemory curManagedMem = ManagedMemory
             .getCurrentManagedMemory();
             if (curManagedMem instanceof PrivateMemory) {

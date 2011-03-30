@@ -93,6 +93,9 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 
         @RunsIn("child-scope11")
         public void run() {
+
+            @DefineScope(name = "child-scope11", parent = "MyPeriodicEventHandler")
+            @Scope("MyPeriodicEventHandler")
             ManagedMemory curManagedMem = ManagedMemory
                     .getCurrentManagedMemory();
             if (curManagedMem instanceof PrivateMemory) {
@@ -108,6 +111,8 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 
         @RunsIn("child-scope12")
         public void run() {
+            @DefineScope(name = "child-scope12", parent = "MyPeriodicEventHandler")
+            @Scope("MyPeriodicEventHandler")
             ManagedMemory curManagedMem = ManagedMemory
                     .getCurrentManagedMemory();
             if (curManagedMem instanceof PrivateMemory) {

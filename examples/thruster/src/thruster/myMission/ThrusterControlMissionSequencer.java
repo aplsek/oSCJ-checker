@@ -51,6 +51,7 @@ public class ThrusterControlMissionSequencer extends MissionSequencer {
         // System.out.println("My sequencer created");
     }
 
+    @Scope(IMMORTAL) @RunsIn(IMMORTAL)
     public static MissionSequencer getInstance() {
         // System.out.println("getInstance called");
         if (myMissionSequencer == null) {
