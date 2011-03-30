@@ -1,6 +1,7 @@
 package thruster;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.PriorityParameters;
@@ -8,12 +9,19 @@ import javax.realtime.PriorityScheduler;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 
 /**
  */
 @SCJAllowed(value = LEVEL_1, members = true)
+@Scope(IMMORTAL)
+@DefineScope(name = "ThrusterMission", parent = IMMORTAL)
 public class ThrusterControlSequencer extends MissionSequencer {
 
     private static final int NORM_PRIORITY = PriorityScheduler.instance()
@@ -35,6 +43,7 @@ public class ThrusterControlSequencer extends MissionSequencer {
         // System.out.println("Sequencer created");
     }
 
+    @Scope(IMMORTAL) @RunsIn(IMMORTAL)
     public static MissionSequencer getInstance() {
         // System.out.println("Thruster getInstance called");
         if (thrusterControlSequencer == null) {
@@ -53,6 +62,9 @@ public class ThrusterControlSequencer extends MissionSequencer {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
+    @RunsIn("ThrusterMission")
+    @Scope("ThrusterMission")
     protected Mission getNextMission() {
         /*
          * Use boolean instead of MyMission reference here, because Immortal

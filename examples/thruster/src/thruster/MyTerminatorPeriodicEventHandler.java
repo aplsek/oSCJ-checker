@@ -22,8 +22,8 @@ import javax.safetycritical.annotate.Scope;
  *
  */
 @SCJAllowed(value = LEVEL_1, members = true)
-@Scope("...")
-@DefineScope(name = "MyTerminatorPeriodicEventHandler", parent = "...")
+@Scope("ThrusterMission")
+@DefineScope(name = "MyTerminatorPeriodicEventHandler", parent = "ThrusterMission")
 public class MyTerminatorPeriodicEventHandler extends PeriodicEventHandler {
 
     @SCJRestricted(INITIALIZATION)
@@ -41,7 +41,8 @@ public class MyTerminatorPeriodicEventHandler extends PeriodicEventHandler {
         Mission.getCurrentMission().requestSequenceTermination();
     }
 
-    public void cleanup() {
+    @Override
+    public void cleanUp() {
     }
 
 }

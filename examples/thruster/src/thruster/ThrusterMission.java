@@ -9,11 +9,14 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
+
 
 /**
   *
   */
 @SCJAllowed(value = LEVEL_1, members = true)
+@Scope("ThrusterMission")
 public class ThrusterMission extends Mission {
 
     // All the methods below execute in the Mission Memory Allocation Context
@@ -30,7 +33,6 @@ public class ThrusterMission extends Mission {
         EngineControl engineControl = new EngineControl(priority, period,
                 storage, memSize);
         engineControl.register();
-
     }
 
     /*

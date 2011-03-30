@@ -1,9 +1,12 @@
 package thruster;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
 
 /**
  * This class defines the mission that should not be executed.
@@ -12,9 +15,11 @@ import javax.safetycritical.annotate.SCJAllowed;
  *
  */
 @SCJAllowed(value = LEVEL_1, members=true)
+@Scope("ThrusterMission")
 public class MyDummyMission extends Mission {
 
     @Override
+    @SCJRestricted(INITIALIZATION)
     protected void initialize() {
         // This Mission shall not be executed,
         //System.out

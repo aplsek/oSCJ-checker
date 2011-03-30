@@ -16,9 +16,14 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(value = LEVEL_1, members=true)
-@Scope("...")
-@DefineScope(name="EngineControl", parent="...")
+@Scope("ThrusterMission")
+@DefineScope(name="EngineControl", parent="ThrusterMission")
 public class EngineControl extends PeriodicEventHandler {
+
+    private boolean engineStarted = false;
+    private RelativeTime burnTime;
+    private RelativeTime zero;
+    private PeriodicParameters myPeriodicParams;
 
     @SCJRestricted(INITIALIZATION)
     public EngineControl(PriorityParameters priority,
@@ -37,13 +42,13 @@ public class EngineControl extends PeriodicEventHandler {
         //System.out.println("Engine start");
     }
 
+    @RunsIn("EngineControl")
     public synchronized void stop() {
         engineStarted = false;
         //System.out.println("Engine stop");
     }
 
     // The following method executes in a fresh private memory area
-
     @Override
     @SCJAllowed(SUPPORT)
     @RunsIn("EngineControl")
@@ -59,9 +64,4 @@ public class EngineControl extends PeriodicEventHandler {
             }
         }
     }
-
-    private boolean engineStarted = false;
-    private RelativeTime burnTime;
-    private RelativeTime zero;
-    private PeriodicParameters myPeriodicParams;
 }

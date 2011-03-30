@@ -11,6 +11,7 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
 
 /**
  * This class contains an PEH which will terminate the MissionSequencer.
@@ -19,6 +20,7 @@ import javax.safetycritical.annotate.SCJRestricted;
  *
  */
 @SCJAllowed(value = LEVEL_1, members = true)
+@Scope("ThrusterMission")
 public class MyTerminatorMission extends Mission {
     private MyTerminatorPeriodicEventHandler myPEH;
 
@@ -41,7 +43,8 @@ public class MyTerminatorMission extends Mission {
         return 0;
     }
 
-    protected void cleanup() {
+    @Override
+    protected void cleanUp() {
     }
 
 }
