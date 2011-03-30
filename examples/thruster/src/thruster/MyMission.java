@@ -8,6 +8,8 @@ import javax.safetycritical.AperiodicEvent;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.MissionMemory;
+
 
 /**
  * This class defines the first Mission that the implementation should execute.

@@ -16,7 +16,7 @@ public class MyTerminatorPeriodicEventHandler extends PeriodicEventHandler {
 
 	public MyTerminatorPeriodicEventHandler(PriorityParameters priority,
 			PeriodicParameters release, StorageParameters storage, long memSize, String name) {
-		super(priority, release, storage, memSize, name);
+		super(priority, release, storage, name);
 	}
 
 	@Override

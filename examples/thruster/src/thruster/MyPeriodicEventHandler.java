@@ -24,7 +24,7 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 
 	public MyPeriodicEventHandler(PriorityParameters priority,
 			PeriodicParameters release, StorageParameters storage, long memSize, String name) {
-		super(priority, release, storage, memSize, name);
+		super(priority, release, storage, name);
 	}
 
 	@Override

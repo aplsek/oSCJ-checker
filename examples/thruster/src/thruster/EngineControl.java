@@ -9,7 +9,7 @@ import javax.safetycritical.StorageParameters;
 public class EngineControl extends PeriodicEventHandler {
     public EngineControl(PriorityParameters priority,
             PeriodicParameters release, StorageParameters storage, long memSize) {
-        super(priority, release, storage, memSize);
+        super(priority, release, storage);
         System.out.println("Engine Control handler constructor ");
         myPeriodicParams = release;
         zero = new RelativeTime(0, 0);

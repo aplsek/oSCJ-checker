@@ -16,7 +16,7 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
 
     public MyAperiodicEventHandler(PriorityParameters priority,
             StorageParameters storage, long memSize, String name) {
-        super(priority, storage, memSize, name);
+        super(priority, null, storage, name);   // TODO: what is the release??
     }
 
     @Override
