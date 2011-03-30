@@ -625,18 +625,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("rhs scope = " + rhs);
 
         rhs = concretize(rhs);
+        String rhsVar = getRhsVariableNameFromAssignment(node);
+        String lhsVar = getLhsVariableNameFromAssignment(node);
 
         if (!rhs.isNull()) {
             if (!lhs.isUnknown()) {
                 if (lhs.getFieldScope().isThis()) {
-                    if (!lhs.getReceiverScope().equals(rhs))
+                    if (!lhs.getReceiverScope().equals(rhs)
+                            && !varScopes.hasSameRelation(lhsVar, rhsVar))
                         fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
                 } else if (!lhs.getFieldScope().equals(rhs))
                     fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
             } else {
                 ScopeInfo fScope = lhs.getFieldScope();
-                String rhsVar = getRhsVariableNameFromAssignment(node);
-                String lhsVar = getLhsVariableNameFromAssignment(node);
                 if (fScope.isThis()) {
                     if (!varScopes.hasSameRelation(lhsVar, rhsVar))
                         fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
@@ -660,6 +661,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 if (mst.getExpression().getKind() == Kind.IDENTIFIER)
                     return mst.getExpression().toString();
             }
+            else
+                // If we don't see a member select, we have an implicit this
+                return "this";
             return null;
         } else if (node.getKind() == Kind.VARIABLE)
             return "this";
