@@ -22,13 +22,15 @@ public class MyDummyMission extends Mission {
     }
 
     @Override
+    @SCJAllowed
     public long missionMemorySize() {
         //System.out
         //        .println("TestCase 23: FAIL. This Mission shall not be executed.");
         return 0;
     }
 
-    protected void cleanup() {
+    @Override
+    protected void cleanUp() {
         //System.out
         //        .println("TestCase 23: FAIL. This Mission shall not be executed.");
     }

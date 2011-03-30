@@ -36,6 +36,7 @@ public class MyTerminatorMission extends Mission {
     }
 
     @Override
+    @SCJAllowed
     public long missionMemorySize() {
         return 0;
     }

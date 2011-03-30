@@ -11,6 +11,7 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.PrivateMemory;
+import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
@@ -19,91 +20,106 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 /**
- * This PEH will be released for 10 times.
- * At the 5th release, it fires the AE of the APEH.
- * It terminates the mission at the 10th release.
+ * This PEH will be released for 10 times. At the 5th release, it fires the AE
+ * of the APEH. It terminates the mission at the 10th release.
  *
  * @author Lilei Zhai
  *
  */
-@SCJAllowed(value = LEVEL_1, members=true)
+@SCJAllowed(value = LEVEL_1, members = true)
 @Scope("...")
-@DefineScope(name="MyPeriodicEventHandler", parent="...")
+@DefineScope(name = "MyPeriodicEventHandler", parent = "...")
 public class MyPeriodicEventHandler extends PeriodicEventHandler {
 
-	public AperiodicEvent myAPE = null;
-	private int releaseCounter = 0;
+    public AperiodicEvent myAPE = null;
+    private int releaseCounter = 0;
 
-	@SCJRestricted(INITIALIZATION)
-	public MyPeriodicEventHandler(PriorityParameters priority,
-			PeriodicParameters release, StorageParameters storage, long memSize, String name) {
-		super(priority, release, storage, name);
-	}
+    @SCJRestricted(INITIALIZATION)
+    public MyPeriodicEventHandler(PriorityParameters priority,
+            PeriodicParameters release, StorageParameters storage,
+            long memSize, String name) {
+        super(priority, release, storage, name);
+    }
 
-	@Override
+    @Override
     @SCJAllowed(SUPPORT)
     @RunsIn("MyPeriodicEventHandler")
     public void handleAsyncEvent() {
 
-		releaseCounter++;
-		//System.out.println("TestCase 09: PASS. PEH is released for the "+releaseCounter+" time.");
+        releaseCounter++;
+        // System.out.println("TestCase 09: PASS. PEH is released for the "+releaseCounter+" time.");
 
-		if(releaseCounter == 1) {
+        if (releaseCounter == 1) {
+            @DefineScope(name = "MyPeriodicEventHandler", parent = "...")
+            @Scope("...")
+            ManagedMemory curManagedMem = ManagedMemory
+                    .getCurrentManagedMemory();
+            if (curManagedMem instanceof PrivateMemory) {
+                // System.out.println("TestCase 10: PASS. PrivateMemory is the current memory of PEH."+((PrivateMemory)curManagedMem).toString());
+                Runnable11 run11 = new Runnable11();
+                curManagedMem.enterPrivateMemory(10000, run11);
 
-			ManagedMemory curManagedMem = ManagedMemory.getCurrentManagedMemory();
-			if(curManagedMem instanceof PrivateMemory) {
-				//System.out.println("TestCase 10: PASS. PrivateMemory is the current memory of PEH."+((PrivateMemory)curManagedMem).toString());
+                Runnable12 run12 = new Runnable12();
+                curManagedMem.enterPrivateMemory(10000, run12);
 
-				curManagedMem.enterPrivateMemory(10000, new Runnable() {
-					public void run() {
-						ManagedMemory curManagedMem = ManagedMemory.getCurrentManagedMemory();
-						if(curManagedMem instanceof PrivateMemory) {
-							//System.out.println("TestCase 11: PASS. Nested PrivateMemory of PEH is entered. "+((PrivateMemory)curManagedMem).toString());
-						} else {
-							//System.out.println("TestCase 11: FAIL. Nested ManagedMemory of PEH should be PrivateMemory . "+((PrivateMemory)curManagedMem).toString());
-						}
-					}
-				});
+                Object privateMemPortalObj = new Object();
 
-				curManagedMem.enterPrivateMemory(10000, new Runnable() {
-					public void run() {
-						ManagedMemory curManagedMem = ManagedMemory.getCurrentManagedMemory();
-						if(curManagedMem instanceof PrivateMemory) {
-							//System.out.println("TestCase 12: PASS. Nested PrivateMemory of PEH is entered again. "+((PrivateMemory)curManagedMem).toString());
-						} else {
-							//System.out.println("TestCase 12: FAIL. Nested ManagedMemory of PEH should be PrivateMemory. "+((PrivateMemory)curManagedMem).toString());
-						}
-					}
-				});
+                @DefineScope(name = "MyPeriodicEventHandler", parent = "...")
+                @Scope("...")
+                PrivateMemory curPrivateMemory = (PrivateMemory) ManagedMemory
+                        .getCurrentManagedMemory();
+                curPrivateMemory.setPortal(privateMemPortalObj);
+                if (curPrivateMemory.getPortal().toString()
+                        .compareTo(privateMemPortalObj.toString()) == 0) {
+                    // System.out.println("TestCase 13: PASS. PEH PrivateMemory.setPortal & PrivateMemory.getPortal "
+                    // + curPrivateMemory.getPortal().toString());
+                } else {
+                    // System.out.println("TestCase 13: FAIL. PEH PrivateMemory.setPortal & PrivateMemory.getPortal "
+                    // + curPrivateMemory.getPortal().toString());
+                }
+            } else {
+                // System.out.println("TestCase 10: FAIL. Current memory of PEH should be PrivateMemory."+((PrivateMemory)curManagedMem).toString());
+            }
+        } else if (releaseCounter == 5) {
+            myAPE.fire();
+        } else if (releaseCounter == 10) {
+            Mission.getCurrentMission().requestTermination();
+        }
 
-				Object privateMemPortalObj = new Object();
-				PrivateMemory curPrivateMemory = (PrivateMemory)ManagedMemory.getCurrentManagedMemory();
-				curPrivateMemory.setPortal(privateMemPortalObj);
-				if(curPrivateMemory.getPortal().toString().compareTo(privateMemPortalObj.toString()) == 0) {
-					//System.out.println("TestCase 13: PASS. PEH PrivateMemory.setPortal & PrivateMemory.getPortal "
-					//		+ curPrivateMemory.getPortal().toString());
-				}
-				else {
-					//System.out.println("TestCase 13: FAIL. PEH PrivateMemory.setPortal & PrivateMemory.getPortal "
-					//		+ curPrivateMemory.getPortal().toString());
-				}
-			}
-			else {
-				//System.out.println("TestCase 10: FAIL. Current memory of PEH should be PrivateMemory."+((PrivateMemory)curManagedMem).toString());
-			}
-		}
-		else if(releaseCounter == 5) {
-				myAPE.fire();
-		}
-		else if(releaseCounter == 10) {
-			Mission.getCurrentMission().requestTermination();
-		}
+    }
 
-	}
+    @DefineScope(name = "child-scope11", parent = "MyPeriodicEventHandler")
+    class Runnable11 implements SCJRunnable {
 
-	@Override
+        @RunsIn("child-scope11")
+        public void run() {
+            ManagedMemory curManagedMem = ManagedMemory
+                    .getCurrentManagedMemory();
+            if (curManagedMem instanceof PrivateMemory) {
+                // System.out.println("TestCase 11: PASS. Nested PrivateMemory of PEH is entered. "+((PrivateMemory)curManagedMem).toString());
+            } else {
+                // System.out.println("TestCase 11: FAIL. Nested ManagedMemory of PEH should be PrivateMemory . "+((PrivateMemory)curManagedMem).toString());
+            }
+        }
+    }
+
+    @DefineScope(name = "child-scope12", parent = "MyPeriodicEventHandler")
+    class Runnable12 implements SCJRunnable {
+
+        @RunsIn("child-scope12")
+        public void run() {
+            ManagedMemory curManagedMem = ManagedMemory
+                    .getCurrentManagedMemory();
+            if (curManagedMem instanceof PrivateMemory) {
+                // System.out.println("TestCase 12: PASS. Nested PrivateMemory of PEH is entered again. "+((PrivateMemory)curManagedMem).toString());
+            } else {
+                // System.out.println("TestCase 12: FAIL. Nested ManagedMemory of PEH should be PrivateMemory. "+((PrivateMemory)curManagedMem).toString());
+            }
+        }
+    }
+
+    @Override
     public void cleanUp() {
-		//System.out.println("TestCase 19: PASS. PEH.cleanup() is executed.");
-	}
-
+        // System.out.println("TestCase 19: PASS. PEH.cleanup() is executed.");
+    }
 }

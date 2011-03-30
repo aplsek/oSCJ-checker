@@ -1,6 +1,7 @@
 package thruster;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.PriorityParameters;
 import javax.realtime.PriorityScheduler;
@@ -9,6 +10,7 @@ import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.Terminal;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 
 /**
  * This mission sequencer managed three missions: MyMission runs a PEH and an
@@ -35,6 +37,7 @@ public class MyMissionSequencer extends MissionSequencer {
     private static final int DUMMY_MISSION = 3;
     private static int curMissionNum = NO_MISSION;
 
+    @SCJRestricted(INITIALIZATION)
     private MyMissionSequencer(PriorityParameters priority,
             StorageParameters storage) {
         super(priority, storage);
@@ -42,7 +45,7 @@ public class MyMissionSequencer extends MissionSequencer {
     }
 
     public static MissionSequencer getInstance() {
-        System.out.println("getInstance called");
+        //System.out.println("getInstance called");
         if (myMissionSequencer == null) {
             PriorityParameters myPriorityPar = new PriorityParameters(
                     NORM_PRIORITY);

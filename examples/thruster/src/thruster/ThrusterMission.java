@@ -38,6 +38,7 @@ public class ThrusterMission extends Mission {
      * this Mission.
      */
     @Override
+    @SCJAllowed
     public long missionMemorySize() {
         // System.out.println("TestCase 04: PASS. Mission.missionMemorySize() is executed.");
         return 0;

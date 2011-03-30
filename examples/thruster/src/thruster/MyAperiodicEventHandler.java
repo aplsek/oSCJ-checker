@@ -8,6 +8,7 @@ import javax.realtime.PriorityParameters;
 import javax.safetycritical.AperiodicEventHandler;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.PrivateMemory;
+import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
@@ -40,6 +41,9 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
         //System.out.println("TestCase 14: PASS. APEH is released.");
 
         Object privateMemPortalObj = new Object();
+
+        @DefineScope(name = "MyPeriodicEventHandler", parent = "...")
+        @Scope("...")
         PrivateMemory curPrivateMemory = (PrivateMemory) ManagedMemory
         .getCurrentManagedMemory();
         curPrivateMemory.setPortal(privateMemPortalObj);
@@ -54,53 +58,67 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
             //        + curPrivateMemory.getPortal().toString());
         }
 
+        @DefineScope(name = "MyPeriodicEventHandler", parent = "...")
+        @Scope("...")
         ManagedMemory curManagedMem = ManagedMemory.getCurrentManagedMemory();
         if (curManagedMem instanceof PrivateMemory) {
             //System.out
             //.println("TestCase 16: PASS. PrivateMemory is the current memory of APEH."
             //        + ((PrivateMemory) curManagedMem).toString());
 
-            curManagedMem.enterPrivateMemory(10000, new Runnable() {
-                public void run() {
-                    ManagedMemory curManagedMem = ManagedMemory
-                    .getCurrentManagedMemory();
-                    if (curManagedMem instanceof PrivateMemory) {
-                        //System.out
-                        //.println("TestCase 17: PASS. Nested PrivateMemory of APEH is entered. "
-                        //        + ((PrivateMemory) curManagedMem)
-                        //        .toString());
-                    }
-                    else {
-                        //System.out
-                        //.println("TestCase 17: FAIL. Nested ManagedMemory of APEH should be PrivateMemory . "
-                        //        + ((PrivateMemory) curManagedMem)
-                        //        .toString());
-                    }
-                }
-            });
+            MyRunnable1 run1 = new MyRunnable1();
+            curManagedMem.enterPrivateMemory(10000, run1);
 
-            curManagedMem.enterPrivateMemory(10000, new Runnable() {
-                public void run() {
-                    ManagedMemory curManagedMem = ManagedMemory
-                    .getCurrentManagedMemory();
-                    if (curManagedMem instanceof PrivateMemory) {
-                        //System.out
-                        //.println("TestCase 18: PASS. Nested PrivateMemory of APEH is entered again. "
-                        //        + ((PrivateMemory) curManagedMem)
-                        //        .toString());
-                    } else {
-                        //System.out
-                        //.println("TestCase 18: FAIL. Nested ManagedMemory of APEH should be PrivateMemory. "
-                        //        + ((PrivateMemory) curManagedMem)
-                        //        .toString());
-                    }
-                }
-            });
+            MyRunnable2 run2 = new MyRunnable2();
+            curManagedMem.enterPrivateMemory(10000, run2);
 
         } else {
             //System.out
             //.println("TestCase 16: FAIL. Current memory of APEH should be PrivateMemory."
             //        + ((PrivateMemory) curManagedMem).toString());
+        }
+    }
+
+    @DefineScope(name = "aperiodic-child-scope-1", parent = "MyAperiodicEventHandler")
+    class MyRunnable1 implements SCJRunnable {
+
+        @RunsIn("aperiodic-child-scope-1")
+        public void run() {
+            ManagedMemory curManagedMem = ManagedMemory
+            .getCurrentManagedMemory();
+            if (curManagedMem instanceof PrivateMemory) {
+                //System.out
+                //.println("TestCase 17: PASS. Nested PrivateMemory of APEH is entered. "
+                //        + ((PrivateMemory) curManagedMem)
+                //        .toString());
+            }
+            else {
+                //System.out
+                //.println("TestCase 17: FAIL. Nested ManagedMemory of APEH should be PrivateMemory . "
+                //        + ((PrivateMemory) curManagedMem)
+                //        .toString());
+            }
+        }
+    }
+
+    @DefineScope(name = "aperiodic-child-scope-2", parent = "MyAperiodicEventHandler")
+    class MyRunnable2 implements SCJRunnable {
+
+        @RunsIn("aperiodic-child-scope-2")
+        public void run() {
+            ManagedMemory curManagedMem = ManagedMemory
+            .getCurrentManagedMemory();
+            if (curManagedMem instanceof PrivateMemory) {
+                //System.out
+                //.println("TestCase 18: PASS. Nested PrivateMemory of APEH is entered again. "
+                //        + ((PrivateMemory) curManagedMem)
+                //        .toString());
+            } else {
+                //System.out
+                //.println("TestCase 18: FAIL. Nested ManagedMemory of APEH should be PrivateMemory. "
+                //        + ((PrivateMemory) curManagedMem)
+                //        .toString());
+            }
         }
     }
 

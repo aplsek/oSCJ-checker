@@ -10,8 +10,12 @@ import javax.realtime.RelativeTime;
 import javax.safetycritical.AperiodicEvent;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
+import javax.safetycritical.PrivateMemory;
+import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.MissionMemory;
+import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 
@@ -71,7 +75,7 @@ public class MyMission extends Mission {
                 PriorityScheduler.instance().getNormPriority()),
                 new PeriodicParameters(new RelativeTime(), new RelativeTime(
                         500, 0)), new StorageParameters(100, 100, 100), 10000,
-                "MyPEH");
+        "MyPEH");
         myAPEH = new MyAperiodicEventHandler(new PriorityParameters(
                 PriorityScheduler.instance().getMinPriority()),
                 new StorageParameters(100, 100, 100), 10000, "MyAPEH");
@@ -102,13 +106,8 @@ public class MyMission extends Mission {
         myAPEH.register();
 
         try {
-            ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000,
-                    new Runnable() {
-                        public void run() {
-                            //System.out
-                            //        .println("TestCase 08: FAIL. enterPrivateMemory cannot be called in MissionMemory.");
-                        }
-                    });
+            MyRunnable run = new MyRunnable();
+            ManagedMemory.getCurrentManagedMemory().enterPrivateMemory(1000,run);
         } catch (IllegalStateException e) {
             //System.out
             //        .println("TestCase 08: PASS. Calling enterPrivateMemory throws IllegalStateException.");
@@ -117,11 +116,22 @@ public class MyMission extends Mission {
 
     }
 
+    @DefineScope(name = "MyMission-child", parent = "MyMission")
+    class MyRunnable implements SCJRunnable {
+
+        @RunsIn("MyMission-child")
+        public void run() {
+            //System.out
+            //        .println("TestCase 08: FAIL. enterPrivateMemory cannot be called in MissionMemory.");
+        }
+    }
+
     /*
      * This method returns the desired size of the MissionMemory associated with
      * this Mission.
      */
     @Override
+    @SCJAllowed
     public long missionMemorySize() {
         //System.out
         //        .println("TestCase 04: PASS. Mission.missionMemorySize() is executed.");
@@ -134,7 +144,7 @@ public class MyMission extends Mission {
      */
     @Override
     protected void cleanUp() {
-       // System.out.println("TestCase 21: PASS. Mission.cleanup is executed.");
+        // System.out.println("TestCase 21: PASS. Mission.cleanup is executed.");
     }
 
 }
