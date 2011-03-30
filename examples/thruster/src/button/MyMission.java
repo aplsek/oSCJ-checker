@@ -1,7 +1,8 @@
-package thruster;
+package button;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
@@ -18,6 +19,8 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
+
 
 
 /**
@@ -29,6 +32,7 @@ import javax.safetycritical.annotate.SCJRestricted;
  *
  */
 @SCJAllowed(value = LEVEL_1, members=true)
+@Scope("ThrusterControl")
 public class MyMission extends Mission {
     private MyAperiodicEventHandler myAPEH;
     private MyPeriodicEventHandler myPEH;
@@ -48,6 +52,8 @@ public class MyMission extends Mission {
         //System.out
         //        .println("TestCase 05: PASS. Mission.initialize() is executed.");
 
+        @DefineScope(name = "ThrusterControl", parent = IMMORTAL)
+        @Scope("IMMORTAL")
         ManagedMemory curManagedMem = ManagedMemory.getCurrentManagedMemory();
         if (curManagedMem instanceof MissionMemory) {
             //System.out
@@ -116,9 +122,8 @@ public class MyMission extends Mission {
 
     }
 
-    @DefineScope(name = "MyMission-child", parent = "MyMission")
+    @DefineScope(name = "MyMission-child", parent = "ThrusterControl")
     class MyRunnable implements SCJRunnable {
-
         @RunsIn("MyMission-child")
         public void run() {
             //System.out

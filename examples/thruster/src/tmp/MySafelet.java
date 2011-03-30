@@ -1,4 +1,4 @@
-package thruster;
+package tmp;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
@@ -7,6 +7,7 @@ import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.Safelet;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
+
 
 /**
  * This class is the Safelet for unit test. This unit test program is also an example level one

@@ -1,4 +1,4 @@
-package thruster;
+package button;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import static javax.safetycritical.annotate.Level.SUPPORT;
@@ -23,8 +23,8 @@ import javax.safetycritical.annotate.Scope;
  *
  */
 @SCJAllowed(value = LEVEL_1, members=true)
-@Scope("...")
-@DefineScope(name="MyAperiodicEventHandler", parent="...")
+@Scope("ThrusterControl")
+@DefineScope(name="MyAperiodicEventHandler", parent="ThrusterControl")
 public class MyAperiodicEventHandler extends AperiodicEventHandler {
 
     @SCJRestricted(INITIALIZATION)
@@ -42,8 +42,8 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
 
         Object privateMemPortalObj = new Object();
 
-        @DefineScope(name = "MyPeriodicEventHandler", parent = "...")
-        @Scope("...")
+        @DefineScope(name = "MyPeriodicEventHandler", parent = "ThrusterControl")
+        @Scope("ThrusterControl")
         PrivateMemory curPrivateMemory = (PrivateMemory) ManagedMemory
         .getCurrentManagedMemory();
         curPrivateMemory.setPortal(privateMemPortalObj);
@@ -58,8 +58,8 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
             //        + curPrivateMemory.getPortal().toString());
         }
 
-        @DefineScope(name = "MyPeriodicEventHandler", parent = "...")
-        @Scope("...")
+        @DefineScope(name = "MyPeriodicEventHandler", parent = "ThrusterControl")
+        @Scope("ThrusterControl")
         ManagedMemory curManagedMem = ManagedMemory.getCurrentManagedMemory();
         if (curManagedMem instanceof PrivateMemory) {
             //System.out

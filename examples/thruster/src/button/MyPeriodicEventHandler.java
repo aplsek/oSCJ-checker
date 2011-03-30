@@ -1,4 +1,4 @@
-package thruster;
+package button;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import static javax.safetycritical.annotate.Level.SUPPORT;
@@ -27,8 +27,8 @@ import javax.safetycritical.annotate.Scope;
  *
  */
 @SCJAllowed(value = LEVEL_1, members = true)
-@Scope("...")
-@DefineScope(name = "MyPeriodicEventHandler", parent = "...")
+@Scope("ThrusterControl")
+@DefineScope(name = "MyPeriodicEventHandler", parent = "ThrusterControl")
 public class MyPeriodicEventHandler extends PeriodicEventHandler {
 
     public AperiodicEvent myAPE = null;
@@ -50,8 +50,8 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
         // System.out.println("TestCase 09: PASS. PEH is released for the "+releaseCounter+" time.");
 
         if (releaseCounter == 1) {
-            @DefineScope(name = "MyPeriodicEventHandler", parent = "...")
-            @Scope("...")
+            @DefineScope(name = "MyPeriodicEventHandler", parent = "ThrusterControl")
+            @Scope("ThrusterControl")
             ManagedMemory curManagedMem = ManagedMemory
                     .getCurrentManagedMemory();
             if (curManagedMem instanceof PrivateMemory) {
@@ -64,8 +64,8 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 
                 Object privateMemPortalObj = new Object();
 
-                @DefineScope(name = "MyPeriodicEventHandler", parent = "...")
-                @Scope("...")
+                @DefineScope(name = "MyPeriodicEventHandler", parent = "ThrusterControl")
+                @Scope("ThrusterControl")
                 PrivateMemory curPrivateMemory = (PrivateMemory) ManagedMemory
                         .getCurrentManagedMemory();
                 curPrivateMemory.setPortal(privateMemPortalObj);

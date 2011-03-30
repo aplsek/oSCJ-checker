@@ -1,6 +1,7 @@
-package thruster;
+package tmp;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.PriorityParameters;
@@ -8,9 +9,16 @@ import javax.realtime.PriorityScheduler;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
-import javax.safetycritical.Terminal;
+import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
+
+import button.MyMission;
+
+import thruster.MyDummyMission;
+import thruster.MyTerminatorMission;
 
 /**
  * This mission sequencer managed three missions: MyMission runs a PEH and an
@@ -22,7 +30,9 @@ import javax.safetycritical.annotate.SCJRestricted;
  * @author Lilei Zhai
  *
  */
-@SCJAllowed(value = LEVEL_1, members=true)
+@SCJAllowed(value = LEVEL_1, members = true)
+@Scope("...")
+@DefineScope(name = "MyMissionSequencer", parent = "...")
 public class MyMissionSequencer extends MissionSequencer {
 
     private static final int NORM_PRIORITY = PriorityScheduler.instance()
@@ -41,11 +51,11 @@ public class MyMissionSequencer extends MissionSequencer {
     private MyMissionSequencer(PriorityParameters priority,
             StorageParameters storage) {
         super(priority, storage);
-        //System.out.println("My sequencer created");
+        // System.out.println("My sequencer created");
     }
 
     public static MissionSequencer getInstance() {
-        //System.out.println("getInstance called");
+        // System.out.println("getInstance called");
         if (myMissionSequencer == null) {
             PriorityParameters myPriorityPar = new PriorityParameters(
                     NORM_PRIORITY);
@@ -54,7 +64,7 @@ public class MyMissionSequencer extends MissionSequencer {
 
             myMissionSequencer = new MyMissionSequencer(myPriorityPar,
                     myStoragePar);
-            //System.out.println("myMissionSequencer created");
+            // System.out.println("myMissionSequencer created");
         }
 
         // return null;
@@ -62,13 +72,16 @@ public class MyMissionSequencer extends MissionSequencer {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
+    @RunsIn("MyMissionSequencer")
+    @Scope("MyMissionSequencer")
     protected Mission getNextMission() {
         /*
          * Use boolean instead of MyMission reference here, because Immortal
          * can't refer to Scoped
          */
-        //System.out
-        //        .println("TestCase 03: PASS. MissionSequencer.getNextMission() is executed.");
+        // System.out
+        // .println("TestCase 03: PASS. MissionSequencer.getNextMission() is executed.");
         switch (curMissionNum++) {
         case NO_MISSION:
             return new MyMission();
@@ -79,8 +92,8 @@ public class MyMissionSequencer extends MissionSequencer {
         case DUMMY_MISSION:
             return null;
         default:
-            //System.err
-            //        .println("Error: invalid curMissionNum: " + curMissionNum);
+            // System.err
+            // .println("Error: invalid curMissionNum: " + curMissionNum);
             return null;
         }
     }
