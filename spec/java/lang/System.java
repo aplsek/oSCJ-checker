@@ -10,12 +10,18 @@
 \*---------------------------------------------------------------------*/
 package java.lang;
 
+import java.io.PrintStream;
+
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 
 @SCJAllowed
 public final class System
 {
+    
+  @SCJAllowed
+  public final static PrintStream out = null;
+  
   /**
    * Allocates no memory.
    */

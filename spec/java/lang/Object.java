@@ -18,6 +18,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 import static javax.safetycritical.annotate.Allocate.Area.CURRENT;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Scope.CALLER;
+import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed
 public class Object {
@@ -45,6 +46,8 @@ public class Object {
    * standard edition Java, do not represent a reliable service.  No
    * replacement has been defined (yet).
    */
+  @SCJAllowed
+  //@RunsIn(CALLER) @Scope(CALLER)
   protected Object clone() throws CloneNotSupportedException { return null; }
 
   /**
