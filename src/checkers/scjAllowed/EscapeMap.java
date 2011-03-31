@@ -15,19 +15,10 @@ public class EscapeMap {
     private static final Map<String, Level> escape = new HashMap<String, Level>();
 
     static {
-        //escape.put("java.lang", Level.LEVEL_0);
-        escape.put("java.util.LinkedList", Level.LEVEL_0);
-        escape.put("java.util.HashMap", Level.LEVEL_0);
-        escape.put("java.util.BitSet", Level.LEVEL_0);
-
         escape.put("javax.realtime.ThrowBoundaryError", Level.LEVEL_0);
-        escape.put("java.lang.annotation.ElementType", Level.LEVEL_0);
-
-        escape.put("java.io.PrintStream", Level.LEVEL_0);
 
         escape.put("byte", Level.LEVEL_0);
         escape.put("Array", Level.LEVEL_0);
-        escape.put("java.util", Level.LEVEL_0);
     }
 
     public static boolean isEscaped(String str) {
