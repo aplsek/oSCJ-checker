@@ -106,6 +106,15 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             TypeElement t = Utils.getTypeElement(mirror);
             checkClassScope(t, trees.getTree(t), node, false);
         }
+        // Also visit types that the methods belong to. This covers the case
+        // when a a method of a type is used without the type itself being
+        // mentioned. It also covers a peculiar case when array methods are
+        // used. For example, new byte[] { 1 }.clone() would crash without
+        // this, because Array (note the lack of package) does not extend
+        // java.lang.Object.
+        ExecutableElement m = TreeUtils.elementFromUse(node);
+        TypeElement t = Utils.getMethodClass(m);
+        checkClassScope(t, trees.getTree(t), node, false);
         return super.visitMethodInvocation(node, p);
     }
 
