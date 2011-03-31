@@ -11,7 +11,6 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.annotate.Allocate;
 import javax.safetycritical.annotate.MemoryAreaEncloses;
-import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
@@ -19,14 +18,14 @@ import javax.safetycritical.annotate.Scope;
 @SCJAllowed
 public class Thread implements Runnable {
 
-  @SCJAllowed(Level.LEVEL_2)
+  @SCJAllowed(LEVEL_2)
   public static interface UncaughtExceptionHandler {
     /** 
      * @memory Allocates no memory. Does not allow implicit argument
      *        this, or explicit 
      *        arguments t and e to escape local variables.
      */
-    @SCJAllowed(Level.LEVEL_2)
+    @SCJAllowed(LEVEL_2)
     public void uncaughtException(Thread t, Throwable e);
   }
 

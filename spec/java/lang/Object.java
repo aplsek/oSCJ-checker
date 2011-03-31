@@ -10,11 +10,14 @@
 \*---------------------------------------------------------------------*/
 package java.lang;
 
+import javax.safetycritical.annotate.Allocate;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
-import javax.safetycritical.annotate.RunsIn;
-import static javax.safetycritical.annotate.Scope.CALLER;
+
+import static javax.safetycritical.annotate.Allocate.Area.CURRENT;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Scope.CALLER;
 
 @SCJAllowed
 public class Object {
@@ -95,6 +98,7 @@ public class Object {
    * Does not allow "this" to escape local variables. Allocates a String and
    * associated internal "structure" (e.g. char[]) in caller's scope.
    */
+  @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
   public String toString() {
