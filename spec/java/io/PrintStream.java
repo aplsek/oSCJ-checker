@@ -12,4 +12,7 @@ public class PrintStream {
 
     @RunsIn(CALLER) 
     public void print(@Scope(UNKNOWN) String s) {}
+    
+    @RunsIn(CALLER) 
+    public void println(@Scope(UNKNOWN) String s) {}
 }
