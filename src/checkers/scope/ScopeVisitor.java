@@ -370,7 +370,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // TODO:  inner enum type class?, issue 22
             ret = null;
         } else {
-            // FIELD:
             VariableElement f = (VariableElement) elem;
             ScopeInfo fScope = ctx.getFieldScope(f);
             ret = new FieldScopeInfo(receiver, fScope);
