@@ -356,6 +356,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo ret;
 
         debugIndentIncrement("visitMemberSelect: " + node.toString());
+        debugIndent("kind : " + elem.getKind());
+        debugIndent("elem : " + elem);
 
         if (elem.getKind() == ElementKind.METHOD) {
             // If a MemberSelectTree is not a field, then it is a method
@@ -371,8 +373,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ret = null;
         } else {
             VariableElement f = (VariableElement) elem;
-            ScopeInfo fScope = ctx.getFieldScope(f);
-            ret = new FieldScopeInfo(receiver, fScope);
+            if (f.toString().equals("this")) {
+                // handling the case when the field is "Class.this"
+                ret = varScopes.getVariableScope("this");
+            } else {
+                ScopeInfo fScope = ctx.getFieldScope(f);
+                ret = new FieldScopeInfo(receiver, fScope);
+            }
         }
         debugIndentDecrement();
         return ret;
@@ -402,7 +409,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                     + paramScopes.get(i));
             varScopes.addVariableScope(paramName, paramScopes.get(i));
         }
-        node.getBody().accept(this, p);
+
+        // if this is not an abstract method, visit it:
+        if (node.getBody() != null )
+            node.getBody().accept(this, p);
+
         // TODO: make sure we don't need to visit more
         varScopes.popBlock();
         currentRunsIn = oldRunsIn;
