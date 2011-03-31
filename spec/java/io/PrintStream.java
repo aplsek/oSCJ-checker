@@ -11,8 +11,10 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 public class PrintStream {
 
     @RunsIn(CALLER) 
+    @SCJAllowed
     public void print(@Scope(UNKNOWN) String s) {}
     
     @RunsIn(CALLER) 
+    @SCJAllowed
     public void println(@Scope(UNKNOWN) String s) {}
 }
