@@ -1,6 +1,6 @@
 <project default="all">
     <property file="build.properties"/>
-    <property name="checker.classpath" value="localbin/jsr308-all.jar"/>
+    <property name="checker.classpath" value="localbin/jsr308-all.jar:localbin/jdk.jar"/>
     <property name="junit.classpath" value="lib/junit-4.7.jar"/>
     <property name="scj.classpath" value="lib/scj.jar"/>
     <property name="scj.checker.classpath" value="lib/scj-checker.jar"/>
