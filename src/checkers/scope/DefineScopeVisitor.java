@@ -93,16 +93,9 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
 
         if (!(reservedChild || reservedParent)) {
             if (scopeTree.hasScope(childScope)) {
-
-                // TODO: is this necessary?? - the whole tree is checked at the end anyway.
-                //if (!scopeTree.hasScope(parentScope) && isSCJRunnable) {
-                //    scopeTree.dumpTree();
-                //    System.out.println("childScope : " + childScope);
-                //    System.out.println("parentScope : " + parentScope);
-                //    fail(ERR_DUPLICATE_SCOPE_NAME, node, childScope);
-                //
-                //}
-                if (!scopeTree.isParentOf(childScope, parentScope)) {
+                ScopeInfo expectedParent = scopeTree.getParent(childScope);
+                if (expectedParent != null
+                        && !expectedParent.equals(parentScope)) {
                     fail(ERR_DUPLICATE_SCOPE_NAME, node, childScope);
                 }
             }
