@@ -17,6 +17,11 @@ import javax.safetycritical.annotate.MemoryAreaEncloses;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.RunsIn;
+
 import static javax.safetycritical.annotate.Allocate.Area.CURRENT;
 import static javax.safetycritical.annotate.Allocate.Area.THIS;
 
@@ -178,7 +183,8 @@ public final class String
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public boolean equals(Object obj) {
+  @RunsIn(CALLER) 
+  public boolean equals(@Scope(UNKNOWN) Object obj) {
     return false; // skeleton
   }
   

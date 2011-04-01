@@ -16,6 +16,9 @@ import javax.safetycritical.annotate.Allocate;
 import javax.safetycritical.annotate.MemoryAreaEncloses;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.CALLER;
+import javax.safetycritical.annotate.RunsIn;
 
 import static javax.safetycritical.annotate.Allocate.Area.CURRENT;
 
@@ -93,6 +96,7 @@ public final class Class<T> implements Serializable
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
+  @RunsIn(CALLER) 
   public String getName() {
     return null; // skeleton
   }

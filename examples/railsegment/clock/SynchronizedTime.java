@@ -33,7 +33,7 @@ import javax.safetycritical.annotate.Scope;
 // monotonically increasing time.
 
 @Scope("TM")
-@SCJAllowed(members = true)
+//@SCJAllowed(members = true)
 public class SynchronizedTime
 {
   private long synchronized_ms;

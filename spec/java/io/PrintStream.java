@@ -1,8 +1,20 @@
-/* aicas */
 package java.io;
 
-public class PrintStream
-{
-  public void print(String value) {}
-  public void println(String value) {}
+import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.Scope;
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
+
+@SCJAllowed
+public class PrintStream {
+
+    @RunsIn(CALLER) 
+    @SCJAllowed
+    public void print(@Scope(UNKNOWN) String s) {}
+    
+    @RunsIn(CALLER) 
+    @SCJAllowed
+    public void println(@Scope(UNKNOWN) String s) {}
 }

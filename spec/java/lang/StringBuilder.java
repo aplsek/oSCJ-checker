@@ -15,6 +15,10 @@ import java.io.Serializable;
 import javax.safetycritical.annotate.Allocate;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.RunsIn;
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 import static javax.safetycritical.annotate.Allocate.Area.CURRENT;
 import static javax.safetycritical.annotate.Allocate.Area.THIS;
@@ -223,7 +227,8 @@ public final class StringBuilder
   @Allocate({THIS})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = true)
-  public StringBuilder append(String s) {
+  @RunsIn(CALLER)
+  public StringBuilder append(@Scope(UNKNOWN)String str) {
     return this; // skeleton
   }
   
