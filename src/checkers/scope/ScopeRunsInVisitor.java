@@ -396,7 +396,11 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             if (!eRunsIn.equals(runsIn) && !Utils.isSCJSupport(m, ats)
                     && Utils.isUserLevel(m) && !runsIn.isCaller())
                 fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
-            if (Utils.isSCJSupport(m, ats) && !eRunsIn.equals(runsIn) && ann == null) {
+
+            // if the eLEVEL is SUPPORT, then the mLEVEL must be also SUPPORT and:
+            // if the "e" has @RunsIn annotation, then the m must explicitly restate the @RunsIn or override it with a new @RunsIn
+            // if the "e" has no @RunsIn annotation, the annotation does not have to be restated
+            if (Utils.isSCJSupport(m, ats) && !eRunsIn.equals(runsIn) && ann == null && e.getAnnotation(RunsIn.class) != null) {
                 fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE, node, errNode);
             }
         }

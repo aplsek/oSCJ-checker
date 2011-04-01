@@ -21,11 +21,13 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.Safelet;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
@@ -39,14 +41,17 @@ public class TrainControlApp implements Safelet {
   }
 
   // The following three methods implement the Safelet interface
+  @SCJAllowed(SUPPORT)
   public MissionSequencer getSequencer() {
     return new TrainMissionSequencer();
   }
 
+  @SCJAllowed(SUPPORT)
   public void setUp() {
     // do nothing
   }
 
+  @SCJAllowed(SUPPORT)
   public void tearDown() {
     // do nothing
   }
