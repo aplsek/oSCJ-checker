@@ -254,9 +254,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     @Override
     public R visitNewClass(NewClassTree node, P p) {
 
-        if (node.toString().contains("@SuppressSCJ"))
-            return null;
-
         ExecutableElement ctor = TreeUtils.elementFromUse(node);
 
         if (isEscaped(ctor.getEnclosingElement().toString()))
