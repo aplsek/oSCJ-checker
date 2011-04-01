@@ -1,6 +1,19 @@
 <project default="all">
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="lib/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
     <property file="build.properties"/>
-    <property name="checker.classpath" value="localbin/jsr308-all.jar:localbin/jdk.jar"/>
+    <property name="checker.classpath" value="localbin/jsr308-all.jar"/>
+    <property name="annotated.jdk.classpath" value="localbin/jdk.jar"/>
+    <property name="annotations.classpath" value="localbin/annotation-file-utilities.jar"/>
+    <pathconvert property="checker.bootclasspath">
+        <path location="${checker.classpath}"/>
+        <path location="${annotated.jdk.classpath}"/>
+        <!-- Not usually necessary, but too lazy to create another path -->
+        <path location="${annotations.classpath}"/>
+    </pathconvert>
     <property name="junit.classpath" value="lib/junit-4.7.jar"/>
     <property name="scj.classpath" value="lib/scj.jar"/>
     <property name="scj.checker.classpath" value="lib/scj-checker.jar"/>
@@ -26,7 +39,7 @@
                 <pathelement path="${junit.classpath}"/>
                 <pathelement path="${scj.classpath}"/>
             </classpath>
-            <compilerarg value="-Xbootclasspath/p:${checker.classpath}"/>
+            <compilerarg value="-Xbootclasspath/p:${checker.bootclasspath}"/>
         </javac>
     </target>
 
@@ -50,11 +63,51 @@
     </target>
 
     <target name="jdk-jar" depends="spec-jar">
-        <exec executable="localbin/build-jdk-annotations">
-            <arg value="lib/scj.jar"/>
-            <arg value="lib/scj-jdk-spec.jar"/>
-            <arg value="${jdk.input.jar}"/>
-        </exec>
+        <mkdir dir="build/jdk"/>
+        <foreach target="annotate-jdk-class" param="abs.file">
+            <path>
+                <fileset dir="build/spec">
+                    <include name="**/*.class"/>
+                </fileset>
+            </path>
+        </foreach>
+        <jar destfile="localbin/jdk.jar" basedir="build/jdk"/>
+    </target>
+
+    <target name="annotate-jdk-class">
+        <!-- Path in the jar file -->
+        <pathconvert property="relative.file">
+            <map from="${basedir}/build/spec/" to=""/>
+            <path location="${abs.file}"/>
+        </pathconvert>
+        <!-- Path to the where the jaif file will be output -->
+        <pathconvert property="jaif.file">
+            <globmapper from="*.class" to="*.jaif"/>
+            <path location="${abs.file}"/>
+        </pathconvert>
+        <!-- Extract the implementation class file for the current class -->
+        <unjar src="${jdk.input.jar}" dest="build/jdk">
+            <patternset>
+                <include name="${relative.file}"/>
+            </patternset>
+        </unjar>
+        <!-- Extract the spec annotations into the jaif file -->
+        <java classname="annotations.io.classfile.ClassFileReader"
+              failonerror="true">
+            <classpath>
+                <pathelement path="${checker.classpath}"/>
+                <pathelement path="${scj.classpath}"/>
+                <pathelement path="${annotations.classpath}"/>
+            </classpath>
+            <arg value="${abs.file}"/>
+        </java>
+        <!-- Insert the jaif file annotations into the implementation -->
+        <java classname="annotations.io.classfile.ClassFileWriter" fork="true"
+              failonerror="true">
+            <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
+            <arg value="build/jdk/${relative.file}"/>
+            <arg value="${jaif.file}"/>
+        </java>
     </target>
 
     <target name="check-hello" depends="jar">
@@ -65,7 +118,7 @@
                 <pathelement path="lib/scj-checker.jar"/>
                 <pathelement path="lib/junit-4.7.jar"/>
             </classpath>
-            <compilerarg value="-Xbootclasspath/p:{checker.classpath}"/>
+            <compilerarg value="-Xbootclasspath/p:{checker.bootclasspath}"/>
         </javac>
     </target>
 
@@ -80,7 +133,7 @@
                 <pathelement path="${scj.classpath}"/>
                 <pathelement path="${scj.checker.classpath}"/>
             </classpath>
-            <compilerarg value="-Xbootclasspath/p:${checker.classpath}"/>
+            <compilerarg value="-Xbootclasspath/p:${checker.bootclasspath}"/>
             <include name="tests/*.java"/>
         </javac>
     </target>
@@ -94,7 +147,7 @@
 	           dir="${basedir}"
 	           printsummary="true"
 	           haltonfailure="${halt.on.test.failure}">
-            <jvmarg line="-Xbootclasspath/p:${checker.classpath}"/>
+            <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
             <jvmarg line="-ea"/>
 
             <classpath>
@@ -133,7 +186,7 @@
 		       dir="${basedir}"
 		       printsummary="true"
 		       haltonfailure="${halt.on.test.failure}">
-            <jvmarg line="-Xbootclasspath/p:${checker.classpath}"/>
+            <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
             <jvmarg line="-ea"/>
 
             <classpath>
@@ -174,7 +227,7 @@
                dir="${basedir}"
                printsummary="true"
                haltonfailure="${halt.on.test.failure}">
-            <jvmarg line="-Xbootclasspath/p:${checker.classpath}" />
+            <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}" />
             <jvmarg line="-ea" />
 
             <classpath>
@@ -214,7 +267,7 @@
                dir="${basedir}"
                printsummary="true"
                haltonfailure="${halt.on.test.failure}">
-            <jvmarg line="-Xbootclasspath/p:${checker.classpath}" />
+            <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}" />
             <jvmarg line="-ea" />
 
             <classpath>
