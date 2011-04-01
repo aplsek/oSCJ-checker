@@ -1,10 +1,3 @@
-/*
- * @(#)Random.java  1.47 06/02/07
- *
- * Copyright 2006 Sun Microsystems, Inc. All rights reserved.
- * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- */
-
 package java.util;
 import java.io.*;
 import java.util.concurrent.atomic.AtomicLong;
