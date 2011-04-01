@@ -1,5 +1,5 @@
 /* aicas */
-package java.lang;
+package java.io;
 
 public class PrintStream
 {

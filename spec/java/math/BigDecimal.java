@@ -5,10 +5,10 @@
  * This code is provided for educational purposes under the LGPL 2
  * license from GNU.  This notice must appear in all derived versions
  * of the code and the source must be made available with any binary
- * version.  
+ * version.
  *
 \*---------------------------------------------------------------------*/
-package java.lang;
+package java.math;
 
 import static javax.safetycritical.annotate.Allocate.Area.CURRENT;
 import static javax.safetycritical.annotate.Allocate.Area.THIS;
@@ -18,47 +18,98 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 
 @SCJAllowed
-public class BigInteger extends Number implements Comparable<BigInteger> {
+public class BigDecimal extends Number implements Comparable<BigDecimal> {
 
   @SCJAllowed
-  public static final BigInteger ONE = null;
+  public static final BigDecimal ONE = null;
 
   @SCJAllowed
-  public static final BigInteger TEN = null;
+  public static final BigDecimal TEN = null;
 
   @SCJAllowed
-  public static final BigInteger ZERO = null;
+  public static final BigDecimal ZERO = null;
 
-  
+  @SCJAllowed
+  public static final int ROUND_CELING = 0;
+
+  @SCJAllowed
+  public static final int ROUND_DOWN = 0;
+
+  @SCJAllowed
+  public static final int ROUND_FLOOR = 0;
+
+  @SCJAllowed
+  public static final int ROUND_HALF_DOWN = 0;
+
+  @SCJAllowed
+  public static final int ROUND_HALF_EVEN = 0;
+
+  @SCJAllowed
+  public static final int ROUND_HALF_UP = 0;
+
+  @SCJAllowed
+  public static final int ROUND_UNNECESSARY = 0;
+
+  @SCJAllowed
+  public static final int ROUND_UP = 0;
+
   /**
-   * Does not allow "this" to escape local variables.
+   * Does not allow "this" or "val" to escape local variables.
    */
   @Allocate({THIS})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger(byte[] val) {
+  public BigDecimal(BigInteger val) {
   }
 
   /**
-   * Does not allow "this" to escape local variables.
+   * Does not allow "this" or "val" to escape local variables.
    */
   @Allocate({THIS})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger(int signum, byte[] magnitude) {
+  public BigDecimal(BigInteger val, int scale) {
   }
 
   /**
-   * Does not allow "this" to escape local variables.
+   * Does not allow "this" or "val" to escape local variables.
    * <p>
-   * Not @SCJAllowed because we don't have Random.  But maybe we should...
+   * Not SCJAllowed because we don't have MathContext
    *
   @Allocate({THIS})
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger(int bitLength, int certainty, Random rnd) {
+  public BigDecimal(BigInteger val, int scale, MathContext mc) {
   }
   */
 
+  /**
+   * Does not allow "this" or "val" to escape local variables.
+   * <p>
+   * Not SCJAllowed because we don't have MathContext
+   *
+  @Allocate({THIS})
+  @SCJRestricted(maySelfSuspend = false)
+  public BigDecimal(BigInteger val, MathContext mc) {
+  }
+  */
+
+  /**
+   * Does not allow "this" or "in" to escape local variables.
+   */
+  @Allocate({THIS})
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public BigDecimal(char[] in) {
+  }
+
+  /**
+   * Does not allow "this" or "in" to escape local variables.
+   */
+  @Allocate({THIS})
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public BigDecimal(char[] in, int offset, int len) {
+  }
 
   /**
    * Does not allow "this" to escape local variables.
@@ -66,7 +117,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   @Allocate({THIS})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger(String val) {
+  public BigDecimal(double val) {
   }
 
   /**
@@ -75,105 +126,105 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   @Allocate({THIS})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger(String val, int radix) {
+  public BigDecimal(int val) {
   }
-  
+
+  /**
+   * Does not allow "this" to escape local variables.
+   */
+  @Allocate({THIS})
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public BigDecimal(long val) {
+  }
+
+  /**
+   * Does not allow "this" or "val" to escape local variables.
+   */
+  @Allocate({THIS})
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public BigDecimal(String val) {
+  }
+
   /**
    * Does not allow "this" to escape local variables.
    */
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger abs() {
+  public BigDecimal abs() {
     return null; // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables.
    */
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger add(BigInteger val) {
+  public BigDecimal add(BigDecimal val) {
     return null; // skeleton
   }
-  
+
+
   /**
    * Does not allow "this" to escape local variables.
    */
-  @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger andNot(BigInteger val) {
-    return null; // skeleton
-  }
-  
-  /**
-   * Allocates no memory.  Does not allow "this" to escape local variables.
-   */
-  @SCJAllowed
-  @SCJRestricted(maySelfSuspend = false)
-  public int bitCount() {
+  public byte byteValueExact() {
     return 0; // skeleton
   }
-  
+
   /**
-   * Allocates no memory.  Does not allow "this" to escape local variables.
+   * Does not allow "this" or "val" to escape local variables.
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public int bitLength() {
+  public int compareTo(BigDecimal val) {
     return 0; // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables.
    */
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger clearBit(int n) {
+  public BigDecimal divide(BigDecimal val) {
     return null; // skeleton
   }
-  
-  /**
-   * Does not allow "this" to escape local variables.
-   */
-  @SCJAllowed
-  @SCJRestricted(maySelfSuspend = false)
-  public int compareTo(BigInteger val) {
-    return 0; // skeleton
-  }
-  
+
   /**
    * Does not allow "this" to escape local variables.
    */
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger divide(BigInteger val) {
+  public BigDecimal[] divideAndRemainder(BigDecimal val) {
     return null; // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables.
    */
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger[] divideAndRemainder(BigInteger val) {
+  public BigDecimal[] divideToIntegralValue(BigDecimal val) {
     return null; // skeleton
   }
-  
+
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public double doubleValue(BigInteger val) {
+  public double doubleValue(BigDecimal val) {
     return 0.0; // skeleton
   }
-  
+
   /**
    * Does not allow "this" or "x" to escape local variables.
    */
@@ -182,43 +233,14 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   public boolean equals(Object x) {
     return true; // skeleton
   }
-  
-  /**
-   * Does not allow "this" to escape local variables.
-   */
-  @Allocate({CURRENT})
-  @SCJAllowed
-  @SCJRestricted(maySelfSuspend = false)
-  public BigInteger flipBit(int n) {
-    return null; // skeleton
-  }
-  
-  /**
-   * Allocates no memory. Does not allow "this" to escape local variables.
-   */
-  @SCJAllowed
-  @SCJRestricted(maySelfSuspend = false)
-  public float floatValue(BigInteger val) {
-    return (float) 0.0; // skeleton
-  }
 
   /**
-   * Does not allow "this" to escape local variables.
-   */
-  @Allocate({CURRENT})
-  @SCJAllowed
-  @SCJRestricted(maySelfSuspend = false)
-  public BigInteger gcd(BigInteger val) {
-    return null; // skeleton
-  }
-  
-  /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public int getLowestSetBit() {
-    return 0; // skeleton
+  public float floatValue(BigDecimal val) {
+    return (float) 0.0; // skeleton
   }
 
   /**
@@ -244,8 +266,8 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public boolean isProbablePrime(int certainty) {
-    return false; // skeleton
+  public int intValueExact() {
+    return 0; // skeleton
   }
 
   /**
@@ -254,72 +276,70 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
   public long longValue() {
-    return 0L; // skeleton
+    return 0; // skeleton
+  }
+
+  /**
+   * Allocates no memory.  Does not allow "this" to escape local variables.
+   */
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public int longValueExact() {
+    return 0; // skeleton
   }
 
   /**
    * Does not allow "this" or "max" to escape
-   * local variables. 
+   * local variables.
    */
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger max(BigInteger val) {
+  public BigDecimal max(BigDecimal val) {
     return null; // skeleton
   }
 
   /**
    * Does not allow "this" or "val" to escape
-   * local variables. 
+   * local variables.
    */
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger min(BigInteger val) {
+  public BigDecimal min(BigDecimal val) {
     return null; // skeleton
   }
 
   /**
-   * Does not allow "this" or "val" to escape
-   * local variables. 
+   * Does not allow "this" to escape
+   * local variables.
    */
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger mod(BigInteger val) {
+  public BigDecimal movePointLeft(int n) {
     return null; // skeleton
   }
 
   /**
-   * Does not allow "this" or "val" to escape
-   * local variables. 
+   * Does not allow "this" to escape
+   * local variables.
    */
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger modInverse(BigInteger val) {
+  public BigDecimal movePointRight(int n) {
     return null; // skeleton
   }
 
   /**
-   * Does not allow "this", "exponent", or "m" to
-   * escape local variables. 
+   * Does not allow "this" or "val" to escape local
+   * variables.
    */
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger modPow(BigInteger exponent, BigInteger m) {
-    return null; // skeleton
-  }
-
-  /**
-   * Does not allow "this" or val to escape local
-   * variables. 
-   */
-  @Allocate({CURRENT})
-  @SCJAllowed
-  @SCJRestricted(maySelfSuspend = false)
-  public BigInteger multiply(BigInteger val) {
+  public BigDecimal multiply(BigDecimal val) {
     return null; // skeleton
   }
 
@@ -329,7 +349,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger negate() {
+  public BigDecimal negate() {
     return null; // skeleton
   }
 
@@ -339,7 +359,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger nextProbablePrime() {
+  public BigDecimal plus() {
     return null; // skeleton
   }
 
@@ -349,8 +369,17 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger not() {
+  public BigDecimal pow(int exponent) {
     return null; // skeleton
+  }
+
+  /**
+   * Allocates no memory.  Does not allow "this" to escape local variables.
+   */
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public int precision() {
+    return 0; // skeleton
   }
 
   /**
@@ -359,7 +388,26 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger or(BigInteger val) {
+  public BigDecimal remainder(BigDecimal val) {
+    return null; // skeleton
+  }
+
+  /**
+   * Allocates no memory.  Does not allow "this" to escape local variables.
+   */
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public int scale() {
+    return 0; // skeleton
+  }
+
+  /**
+   * Does not allow "this" to escape local variables.
+   */
+  @Allocate({CURRENT})
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public BigDecimal scaleByPowerOfTen(int n) {
     return null; // skeleton
   }
 
@@ -369,29 +417,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger pow(int exponent) {
-    return null; // skeleton
-  }
-
-  /**
-   * Does not allow "this" to escape local variables.
-   * <p>
-   * Not SCJAllowed because we don't have Random, but maybe we should.
-   *
-  @Allocate({CURRENT})
-  @SCJRestricted(maySelfSuspend = false)
-  public BigInteger probablePrime(int bitLength, Random rnd) {
-    return null; // skeleton
-  }
-  */
-
-  /**
-   * Does not allow "this" or "val" to escape local variables.
-   */
-  @Allocate({CURRENT})
-  @SCJAllowed
-  @SCJRestricted(maySelfSuspend = false)
-  public BigInteger remainder(BigInteger val) {
+  public BigDecimal setScale(int newScale) {
     return null; // skeleton
   }
 
@@ -401,28 +427,17 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger setBit(int n) {
+  public BigDecimal setScale(int newScale, int roundingMode) {
     return null; // skeleton
   }
 
   /**
-   * Does not allow "this" to escape local variables.
+   * Allocates no memory.  Does not allow "this" to escape local variables.
    */
-  @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger shiftLeft(int n) {
-    return null; // skeleton
-  }
-
-  /**
-   * Does not allow "this" to escape local variables.
-   */
-  @Allocate({CURRENT})
-  @SCJAllowed
-  @SCJRestricted(maySelfSuspend = false)
-  public BigInteger shiftRight(int n) {
-    return null; // skeleton
+  public short shortValueExact() {
+    return 0; // skeleton
   }
 
   /**
@@ -435,31 +450,52 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   }
 
   /**
-   * Does not allow "this" or "val" to escape local variables.
-   */
-  @Allocate({CURRENT})
-  @SCJAllowed
-  @SCJRestricted(maySelfSuspend = false)
-  public BigInteger subtract(BigInteger val) {
-    return null; // skeleton
-  }
-
-  /**
-   * Allocates no memory.  Does not allow "this" to escape local variables.
-   */
-  @SCJAllowed
-  @SCJRestricted(maySelfSuspend = false)
-  public boolean testBit(int n) {
-    return false; // skeleton
-  }
-
-  /**
    * Does not allow "this" to escape local variables.
    */
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger toByteArray() {
+  public BigDecimal stripTrailingZeros() {
+    return null; // skeleton
+  }
+
+  /**
+   * Does not allow "this" or "val" to escape local variables.
+   */
+  @Allocate({CURRENT})
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public BigDecimal subtract(BigDecimal val) {
+    return null; // skeleton
+  }
+
+  /**
+   * Does not allow "this" or "val" to escape local variables.
+   */
+  @Allocate({CURRENT})
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public BigInteger toBigInteger() {
+    return null; // skeleton
+  }
+
+  /**
+   * Does not allow "this" or "val" to escape local variables.
+   */
+  @Allocate({CURRENT})
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public String toEngineeringString() {
+    return null; // skeleton
+  }
+
+  /**
+   * Does not allow "this" or "val" to escape local variables.
+   */
+  @Allocate({CURRENT})
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public String toPlainString() {
     return null; // skeleton
   }
 
@@ -479,45 +515,60 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public String toString(int radix) {
-    return null; // skeleton
-  }
-
-  @Allocate({CURRENT})
-  @SCJAllowed
-  @SCJRestricted(maySelfSuspend = false)
-  public static BigInteger valueOf(long val) {
+  public BigDecimal ulp() {
     return null; // skeleton
   }
 
   /**
-   * Does not allow "this" or "val" to escape local variables.
+   * Does not allow "this" to escape local variables.
    */
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public BigInteger xor(BigInteger val) {
+  public BigInteger unscaledValue() {
     return null; // skeleton
   }
 
+  @Allocate({CURRENT})
   @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public static BigDecimal valueOf(double val) {
+    return null; // skeleton
+  }
+
+  @Allocate({CURRENT})
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public static BigDecimal valueOf(long val) {
+    return null; // skeleton
+  }
+
+  @Allocate({CURRENT})
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public static BigDecimal valueOf(long unscaledVal, int scale) {
+    return null; // skeleton
+  }
+
+  // JAN: FIX
   @Override
+  @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
   public double doubleValue() {
     // TODO Auto-generated method stub
     return 0;
   }
 
-  @SCJAllowed
   @Override
+  @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
   public float floatValue() {
     // TODO Auto-generated method stub
     return 0;
   }
 
-  @SCJAllowed
   @Override
+  @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
   public short shortValue() {
     // TODO Auto-generated method stub
