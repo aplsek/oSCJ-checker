@@ -1,5 +1,6 @@
 package scjAllowed.sanity;
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
@@ -18,5 +19,6 @@ public class TestMethodOverride extends Mission {
 
     @Override
     @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     protected void initialize() { }
 }
