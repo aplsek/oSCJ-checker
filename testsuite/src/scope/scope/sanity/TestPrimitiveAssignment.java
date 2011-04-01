@@ -2,7 +2,7 @@ package scope.scope.sanity;
 
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
-
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
@@ -34,6 +34,7 @@ public class TestPrimitiveAssignment extends Mission {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     protected void initialize() {
     }
 }

@@ -2,7 +2,7 @@ package scope.scope.simple;
 
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
-
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
@@ -30,6 +30,7 @@ public class TestSimpleOverride {
 
         @Override
         @SCJRestricted(INITIALIZATION)
+        @SCJAllowed(SUPPORT)
         protected void initialize() {
         }
     }
