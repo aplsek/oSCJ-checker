@@ -11,6 +11,7 @@ import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 
 @Scope("D")
 @DefineScope(name="D", parent=IMMORTAL)
@@ -22,5 +23,6 @@ public class TestRunOverride extends NoHeapRealtimeThread {
 
     @Override
     @RunsIn("D")
+    @SCJAllowed(SUPPORT)
     public void run() { }
 }

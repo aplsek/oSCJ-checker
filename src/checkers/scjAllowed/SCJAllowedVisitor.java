@@ -10,6 +10,7 @@ import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_INFRASTRUCTURE_OVERR
 import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_METHOD_CALL;
 import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_NEW_CALL;
 import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE_SUPPORT;
 import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_SUBCLASS;
 import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_SUPPORT;
 import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_USER_LEVEL;
@@ -162,9 +163,25 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
                             .compareTo(INFRASTRUCTURE) >= 0)
                 fail(ERR_BAD_INFRASTRUCTURE_OVERRIDE, node);
 
+            debugIndent("overrides : " + override);
+            debugIndent("overrides enc: " + override.getEnclosingElement());
+            debugIndent("overrides ann: " + override.getAnnotationMirrors());
+            debugIndent("level : " + m);
+            debugIndent("over-levels : " + scjAllowedLevel(override, node));
+            debugIndent("level : " + level);
+            debugIndent("isLegal : " + isLegalOverride(overrides, node));
+            boolean res = level.compareTo(scjAllowedLevel(override, node)) > 0;
+            debugIndent("level.compareTo(scjAllowedLevel(override, node)) : " + res);
+
             if (!isEscaped(override.getEnclosingElement().toString())
                     && level.compareTo(scjAllowedLevel(override, node)) > 0)
                 fail(ERR_BAD_OVERRIDE, node);
+
+            if (scjAllowedLevel(override, node).compareTo(SUPPORT) == 0) {
+                if (!level.equals(SUPPORT))
+                    fail(ERR_BAD_OVERRIDE_SUPPORT, node);
+            }
+
         }
 
         scjAllowedStack.push(level);

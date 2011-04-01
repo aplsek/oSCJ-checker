@@ -3,6 +3,7 @@ package scope.scope.sanity;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 
 import javax.realtime.AbsoluteTime;
 import javax.safetycritical.Mission;
@@ -35,6 +36,7 @@ public class TestCaller extends Mission {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     protected void initialize() {
     }
 }
