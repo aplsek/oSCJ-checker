@@ -17,6 +17,7 @@ import javax.safetycritical.annotate.Scope;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+@SCJAllowed(members=true)
 public class TestBadOverride {
 
     @Scope("a")
@@ -25,6 +26,7 @@ public class TestBadOverride {
 
     @Scope("a")
     @DefineScope(name="PEH", parent="a")
+    @SCJAllowed(members=true)
     static abstract class PEH extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)
@@ -44,15 +46,17 @@ public class TestBadOverride {
 
     }
 
+    @SCJAllowed(members=true)
     public class PEHImplementation implements MySCJRunnable {
         //ERROR: the checker should require restating the @RunsIn
         //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE
+        @SCJAllowed(SUPPORT)
         public void run() {
         }
     }
 }
 
-
+@SCJAllowed(members=true)
 interface MySCJRunnable extends SCJRunnable {
 
     @SCJAllowed(SUPPORT)
