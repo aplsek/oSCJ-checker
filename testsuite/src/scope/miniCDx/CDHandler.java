@@ -88,7 +88,7 @@ public class CDHandler extends PeriodicEventHandler {
         putRun.callsign = callsign;
 
         // ERROR: no @DefineScope!!
-        ManagedMemory.getMemoryArea(st).executeInArea(putRun);
+        ((ManagedMemory) ManagedMemory.getMemoryArea(st)).executeInArea(putRun);
     }
 
     @RunsIn("CDHandler") @Scope("CDMission")
@@ -98,7 +98,7 @@ public class CDHandler extends PeriodicEventHandler {
                     callsign.cs.length);
             for (int i = 0; i < callsign.length; i++)
                 r.cs[i] = callsign.cs[i];
-            ManagedMemory.getMemoryArea(st).executeInArea(r);
+            ((ManagedMemory) ManagedMemory.getMemoryArea(st)).executeInArea(r);
             return r.result;
         } catch (IllegalAccessException e) {
             //TODO:
