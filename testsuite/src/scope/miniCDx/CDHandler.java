@@ -1,5 +1,6 @@
 package scope.miniCDx;
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import java.util.List;
@@ -57,6 +58,7 @@ public class CDHandler extends PeriodicEventHandler {
 
     @Override
     @RunsIn("CDHandler")
+    @SCJAllowed(SUPPORT)
     public void handleAsyncEvent() {
         // ...
         createMotions(null);
@@ -99,12 +101,14 @@ public class CDHandler extends PeriodicEventHandler {
             ManagedMemory.getMemoryArea(st).executeInArea(r);
             return r.result;
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            //TODO:
+            // e.printStackTrace();  //ERROR : is not allowed by SCJ
         }
         return null;
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
     }
 
@@ -118,6 +122,7 @@ public class CDHandler extends PeriodicEventHandler {
         Callsign result;
 
         @RunsIn("CDMission")
+        @SCJAllowed(SUPPORT)
         public void run() {
             result = new Callsign(cs);
         }
@@ -127,6 +132,7 @@ public class CDHandler extends PeriodicEventHandler {
         Callsign callsign;
 
         @RunsIn("CDMission")
+        @SCJAllowed(SUPPORT)
         public void run() {
             st.put(callsign);
         }

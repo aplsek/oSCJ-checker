@@ -1,5 +1,6 @@
 package scope.miniCDx;
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
@@ -38,6 +39,7 @@ public class CDMission extends CyclicExecutive {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
        return null;
       // TODO: issue 22:
@@ -48,6 +50,7 @@ public class CDMission extends CyclicExecutive {
 
     @Override
     @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     protected void initialize() {
         new CDHandler();
         MIRun miRun = new MIRun();
@@ -68,15 +71,18 @@ public class CDMission extends CyclicExecutive {
     }
 
     @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     public void setUp() {
     }
 
     @SCJRestricted(CLEANUP)
+    @SCJAllowed(SUPPORT)
     public void tearDown() {
     }
 
     @Override
     @SCJRestricted(CLEANUP)
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
     }
 }
@@ -86,6 +92,7 @@ public class CDMission extends CyclicExecutive {
 @DefineScope(name="CDMissionInit", parent="CDMission")
 class MIRun implements SCJRunnable {
     @RunsIn("CDMissionInit")
+    @SCJAllowed(SUPPORT)
     public void run() {
         // ...
     }
