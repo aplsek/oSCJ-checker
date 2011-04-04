@@ -48,18 +48,18 @@ public class TestBadOverride {
 
     @SCJAllowed(members=true)
     public class PEHImplementation implements MySCJRunnable {
-        //ERROR: the checker should require restating the @RunsIn
-        //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE
         @SCJAllowed(SUPPORT)
+        //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE
         public void run() {
         }
     }
-}
 
-@SCJAllowed(members=true)
-interface MySCJRunnable extends SCJRunnable {
 
-    @SCJAllowed(SUPPORT)
-    @RunsIn("PEH")
-    public void run();
+    @SCJAllowed(members=true)
+    interface MySCJRunnable extends SCJRunnable {
+
+        @SCJAllowed(SUPPORT)
+        @RunsIn("PEH")
+        public void run();
+    }
 }
