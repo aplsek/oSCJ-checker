@@ -373,8 +373,17 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                         .getClassScope(Utils.getFieldClass(v));
                 ScopeInfo elemScope = ctx.getClassScope(Utils
                         .getTypeElement(bmv));
+
+                // TODO: is this a correct fix?
+                //  - this does not work either...
+                //if (elemScope.isCaller() || elemScope.isThis()) {
+                //    ret = classScope;
+                //} else if (scopeTree.isAncestorOf(elemScope, classScope))
+                //    ret = elemScope;
+
                 if (scopeTree.isAncestorOf(elemScope, classScope))
                     ret = elemScope;
+
             }
         } else
             throw new RuntimeException("missing case");

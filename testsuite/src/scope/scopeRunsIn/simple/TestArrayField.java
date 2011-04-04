@@ -9,6 +9,10 @@ import javax.safetycritical.annotate.Scope;
 @Scope(IMMORTAL)
 @SCJAllowed(members=true)
 public class TestArrayField {
+
+    protected Object position;
+
+
     protected Object[] positions;
     protected Object[] lengths;
     protected Object[] callsigns;
