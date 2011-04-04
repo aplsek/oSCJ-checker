@@ -381,13 +381,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // TODO:  inner enum type class?, issue 22
             ret = null;
         } else {
+            // FIELD
             VariableElement f = (VariableElement) elem;
             if (f.toString().equals("this")) {
                 // handling the case when the field is "Class.this"
                 ret = varScopes.getVariableScope("this");
             } else {
-                ScopeInfo fScope = ctx.getFieldScope(f);
-                ret = new FieldScopeInfo(receiver, fScope);
+                if (Utils.isPrimitive(f.asType())) {
+                    ret = ScopeInfo.PRIMITIVE;
+                } else {
+                    ScopeInfo fScope = ctx.getFieldScope(f);
+                    ret = new FieldScopeInfo(receiver, fScope);
+                    debugIndent("ret:" + ret);
+                }
             }
         }
         debugIndentDecrement();
@@ -929,8 +935,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private void checkMethodParameters(ExecutableElement m,
             List<ScopeInfo> argScopes, MethodInvocationTree node) {
         List<ScopeInfo> paramScopes = ctx.getParameterScopes(m);
-        for (int i = 0; i < paramScopes.size(); i++)
+        for (int i = 0; i < paramScopes.size(); i++) {
             checkLocalAssignment(paramScopes.get(i), argScopes.get(i), node);
+        }
     }
 
     /**
@@ -1035,9 +1042,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return checkNewInstance(target, node.getArguments().get(1), node);
     }
 
-    /**
-     * TODO: this needs to be tested.
-     */
     private ScopeInfo checkNewArrayInArea(ScopeInfo scope,
             MethodInvocationTree node) {
         ScopeInfo target = checkGetMemoryArea(scope, node);
