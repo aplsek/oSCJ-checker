@@ -1,10 +1,11 @@
 package scjRestricted.phase;
 
-import javax.safetycritical.annotate.Phase;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+
 import javax.safetycritical.annotate.SCJRestricted;
 
 public class TestIllegalMethodCall2 {
-    @SCJRestricted(Phase.INITIALIZATION)
+    @SCJRestricted(INITIALIZATION)
     public void baz() {
         MyFoo foo = new MyFoo();
         //## checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_METHOD_CALL
