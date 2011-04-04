@@ -1,6 +1,7 @@
 package thruster.engine;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.PeriodicParameters;
@@ -22,6 +23,7 @@ public class ThrusterMission extends Mission {
     // All the methods below execute in the Mission Memory Allocation Context
     @Override
     @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     protected void initialize() {
         /*
          * This method may create and register 1. ManagedEventHandler 2.
@@ -51,6 +53,7 @@ public class ThrusterMission extends Mission {
      * subclasses may override its implementation.
      */
     @Override
+    @SCJAllowed(SUPPORT)
     protected void cleanUp() {
         // System.out.println("TestCase 21: PASS. Mission.cleanup is executed.");
     }

@@ -83,6 +83,7 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
     class MyRunnable1 implements SCJRunnable {
 
         @RunsIn("aperiodic-child-scope-1")
+        @SCJAllowed(SUPPORT)
         public void run() {
 
             @Scope("MyAperiodicEventHandler")
@@ -108,6 +109,7 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
     class MyRunnable2 implements SCJRunnable {
 
         @RunsIn("aperiodic-child-scope-2")
+        @SCJAllowed(SUPPORT)
         public void run() {
 
             @Scope("MyAperiodicEventHandler")
@@ -129,6 +131,7 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
         //System.out.println("TestCase 20: PASS. APEH.cleanup() is executed.");
     }

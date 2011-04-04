@@ -42,6 +42,7 @@ public class MyTerminatorPeriodicEventHandler extends PeriodicEventHandler {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
     }
 

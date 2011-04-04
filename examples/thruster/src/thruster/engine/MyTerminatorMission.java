@@ -1,6 +1,7 @@
 package thruster.engine;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.PeriodicParameters;
@@ -26,6 +27,7 @@ public class MyTerminatorMission extends Mission {
 
     @Override
     @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     protected void initialize() {
 
         myPEH = new MyTerminatorPeriodicEventHandler(new PriorityParameters(
@@ -44,6 +46,7 @@ public class MyTerminatorMission extends Mission {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     protected void cleanUp() {
     }
 

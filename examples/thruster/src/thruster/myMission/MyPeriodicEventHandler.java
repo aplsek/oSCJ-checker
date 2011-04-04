@@ -92,6 +92,7 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
     class Runnable11 implements SCJRunnable {
 
         @RunsIn("child-scope11")
+        @SCJAllowed(SUPPORT)
         public void run() {
 
             @DefineScope(name = "child-scope11", parent = "MyPeriodicEventHandler")
@@ -110,6 +111,7 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
     class Runnable12 implements SCJRunnable {
 
         @RunsIn("child-scope12")
+        @SCJAllowed(SUPPORT)
         public void run() {
             @DefineScope(name = "child-scope12", parent = "MyPeriodicEventHandler")
             @Scope("MyPeriodicEventHandler")
@@ -124,6 +126,7 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
         // System.out.println("TestCase 19: PASS. PEH.cleanup() is executed.");
     }

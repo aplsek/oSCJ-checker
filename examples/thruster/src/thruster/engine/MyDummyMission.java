@@ -1,6 +1,7 @@
 package thruster.engine;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.safetycritical.Mission;
@@ -20,6 +21,7 @@ public class MyDummyMission extends Mission {
 
     @Override
     @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     protected void initialize() {
         // This Mission shall not be executed,
         //System.out
@@ -35,6 +37,7 @@ public class MyDummyMission extends Mission {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     protected void cleanUp() {
         //System.out
         //        .println("TestCase 23: FAIL. This Mission shall not be executed.");

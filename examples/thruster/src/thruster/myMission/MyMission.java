@@ -1,6 +1,7 @@
 package thruster.myMission;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -43,6 +44,7 @@ public class MyMission extends Mission {
      */
     @Override
     @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     protected void initialize() {
         /*
          * This method may create and register 1. ManagedEventHandler 2.
@@ -128,6 +130,7 @@ public class MyMission extends Mission {
     @DefineScope(name = "MyMission-child", parent = "ThrusterControl")
     class MyRunnable implements SCJRunnable {
         @RunsIn("MyMission-child")
+        @SCJAllowed(SUPPORT)
         public void run() {
             //System.out
             //        .println("TestCase 08: FAIL. enterPrivateMemory cannot be called in MissionMemory.");
@@ -151,6 +154,7 @@ public class MyMission extends Mission {
      * subclasses may override its implementation.
      */
     @Override
+    @SCJAllowed(SUPPORT)
     protected void cleanUp() {
         // System.out.println("TestCase 21: PASS. Mission.cleanup is executed.");
     }
