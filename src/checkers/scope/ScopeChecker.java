@@ -14,6 +14,7 @@ import com.sun.source.tree.CompilationUnitTree;
 public class ScopeChecker extends SinglePassChecker {
     // Please keep alphabetized
     public static final String ERR_BAD_ALLOCATION = "bad.allocation";
+    public static final String ERR_BAD_ALLOCATION_ARRAY = "bad.allocation.array";
     public static final String ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT = "bad.allocation.context.assignment";
     public static final String ERR_BAD_ASSIGNMENT_SCOPE = "bad.assignment.scope";
     public static final String ERR_BAD_ASSIGNMENT_PRIVATE_MEM = "bad.assignment.private.mem";
@@ -57,6 +58,8 @@ public class ScopeChecker extends SinglePassChecker {
         // Please keep alphabetized
         p.put(ERR_BAD_ALLOCATION,
                 "Object allocation in a context (%s) other than its designated scope (%s).");
+        p.put(ERR_BAD_ALLOCATION_ARRAY,
+                "Invalid array allocation (must be allocated in scope %s or a child).");
         p.put(ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT,
                 "Assignment of AllocationContext objects must retain @DefineScope information.");
         p.put(ERR_BAD_ASSIGNMENT_PRIVATE_MEM,

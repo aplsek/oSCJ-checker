@@ -2,20 +2,22 @@ package scope.scope.simple;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+import javax.safetycritical.Mission;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-public class TestBadAllocationArray {
-    @Scope(IMMORTAL)
+@DefineScope(name="a", parent=IMMORTAL)
+public abstract class TestBadAllocationArray extends Mission {
+    @Scope("a")
     static class X { }
+    @RunsIn("a")
     void foo() {
-        // Using Object on the LHS because a variable of type X[] is IMMORTAL
-        //## checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION
-        Object x = new X[0];
+        X[] x = new X[0];
     }
     @RunsIn(IMMORTAL)
     void bar() {
+        //## checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION_ARRAY
         X[] x = new X[0];
     }
-    static X[] x = new X[0];
 }

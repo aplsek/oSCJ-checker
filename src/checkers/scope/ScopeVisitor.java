@@ -5,6 +5,7 @@ import static checkers.Utils.isFinal;
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
 import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION;
+import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION_ARRAY;
 import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT;
 import static checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE;
 import static checkers.scope.ScopeChecker.ERR_BAD_CONTEXT_CHANGE_CALLER;
@@ -131,8 +132,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         // elements.
         ScopeInfo s = node.getExpression().accept(this, p);
         node.getIndex().accept(this, p);
-        if (InternalUtils.typeOf(node).getKind().isPrimitive())
+        TypeMirror m = InternalUtils.typeOf(node);
+        TypeKind k = m.getKind();
+        if (k.isPrimitive())
             s = ScopeInfo.PRIMITIVE;
+        else if (k == TypeKind.DECLARED) {
+            TypeElement t = Utils.getTypeElement(InternalUtils.typeOf(node));
+            ScopeInfo ts = ctx.getClassScope(t);
+            if (!ts.isCaller())
+                s = ts;
+        }
         return s;
     }
 
@@ -443,8 +452,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (!componentType.getKind().isPrimitive()) {
             TypeElement t = Utils.getTypeElement(componentType);
             ScopeInfo scope = ctx.getClassScope(t);
-            if (!(scope.isCaller() || scope.equals(currentScope())))
-                fail(ERR_BAD_ALLOCATION, node, currentScope(), scope);
+            if (!(scope.isCaller() || scopeTree.isAncestorOf(currentScope(),
+                    scope)))
+                fail(ERR_BAD_ALLOCATION_ARRAY, node, scope);
         }
         super.visitNewArray(node, p);
         debugIndentDecrement();
@@ -1014,7 +1024,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ret = defaultScope;
         else if (bmv.getKind() == TypeKind.TYPEVAR)
             ret = defaultScope;
-        else {
+        else if (mv.getKind() == TypeKind.DECLARED) {
             ScopeInfo stv = ctx.getClassScope(Utils.getTypeElement(bmv));
             if (stv.isCaller())
                 ret = defaultScope;
@@ -1025,7 +1035,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             }
             if (needsDefineScope(mv))
                 ret = checkDefineScopeOnVariable(v, ret, node);
-        }
+        } else if (mv.getKind() == TypeKind.ARRAY)
+            ret = defaultScope;
+        else
+            throw new RuntimeException("missing case");
+
         return ret;
     }
 

@@ -226,7 +226,7 @@ public class CommunicationsQueue
   int[] command_args;
   int[] file_numbers;
   int response_codes[];
-  @Scope(IMMORTAL) RequestType[] activity_codes;
+  RequestType[] activity_codes;
 
   // todo: why do I have SubmissionCoordination?  Is it supposed to
   // have a different ceiling priority than me?

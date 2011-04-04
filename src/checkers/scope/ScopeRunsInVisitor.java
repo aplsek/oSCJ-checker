@@ -354,7 +354,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             ret = defaultScope;
         else if (bmv.getKind() == TypeKind.TYPEVAR)
             ret = defaultScope;
-        else {
+        else if (mv.getKind() == TypeKind.DECLARED) {
             ScopeInfo stv = ctx.getClassScope(Utils.getTypeElement(bmv));
             if (stv.isCaller())
                 ret = defaultScope;
@@ -364,7 +364,21 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                             defaultScope, stv);
                 ret = stv;
             }
-        }
+        } else if (mv.getKind() == TypeKind.ARRAY) {
+            ret = defaultScope;
+            // If the array variable is a field in a parent scope of the base
+            // element type, it's illegal and this is how it's caught.
+            if (v.getKind() == ElementKind.FIELD) {
+                ScopeInfo classScope = ctx
+                        .getClassScope(Utils.getFieldClass(v));
+                ScopeInfo elemScope = ctx.getClassScope(Utils
+                        .getTypeElement(bmv));
+                if (scopeTree.isAncestorOf(elemScope, classScope))
+                    ret = elemScope;
+            }
+        } else
+            throw new RuntimeException("missing case");
+
         return ret;
     }
 
