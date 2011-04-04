@@ -23,6 +23,10 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+import com.sun.source.tree.ArrayAccessTree;
+import com.sun.source.tree.ExpressionTree;
+import com.sun.source.tree.Tree.Kind;
+
 import checkers.scope.ScopeCheckerContext;
 import checkers.scope.ScopeInfo;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
@@ -194,6 +198,16 @@ public final class Utils {
 
     public static List<VariableElement> fieldsIn(TypeElement t) {
         return ElementFilter.fieldsIn(t.getEnclosedElements());
+    }
+
+    /**
+     * Get the expression at the base of an array access or a chain of array
+     * accesses.
+     */
+    public static ExpressionTree getBaseTree(ExpressionTree tree) {
+        while (tree.getKind() == Kind.ARRAY_ACCESS)
+            tree = ((ArrayAccessTree) tree).getExpression();
+        return tree;
     }
 
     /**

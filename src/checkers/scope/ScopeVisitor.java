@@ -594,12 +594,63 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return null;
     }
 
+    private boolean isArrayAssignment(Tree node) {
+        if (node.getKind() != Kind.ASSIGNMENT)
+            return false;
+        AssignmentTree at = (AssignmentTree) node;
+        return at.getVariable().getKind() == Kind.ARRAY_ACCESS;
+    }
+
+    private void checkArrayAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
+        ExpressionTree lhsTree = ((AssignmentTree) node).getVariable();
+        TypeMirror m = InternalUtils.typeOf(lhsTree);
+        TypeKind k = m.getKind();
+
+        lhs = concretize(lhs);
+        rhs = concretize(rhs);
+
+        if (k.isPrimitive() || rhs.isNull())
+            return;
+        else if (k == TypeKind.ARRAY) {
+            // Nested arrays in a "multi-dimensional" array must be in the same
+            // scope.
+            if (!lhs.isUnknown()) {
+                if (!lhs.equals(rhs))
+                    fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
+            } else {
+                // This dynamic guard requires that the lhs array be stored in a
+                // final local.
+                String lhsVar = getLhsVariableNameFromArrayAssignment(node);
+                String rhsVar = getRhsVariableNameFromAssignment(node);
+                if (!varScopes.hasSameRelation(lhsVar, rhsVar))
+                    fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
+            }
+        } else if (k == TypeKind.DECLARED) {
+            ScopeInfo classScope = ctx.getClassScope(Utils.getTypeElement(m));
+            if (classScope.isCaller()) {
+                if (!lhs.isUnknown()) {
+                    if (!lhs.equals(rhs))
+                        fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
+                } else {
+                    // This dynamic guard requires that the lhs array be stored
+                    // in a final local.
+                    String lhsVar = getLhsVariableNameFromArrayAssignment(node);
+                    String rhsVar = getRhsVariableNameFromAssignment(node);
+                    if (!varScopes.hasSameRelation(lhsVar, rhsVar))
+                        fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
+                }
+            }
+        } else
+            throw new RuntimeException("missing case");
+    }
+
     private void checkAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
         debugIndentIncrement("checkAssignment: " + node.toString());
         if (lhs.isFieldScope())
             checkFieldAssignment((FieldScopeInfo) lhs, rhs, node);
+        else if (isArrayAssignment(node))
+            checkArrayAssignment(lhs, rhs, node);
         else
-            // TODO: Do we need an extra case for arrays?
             checkLocalAssignment(lhs, rhs, node);
         debugIndentDecrement();
     }
@@ -668,6 +719,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndentDecrement();
     }
 
+    private String getLhsVariableNameFromArrayAssignment(Tree node) {
+        if (node.getKind() == Kind.ASSIGNMENT) {
+            AssignmentTree tree = (AssignmentTree) node;
+            ExpressionTree lhs = Utils.getBaseTree(tree.getVariable());
+
+            if (lhs.getKind() == Kind.IDENTIFIER)
+                return lhs.toString();
+            return null;
+        } else
+            throw new RuntimeException("Unexpected assignment AST node: "
+                    + node.getKind());
+    }
+
     private String getLhsVariableNameFromAssignment(Tree node) {
         if (node.getKind() == Kind.ASSIGNMENT) {
             AssignmentTree tree = (AssignmentTree) node;
@@ -677,8 +741,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 MemberSelectTree mst = (MemberSelectTree) lhs;
                 if (mst.getExpression().getKind() == Kind.IDENTIFIER)
                     return mst.getExpression().toString();
-            }
-            else
+            } else
                 // If we don't see a member select, we have an implicit this
                 return "this";
             return null;

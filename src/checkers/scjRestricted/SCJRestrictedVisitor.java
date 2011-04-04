@@ -207,11 +207,6 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
                 return super.visitAssignment(node, p);
             }
 
-
-            Tree lhs = node.getVariable();
-            while (lhs.getKind() == Kind.ARRAY_ACCESS)
-                lhs = ((ArrayAccessTree) lhs).getExpression();
-
             Element varElem = TreeUtils.elementFromUse(node.getVariable());
 
             if (!isAllocFree(varElem, node.getExpression()))
