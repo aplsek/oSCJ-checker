@@ -497,11 +497,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         MethodTree enclosingMethod = TreeUtils
                 .enclosingMethod(getCurrentPath());
 
-        // skip checking when return is primitive
-        Tree nodeTypeTree = enclosingMethod.getReturnType();
-        if (nodeTypeTree.getKind() == Kind.PRIMITIVE_TYPE)
-            return ScopeInfo.PRIMITIVE;
-
         ExecutableElement m = TreeUtils.elementFromDeclaration(enclosingMethod);
         ScopeInfo returnScope = ctx.getMethodScope(m);
         ScopeInfo exprScope = node.getExpression().accept(this, p);
