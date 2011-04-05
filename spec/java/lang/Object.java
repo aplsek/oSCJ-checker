@@ -18,6 +18,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 import static javax.safetycritical.annotate.Allocate.Area.CURRENT;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Scope.CALLER;
+
 import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed
@@ -66,7 +67,6 @@ public class Object {
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  @RunsIn(CALLER)
   public final Class<? extends Object> getClass() {
     return null; // skeleton
   }

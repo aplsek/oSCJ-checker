@@ -18,11 +18,14 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
 import javax.safetycritical.annotate.RunsIn;
 
 import static javax.safetycritical.annotate.Allocate.Area.CURRENT;
 
 @SCJAllowed
+@Scope(IMMORTAL)
 public final class Class<T> implements Serializable
 {
 
