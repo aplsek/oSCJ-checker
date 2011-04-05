@@ -47,6 +47,7 @@ import checkers.util.TreeUtils;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.PrimitiveTypeTree;
@@ -93,6 +94,22 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             checkClassScope(t, trees.getTree(t), node, false);
         }
         return super.visitIdentifier(node, p);
+    }
+
+    @Override
+    public Void visitMemberSelect(MemberSelectTree node, Void p) {
+        Element elem = TreeUtils.elementFromUse(node);
+        TypeMirror mirror = InternalUtils.typeOf(node.getExpression());
+        // This hack is necessary because if we have an expression such as
+        // "byte.class" and we convert this to a VariableElement, byte is
+        // considered a class type. Trying to call checkClassScope explodes.
+        if (!mirror.getKind().isPrimitive()
+                && elem.getKind() == ElementKind.FIELD) {
+            VariableElement f = (VariableElement) elem;
+            TypeElement t = Utils.getFieldClass(f);
+            checkClassScope(t, trees.getTree(t), node, false);
+        }
+        return super.visitMemberSelect(node, p);
     }
 
     @Override
