@@ -65,16 +65,7 @@ public class ScopeCheckerContext {
         if ("class".equals(field)) {
             return ScopeInfo.IMMORTAL;
         }
-        ClassInfo ci = classScopes.get(clazz);
-
-        if (ci == null) {
-            // TODO: handle the classes that were not encountered by the ScopeRunInVisitor
-            //       for example "java.lang.Array"
-            return ScopeInfo.CALLER;
-            //this.dumpClassScopes();
-        }
-
-        return ci.fieldScopes.get(field);
+        return classScopes.get(clazz).fieldScopes.get(field);
     }
 
     /**
