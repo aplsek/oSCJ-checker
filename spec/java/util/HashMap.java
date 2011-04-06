@@ -24,7 +24,7 @@ public class HashMap  {
    
     /////@RunsIn(CALLER) //////@Scope(THIS)
     @SCJAllowed
-    // @RunsIn(CALLER)
+    @RunsIn(CALLER) ////@Scope(THIS)
     public Object get(Object key) {
         return null;
     }
@@ -34,4 +34,11 @@ public class HashMap  {
         return null;
     }
     
+    @SCJAllowed
+    public boolean containsKey(Object key) {
+        return true;
+    }
+    
+    @SCJAllowed
+    public void clear() {}
 }

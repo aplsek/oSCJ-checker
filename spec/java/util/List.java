@@ -16,4 +16,10 @@ public interface List {
     
     @SCJAllowed
     boolean isEmpty();
+    
+    @SCJAllowed
+    boolean add(Object e);
+    
+    @SCJAllowed
+    public Object get(int i);
 }
