@@ -26,9 +26,11 @@ cd build/ && find . -name "*.class" | xargs jar cf ../papabench.jar && cd ..
 rm -rf list
 
 # 
+SAFELET=papabench.scj.PapaBenchSCJLevel0Application
+#SAFELET=papabench.scj.HelloWorld
 
 # COMPILE FIJI
-$FIJI_HOME/bin/fivmc -o papabench --scj-safelet papabench.scj.PapaBenchSCJLevel0Application $FIJIFLAGS $SCJFLAGS papabench.jar
+$FIJI_HOME/bin/fivmc -o papabench --scj-safelet $SAFELET $FIJIFLAGS $SCJFLAGS papabench.jar
 	
 	
 # RUN:	
