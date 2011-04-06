@@ -5,7 +5,7 @@
  * This code is provided for educational purposes under the LGPL 2
  * license from GNU.  This notice must appear in all derived versions
  * of the code and the source must be made available with any binary
- * version.  
+ * version.
  *
 \*---------------------------------------------------------------------*/
 package java.lang;
@@ -22,6 +22,7 @@ import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Allocate.Area.CURRENT;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.THIS;
 
 @SCJAllowed
 @Scope(IMMORTAL)
@@ -39,7 +40,7 @@ public abstract class Enum<E extends Enum<E>>
   @SCJRestricted(maySelfSuspend = false)
   protected Enum(String name, int ordinal) {
   }
-  
+
   /**
    * Allocates no memory. Does not allow "this" or "o" argument to escape
    * local variables.
@@ -61,7 +62,7 @@ public abstract class Enum<E extends Enum<E>>
   public final int hashCode() {
     return 0; // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables. Allocates a String and
    * associated internal "structure" (e.g. char[]) in caller's
@@ -72,10 +73,11 @@ public abstract class Enum<E extends Enum<E>>
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
   @RunsIn(CALLER)
+  @Scope(THIS)
   public String toString() {
     return null; // skeleton
   }
-  
+
   /**
    * Allocates no memory. Does not allow "this" or "o" argument to escape
    * local variables.
@@ -86,7 +88,7 @@ public abstract class Enum<E extends Enum<E>>
   public final int compareTo(E o) {
     return 0; // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables.
    */
@@ -94,10 +96,11 @@ public abstract class Enum<E extends Enum<E>>
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
   @RunsIn(CALLER)
+  @Scope(THIS)
   protected final Object clone() throws CloneNotSupportedException {
     return null; // skeleton
   }
-  
+
   /**
    * Allocates no memory. Returns a reference to this enumeration constant's
    * previously allocated String name. The String resides in the corresponding
@@ -110,7 +113,7 @@ public abstract class Enum<E extends Enum<E>>
   public final String name() {
     return null; // skeleton
   }
-  
+
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
@@ -120,7 +123,7 @@ public abstract class Enum<E extends Enum<E>>
   public final int ordinal() {
     return 0; // skeleton
   }
-  
+
   /**
    * Allocates no memory. Returns a reference to a previously allocated Class,
    * which resides in its ClassLoader scope.
@@ -130,7 +133,7 @@ public abstract class Enum<E extends Enum<E>>
   public final Class<E> getDeclaringClass() {
     return null; // skeleton
   }
-  
+
   /**
    * Allocates no memory. Does not allow "enumType" or "name" arguments to
    * escape local variables. Returns a reference to a previsouly allocated

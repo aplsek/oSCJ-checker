@@ -255,13 +255,15 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     		boolean forceVisit) {
         debugIndentIncrement("checkMethod: " + m);
 
-        if (!(ctx.getMethodRunsIn(m) == null || forceVisit)) {
+        if (!(ctx.getMethodScope(m) == null || forceVisit)) {
             // Already visited or in the process of being visited
             debugIndentDecrement();
             return;
         }
-        checkMethodScope(m, mTree, errNode);
+        // The RunsIn must be checked first, because checkMethodScope uses it.
         checkMethodRunsIn(m, mTree, errNode);
+        checkMethodScope(m, mTree, errNode);
+        System.err.println(m.getEnclosingElement() + "." + m + " " + ctx.getMethodRunsIn(m) + " " + ctx.getMethodScope(m));
         checkMethodParameters(m, mTree, errNode);
         debugIndentDecrement();
     }
@@ -459,19 +461,22 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 && !scope.isUnknown())
             fail(ERR_BAD_SCOPE_NAME, node, errNode, scope);
 
+        ScopeInfo runsIn = ctx.getMethodRunsIn(m);
         TypeMirror r = m.getReturnType();
         TypeKind k = r.getKind();
+
+        if (runsIn.isThis() && scope.isCaller())
+            scope = ScopeInfo.THIS;
+
         if ((k.isPrimitive() || k == TypeKind.VOID)) {
             if (ann != null)
                 warn(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, node, errNode);
             scope = ScopeInfo.PRIMITIVE;
-        } else {
-            if (r.getKind() == TypeKind.DECLARED) {
-                TypeElement t = Utils.getTypeElement(r);
-                ScopeInfo classScope = getClassScopeAndVisit(t, errNode);
-                if (!classScope.isCaller())
-                    scope = classScope;
-            }
+        } else if (r.getKind() == TypeKind.DECLARED) {
+            TypeElement t = Utils.getTypeElement(r);
+            ScopeInfo classScope = getClassScopeAndVisit(t, errNode);
+            if (!classScope.isCaller())
+                scope = classScope;
         }
 
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
@@ -550,10 +555,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     private ScopeInfo getOverrideRunsInAndVisit(ExecutableElement m,
             Tree errNode) {
         ScopeInfo runsIn = ctx.getMethodRunsIn(m);
-        // Don't need the same check that getOverrideScopeAndVisit has, because
-        // this method is called after it, ensuring that the method RunsIn is
-        // already in the cache.
-        return runsIn;
+        if (runsIn != null)
+            return runsIn;
+        checkMethod(m, trees.getTree(m), errNode, false);
+        return ctx.getMethodRunsIn(m);
     }
 
     /**

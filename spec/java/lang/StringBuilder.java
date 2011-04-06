@@ -5,7 +5,7 @@
  * This code is provided for educational purposes under the LGPL 2
  * license from GNU.  This notice must appear in all derived versions
  * of the code and the source must be made available with any binary
- * version.  
+ * version.
  *
 \*---------------------------------------------------------------------*/
 package java.lang;
@@ -40,7 +40,7 @@ public final class StringBuilder
 
   /**
    * Does not allow "this" to escape local variables. Allocates
-   * internal structure of sufficient size to represent 
+   * internal structure of sufficient size to represent
    * length characters within the scope of "this".
    */
   @Allocate({THIS})
@@ -48,7 +48,7 @@ public final class StringBuilder
   @SCJRestricted(maySelfSuspend = true)
   public StringBuilder(int length) { // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables. Allocates a character
    * internal structure of sufficient size to represent str.length() + 16
@@ -59,7 +59,7 @@ public final class StringBuilder
   @SCJRestricted(maySelfSuspend = true)
   public StringBuilder(String str) { // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables. Allocates a character
    * internal structure of sufficient size to represent seq.length() + 16
@@ -70,7 +70,7 @@ public final class StringBuilder
   @SCJRestricted(maySelfSuspend = true)
   public StringBuilder(CharSequence seq) { // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables. If expansion of "this"
    * StringBuilder's internal character buffer is necessary, a new char array
@@ -83,7 +83,7 @@ public final class StringBuilder
   public StringBuilder append(boolean b) {
     return this; // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables. If expansion of "this"
    * StringBuilder's internal character buffer is necessary, a new char array
@@ -99,7 +99,7 @@ public final class StringBuilder
 
   /**
    * Does not allow "this" or "buf" to escape local variables. If
-   * expansion of "this" 
+   * expansion of "this"
    * StringBuilder's internal character buffer is necessary, a new char array
    * is allocated within the scope of "this". The new array will be twice the
    * length of the existing array, plus 1.
@@ -113,7 +113,7 @@ public final class StringBuilder
 
   /**
    * Does not allow "this" or "buf" to escape local variables. If
-   * expansion of "this" 
+   * expansion of "this"
    * StringBuilder's internal character buffer is necessary, a new char array
    * is allocated within the scope of "this". The new array will be twice the
    * length of the existing array, plus 1.
@@ -137,7 +137,7 @@ public final class StringBuilder
   public StringBuilder append(CharSequence cs) {
     return this; // skeleton
   }
-  
+
   /**
    * Does not allow "this" or argument "cs" to escape local variables. If
    * expansion of "this" StringBuilder's internal character buffer is
@@ -150,7 +150,7 @@ public final class StringBuilder
   public StringBuilder append(CharSequence cs, int start, int end) {
     return this; // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables. If expansion of "this"
    * StringBuilder's internal character buffer is necessary, a new char array
@@ -163,7 +163,7 @@ public final class StringBuilder
   public StringBuilder append(double d) {
     return this; // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables. If expansion of "this"
    * StringBuilder's internal character buffer is necessary, a new char array
@@ -202,7 +202,7 @@ public final class StringBuilder
   public StringBuilder append(long l) {
     return this; // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables. If expansion of "this"
    * StringBuilder's internal character buffer is necessary, a new char array
@@ -228,10 +228,11 @@ public final class StringBuilder
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = true)
   @RunsIn(CALLER)
+  @Scope(Scope.THIS)
   public StringBuilder append(@Scope(UNKNOWN)String str) {
     return this; // skeleton
   }
-  
+
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
@@ -240,7 +241,7 @@ public final class StringBuilder
   public int capacity() {
     return 0; // skeleton
   }
-  
+
   /**
    * Allocates no memory. Does not allow "this" to escape local variables.
    */
@@ -249,7 +250,7 @@ public final class StringBuilder
   public char charAt(int index) {
     return (char) 0; // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables. If expansion of "this"
    * StringBuilder's internal character buffer is necessary, a new char array
@@ -263,7 +264,7 @@ public final class StringBuilder
   }
 
   /**
-   * Does not allow "this" or "dst" to escape local variables. 
+   * Does not allow "this" or "dst" to escape local variables.
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = true)
@@ -272,7 +273,7 @@ public final class StringBuilder
   }
 
   /**
-   * Does not allow "this" or "dst" to escape local variables. 
+   * Does not allow "this" or "dst" to escape local variables.
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = true)
@@ -281,7 +282,7 @@ public final class StringBuilder
   }
 
   /**
-   * Does not allow "this" or "dst" to escape local variables. 
+   * Does not allow "this" or "dst" to escape local variables.
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = true)
@@ -290,7 +291,7 @@ public final class StringBuilder
   }
 
   /**
-   * Does not allow "this" or "dst" to escape local variables. 
+   * Does not allow "this" or "dst" to escape local variables.
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = true)
@@ -299,7 +300,7 @@ public final class StringBuilder
   }
 
   /**
-   * Does not allow "this" or "dst" to escape local variables. 
+   * Does not allow "this" or "dst" to escape local variables.
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = true)
@@ -328,7 +329,7 @@ public final class StringBuilder
 
   /**
    * Does not allow "this" to escape local variables. Allocates a String in
-   * caller's scope. 
+   * caller's scope.
    */
   @Allocate({CURRENT})
   @SCJAllowed
@@ -336,10 +337,10 @@ public final class StringBuilder
   public CharSequence subSequence(int start, int end) {
     return null; // skeleton
   }
-  
+
   /**
    * Does not allow "this" to escape local variables. Allocates a String in
-   * caller's scope. 
+   * caller's scope.
    */
   @Allocate({CURRENT})
   @SCJAllowed
@@ -347,5 +348,5 @@ public final class StringBuilder
   public String toString() {
     return null;
   }
-  
+
 }
