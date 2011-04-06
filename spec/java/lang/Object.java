@@ -67,8 +67,16 @@ public class Object {
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
+  @RunsIn(CALLER)
   public final Class<? extends Object> getClass() {
     return null; // skeleton
+  }
+  
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  @RunsIn(CALLER)
+  public String getName() {
+      return null;
   }
   
   /**
