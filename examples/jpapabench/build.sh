@@ -9,9 +9,9 @@ SCJFLAGS="--scj --scj-scope-backing 13500k --g-def-immortal-mem 12330k --g-scope
 FIJIFLAGS="--max-threads 3 --more-opt"  # -v 1
 
 # rebuild SCJ.jar                 
-#SCJ=""
-#CWD=`pwd`
-#cd $SCJ && make scj.jar && cd $CWD
+SCJ="../../../../scj/ri"
+CWD=`pwd`
+cd $SCJ && make scj.jar && cd $CWD
 
 # CLEAN-UP
 rm -rf build
