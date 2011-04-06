@@ -17,4 +17,9 @@ public class LinkedList {
     public int size() {
         return 0;
     }
+    
+    @SCJAllowed
+    public boolean add(Object e) {
+        return true;
+    }
 }

@@ -133,5 +133,10 @@ public class Throwable implements Serializable {
   public void printStackTrace() 
   {
   }
+  
+  @SCJAllowed
+  public String toString() {
+      return null;
+  }
 }
 

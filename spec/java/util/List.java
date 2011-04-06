@@ -22,4 +22,8 @@ public interface List {
     
     @SCJAllowed
     public Object get(int i);
+
+    @SCJAllowed
+    public Object[] toArray(Object[] a);
+
 }
