@@ -22,7 +22,7 @@
     <property name="run.tests.should.fork" value="true"/>
     <property name="halt.on.test.failure" value="false"/>
 
-    <target name="all" depends="clean, jar, jdk-jar"/>
+    <target name="all" depends="jar, jdk-jar"/>
 
     <target name="clean">
         <delete dir="build"/>
@@ -58,12 +58,13 @@
         </javac>
     </target>
 
-    <target name="spec-jar" depends="compile-jdk-spec">
-        <jar destfile="lib/scj-jdk-spec.jar" basedir="build/spec"/>
-    </target>
+    <uptodate property="spec.uptodate" targetfile="localbin/jdk.jar">
+        <srcfiles dir="spec" includes="**/*.java"/>
+    </uptodate>
 
-    <target name="jdk-jar" depends="spec-jar">
+    <target name="jdk-jar" depends="compile-jdk-spec" unless="spec.uptodate">
         <mkdir dir="build/jdk"/>
+        <mkdir dir="build/jdk_out"/>
         <foreach target="annotate-jdk-class" param="abs.file">
             <path>
                 <fileset dir="build/spec">
@@ -71,15 +72,21 @@
                 </fileset>
             </path>
         </foreach>
-        <jar destfile="localbin/jdk.jar" basedir="build/jdk"/>
+        <jar destfile="localbin/jdk.jar" basedir="build/jdk_out"/>
     </target>
 
-    <target name="annotate-jdk-class">
+    <property name="abs.file" value=""/>
+    <uptodate property="abs.file.uptodate" srcfile="${abs.file}">
+        <globmapper from="${basedir}/build/spec/*" to="${basedir}/build/jdk_out/*" />
+    </uptodate>
+
+    <target name="annotate-jdk-class" unless="abs.file.uptodate">
         <!-- Path in the jar file -->
-        <pathconvert property="relative.file">
+        <pathconvert property="rel.file">
             <map from="${basedir}/build/spec/" to=""/>
             <path location="${abs.file}"/>
         </pathconvert>
+
         <!-- Path to the where the jaif file will be output -->
         <pathconvert property="jaif.file">
             <globmapper from="*.class" to="*.jaif"/>
@@ -88,7 +95,7 @@
         <!-- Extract the implementation class file for the current class -->
         <unjar src="${jdk.input.jar}" dest="build/jdk">
             <patternset>
-                <include name="${relative.file}"/>
+                <include name="${rel.file}"/>
             </patternset>
         </unjar>
         <!-- Extract the spec annotations into the jaif file -->
@@ -105,9 +112,14 @@
         <java classname="annotations.io.classfile.ClassFileWriter" fork="true"
               failonerror="true">
             <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
-            <arg value="build/jdk/${relative.file}"/>
+            <arg value="build/jdk/${rel.file}"/>
             <arg value="${jaif.file}"/>
         </java>
+        <!-- Delete the jaif file so it doesn't get included the next time
+             the spec annotations jar is compiled -->
+        <delete file="${jaif.file}"/>
+        <!-- Move the annotated class file to jdk_out -->
+        <move file="build/jdk/${rel.file}" tofile="build/jdk_out/${rel.file}"/>
     </target>
 
     <target name="check-hello" depends="jar">
