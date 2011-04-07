@@ -5,6 +5,7 @@ import static checkers.scope.DefineScopeChecker.ERR_DUPLICATE_SCOPE_NAME;
 import static checkers.scope.DefineScopeChecker.ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE;
 import static checkers.scope.DefineScopeChecker.ERR_RESERVED_SCOPE_NAME;
 import static checkers.scope.DefineScopeChecker.ERR_UNUSED_DEFINE_SCOPE;
+import static checkers.scope.DefineScopeChecker.ERR_SCHEDULABLE_NO_DEFINE_SCOPE;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -37,6 +38,9 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
     public R visitClass(ClassTree node, P p) {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         DefineScope ds = t.getAnnotation(DefineScope.class);
+
+        if (implicitlyDefinesScope(t) && ds == null)
+            fail(ERR_SCHEDULABLE_NO_DEFINE_SCOPE,node);
 
         if (ds != null)
             // We don't check for DefineScopes on SCJRunnables. They are

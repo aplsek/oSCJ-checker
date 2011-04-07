@@ -54,7 +54,7 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
             elements, "javax.safetycritical.MissionSequencer");
 
     protected final TypeMirror schedulable = Utils.getTypeMirror(
-            elements, "javax.realtime.Schedulable");
+            elements, "javax.safetycritical.Schedulable");
 
     protected boolean alwaysImplicitlyDefinesScope(TypeElement t) {
         TypeMirror m = t.asType();
