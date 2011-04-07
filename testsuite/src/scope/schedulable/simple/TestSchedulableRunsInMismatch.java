@@ -19,6 +19,7 @@ public abstract class TestSchedulableRunsInMismatch extends Mission {
 
     @Scope("a")
     @DefineScope(name = "b", parent = "a")
+    //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_RUNS_IN_MISMATCH
     public abstract class PEH extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)

@@ -12,6 +12,7 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @DefineScope(name="a", parent=IMMORTAL)
+//## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_NO_SCOPE
 public abstract class TestSchedulableNoScope extends PeriodicEventHandler {
 
     @SCJRestricted(INITIALIZATION)

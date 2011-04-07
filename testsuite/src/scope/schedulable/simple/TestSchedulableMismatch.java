@@ -12,11 +12,13 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import javax.safetycritical.annotate.Scope;
 
+
 @DefineScope(name = "a", parent = IMMORTAL)
 public abstract class TestSchedulableMismatch extends Mission {
 
     @Scope("a")
     @DefineScope(name = "b", parent = "a")
+    //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_SCOPE_DEFINESCOPE_MISMATCH
     static abstract class PEH extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)
