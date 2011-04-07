@@ -1,6 +1,6 @@
 // no error here
 
-package scope.scope.simple;
+package scope.schedulable.simple;
 
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
