@@ -22,9 +22,9 @@ public class HashMap  {
         return null;
     }
    
-    /////@RunsIn(CALLER) //////@Scope(THIS)
+   
     @SCJAllowed
-    @RunsIn(CALLER) ////@Scope(THIS)
+    @RunsIn(CALLER) @Scope(THIS)
     public Object get(Object key) {
         return null;
     }
