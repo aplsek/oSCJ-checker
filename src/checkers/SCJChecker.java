@@ -7,6 +7,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import checkers.scjAllowed.SCJAllowedChecker;
 import checkers.scjRestricted.SCJRestrictedChecker;
 import checkers.scope.DefineScopeChecker;
+import checkers.scope.SchedulableChecker;
 import checkers.scope.ScopeChecker;
 import checkers.scope.ScopeCheckerContext;
 import checkers.scope.ScopeRunsInChecker;
@@ -19,6 +20,7 @@ public class SCJChecker extends MultiPassChecker {
         ScopeCheckerContext ctx = new ScopeCheckerContext();
         addPass(new DefineScopeChecker(ctx));
         addPass(new ScopeRunsInChecker(ctx));
+        addPass(new SchedulableChecker(ctx));
         addPass(new ScopeChecker(ctx));
     }
 

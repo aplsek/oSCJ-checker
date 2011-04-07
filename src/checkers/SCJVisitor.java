@@ -2,7 +2,9 @@ package checkers;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import javax.safetycritical.annotate.Scope;
 
+import checkers.scope.ScopeInfo;
 import checkers.source.Result;
 import checkers.source.SourceChecker;
 import checkers.source.SourceVisitor;
@@ -52,7 +54,6 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
             elements, "javax.safetycritical.SCJRunnable");
     protected final TypeMirror missionSequencer = Utils.getTypeMirror(
             elements, "javax.safetycritical.MissionSequencer");
-
     protected final TypeMirror schedulable = Utils.getTypeMirror(
             elements, "javax.safetycritical.Schedulable");
 
@@ -72,6 +73,12 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
                 || types.isSubtype(m, scjRunnable);
     }
 
+    protected boolean isSchedulable(TypeElement t) {
+        TypeMirror m = t.asType();
+        return types.isSubtype(m, schedulable);
+    }
+
+
     protected boolean needsDefineScope(TypeElement t) {
         return implementsAllocationContext(t);
     }
@@ -86,5 +93,11 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
 
     protected boolean implementsAllocationContext(TypeElement t) {
         return types.isSubtype(t.asType(), allocationContext);
+    }
+
+    protected static ScopeInfo scopeOfClassDefinition(TypeElement t) {
+        Scope scopeAnn = t.getAnnotation(Scope.class);
+        return scopeAnn != null ? new ScopeInfo(scopeAnn.value())
+                : ScopeInfo.CALLER;
     }
 }

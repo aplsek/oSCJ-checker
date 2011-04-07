@@ -540,12 +540,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         report(Result.warning(msg, msgParams), src, err);
     }
 
-    private static ScopeInfo scopeOfClassDefinition(TypeElement t) {
-        Scope scopeAnn = t.getAnnotation(Scope.class);
-        return scopeAnn != null ? new ScopeInfo(scopeAnn.value())
-                : ScopeInfo.CALLER;
-    }
-
     private ScopeInfo getClassScopeAndVisit(TypeElement p, Tree errNode) {
         ScopeInfo parent = ctx.getClassScope(p);
         if (parent == null) {
