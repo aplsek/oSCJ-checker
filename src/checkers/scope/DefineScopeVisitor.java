@@ -39,6 +39,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         DefineScope ds = t.getAnnotation(DefineScope.class);
 
+        //TODO:
         if (implicitlyDefinesScope(t) && ds == null)
             fail(ERR_SCHEDULABLE_NO_DEFINE_SCOPE,node);
 
@@ -48,7 +49,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
             if (implicitlyDefinesScope(t))
                 checkNewScope(ds.name(), ds.parent(), node);
             else
-                warn(ERR_UNUSED_DEFINE_SCOPE, node);
+                fail(ERR_UNUSED_DEFINE_SCOPE, node);
 
         return super.visitClass(node, p);
     }
