@@ -33,7 +33,6 @@ import javax.safetycritical.annotate.Scope;
 import railsegment.clock.TrainClock;
 
 
-@DefineScope(name="D", parent = "TM")
 @Scope("D")
 class NavigationService extends Mission {
 
@@ -102,7 +101,7 @@ class NavigationService extends Mission {
   }
 
   @Override
-@RunsIn(CALLER)
+  @RunsIn(CALLER)
   public void requestTermination() {
 
   }

@@ -23,6 +23,7 @@ package railsegment;
 
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.MissionSequencer;
@@ -30,13 +31,15 @@ import javax.safetycritical.Safelet;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.RunsIn;
+import static javax.safetycritical.annotate.Scope.CALLER;
+import static javax.safetycritical.annotate.Scope.THIS;
 
 @Scope(IMMORTAL)
 public class TrainControlApp implements Safelet {
 
   public static final int SequencerPriority = 32;
 
-  @SCJRestricted(INITIALIZATION)
   public TrainControlApp() {
   }
 
@@ -55,4 +58,47 @@ public class TrainControlApp implements Safelet {
   public void tearDown() {
     // do nothing
   }
+
+  @SCJRestricted(INITIALIZATION)
+  public void method() {
+    // do nothing
+  }
+
+
+  @RunsIn(CALLER)
+  public void foo() {
+
+  }
+
+  @Scope("B")
+  public Object bar() {
+      return null;
+  }
+}
+
+@Scope(IMMORTAL)
+class App extends TrainControlApp {
+
+    @Override
+    public void method() {
+      // do nothing
+    }
+
+    //@SCJRestricted(CLEANUP)
+    public void methodCLEANUP() {
+        //method();
+    }
+
+    //@Override
+    //public void foo() {
+
+    //}
+
+    @Override
+    @Scope("B")
+    public Object bar() {
+        return null;
+    }
+
+
 }

@@ -30,7 +30,6 @@ import javax.safetycritical.annotate.Scope;
 
 import railsegment.CommunicationsQueue;
 
-@DefineScope(name="C", parent="TM")
 @Scope("C")
 public class TimeService extends Mission
 {

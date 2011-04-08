@@ -23,9 +23,10 @@ package railsegment;
 import javax.realtime.InterruptServiceRoutine;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.DefineScope;
 
 @Scope("H")
-//@DefineScope(name="MIH_Private", parent="H")
+@DefineScope(name="MIH_Private", parent="H")
 class MobileInterruptHandler extends InterruptServiceRoutine {
 
   // Determined by VM-specific static analysis tools

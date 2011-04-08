@@ -29,7 +29,6 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
 
-@DefineScope(name="E", parent="A")
 @Scope("E")
 public class SecurityService extends Mission
 {

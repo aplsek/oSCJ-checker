@@ -28,7 +28,6 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-@DefineScope(name="H", parent="A")
 @Scope("H")
 public class MobileCommService extends Mission
 {

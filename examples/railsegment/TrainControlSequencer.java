@@ -21,18 +21,22 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 import railsegment.clock.SynchronizedTime;
 
 @Scope("TM")
+@DefineScope(name="B", parent="TM")
 public class TrainControlSequencer extends MissionSequencer // <TrainControl>
 {
   private boolean did_mission;
@@ -64,6 +68,7 @@ public class TrainControlSequencer extends MissionSequencer // <TrainControl>
 
   @Override
   @RunsIn("B")
+  @SCJAllowed(SUPPORT)
   public TrainControl getNextMission() {
     if (!did_mission) {
       did_mission = true;
@@ -73,11 +78,4 @@ public class TrainControlSequencer extends MissionSequencer // <TrainControl>
       return null;
     }
   }
-
-  /*
-    @Override
-    protected Mission getInitialMission() {
-        return null;
-    }
-  */
 }

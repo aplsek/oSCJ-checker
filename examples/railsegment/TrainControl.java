@@ -29,7 +29,6 @@ import javax.safetycritical.annotate.Scope;
 
 import railsegment.clock.SynchronizedTime;
 
-@DefineScope(name="B", parent="TM")
 @Scope("B")
 public class TrainControl extends Mission
 {

@@ -26,6 +26,7 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
@@ -33,6 +34,7 @@ import javax.safetycritical.annotate.Scope;
 import railsegment.clock.TrainClock;
 
 @Scope("TM")
+@DefineScope(name="D", parent = "TM")
 public class NavigationServiceSequencer
   extends MissionSequencer //<NavigationService>
 {

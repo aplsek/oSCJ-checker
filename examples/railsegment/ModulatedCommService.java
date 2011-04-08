@@ -29,7 +29,6 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 
-@DefineScope(name="F", parent="A")
 @Scope("F")
 public class ModulatedCommService extends Mission
 {

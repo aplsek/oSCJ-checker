@@ -25,9 +25,11 @@ package railsegment;
 import javax.realtime.InterruptServiceRoutine;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.DefineScope;
+
 
 @Scope("E")
-//@DefineScope(name="SIH_Private", parent="E")
+@DefineScope(name="SIH_Private", parent="E")
 class SecurityInterruptHandler extends InterruptServiceRoutine {
 
   // Determined by VM-specific static analysis tools

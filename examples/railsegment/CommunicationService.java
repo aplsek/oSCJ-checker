@@ -33,7 +33,6 @@ import javax.safetycritical.annotate.Scope;
  * communication.  Every message "sent" is guaranteed to be delivered.
  * Every message "received" is guaranteed to be legitimate.
  */
-@DefineScope(name="A", parent="TM")
 @Scope("A")
 public class CommunicationService extends Mission
 {

@@ -35,8 +35,7 @@ import railsegment.clock.SynchronizedTime;
 import railsegment.clock.TrainClock;
 
 
-@DefineScope(name="TM", parent=IMMORTAL)
-@Scope("TM")  // Scope(IMMORTAL)
+@Scope("TM")
 public class TrainMission extends Mission
 {
   public final static long BackingStoreRequirements = 10000;
