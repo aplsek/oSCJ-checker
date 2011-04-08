@@ -1,5 +1,6 @@
 package checkers;
 
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.Scope;
@@ -59,11 +60,11 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
 
     protected boolean alwaysImplicitlyDefinesScope(TypeElement t) {
         TypeMirror m = t.asType();
-        return types.isSubtype(m, mission)
-                || types.isSubtype(m, noHeapRealtimeThread)
+        return   types.isSubtype(m, noHeapRealtimeThread)
                 || types.isSubtype(m, managedEventHandler)
                 || types.isSubtype(m, missionSequencer)
                 || types.isSubtype(m, interruptServiceRoutine)
+               // || types.isSubtype(m, mission)
                 || types.isSubtype(m, schedulable);
     }
 
@@ -77,7 +78,6 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         TypeMirror m = t.asType();
         return types.isSubtype(m, schedulable);
     }
-
 
     protected boolean needsDefineScope(TypeElement t) {
         return implementsAllocationContext(t);
