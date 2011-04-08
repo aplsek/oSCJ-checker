@@ -1,35 +1,28 @@
-// no error here
-
 package scope.schedulable.simple;
 
-import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+
 @SCJAllowed(members=true)
 @Scope("Level0App")
 @DefineScope(name="Level0App", parent=IMMORTAL)
-public class TestHandleAsyncEventRunsIn extends CyclicExecutive {
-
-    @DefineScope(name="Level007", parent=IMMORTAL)
-    abstract class Level007 extends CyclicExecutive {
-
-        public Level007(PriorityParameters priority, StorageParameters storage) {
-            super(priority, storage);
-        }}
+public class TestMissionInit extends CyclicExecutive {
 
     @SCJRestricted(INITIALIZATION)
-    public TestHandleAsyncEventRunsIn() {
+    public TestMissionInit() {
         super(null);
     }
 
@@ -41,12 +34,8 @@ public class TestHandleAsyncEventRunsIn extends CyclicExecutive {
     @Override
     @SCJRestricted(INITIALIZATION)
     public void initialize() {
-        new WordHandler(20000);
-    }
-
-    @Override
-    public long missionMemorySize() {
-        return 5000000;
+        new PEH(null,null,null);
+        new PEH(null,null,null);
     }
 
     @Override
@@ -57,27 +46,27 @@ public class TestHandleAsyncEventRunsIn extends CyclicExecutive {
     public void tearDown() {
     }
 
-    @SCJAllowed(members=true)
-    @Scope("Level0App")
-    @DefineScope(name="WordHandler", parent="Level0App")
-    //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_NO_RUNS_IN
-    static class WordHandler extends PeriodicEventHandler {
 
-        @SCJAllowed()
+    @Scope("a")
+    @DefineScope(name = "b", parent = "a")
+    public class PEH extends PeriodicEventHandler {
+
         @SCJRestricted(INITIALIZATION)
-        public WordHandler(long psize) {
-            super(null, null, null);
+        public PEH(PriorityParameters priority,
+                PeriodicParameters period, StorageParameters storage) {
+            super(priority, period, storage);
         }
 
         @Override
-        @SCJAllowed(SUPPORT)
+        @RunsIn("b")
         public void handleAsyncEvent() {
-            // printing HelloWorld!!!!
-        }
-
-        @Override
-        @SCJAllowed()
-        public void cleanUp() {
         }
     }
+
+
+    @Override
+    public long missionMemorySize() {
+        return 0;
+    }
+
 }

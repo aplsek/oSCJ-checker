@@ -39,9 +39,6 @@ public class Level0App extends CyclicExecutive {
         return 5000000;
     }
 
-    public static void main(final String[] args) {
-    }
-
     @Override
     public void setUp() {
     }
