@@ -29,6 +29,7 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.Safelet;
 import javax.safetycritical.annotate.SCJAllowed;
+import static javax.safetycritical.annotate.Level.LEVEL_2;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.RunsIn;
@@ -36,6 +37,7 @@ import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.THIS;
 
 @Scope(IMMORTAL)
+@SCJAllowed(value=LEVEL_2, members=true)
 public class TrainControlApp implements Safelet {
 
   public static final int SequencerPriority = 32;
@@ -74,31 +76,4 @@ public class TrainControlApp implements Safelet {
   public Object bar() {
       return null;
   }
-}
-
-@Scope(IMMORTAL)
-class App extends TrainControlApp {
-
-    @Override
-    public void method() {
-      // do nothing
-    }
-
-    //@SCJRestricted(CLEANUP)
-    public void methodCLEANUP() {
-        //method();
-    }
-
-    //@Override
-    //public void foo() {
-
-    //}
-
-    @Override
-    @Scope("B")
-    public Object bar() {
-        return null;
-    }
-
-
 }
