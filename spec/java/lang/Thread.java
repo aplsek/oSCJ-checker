@@ -173,7 +173,7 @@ public class Thread implements Runnable {
   /**
    * @memory Does not allow "this" to escape local variables.
    */
-  @SCJAllowed(SUPPORT)
+  @SCJAllowed(INFRASTRUCTURE)
   public void run() {
   }
 

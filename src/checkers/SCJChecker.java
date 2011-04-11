@@ -1,7 +1,7 @@
 package checkers;
 
 import java.util.Set;
-
+import static javax.safetycritical.annotate.Level.*;
 import javax.annotation.processing.ProcessingEnvironment;
 
 import checkers.scjAllowed.SCJAllowedChecker;
