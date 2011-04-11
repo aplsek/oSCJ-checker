@@ -1,9 +1,12 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.Mission;
+import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 public class TestBadVariableScope {
@@ -18,5 +21,9 @@ public class TestBadVariableScope {
 
     @Scope("a")
     @DefineScope(name="a", parent=IMMORTAL)
-    static abstract class X extends Mission { }
+    static abstract class X extends MissionSequencer {
+
+        @SCJRestricted(INITIALIZATION)
+        public X() {super(null, null);}
+    }
 }

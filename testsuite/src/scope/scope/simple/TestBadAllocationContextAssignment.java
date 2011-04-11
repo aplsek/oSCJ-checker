@@ -1,17 +1,28 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
+import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="a", parent=IMMORTAL)
-public abstract class TestBadAllocationContextAssignment extends Mission {
+public abstract class TestBadAllocationContextAssignment extends MissionSequencer {
+
+    @SCJRestricted(INITIALIZATION)
+    public TestBadAllocationContextAssignment() {super(null, null);}
+
     @Scope("a")
     @DefineScope(name="b", parent=IMMORTAL)
-    static abstract class X extends Mission {
+    static abstract class X extends MissionSequencer {
+
+        @SCJRestricted(INITIALIZATION)
+        public X() {super(null, null);}
+
         @Scope(IMMORTAL)
         @DefineScope(name="a", parent=IMMORTAL)
         ManagedMemory a;

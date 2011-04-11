@@ -1,20 +1,27 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
+
 import static javax.safetycritical.annotate.Scope.CALLER;
 import javax.safetycritical.annotate.Scope;
 
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
+import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.annotate.DefineScope;
 
 @DefineScope(name="a", parent=IMMORTAL)
 @Scope("a")
-public abstract class TestBadContextChangeCaller extends Mission {
+public abstract class TestBadContextChangeCaller extends MissionSequencer {
     MyRun1 runnable1 = new MyRun1();
     MyRun2 runnable2 = new MyRun2();
+
+    @SCJRestricted(INITIALIZATION)
+    public TestBadContextChangeCaller() {super(null, null);}
 
     @RunsIn(CALLER)
     public void method() {

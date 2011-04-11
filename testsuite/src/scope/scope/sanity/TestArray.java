@@ -1,10 +1,13 @@
 package scope.scope.sanity;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.Mission;
+import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @Scope(IMMORTAL)
@@ -30,7 +33,12 @@ public class TestArray {
     }
 
     @DefineScope(name="a", parent=IMMORTAL)
-    static abstract class X extends Mission { }
+    static abstract class X extends MissionSequencer {
+        @SCJRestricted(INITIALIZATION)
+        public X() {super(null, null);}
+    }
     @DefineScope(name="b", parent="a")
-    static abstract class Y extends Mission { }
+    static abstract class Y extends MissionSequencer {
+        @SCJRestricted(INITIALIZATION)
+        public Y() {super(null, null);} }
 }

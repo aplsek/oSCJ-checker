@@ -1,21 +1,27 @@
 package scope.scope.sanity;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import static javax.safetycritical.annotate.Level.SUPPORT;
+
 import javax.safetycritical.Mission;
+import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @Scope("D")
 @DefineScope(name="D", parent=IMMORTAL)
 @SCJAllowed(members=true)
-public class TestPrimitiveAssignment extends Mission {
+public class TestPrimitiveAssignment extends MissionSequencer {
 
     private int prior_longitude, prior_lattitude;
     private int longitude, lattitude;
+
+    @SCJRestricted(INITIALIZATION)
+    public TestPrimitiveAssignment() {super(null, null);}
 
     // called periodically by the GPS Driver
     @RunsIn(CALLER)
@@ -29,12 +35,8 @@ public class TestPrimitiveAssignment extends Mission {
     }
 
     @Override
-    public long missionMemorySize() {
-        return 0;
-    }
-
-    @Override
-    @SCJAllowed(SUPPORT)
-    protected void initialize() {
+    protected Mission getNextMission() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

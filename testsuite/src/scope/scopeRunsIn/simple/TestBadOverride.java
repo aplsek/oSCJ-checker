@@ -5,6 +5,7 @@ import static javax.safetycritical.annotate.Level.SUPPORT;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
+import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
@@ -22,7 +23,10 @@ public class TestBadOverride {
 
     @Scope("a")
     @DefineScope(name="a", parent=IMMORTAL)
-    static abstract class X extends Mission { }
+    static abstract class X extends MissionSequencer {
+        @SCJRestricted(INITIALIZATION)
+        public X() {super(null, null);}
+    }
 
     @Scope("a")
     @DefineScope(name="PEH", parent="a")

@@ -4,6 +4,7 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import javax.safetycritical.Mission;
+import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
@@ -12,7 +13,11 @@ import javax.safetycritical.annotate.Scope;
 @SCJAllowed(members=true)
 public class TestSimpleOverride {
 
-    static class A extends Mission {
+    static class A extends MissionSequencer {
+
+        @SCJRestricted(INITIALIZATION)
+        public A() {super(null, null);}
+
         A a;
 
         public void methodY() {
@@ -24,14 +29,8 @@ public class TestSimpleOverride {
         }
 
         @Override
-        public long missionMemorySize() {
-            return 0;
-        }
-
-        @Override
-        @SCJRestricted(INITIALIZATION)
-        @SCJAllowed(SUPPORT)
-        protected void initialize() {
+        protected Mission getNextMission() {
+            return null;
         }
     }
 

@@ -1,15 +1,22 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.Mission;
+import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 // This is the same test as TestBadAssignmentScopeField except with upcasts
 public class TestBadAssignmentScopeFieldUpcast {
     @DefineScope(name="a", parent=IMMORTAL)
-    static abstract class X extends Mission {
+    static abstract class X extends MissionSequencer {
+
+        @SCJRestricted(INITIALIZATION)
+        public X() {super(null, null);}
+
         Object y1;
         @Scope(IMMORTAL) Object y2;
         static Object y3;

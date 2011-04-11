@@ -1,20 +1,29 @@
 package scope.scope.simple;
 
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.realtime.MemoryArea;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
+import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="a", parent=IMMORTAL)
 @Scope("a")
-public abstract class TestBadGetMemoryArea2 extends Mission {
+public abstract class TestBadGetMemoryArea2 extends MissionSequencer {
+
+    @SCJRestricted(INITIALIZATION)
+    public TestBadGetMemoryArea2() {super(null, null);}
+
     @Scope("a")
     @DefineScope(name="b", parent="a")
-    static abstract class X extends Mission {
+    static abstract class X extends MissionSequencer {
+        @SCJRestricted(INITIALIZATION)
+        public X() {super(null, null);}
 
         Y y = new Y();
 
