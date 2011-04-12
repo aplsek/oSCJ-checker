@@ -30,7 +30,8 @@ public class SCJChecker extends MultiPassChecker {
         super.init(env);
         Utils.DEBUG = processingEnv.getOptions().containsKey("debug");
         String level = processingEnv.getOptions().get("level");
-        Utils.level = Level.getLevel(level);
+        if (level!= null)
+            Utils.level = Level.getLevel(level);
     }
 
     @Override
