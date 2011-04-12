@@ -52,6 +52,7 @@ public class SorterApp extends CyclicExecutive {
 
     @Override
     public void tearDown() {
+        BenchConf.dump();
     }
 
 }
