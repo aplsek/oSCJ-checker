@@ -19,17 +19,20 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 package railsegment.clock;
-
+import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.realtime.AbsoluteTime;
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 import railsegment.CommunicationsQueue;
 
+@SCJAllowed(value=LEVEL_2, members=true)
 @Scope("C")
 public class TimeService extends Mission
 {
@@ -67,6 +70,7 @@ public class TimeService extends Mission
   }
 
   @Override
+  @SCJAllowed
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -75,6 +79,7 @@ public class TimeService extends Mission
   }
 
   @Override
+  @SCJAllowed(SUPPORT)
   public void initialize()
   {
     // How is synchronized time implemented?  Let's
@@ -108,7 +113,8 @@ public class TimeService extends Mission
   }
 
   @Override
-@RunsIn(CALLER)
+  @RunsIn(CALLER)
+  @SCJAllowed
   public void requestTermination()
   {
     // something special to coordinate with the NHRT thread

@@ -21,6 +21,8 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.realtime.PriorityParameters;
@@ -28,6 +30,7 @@ import javax.safetycritical.NoHeapRealtimeThread;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 import railsegment.clock.SynchronizedTime;
@@ -35,6 +38,7 @@ import railsegment.clock.SynchronizedTime;
 
 @Scope("B")
 @DefineScope(name="B:TCT", parent="B")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class TrainControlThread extends NoHeapRealtimeThread
 {
   private final static int BackingStoreSize = 1000;
@@ -73,6 +77,7 @@ public class TrainControlThread extends NoHeapRealtimeThread
 
   @Override
   @RunsIn("B:TCT")
+  @SCJAllowed(SUPPORT)
   public void run()
   {
     // my goal is to run this loop once every half mile.  if I

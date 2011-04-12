@@ -20,12 +20,14 @@
  */
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.THIS;
 
 import javax.safetycritical.Services;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 
@@ -34,11 +36,13 @@ import javax.safetycritical.annotate.Scope;
 // issued request before issuing another request.
 
 @Scope("A")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class CypherQueue {
 
   // The ceiling for instances of this class needs to be in the
   // interrupt priority range
   @Scope("A")
+  @SCJAllowed(value=LEVEL_2, members=true)
   static class HardwareCoordination {
     // a guess
     private static final int INTERRUPT_PRIORITY = 32;
@@ -274,6 +278,7 @@ public class CypherQueue {
 
   // Presumed to reside in IMMORTAL
   @Scope(IMMORTAL)
+  @SCJAllowed(value=LEVEL_2, members=true)
   static enum RequestEncoding {
     NoRequest, ResponseReady,
     Encrypt, Decrypt,

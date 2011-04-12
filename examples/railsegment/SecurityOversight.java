@@ -21,6 +21,8 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -29,10 +31,12 @@ import javax.safetycritical.NoHeapRealtimeThread;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 @Scope("E")
 @DefineScope(name="SEC_Private", parent="E")
+@SCJAllowed(value=LEVEL_2, members=true)
 class SecurityOversight extends NoHeapRealtimeThread {
 
   // Determined by VM-specific static analysis tools
@@ -60,6 +64,7 @@ class SecurityOversight extends NoHeapRealtimeThread {
   private boolean stop_me = false;
 
   @RunsIn(CALLER)
+  @SCJAllowed
   public synchronized void requestTermination() {
     stop_me = true;
     // assume termination request is propagated top down.
@@ -73,6 +78,7 @@ class SecurityOversight extends NoHeapRealtimeThread {
 
   @Override
   @RunsIn("SO_Private")
+  @SCJAllowed(SUPPORT)
   public final void run() {
     @Scope(IMMORTAL) byte[] buffer = null;
     long key = 0L;

@@ -20,16 +20,21 @@
  */
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
+
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.NoHeapRealtimeThread;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 
 @Scope("D")
 @DefineScope(name="D:NO", parent="D")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class NavigationOversight extends NoHeapRealtimeThread
 {
   // Determined by VM-specific static analysis tools
@@ -56,6 +61,7 @@ public class NavigationOversight extends NoHeapRealtimeThread
 
   @Override
   @RunsIn("D:NO")
+  @SCJAllowed(SUPPORT)
   public void run() {
 
     while (true) {

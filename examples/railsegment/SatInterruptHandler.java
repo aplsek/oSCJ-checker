@@ -20,13 +20,18 @@
  */
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
+
 import javax.realtime.InterruptServiceRoutine;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 @Scope("G")
 @DefineScope(name="Sat-IH_Private", parent="G")
+@SCJAllowed(value=LEVEL_2, members=true)
 class SatInterruptHandler extends InterruptServiceRoutine {
 
   // Determined by VM-specific static analysis tools
@@ -48,6 +53,7 @@ class SatInterruptHandler extends InterruptServiceRoutine {
 
   @Override
   @RunsIn("Sat-IH_Private")
+  @SCJAllowed(SUPPORT)
   public final void handle() {
     // this interrupt means the previously issued security operation
     // has completed its execution.

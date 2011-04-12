@@ -21,6 +21,8 @@
 
 package railsegment.clock;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.AbsoluteTime;
@@ -31,9 +33,11 @@ import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+@SCJAllowed(value=LEVEL_2, members=true)
 @Scope("C")
 @DefineScope(name="C:TT", parent="C")
 public class TimerTick extends PeriodicEventHandler
@@ -61,6 +65,7 @@ public class TimerTick extends PeriodicEventHandler
 
   @Override
   @RunsIn("C:TT")
+  @SCJAllowed(SUPPORT)
   public void handleAsyncEvent() {
     AbsoluteTime t = new AbsoluteTime(0L, 0, train_clock);
     time_mission.getGlobalTime(t);

@@ -21,6 +21,8 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.PriorityParameters;
@@ -28,11 +30,13 @@ import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @Scope("A")
 @DefineScope(name="E", parent="A")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class SecurityServiceSequencer
 extends MissionSequencer //<SecurityService>
 {
@@ -58,6 +62,7 @@ extends MissionSequencer //<SecurityService>
 
     @Override
     @RunsIn("E")
+    @SCJAllowed(SUPPORT)
     protected SecurityService getNextMission()
     {
         if (!did_mission) {

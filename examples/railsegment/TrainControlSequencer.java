@@ -21,6 +21,7 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
@@ -37,6 +38,7 @@ import railsegment.clock.SynchronizedTime;
 
 @Scope("TM")
 @DefineScope(name="B", parent="TM")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class TrainControlSequencer extends MissionSequencer // <TrainControl>
 {
   private boolean did_mission;

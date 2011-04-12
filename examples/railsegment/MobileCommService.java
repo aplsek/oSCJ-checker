@@ -20,15 +20,19 @@
  */
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.safetycritical.Mission;
 import javax.safetycritical.Services;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 @Scope("H")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class MobileCommService extends Mission
 {
   // These three constants determined by static analysis or other
@@ -55,6 +59,7 @@ public class MobileCommService extends Mission
   }
 
   @Override
+  @SCJAllowed
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -63,6 +68,7 @@ public class MobileCommService extends Mission
   }
 
   @Override
+  @SCJAllowed(SUPPORT)
   public void initialize()
   {
     // assume I'll provide shared variables for coordination between
@@ -82,7 +88,8 @@ public class MobileCommService extends Mission
   }
 
   @Override
-@RunsIn(CALLER)
+  @RunsIn(CALLER)
+  @SCJAllowed
   public void requestTermination()
   {
     // do something special to coordinate with the NHRT thread

@@ -1,5 +1,6 @@
 package checkers;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.HIDDEN;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
@@ -34,6 +35,10 @@ import checkers.types.AnnotatedTypes;
 import checkers.util.TypesUtils;
 
 public final class Utils {
+
+
+    public static Level level = LEVEL_2;
+
     /**
      * debugging flag
      */

@@ -20,6 +20,7 @@
  */
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
@@ -27,6 +28,7 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import javax.realtime.AbsoluteTime;
 import javax.safetycritical.Services;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 import railsegment.clock.TrainClock;
@@ -36,8 +38,10 @@ import railsegment.clock.TrainClock;
 // issued request before issuing another request.
 
 @Scope("TM")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class NavigationInfo {
   @Scope(IMMORTAL)
+  @SCJAllowed(value=LEVEL_2, members=true)
   static enum RequestEncoding {
     NoRequest, ResponseReady,
     CurrentSpeed, CurrentPosition,

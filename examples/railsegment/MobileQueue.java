@@ -20,11 +20,13 @@
  */
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.Services;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 // This assumes there is at most one client for NavigationInfo, and
@@ -32,8 +34,10 @@ import javax.safetycritical.annotate.Scope;
 // issued request before issuing another request.
 
 @Scope("A")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class MobileQueue {
   @Scope(IMMORTAL)
+  @SCJAllowed(value=LEVEL_2, members=true)
   static enum RequestEncoding {
     NoRequest, ResponseReady,
     RequestShutdown,
@@ -127,6 +131,7 @@ public class MobileQueue {
 
   // invoked by CommunicationsOversight thread
   @RunsIn(CALLER)
+  @SCJAllowed
   synchronized void requestTermination() {
     pending_request = RequestEncoding.RequestShutdown;
     notifyAll();
