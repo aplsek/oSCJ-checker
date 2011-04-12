@@ -10,6 +10,8 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.safetycritical.annotate.DefineScope;
 
+import checkers.SCJMission;
+import checkers.SCJMethod;
 import checkers.SCJSchedulable;
 import checkers.SCJVisitor;
 import checkers.source.SourceChecker;
@@ -106,11 +108,24 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         }
     }
 
+    private boolean isInitialization = false;
+
     @Override
     public Void visitMethodInvocation(MethodInvocationTree node, Void p) {
 
+        switch (SCJMission.fromMethod(TreeUtils.elementFromUse(node), elements, types)) {
+        case CYCLIC_EXECUTIVE:
+        case MISSION:
+            isInitialization = true;
+        default:
+        }
 
-        return super.visitMethodInvocation(node, p);
+        Void res = super.visitMethodInvocation(node, p);
+        if (isInitialization)
+            isInitialization = false;
+
+        return res;
+
     }
 
 
