@@ -20,6 +20,9 @@
  */
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 
@@ -30,6 +33,7 @@ import javax.safetycritical.annotate.Scope;
 
 
 @Scope("D")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class RouteData {
 
   // no details provided.  i'm assuming this detail is not necessary.

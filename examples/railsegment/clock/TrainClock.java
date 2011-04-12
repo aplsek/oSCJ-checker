@@ -20,6 +20,8 @@
  */
 package railsegment.clock;
 
+import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.THIS;
 
@@ -32,7 +34,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-@SCJAllowed(members=true)
+@SCJAllowed(value=LEVEL_2, members=true)
 @Scope("TM")
 public class TrainClock extends Clock {
 
@@ -114,6 +116,7 @@ public class TrainClock extends Clock {
 
     @Override
     @RunsIn(THIS)
+    @SCJAllowed(LEVEL_1)
     public final synchronized void registerCallBack(
             @Scope(THIS) AbsoluteTime t, @Scope(THIS) ClockCallBack clock_event) {
         callback_time.set(t.getMilliseconds(), t.getNanoseconds());
@@ -122,8 +125,8 @@ public class TrainClock extends Clock {
 
     @Override
     @SCJRestricted(maySelfSuspend=false)
+    @SCJAllowed(LEVEL_1)
     protected boolean resetTargetTime(AbsoluteTime time) {
-
         // skeleton implementation
         return false;
     }

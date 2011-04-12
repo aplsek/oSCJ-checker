@@ -21,6 +21,8 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.AbsoluteTime;
@@ -31,6 +33,7 @@ import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
@@ -38,6 +41,7 @@ import railsegment.clock.TrainClock;
 
 @Scope("D")
 @DefineScope(name="D:GPSD", parent="D")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class GPSDriver extends PeriodicEventHandler
 {
     // Determined by VM-specific static analysis tools
@@ -63,6 +67,7 @@ public class GPSDriver extends PeriodicEventHandler
 
     @Override
     @RunsIn("D:GPSD")
+    @SCJAllowed(SUPPORT)
     public void handleAsyncEvent() {
 
         // Let's just assume that this is not interrupt driven.

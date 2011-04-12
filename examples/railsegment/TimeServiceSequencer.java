@@ -21,6 +21,8 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.PriorityParameters;
@@ -28,6 +30,7 @@ import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
@@ -38,6 +41,7 @@ import railsegment.clock.TrainClock;
 
 @Scope("TM")
 @DefineScope(name="C", parent="TM")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class TimeServiceSequencer extends MissionSequencer
 {
     private final SynchronizedTime times_data;
@@ -64,6 +68,7 @@ public class TimeServiceSequencer extends MissionSequencer
 
     @Override
     @RunsIn("C")
+    @SCJAllowed(SUPPORT)
     public TimeService getNextMission()
     {
         return new TimeService(times_data,

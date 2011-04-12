@@ -21,6 +21,8 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.realtime.PriorityParameters;
@@ -28,10 +30,12 @@ import javax.safetycritical.NoHeapRealtimeThread;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 @Scope("G")
 @DefineScope(name="SO_Private", parent="G")
+@SCJAllowed(value=LEVEL_2, members=true)
 class SatOversight extends NoHeapRealtimeThread {
   // Determined by VM-specific static analysis tools
   private static final long BackingStoreRequirements = 500;
@@ -57,6 +61,7 @@ class SatOversight extends NoHeapRealtimeThread {
   private boolean stop_me = false;
 
   @RunsIn(CALLER)
+  @SCJAllowed
   public synchronized void requestTermination() {
     stop_me = true;
     // I think this serves to unblock blocked threads, including myself
@@ -64,12 +69,14 @@ class SatOversight extends NoHeapRealtimeThread {
   }
 
   @RunsIn(CALLER)
+  @SCJAllowed
   private synchronized boolean terminationRequested() {
     return stop_me;
   }
 
   @Override
   @RunsIn("SO_Private")
+  @SCJAllowed(SUPPORT)
   public final void run() {
     byte[] buffer = null;
     long key = 0L;

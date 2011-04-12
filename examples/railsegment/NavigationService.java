@@ -20,6 +20,8 @@
  */
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -28,12 +30,14 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.Services;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 import railsegment.clock.TrainClock;
 
 
 @Scope("D")
+@SCJAllowed(value=LEVEL_2, members=true)
 class NavigationService extends Mission {
 
   // These three constants are determined by static analysis or other
@@ -72,6 +76,7 @@ class NavigationService extends Mission {
   }
 
   @Override
+  @SCJAllowed
   public final long missionMemorySize()
   {
     // This must be large enough to hold each of the four submissions,
@@ -81,6 +86,7 @@ class NavigationService extends Mission {
   }
 
   @Override
+  @SCJAllowed(SUPPORT)
   public void initialize() {
     // This is where I'd like to set my ceiling.  Confirm that it is
     // ok here.  The following assumes the GPS_PRIORITY > NAV_LOOKUP_PRIORITY
@@ -96,12 +102,14 @@ class NavigationService extends Mission {
   }
 
   @Override
+  @SCJAllowed(SUPPORT)
   public void cleanUp() {
 
   }
 
   @Override
   @RunsIn(CALLER)
+  @SCJAllowed
   public void requestTermination() {
 
   }

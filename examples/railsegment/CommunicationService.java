@@ -21,11 +21,14 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 /**
@@ -34,6 +37,7 @@ import javax.safetycritical.annotate.Scope;
  * Every message "received" is guaranteed to be legitimate.
  */
 @Scope("A")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class CommunicationService extends Mission
 {
     // These three constants are determined by static analysis or other
@@ -69,6 +73,7 @@ public class CommunicationService extends Mission
     }
 
     @Override
+    @SCJAllowed
     public final long missionMemorySize()
     {
         // This must be large enough to hold each of the four submissions,
@@ -78,6 +83,7 @@ public class CommunicationService extends Mission
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public void initialize()
     {
         cypherq = new CypherQueue(COMMS_PRIORITY);
@@ -119,6 +125,7 @@ public class CommunicationService extends Mission
 
     @Override
     @RunsIn(CALLER)
+    @SCJAllowed
     public void requestTermination()
     {
         management_thread.requestTermination();

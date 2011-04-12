@@ -21,15 +21,20 @@
 
 package railsegment.clock;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
+
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.NoHeapRealtimeThread;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 import railsegment.CommunicationsQueue;
 
+@SCJAllowed(value=LEVEL_2, members=true)
 @Scope("C")
 @DefineScope(name="C:TO", parent="C")
 public class TimerOversight extends NoHeapRealtimeThread
@@ -53,6 +58,7 @@ public class TimerOversight extends NoHeapRealtimeThread
   }
   @Override
   @RunsIn("C:TO")
+  @SCJAllowed(SUPPORT)
   public void run() {
     // I assume there's a fairly complicated algorithm required to
     // implement globally synchronized clocks.  I don't begin to

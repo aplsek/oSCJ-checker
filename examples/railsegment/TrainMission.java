@@ -21,6 +21,8 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
@@ -28,6 +30,7 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
@@ -36,6 +39,7 @@ import railsegment.clock.TrainClock;
 
 
 @Scope("TM")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class TrainMission extends Mission
 {
   public final static long BackingStoreRequirements = 10000;
@@ -100,6 +104,7 @@ public class TrainMission extends Mission
   }
 
   @Override
+  @SCJAllowed
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -109,6 +114,7 @@ public class TrainMission extends Mission
 
   @Override
   @SCJRestricted(INITIALIZATION)
+  @SCJAllowed(SUPPORT)
   public void initialize() {
     // it all happens here instead
 
@@ -150,12 +156,16 @@ public class TrainMission extends Mission
 
   @Override
   @RunsIn(CALLER)
+  @SCJAllowed
   public void requestTermination()
   {
     commsq.requestSequenceTermination();
     timesq.requestSequenceTermination();
     navsq.requestSequenceTermination();
     controlsq.requestSequenceTermination();
+
+    notifyAll();
+
     super.requestTermination();
   }
 }

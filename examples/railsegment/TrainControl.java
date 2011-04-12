@@ -20,16 +20,20 @@
  */
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 import railsegment.clock.SynchronizedTime;
 
 @Scope("B")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class TrainControl extends Mission
 {
   // These three constants determined by static analysis or other
@@ -61,6 +65,7 @@ public class TrainControl extends Mission
   }
 
   @Override
+  @SCJAllowed
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -69,6 +74,7 @@ public class TrainControl extends Mission
   }
 
   @Override
+  @SCJAllowed(SUPPORT)
   public void initialize()
   {
     // TODO: later, we should declare the various subtypes and
@@ -99,6 +105,7 @@ public class TrainControl extends Mission
 
   @Override
   @RunsIn(CALLER)
+  @SCJAllowed
   public void requestTermination()
   {
     // something special to coordinate with the NHRT thread

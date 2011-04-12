@@ -21,6 +21,9 @@
 
 package railsegment;
 
+
+import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -30,11 +33,13 @@ import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @Scope(IMMORTAL)
 @DefineScope(name="TM", parent=IMMORTAL)
+@SCJAllowed(value=LEVEL_2, members=true)
 public class TrainMissionSequencer extends MissionSequencer {
   private static final int SequencerPriority = 20;
 
@@ -50,7 +55,8 @@ public class TrainMissionSequencer extends MissionSequencer {
   }
 
   @Override
-@RunsIn("TM")
+  @RunsIn("TM")
+  @SCJAllowed(SUPPORT)
   public Mission getNextMission() {
     if (returned_mission) {
       return null;

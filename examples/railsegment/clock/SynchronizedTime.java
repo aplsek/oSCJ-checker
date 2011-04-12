@@ -20,6 +20,7 @@
  */
 package railsegment.clock;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
@@ -32,8 +33,8 @@ import javax.safetycritical.annotate.Scope;
 // synchronized time service.  The implementation assures
 // monotonically increasing time.
 
+@SCJAllowed(value=LEVEL_2, members=true)
 @Scope("TM")
-//@SCJAllowed(members = true)
 public class SynchronizedTime
 {
   private long synchronized_ms;

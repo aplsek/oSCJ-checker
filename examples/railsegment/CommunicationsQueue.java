@@ -20,6 +20,8 @@
  */
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -28,8 +30,8 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
-@SCJAllowed
 @Scope("TM")
+@SCJAllowed(value=LEVEL_2, members=true)
 public class CommunicationsQueue
 {
   public final static int APPLICATION_REQUEST = 0x01;
@@ -50,6 +52,7 @@ public class CommunicationsQueue
   private final static int MAXIMUM_FILES = 40;
 
   @Scope("TM")
+  @SCJAllowed(value=LEVEL_2, members=true)
   static class SubmissionCoordination {
 
     int status;
@@ -201,6 +204,7 @@ public class CommunicationsQueue
 
   // Purdue team: all enums are presumed to reside in IMMORTAL?
   @Scope(IMMORTAL)
+  @SCJAllowed(value=LEVEL_2, members=true)
   private static enum RequestType {
     REQUEST_READ,
     REQUEST_WRITE,
