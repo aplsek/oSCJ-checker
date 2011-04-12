@@ -47,9 +47,10 @@ public class SorterHandler extends PeriodicEventHandler {
         sort();
         final long timeAfter = NanoClock.now();
 
-        BenchConf.recordedRuns++;
+
         BenchConf.timesBefore[BenchConf.recordedRuns] = timeBefore;
         BenchConf.timesAfter[BenchConf.recordedRuns] = timeAfter;
+        BenchConf.recordedRuns++;
 
         counter++;
         if (counter >= BenchConf.FRAMES)
