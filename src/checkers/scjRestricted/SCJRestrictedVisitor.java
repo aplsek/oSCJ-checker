@@ -247,7 +247,6 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         currentAllocFree = !isMayAllocate(m, node);
         currentWhen = Phase.ALL;
 
-
         for (Phase r : rs)
             if (whenRestricts.contains(r)) {
                 currentWhen = r;
