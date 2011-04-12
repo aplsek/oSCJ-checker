@@ -73,7 +73,7 @@ public class SCJAllowedChecker extends SinglePassChecker {
         p.put(ERR_BAD_SUBCLASS,
                 "Subclasses may not decrease visibility of their superclasses.");
         p.put(ERR_BAD_SUPPORT,
-                "Methods outside of javax.realtime or javax.safetycritical packages cannot be annotated with @SCJAllowed(SUPPORT).");
+                "Methods annotated @SCJAllowed(SUPPORT) must override an SCJ API method that is also annotated @SCJAllowed(SUPPORT).");
         p.put(ERR_BAD_USER_LEVEL,
                 "Elements outside of javax.realtime or javax.safetycritical packages cannot be annotated with @SCJAllowed(INFRASTRUCTURE).");
 
