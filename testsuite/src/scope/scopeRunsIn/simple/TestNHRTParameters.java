@@ -1,4 +1,4 @@
-package scope.scope.sanity;
+package scope.scopeRunsIn.simple;
 
 import javax.realtime.PriorityParameters;
 
@@ -10,6 +10,7 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @Scope("D")
@@ -29,6 +30,8 @@ public class TestNHRTParameters extends NoHeapRealtimeThread
 
     @Override
     @RunsIn("D")
+    @SCJAllowed
+    //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE
     public void run() { }
 }
 

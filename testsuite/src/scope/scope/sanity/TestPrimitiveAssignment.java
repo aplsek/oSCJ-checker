@@ -3,7 +3,7 @@ package scope.scope.sanity;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
-
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
@@ -35,8 +35,8 @@ public class TestPrimitiveAssignment extends MissionSequencer {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     protected Mission getNextMission() {
-        // TODO Auto-generated method stub
         return null;
     }
 }
