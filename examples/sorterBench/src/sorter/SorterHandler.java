@@ -52,7 +52,7 @@ public class SorterHandler extends PeriodicEventHandler {
         BenchConf.timesAfter[BenchConf.recordedRuns] = timeAfter;
 
         counter++;
-        if (counter > BenchConf.FRAMES)
+        if (counter >= BenchConf.FRAMES)
             Mission.getCurrentMission().requestSequenceTermination();
     }
 
