@@ -208,10 +208,9 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             if (!isEscaped(override.getEnclosingElement().toString())
                     && level.compareTo(scjAllowedLevel(override, node)) > 0
                     && !level.equals(enclosingLevel)) {
-                    pln("\n level :" +  level);
-                    pln("over-level :" + scjAllowedLevel(override, node));
-                    pln("elem:" + override.getEnclosingElement() );
-
+                    //pln("\n level :" +  level);
+                    //pln("over-level :" + scjAllowedLevel(override, node));
+                    //pln("elem:" + override.getEnclosingElement() );
                     fail(ERR_BAD_OVERRIDE, node);
             }
 
