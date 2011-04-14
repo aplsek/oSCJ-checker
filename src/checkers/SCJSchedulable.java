@@ -24,9 +24,8 @@ public enum SCJSchedulable {
         return clazz + "." + signature;
     }
 
-    public static SCJSchedulable fromMethod(TypeElement t, Elements elements,
+    public static SCJSchedulable fromMethod(TypeMirror m, Elements elements,
             Types types) {
-        TypeMirror m = t.asType();
 
         for (SCJSchedulable sm : SCJSchedulable.values()) {
             if (sm == null || sm.equals(DEFAULT))

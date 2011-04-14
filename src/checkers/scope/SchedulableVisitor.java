@@ -1,19 +1,21 @@
 package checkers.scope;
 
 
-import static checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_NO_SCOPE;
-import static checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_SCOPE_DEFINESCOPE_MISMATCH;
 import static checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_NO_RUNS_IN;
+import static checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_NO_SCOPE;
 import static checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_RUNS_IN_MISMATCH;
+import static checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_SCOPE_DEFINESCOPE_MISMATCH;
+import static checkers.scope.SchedulableChecker.ERR_SCHED_INIT_OUT_OF_INIT_METH;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.safetycritical.annotate.DefineScope;
 
 import checkers.SCJMission;
-import checkers.SCJMethod;
 import checkers.SCJSchedulable;
 import checkers.SCJVisitor;
+import checkers.Utils;
 import checkers.source.SourceChecker;
 import checkers.types.AnnotatedTypeFactory;
 import checkers.types.AnnotatedTypes;
@@ -22,6 +24,8 @@ import checkers.util.TreeUtils;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.MethodInvocationTree;
+import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.NewClassTree;
 import com.sun.source.tree.Tree;
 
 /**
@@ -98,7 +102,7 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
 
 
     private ScopeInfo getSchedulableRunsIn(TypeElement t) {
-        switch (SCJSchedulable.fromMethod(t, elements, types)) {
+        switch (SCJSchedulable.fromMethod(t.asType(), elements, types)) {
         case PEH:
         case APEH:
             return ctx.getMethodRunsIn(t.toString(), SCJSchedulable.PEH.signature);
@@ -112,21 +116,52 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     private boolean isInitialization = false;
 
     @Override
-    public Void visitMethodInvocation(MethodInvocationTree node, Void p) {
-
-        switch (SCJMission.fromMethod(TreeUtils.elementFromUse(node), elements, types)) {
+    public Void visitMethod(MethodTree node, Void p) {
+        ExecutableElement m = TreeUtils.elementFromDeclaration(node);
+        switch (SCJMission.fromMethod(m, elements, types)) {
         case CYCLIC_EXECUTIVE:
         case MISSION:
             isInitialization = true;
         default:
         }
 
-        Void res = super.visitMethodInvocation(node, p);
+        Void res = super.visitMethod(node, p);
         if (isInitialization)
             isInitialization = false;
 
         return res;
+    }
 
+
+    @Override
+    public Void visitNewClass(NewClassTree node, Void p) {
+        if (!isInitialization) {
+            ExecutableElement ctorElement = TreeUtils.elementFromUse(node);
+            Utils.getMethodClass(ctorElement).asType();
+            switch (SCJSchedulable.fromMethod(Utils.getMethodClass(ctorElement)
+                    .asType(), elements, types)) {
+            case PEH:
+            case APEH:
+            case MANAGED_THREAD:
+                fail(ERR_SCHED_INIT_OUT_OF_INIT_METH, node);
+            default:
+            }
+        }
+        return super.visitNewClass(node, p);
+    }
+
+    @Override
+    public Void visitMethodInvocation(MethodInvocationTree node, Void p) {
+        //boolean oldInitialization = isInitialization;
+        //isInitialization = false;
+        if (isInitialization) {
+
+        }
+
+
+        Void res = super.visitMethodInvocation(node, p);
+        //isInitialization = oldInitialization;
+        return res;
     }
 
 

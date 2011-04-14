@@ -7,6 +7,8 @@ import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
+import javax.safetycritical.Mission;
+import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
@@ -14,40 +16,34 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
-
+import static javax.safetycritical.annotate.Level.SUPPORT;
 
 @SCJAllowed(members=true)
-@Scope("Level0App")
-@DefineScope(name="Level0App", parent=IMMORTAL)
-public class TestMissionInit extends CyclicExecutive {
+@Scope("a")
+public class TestMissionInit extends Mission {
 
     @SCJRestricted(INITIALIZATION)
     public TestMissionInit() {
-        super(null);
-    }
-
-    @Override
-    public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
-        return null;
     }
 
     @Override
     @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     public void initialize() {
         new PEH(null,null,null);
         new PEH(null,null,null);
+
+        method();
     }
 
-    @Override
-    public void setUp() {
+    @SCJRestricted(INITIALIZATION)
+    private void method() {
+        /// ERROR
+        new PEH(null,null,null);
     }
-
-    @Override
-    public void tearDown() {
-    }
-
 
     @Scope("a")
+    @SCJAllowed(members=true)
     @DefineScope(name = "b", parent = "a")
     public class PEH extends PeriodicEventHandler {
 
@@ -59,6 +55,7 @@ public class TestMissionInit extends CyclicExecutive {
 
         @Override
         @RunsIn("b")
+        @SCJAllowed(SUPPORT)
         public void handleAsyncEvent() {
         }
     }
@@ -67,6 +64,23 @@ public class TestMissionInit extends CyclicExecutive {
     @Override
     public long missionMemorySize() {
         return 0;
+    }
+
+    @Scope("a")
+    @DefineScope(name = "a", parent = IMMORTAL)
+    @SCJAllowed(members = true)
+    public class X extends MissionSequencer {
+
+        @SCJRestricted(INITIALIZATION)
+        public X(PriorityParameters priority, StorageParameters storage) {
+            super(priority, storage);
+        }
+
+        @Override
+        @SCJAllowed(SUPPORT)
+        protected Mission getNextMission() {
+            return null;
+        }
     }
 
 }

@@ -25,8 +25,8 @@ public enum SCJMission {
     }
     public static SCJMission fromMethod(ExecutableElement m, Elements elements,
             Types types) {
-        boolean isStatic = Utils.isStatic(m);
-        String signature = Utils.buildSignatureString(m);
+        //boolean isStatic = Utils.isStatic(m);
+        //String signature = Utils.buildSignatureString(m);
         TypeMirror t = Utils.getMethodClass(m).asType();
 
         for (SCJMission sm : SCJMission.values()) {
@@ -40,7 +40,6 @@ public enum SCJMission {
         }
         return DEFAULT;
     }
-
 
     protected boolean isMissionInitialization(TypeElement t, ExecutableElement m) {
         //TypeMirror m = t.asType();

@@ -55,6 +55,8 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
             elements, "javax.safetycritical.SCJRunnable");
     protected final TypeMirror missionSequencer = Utils.getTypeMirror(
             elements, "javax.safetycritical.MissionSequencer");
+    protected final TypeMirror cyclicExecutive = Utils.getTypeMirror(
+            elements, "javax.safetycritical.CyclicExecutive");
     protected final TypeMirror schedulable = Utils.getTypeMirror(
             elements, "javax.safetycritical.Schedulable");
 
@@ -63,6 +65,7 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         return   types.isSubtype(m, noHeapRealtimeThread)
                 || types.isSubtype(m, managedEventHandler)
                 || types.isSubtype(m, missionSequencer)
+                || types.isSubtype(m, cyclicExecutive)
                 || types.isSubtype(m, interruptServiceRoutine)
                // || types.isSubtype(m, mission)
                 || types.isSubtype(m, schedulable);
