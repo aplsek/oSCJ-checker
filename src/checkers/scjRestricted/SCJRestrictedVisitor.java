@@ -2,12 +2,18 @@ package checkers.scjRestricted;
 
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
+import static checkers.scjAllowed.EscapeMap.isEscaped;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_INFRASTRUCTURE_OVERRIDE;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE_SUPPORT;
 import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_OVERRIDE;
 import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_NO_OVERRIDE;
 import static checkers.scjRestricted.SCJRestrictedChecker.ERR_TOO_MANY_VALUES;
 import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_ALLOCATION;
 import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_FOREACH;
 import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_METHOD_CALL;
+import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -237,6 +243,8 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         return super.visitEnhancedForLoop(node, p);
     }
 
+    void pln(String str) {System.out.println("\t" + str);}
+
     @Override
     public R visitMethod(MethodTree node, P p) {
         debugIndentIncrement("visitMethod " + node.getName());
@@ -253,6 +261,20 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
                 break;
             }
         checkSanity(node, rs); // not necessary?
+
+        // checking overrides for Phase value:
+        Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
+                .overriddenMethods(m);
+        for (ExecutableElement override : overrides.values()) {
+            if (Utils.isUserLevel(m)) {
+                EnumSet<Phase> parrentRS = getSCJRestrictions(override, node);
+                if (!parrentRS.equals(Phase.ALL)) {
+                    if (parrentRS != rs)
+                        fail(ERR_ILLEGAL_NO_OVERRIDE,node);
+                }
+            }
+
+        }
 
         R r = super.visitMethod(node, p);
         currentBlockFree = currentAllocFree = false;
