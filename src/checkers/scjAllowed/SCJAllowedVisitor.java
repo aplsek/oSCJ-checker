@@ -76,10 +76,17 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         debugIndentIncrement("visitClass " + node.getSimpleName());
 
         TypeElement t = TreeUtils.elementFromDeclaration(node);
+        Level superLevel = getSuperTypeLevel(t);
 
-        if (!isSCJAllowed(t) && !isEnclosingSCJAllowed(t.getEnclosingElement())) {
-            debugIndentDecrement();
-            return null;
+        if (!isSCJAllowed(t)) {
+                if (superLevel != HIDDEN) {
+                    fail(ERR_BAD_SUBCLASS, node);
+                    debugIndentDecrement();
+                    return null;
+                } else if (!isEnclosingSCJAllowed(t.getEnclosingElement())) {
+                        debugIndentDecrement();
+                        return null;
+                }
         }
 
         if (isEscaped(t.toString()) || escapeEnum(node)
@@ -113,6 +120,20 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         debugIndentDecrement();
         return r;
+    }
+
+    private Level getSuperTypeLevel(TypeElement t) {
+        Level level = HIDDEN;
+
+        TypeElement s = Utils.superType(t);
+        while (s != null ) {
+            if (isSCJAllowed(s)) {
+                    level = scjAllowedLevel(s);
+            }
+            s = Utils.superType(s);
+        }
+
+        return level;
     }
 
     @Override
@@ -153,6 +174,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             return null;
         }
 
+        Level enclosingLevel = getEnclosingLevel(m);
+
         // checking overrides
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(m);
@@ -163,23 +186,42 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
                             .compareTo(INFRASTRUCTURE) >= 0)
                 fail(ERR_BAD_INFRASTRUCTURE_OVERRIDE, node);
 
-            debugIndent("overrides : " + override);
-            debugIndent("overrides enc: " + override.getEnclosingElement());
-            debugIndent("overrides ann: " + override.getAnnotationMirrors());
-            debugIndent("level : " + m);
-            debugIndent("over-levels : " + scjAllowedLevel(override, node));
-            debugIndent("level : " + level);
-            debugIndent("isLegal : " + isLegalOverride(overrides, node));
-            boolean res = level.compareTo(scjAllowedLevel(override, node)) > 0;
-            debugIndent("level.compareTo(scjAllowedLevel(override, node)) : " + res);
+
+            // inherit annotations
+            //if (Utils.isUserLevel(m)) {
+            //    if (isSCJAllowed(override))
+            //        if (!isSCJAllowed(m) && level.compareTo(scjAllowedLevel(override, node)) != 0)
+            //            fail(null,null);
+           // }
+/*
+            Level overLevel = scjAllowedLevel(override, node);
+            if (isSCJAllowed(override))
+                if (scjAllowedLevel(override, node) == SUPPORT) {
+                    System.out.println("\nSUPPORT");
+                    if (!isSCJAllowed(m))
+                        //System.out.println(">>>>>> NO------SUPPORT");
+                        //
+                }*/
+
+            //TODO: improve this:
 
             if (!isEscaped(override.getEnclosingElement().toString())
-                    && level.compareTo(scjAllowedLevel(override, node)) > 0)
-                fail(ERR_BAD_OVERRIDE, node);
+                    && level.compareTo(scjAllowedLevel(override, node)) > 0
+                    && !level.equals(enclosingLevel)) {
+                    pln("\n level :" +  level);
+                    pln("over-level :" + scjAllowedLevel(override, node));
+                    pln("elem:" + override.getEnclosingElement() );
+
+                    fail(ERR_BAD_OVERRIDE, node);
+            }
 
             if (scjAllowedLevel(override, node) == SUPPORT) {
-                if (level != SUPPORT)
+                if (level != SUPPORT || !isSCJAllowed(m)) {
+                    //pln("\n level :" +  level);
+                    //pln("over-level :" + scjAllowedLevel(override, node));
+                    //pln("elem:" + override.getEnclosingElement() );
                     fail(ERR_BAD_OVERRIDE_SUPPORT, node);
+                }
             }
         }
 
@@ -190,6 +232,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         debugIndentDecrement();
         return r;
     }
+
+    void pln(String str) {System.out.println("\t" + str);}
 
     /**
      * A legal sequence of overrides is Level 1 (user code) ---> SUPPORT (scj
