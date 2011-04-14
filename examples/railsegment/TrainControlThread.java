@@ -23,14 +23,16 @@ package railsegment;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.realtime.PriorityParameters;
-import javax.safetycritical.NoHeapRealtimeThread;
+import javax.safetycritical.ManagedThread;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 import railsegment.clock.SynchronizedTime;
@@ -39,7 +41,7 @@ import railsegment.clock.SynchronizedTime;
 @Scope("B")
 @DefineScope(name="B:TCT", parent="B")
 @SCJAllowed(value=LEVEL_2, members=true)
-public class TrainControlThread extends NoHeapRealtimeThread
+public class TrainControlThread extends ManagedThread
 {
   private final static int BackingStoreSize = 1000;
   private final static int NativeStackSize = 1000;
@@ -49,6 +51,7 @@ public class TrainControlThread extends NoHeapRealtimeThread
   private final SynchronizedTime times_data;
   private final NavigationInfo navs_data;
 
+  @SCJRestricted(INITIALIZATION)
   public TrainControlThread(final CommunicationsQueue comms_data,
                             final SynchronizedTime times_data,
                             final NavigationInfo navs_data,

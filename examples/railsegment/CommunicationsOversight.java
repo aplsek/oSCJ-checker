@@ -23,20 +23,22 @@ package railsegment;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.realtime.PriorityParameters;
-import javax.safetycritical.NoHeapRealtimeThread;
+import javax.safetycritical.ManagedThread;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @Scope("A")
 @DefineScope(name="CO_Private", parent="A")
 @SCJAllowed(value=LEVEL_2, members=true)
-class CommunicationsOversight extends NoHeapRealtimeThread {
+class CommunicationsOversight extends ManagedThread {
 
   // Determined by VM-specific static analysis tools
   private static final long BackingStoreRequirements = 500;
@@ -51,6 +53,7 @@ class CommunicationsOversight extends NoHeapRealtimeThread {
   final SatQueue satq;
   final MobileQueue mobileq;
 
+  @SCJRestricted(INITIALIZATION)
   CommunicationsOversight(int comms_priority,
                           CommunicationsQueue comms_data,
                           CypherQueue cypherq,
@@ -73,7 +76,6 @@ class CommunicationsOversight extends NoHeapRealtimeThread {
   private boolean stop_me = false;
 
   @RunsIn(CALLER)
-  @SCJAllowed
   public synchronized void requestTermination() {
     stop_me = true;
     comms_data.smc.issueApplicationRequest();

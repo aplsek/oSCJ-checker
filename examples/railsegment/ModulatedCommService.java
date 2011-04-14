@@ -93,7 +93,6 @@ public class ModulatedCommService extends Mission
 
   @Override
   @RunsIn(CALLER)
-  @SCJAllowed
   public void requestTermination()
   {
     // do something special to coordinate with the NHRT thread

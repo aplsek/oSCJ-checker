@@ -125,7 +125,6 @@ public class CommunicationService extends Mission
 
     @Override
     @RunsIn(CALLER)
-    @SCJAllowed
     public void requestTermination()
     {
         management_thread.requestTermination();

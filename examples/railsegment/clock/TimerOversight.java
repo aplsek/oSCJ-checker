@@ -23,13 +23,15 @@ package railsegment.clock;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.PriorityParameters;
-import javax.safetycritical.NoHeapRealtimeThread;
+import javax.safetycritical.ManagedThread;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 import railsegment.CommunicationsQueue;
@@ -37,7 +39,7 @@ import railsegment.CommunicationsQueue;
 @SCJAllowed(value=LEVEL_2, members=true)
 @Scope("C")
 @DefineScope(name="C:TO", parent="C")
-public class TimerOversight extends NoHeapRealtimeThread
+public class TimerOversight extends ManagedThread
 {
 // Determined by VM-specific static analysis tools
   private static final long BackingStoreRequirements = 500;
@@ -47,6 +49,7 @@ public class TimerOversight extends NoHeapRealtimeThread
  // private CommunicationsQueue comms_data;
   private TimeService time_mission;
 
+  @SCJRestricted(INITIALIZATION)
   public TimerOversight(TimeService time_mission,
                         CommunicationsQueue comms_data,
                         int priority) {

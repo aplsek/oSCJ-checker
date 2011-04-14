@@ -131,7 +131,7 @@ public class MobileQueue {
 
   // invoked by CommunicationsOversight thread
   @RunsIn(CALLER)
-  @SCJAllowed
+  @SCJAllowed(value=LEVEL_2)
   synchronized void requestTermination() {
     pending_request = RequestEncoding.RequestShutdown;
     notifyAll();

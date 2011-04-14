@@ -22,20 +22,22 @@ package railsegment;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.realtime.PriorityParameters;
-import javax.safetycritical.NoHeapRealtimeThread;
+import javax.safetycritical.ManagedThread;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @Scope("H")
 @DefineScope(name="MOB_Private", parent="H")
 @SCJAllowed(value=LEVEL_2, members=true)
-public class MobileOversight extends NoHeapRealtimeThread {
+public class MobileOversight extends ManagedThread {
 
   // These three constants determined by static analysis or other
   // vendor-specific approaches
@@ -54,6 +56,7 @@ public class MobileOversight extends NoHeapRealtimeThread {
   MobileOversight mobile_thread;
   MobileInterruptHandler mobile_isr;
 
+  @SCJRestricted(INITIALIZATION)
   public MobileOversight(final int mobile_priority,
                          final MobileCommService my_mission,
                          final MobileQueue mobile_data)
@@ -70,7 +73,6 @@ public class MobileOversight extends NoHeapRealtimeThread {
 
 
   @RunsIn(CALLER)
-  @SCJAllowed
   public void requestTermination()
   {
     // do something special to coordinate with the NHRT thread

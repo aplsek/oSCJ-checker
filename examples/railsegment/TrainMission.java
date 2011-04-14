@@ -156,7 +156,7 @@ public class TrainMission extends Mission
 
   @Override
   @RunsIn(CALLER)
-  @SCJAllowed
+  @SCJAllowed(value=LEVEL_2)
   public void requestTermination()
   {
     commsq.requestSequenceTermination();

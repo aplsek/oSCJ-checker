@@ -23,20 +23,22 @@ package railsegment;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.realtime.PriorityParameters;
-import javax.safetycritical.NoHeapRealtimeThread;
+import javax.safetycritical.ManagedThread;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @Scope("G")
 @DefineScope(name="SO_Private", parent="G")
 @SCJAllowed(value=LEVEL_2, members=true)
-class SatOversight extends NoHeapRealtimeThread {
+class SatOversight extends ManagedThread {
   // Determined by VM-specific static analysis tools
   private static final long BackingStoreRequirements = 500;
   private static final long NativeStackRequirements = 2000;
@@ -46,6 +48,7 @@ class SatOversight extends NoHeapRealtimeThread {
   final SatQueue modulated_data;
   final SatCommService mission;
 
+  @SCJRestricted(INITIALIZATION)
   SatOversight(int priority,
                SatCommService my_mission, SatQueue modulated_data) {
     super(new PriorityParameters(priority),
