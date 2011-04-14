@@ -32,6 +32,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.Phase;
+import static javax.safetycritical.annotate.Phase.ALL;
 import javax.safetycritical.annotate.SCJRestricted;
 
 import checkers.SCJVisitor;
@@ -268,10 +269,9 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         for (ExecutableElement override : overrides.values()) {
             if (Utils.isUserLevel(m)) {
                 EnumSet<Phase> parrentRS = getSCJRestrictions(override, node);
-                if (!parrentRS.equals(Phase.ALL)) {
-                    if (parrentRS != rs)
+                if (!parrentRS.contains(ALL))
+                    if (!parrentRS.containsAll(rs))
                         fail(ERR_ILLEGAL_NO_OVERRIDE,node);
-                }
             }
 
         }
