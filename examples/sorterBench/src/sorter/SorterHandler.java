@@ -14,6 +14,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 import sorter.bench.BenchConf;
+import sorter.bench.NanoClock;
 
 @SCJAllowed(members=true)
 @Scope("Level0App")
@@ -26,7 +27,7 @@ public class SorterHandler extends PeriodicEventHandler {
     @SCJAllowed()
     @SCJRestricted(INITIALIZATION)
     public SorterHandler(long psize) {
-        super(null, null, null);
+        super(null, null, new StorageParameters(psize, 0 , 0), "SorterHandler");
 
         array = new Data[BenchConf.SIZE];
         for (int i= 0; i < BenchConf.FRAMES; i++) {
@@ -40,11 +41,19 @@ public class SorterHandler extends PeriodicEventHandler {
     @SCJAllowed(SUPPORT)
     @RunsIn("SorterHandler")
     public void handleAsyncEvent() {
+        final long timeBefore = NanoClock.now();
+
         mix();
         sort();
+        final long timeAfter = NanoClock.now();
+
+
+        BenchConf.timesBefore[BenchConf.recordedRuns] = timeBefore;
+        BenchConf.timesAfter[BenchConf.recordedRuns] = timeAfter;
+        BenchConf.recordedRuns++;
 
         counter++;
-        if (counter > BenchConf.FRAMES)
+        if (counter >= BenchConf.FRAMES)
             Mission.getCurrentMission().requestSequenceTermination();
     }
 
