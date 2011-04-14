@@ -7,8 +7,8 @@ import javax.lang.model.util.Types;
 
 public enum SCJSchedulable {
     PEH("javax.safetycritical.PeriodicEventHandler", "handleAsyncEvent"),
-    APEH("javax.safetycritical.APeriodicEventHandler", "handleAsyncEvent"),
-    MANAGED_THREAD("javax.safetyCritical.ManagedThread", "run"),
+    APEH("javax.safetycritical.AperiodicEventHandler", "handleAsyncEvent"),
+    MANAGED_THREAD("javax.safetycritical.ManagedThread", "run"),
     DEFAULT(null, null);
 
     public final String clazz;
@@ -29,7 +29,7 @@ public enum SCJSchedulable {
         TypeMirror m = t.asType();
 
         for (SCJSchedulable sm : SCJSchedulable.values()) {
-            if (sm.equals(DEFAULT) || sm == null)
+            if (sm == null || sm.equals(DEFAULT))
                 continue;
             TypeMirror schedulable = Utils.getTypeMirror(elements, sm.clazz);
             if (types.isSubtype(m, schedulable))

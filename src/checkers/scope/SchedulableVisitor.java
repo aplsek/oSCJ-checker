@@ -52,12 +52,12 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         if (!isSchedulable(t))
             return super.visitClass(node, p);
 
-        /*
+
         DefineScope df = getDefineScope(t);
         ScopeInfo scope = checkClassScope(t,df,node,node);
 
         checkRunsIn(t,scope,df,node);
-    */
+
         return super.visitClass(node, p);
     }
 

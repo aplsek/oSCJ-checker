@@ -80,7 +80,7 @@ class SecurityOversight extends ManagedThread {
   }
 
   @Override
-  @RunsIn("SO_Private")
+  @RunsIn("SEC_Private")
   @SCJAllowed(SUPPORT)
   public final void run() {
     @Scope(IMMORTAL) byte[] buffer = null;
