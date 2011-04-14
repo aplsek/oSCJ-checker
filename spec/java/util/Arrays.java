@@ -15,4 +15,8 @@ public class Arrays {
     public static String toString(int[] a) {
         return null;
     }
+    
+    @SCJAllowed
+    public static void sort(long[] a) {
+    }
 }

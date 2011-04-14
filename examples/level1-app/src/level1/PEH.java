@@ -8,6 +8,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
 import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
@@ -45,6 +46,7 @@ public class PEH extends PeriodicEventHandler {
 
     @Override
     @RunsIn("PEH")
+    @SCJAllowed(SUPPORT)
     public void handleAsyncEvent() {
         times[pos++] = Clock.getRealtimeClock().getTime().getMilliseconds();
         long[] mytimes = new long[1000];
@@ -56,6 +58,7 @@ public class PEH extends PeriodicEventHandler {
 
     @Override
     @SCJRestricted(CLEANUP)
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
     }
 

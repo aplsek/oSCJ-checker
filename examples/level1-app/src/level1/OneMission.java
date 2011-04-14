@@ -2,6 +2,7 @@ package level1;
 
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -23,6 +24,7 @@ public class OneMission extends Mission {
 
     @SCJRestricted(INITIALIZATION)
     @Override
+    @SCJAllowed(SUPPORT)
     public void initialize() {
         new PEH(new PriorityParameters(PriorityScheduler.instance()
                 .getNormPriority()), new PeriodicParameters(new RelativeTime(0,

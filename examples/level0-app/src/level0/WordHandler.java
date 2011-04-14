@@ -1,10 +1,10 @@
 package level0;
 
 
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+
 import javax.safetycritical.PeriodicEventHandler;
-import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
@@ -30,7 +30,7 @@ public class WordHandler extends PeriodicEventHandler {
     }
 
     @Override
-    @SCJAllowed()
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
     }
 }

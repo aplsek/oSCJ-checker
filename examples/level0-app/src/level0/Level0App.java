@@ -3,6 +3,7 @@ package level0;
 
 
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -13,8 +14,6 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
-
-import sorter.SorterHandler;
 
 @SCJAllowed(members=true)
 @Scope("Level0App")
@@ -27,14 +26,16 @@ public class Level0App extends CyclicExecutive {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         return null;
     }
 
     @Override
     @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     public void initialize() {
-        new SorterHandler(20000);
+        new WordHandler(20000);
     }
 
     @Override
@@ -43,10 +44,12 @@ public class Level0App extends CyclicExecutive {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public void setUp() {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public void tearDown() {
     }
 

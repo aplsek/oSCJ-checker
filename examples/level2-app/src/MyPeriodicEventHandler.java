@@ -11,6 +11,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
@@ -31,11 +32,14 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 
     @Override
     @RunsIn("MyPeriodicEventHandler")
+    @SCJAllowed(SUPPORT)
     public void handleAsyncEvent() {
         ++_eventCounter;
     }
 
+    @Override
     @SCJRestricted(CLEANUP)
-    public void cleanup() {
+    @SCJAllowed(SUPPORT)
+    public void cleanUp() {
     }
 }

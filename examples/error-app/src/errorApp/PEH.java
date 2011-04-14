@@ -59,6 +59,7 @@ class PEH extends PeriodicEventHandler {
 
     @Override
     @SCJRestricted(CLEANUP)
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
     }
 

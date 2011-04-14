@@ -9,12 +9,14 @@ import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members=true, value=LEVEL_2)
 @Scope(IMMORTAL)
+@DefineScope(name="PrimaryMission", parent=IMMORTAL)
 public class MainMissionSequencer extends MissionSequencer {
 
     private boolean initialized, finalized;

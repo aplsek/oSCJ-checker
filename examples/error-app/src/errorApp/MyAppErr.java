@@ -1,6 +1,7 @@
 package errorApp;
 
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
@@ -25,6 +26,7 @@ public class MyAppErr extends CyclicExecutive {
  	static RelativeTime t = new RelativeTime(5,0);
 
  	@Override
+ 	@SCJAllowed(SUPPORT)
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
 		return new CyclicSchedule(new CyclicSchedule.Frame[]{new CyclicSchedule.Frame(t,handlers)});
 	}
@@ -36,6 +38,7 @@ public class MyAppErr extends CyclicExecutive {
 
 	@Override
 	@SCJRestricted(INITIALIZATION)
+	@SCJAllowed(SUPPORT)
     public void initialize() {
 		new PEH();
 	}
@@ -52,15 +55,18 @@ public class MyAppErr extends CyclicExecutive {
 	}
 
 	@SCJRestricted(INITIALIZATION)
+	@SCJAllowed(SUPPORT)
 	public void setUp() {
 	}
 
 	@SCJRestricted(CLEANUP)
+	@SCJAllowed(SUPPORT)
 	public void tearDown() {
 	}
 
 	@Override
     @SCJRestricted(CLEANUP)
+    @SCJAllowed(SUPPORT)
 	public void cleanUp() {
 	}
 }
