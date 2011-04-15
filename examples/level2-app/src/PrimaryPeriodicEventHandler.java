@@ -17,21 +17,21 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 @SCJAllowed(members=true, value=LEVEL_2)
 @Scope("PrimaryMission")
-@DefineScope(name="MyPeriodicEventHandler", parent="PrimaryMission")
-public class MyPeriodicEventHandler extends PeriodicEventHandler {
+@DefineScope(name="PrimaryPeriodicEventHandler", parent="PrimaryMission")
+public class PrimaryPeriodicEventHandler extends PeriodicEventHandler {
     private static final int _priority = 17;
     private static final int _memSize = 5000;
     private int _eventCounter;
 
     @SCJRestricted(INITIALIZATION)
-    public MyPeriodicEventHandler(String aehName, RelativeTime startTime,
+    public PrimaryPeriodicEventHandler(String aehName, RelativeTime startTime,
             RelativeTime period) {
         super(new PriorityParameters(_priority), new PeriodicParameters(
                 startTime, period), new StorageParameters(10000, 10000, 10000));
     }
 
     @Override
-    @RunsIn("MyPeriodicEventHandler")
+    @RunsIn("PrimaryPeriodicEventHandler")
     @SCJAllowed(SUPPORT)
     public void handleAsyncEvent() {
         ++_eventCounter;
