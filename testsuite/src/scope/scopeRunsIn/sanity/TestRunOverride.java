@@ -2,7 +2,7 @@ package scope.scopeRunsIn.sanity;
 
 import javax.realtime.PriorityParameters;
 
-import javax.safetycritical.NoHeapRealtimeThread;
+import javax.safetycritical.ManagedThread;
 import javax.safetycritical.StorageParameters;
 
 import javax.safetycritical.annotate.DefineScope;
@@ -16,7 +16,7 @@ import static javax.safetycritical.annotate.Level.SUPPORT;
 @Scope("D")
 @DefineScope(name="D", parent=IMMORTAL)
 @SCJAllowed(value=LEVEL_2, members=true)
-public class TestRunOverride extends NoHeapRealtimeThread {
+public class TestRunOverride extends ManagedThread {
     public TestRunOverride(int priority) {
         super(new PriorityParameters(priority), new StorageParameters(0, 0, 0));
     }

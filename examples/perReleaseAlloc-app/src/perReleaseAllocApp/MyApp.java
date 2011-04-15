@@ -22,6 +22,7 @@ package perReleaseAllocApp;
  *   @authors  Lei Zhao, Ales Plsek
  */
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
@@ -41,24 +42,23 @@ import javax.safetycritical.annotate.Scope;
 @DefineScope(name="MyApp", parent=IMMORTAL)
 public class MyApp extends CyclicExecutive {
 
-    static PriorityParameters p = new PriorityParameters(18);
-    static StorageParameters s = new StorageParameters(1000L, 1000L, 1000L);
-    static RelativeTime t = new RelativeTime(5, 0);
-
     @Override
+    @SCJAllowed(SUPPORT)
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         return new CyclicSchedule(
-                new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(t,
+                new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(new RelativeTime(5, 0),
                         handlers) });
     }
 
     @SCJRestricted(INITIALIZATION)
     public MyApp() {
-        super(p, s);
+        super(new PriorityParameters(18),
+                new StorageParameters(1000L, 1000L, 1000L));
     }
 
     @Override
     @SCJRestricted(INITIALIZATION)
+     @SCJAllowed(SUPPORT)
     public void initialize() {
         new MyPEH();
     }
@@ -74,15 +74,18 @@ public class MyApp extends CyclicExecutive {
     }
 
     @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     public void setUp() {
     }
 
     @SCJRestricted(CLEANUP)
+    @SCJAllowed(SUPPORT)
     public void tearDown() {
     }
 
     @Override
     @SCJRestricted(CLEANUP)
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
     }
 

@@ -24,20 +24,12 @@ import javax.safetycritical.annotate.Scope;
 @DefineScope(name="PEH", parent="APP")
 public class MyPEH4 extends PeriodicEventHandler {
 
-    static PriorityParameters pri;
-    static PeriodicParameters per;
-    static StorageParameters stor;
-
-    static {
-        pri = new PriorityParameters(13);
-        per = new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
-                500, 0));
-        stor = new StorageParameters(1000L, 1000L, 1000L);
-    }
-
     @SCJRestricted(INITIALIZATION)
     public MyPEH4() {
-        super(pri, per, stor);
+        super(new PriorityParameters(13),
+                new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
+                500, 0)),
+                new StorageParameters(1000L, 1000L, 1000L));
     }
 
     Tick tock;
@@ -51,28 +43,34 @@ public class MyPEH4 extends PeriodicEventHandler {
             @DefineScope(name="APP", parent=IMMORTAL)
             ManagedMemory m = (ManagedMemory) MemoryArea.getMemoryArea(this);
 
-            Tick time = (Tick) m.newInstance(Tick.class);
-
-            //## ERROR
-            m.executeInArea(new SCJRunnable() {
-                public void run() {
-                    MyPEH4.this.tock = new Tick();
-                }
-            });
+            @Scope("APP") Tick time = (Tick) m.newInstance(Tick.class);
+            MySCJRunnable r = new MySCJRunnable();
+            m.executeInArea(r);
 
         } catch (InstantiationException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
     @Override
     @SCJRestricted(CLEANUP)
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
     }
 
     public StorageParameters getThreadConfigurationParameters() {
         return null;
+    }
+
+    @SCJAllowed(members=true)
+    @DefineScope(name="APP",parent=IMMORTAL)
+    class MySCJRunnable implements SCJRunnable {
+        @SCJAllowed(SUPPORT)
+        @RunsIn("APP")
+        public void run() {
+            MyPEH4.this.tock = new Tick();
+        }
     }
 }

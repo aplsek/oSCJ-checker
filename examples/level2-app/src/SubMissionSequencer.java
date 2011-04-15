@@ -16,7 +16,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members=true, value=LEVEL_2)
-@Scope(IMMORTAL)
+@Scope("PrimaryMission")
 @DefineScope(name="StageMission", parent= "PrimaryMission")
 public class SubMissionSequencer  extends MissionSequencer {
 

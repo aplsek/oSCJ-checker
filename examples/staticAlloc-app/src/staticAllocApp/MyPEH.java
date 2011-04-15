@@ -1,6 +1,7 @@
 package staticAllocApp;
 
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
@@ -22,20 +23,12 @@ import javax.safetycritical.StorageParameters;
 @DefineScope(name="MyPEH", parent="MyApp")
 public class MyPEH extends PeriodicEventHandler {
 
-    static PriorityParameters pri;
-    static PeriodicParameters per;
-    static StorageParameters stor;
-
-    static {
-        pri = new PriorityParameters(13);
-        per = new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
-                500, 0));
-        stor = new StorageParameters(50L, 1000L, 1000L);
-    }
-
     @SCJRestricted(INITIALIZATION)
     public MyPEH() {
-        super(pri, per, stor);
+        super(new PriorityParameters(13),
+                new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
+                500, 0)),
+                new StorageParameters(50L, 1000L, 1000L));
     }
 
     static int pos;
@@ -43,6 +36,7 @@ public class MyPEH extends PeriodicEventHandler {
 
     @Override
     @RunsIn("MyPEH")
+    @SCJAllowed(SUPPORT)
     public void handleAsyncEvent() {
         times[pos++] = Clock.getRealtimeClock().getTime().getMilliseconds();
         if (pos == 1000)
@@ -51,6 +45,7 @@ public class MyPEH extends PeriodicEventHandler {
 
     @Override
     @SCJRestricted(CLEANUP)
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
     }
 
