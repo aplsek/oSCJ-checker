@@ -998,6 +998,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_BAD_GET_CURRENT_MANAGED_MEMORY, node);
             return ScopeInfo.INVALID.representing(current);
         }
+
         return parent.representing(current);
     }
 

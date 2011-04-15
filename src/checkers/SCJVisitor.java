@@ -50,7 +50,7 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     protected final TypeMirror mission = Utils.getTypeMirror(elements,
             "javax.safetycritical.Mission");
     protected final TypeMirror noHeapRealtimeThread = Utils.getTypeMirror(
-            elements, "javax.safetycritical.NoHeapRealtimeThread");
+            elements, "javax.realtime.NoHeapRealtimeThread");
     protected final TypeMirror scjRunnable = Utils.getTypeMirror(
             elements, "javax.safetycritical.SCJRunnable");
     protected final TypeMirror missionSequencer = Utils.getTypeMirror(
@@ -67,7 +67,6 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
                 || types.isSubtype(m, missionSequencer)
                 || types.isSubtype(m, cyclicExecutive)
                 || types.isSubtype(m, interruptServiceRoutine)
-               // || types.isSubtype(m, mission)
                 || types.isSubtype(m, schedulable);
     }
 
@@ -103,4 +102,11 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         return scopeAnn != null ? new ScopeInfo(scopeAnn.value())
                 : ScopeInfo.CALLER;
     }
+
+
+    /**
+     * DEBUG : this is just useful...
+     * @param str
+     */
+    void pln(String str) {System.out.println("\t"+ str);}
 }

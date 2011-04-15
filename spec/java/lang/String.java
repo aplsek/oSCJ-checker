@@ -208,6 +208,12 @@ public final class String
   public byte[] getBytes() {
     return null; // skeleton
   }
+  
+  @SCJAllowed
+  @SCJRestricted(maySelfSuspend = false)
+  public byte[] getBytes(String charsetName) {
+      return null;
+  }
 
   /**
    * Allocates no memory. Does not allow "this" or "dst" argument to escape
