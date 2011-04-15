@@ -10,13 +10,14 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members=true, value=LEVEL_2)
 @Scope(IMMORTAL)
-@DefineScope(name="StageMission", parent=IMMORTAL)
+@DefineScope(name="StageMission", parent= "PrimaryMission")
 public class SubMissionSequencer  extends MissionSequencer {
 
 	private boolean initialized, finalized;
@@ -29,6 +30,7 @@ public class SubMissionSequencer  extends MissionSequencer {
 
 	@Override
 	@SCJAllowed(SUPPORT)
+	@RunsIn("StageMission")
     protected Mission getNextMission() {
 		if (finalized)
 			return null;

@@ -4,6 +4,8 @@ import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
+import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
 import javax.safetycritical.Mission;
 import javax.safetycritical.PeriodicEventHandler;
 import javax.safetycritical.StorageParameters;
@@ -26,7 +28,7 @@ public class SorterHandler extends PeriodicEventHandler {
     @SCJAllowed()
     @SCJRestricted(INITIALIZATION)
     public SorterHandler(long psize) {
-        super(null, null, new StorageParameters(psize, 0, 0), "SorterHandler");
+        super(null, null, new StorageParameters(psize, 0, 0), new String("SorterHandler"));
 
         array = new Data[BenchConf.SIZE];
         for (int i = 0; i < BenchConf.FRAMES; i++) {
@@ -73,17 +75,6 @@ public class SorterHandler extends PeriodicEventHandler {
         }
     }
 
-    /**
-     * Quicksort algorithm.
-     *
-     * @param a
-     *            an array of Comparable items.
-     */
-    @RunsIn("SorterHandler")
-    public static void quicksort(Comparable[] a) {
-        quicksort(a, 0, a.length - 1);
-    }
-
     private static final int CUTOFF = 10;
 
     /**
@@ -98,7 +89,7 @@ public class SorterHandler extends PeriodicEventHandler {
      *            the right-most index of the subarray.
      */
     @RunsIn("SorterHandler")
-    private static void quicksort(Comparable[] a, int low, int high) {
+    private static void quicksort(@Scope(UNKNOWN) Comparable[] a, int low, int high) {
         if (low + CUTOFF > high)
             insertionSort(a, low, high);
         else {
@@ -146,8 +137,8 @@ public class SorterHandler extends PeriodicEventHandler {
      *            the index of the second object.
      */
     @RunsIn("SorterHandler")
-    public static final void swapReferences(Object[] a, int index1, int index2) {
-        Object tmp = a[index1];
+    public static final void swapReferences(@Scope(UNKNOWN) Object[] a, int index1, int index2) {
+        @Scope(UNKNOWN) Object tmp = a[index1];
         a[index1] = a[index2];
         a[index2] = tmp;
     }
@@ -163,9 +154,9 @@ public class SorterHandler extends PeriodicEventHandler {
      *            the number of items to sort.
      */
     @RunsIn("SorterHandler")
-    private static void insertionSort(Comparable[] a, int low, int high) {
+    private static void insertionSort(@Scope(UNKNOWN) Comparable[] a, int low, int high) {
         for (int p = low + 1; p <= high; p++) {
-            Comparable tmp = a[p];
+            @Scope(UNKNOWN) Comparable tmp = a[p];
             int j;
 
             for (j = p; j > low && tmp.compareTo(a[j - 1]) < 0; j--)
@@ -175,12 +166,13 @@ public class SorterHandler extends PeriodicEventHandler {
     }
 
     @Override
-    @SCJAllowed()
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
     }
 
 }
 
+@SCJAllowed(members=true)
 class Data implements Comparable {
     public int value;
 

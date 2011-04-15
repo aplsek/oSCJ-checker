@@ -33,12 +33,12 @@ public class PrimaryMission extends Mission {
         StorageParameters sp = new StorageParameters(100000L, 1000, 1000);
         SubMissionSequencer sms = new SubMissionSequencer(pp, sp);
         // sms.register();
-        (new MyPeriodicEventHandler("AEH A", new RelativeTime(0, 0),
+        (new PrimaryPeriodicEventHandler("AEH A", new RelativeTime(0, 0),
                 new RelativeTime(500, 0))).register();
 
-        (new MyPeriodicEventHandler("AEH B", new RelativeTime(0, 0),
+        (new PrimaryPeriodicEventHandler("AEH B", new RelativeTime(0, 0),
                 new RelativeTime(1000, 0))).register();
-        (new MyPeriodicEventHandler("AEH C", new RelativeTime(500, 0),
+        (new PrimaryPeriodicEventHandler("AEH C", new RelativeTime(500, 0),
                 new RelativeTime(500, 0))).register();
 
     }

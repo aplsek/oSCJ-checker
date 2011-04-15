@@ -13,6 +13,8 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.RunsIn;
+
 
 @SCJAllowed(members=true, value=LEVEL_2)
 @Scope(IMMORTAL)
@@ -31,6 +33,7 @@ public class MainMissionSequencer extends MissionSequencer {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @RunsIn("PrimaryMission")
     protected Mission getNextMission() {
         if (finalized)
             return null;

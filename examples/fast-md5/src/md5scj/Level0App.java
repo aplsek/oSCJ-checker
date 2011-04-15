@@ -2,6 +2,7 @@
 
 package md5scj;
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -25,6 +26,7 @@ public class Level0App extends CyclicExecutive {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         CyclicSchedule.Frame[] frames = new CyclicSchedule.Frame[1];
         CyclicSchedule schedule = new CyclicSchedule(frames);
@@ -35,6 +37,7 @@ public class Level0App extends CyclicExecutive {
 
     @Override
     @SCJRestricted(INITIALIZATION)
+     @SCJAllowed(SUPPORT)
     public void initialize() {
         new MD5SCJ(Constants.PRIVATE_MEMORY, Constants.RUNS);
     }
@@ -49,13 +52,16 @@ public class Level0App extends CyclicExecutive {
         return Constants.MISSION_MEMORY;
     }
 
+    @SCJAllowed(SUPPORT)
     public void setUp() {
     }
 
+    @SCJAllowed(SUPPORT)
     public void tearDown() {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
     }
 }

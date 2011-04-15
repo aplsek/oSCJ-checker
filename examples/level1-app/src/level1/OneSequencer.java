@@ -5,6 +5,8 @@ import javax.safetycritical.annotate.RunsIn;
 
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
+
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
@@ -20,6 +22,7 @@ import javax.safetycritical.StorageParameters;
 
 @Scope(IMMORTAL)
 @SCJAllowed(value=LEVEL_1, members=true)
+@DefineScope(name="OneMission", parent=IMMORTAL)
 public class OneSequencer extends MissionSequencer {
     @SCJRestricted(INITIALIZATION)
     OneSequencer(PriorityParameters p, StorageParameters s) {

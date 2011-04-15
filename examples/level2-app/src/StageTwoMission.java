@@ -12,6 +12,9 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.RunsIn;
+
+
 
 @SCJAllowed(members=true, value=LEVEL_2)
 @Scope("StageMission")
@@ -23,7 +26,7 @@ public class StageTwoMission extends Mission {
 	@SCJAllowed(SUPPORT)
     public void initialize() {
 		ManagedMemory.getCurrentManagedMemory().resize(MISSION_MEMORY_SIZE);
-		(new MyPeriodicEventHandler("stage2.eh1", new RelativeTime(0, 0),
+		(new SecondaryPeriodicEventHandler("stage2.eh1", new RelativeTime(0, 0),
 				new RelativeTime(500, 0))).register();
 	}
 

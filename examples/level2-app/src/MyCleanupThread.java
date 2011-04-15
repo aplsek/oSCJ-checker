@@ -37,11 +37,13 @@ public class MyCleanupThread extends ManagedThread {
 	}
 
 	@SCJAllowed
+	@RunsIn("MyCleanupThread")
 	void cleanupThis() {
 		// code not shown
 	}
 
 	@SCJAllowed
+	@RunsIn("MyCleanupThread")
 	void cleanupThat() {
 		// code not shown
 	}

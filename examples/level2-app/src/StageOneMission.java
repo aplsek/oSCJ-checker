@@ -23,7 +23,7 @@ public class StageOneMission extends Mission {
     @SCJAllowed(SUPPORT)
     public void initialize() {
         ManagedMemory.getCurrentManagedMemory().resize(MISSION_MEMORY_SIZE);
-        (new MyPeriodicEventHandler("stage1.eh1", new RelativeTime(0, 0),
+        (new SecondaryPeriodicEventHandler("stage1.eh1", new RelativeTime(0, 0),
                 new RelativeTime(1000, 0))).register();
     }
 

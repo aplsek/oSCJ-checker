@@ -3,6 +3,7 @@ package sorter;
 
 
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -28,6 +29,7 @@ public class SorterApp extends CyclicExecutive {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         CyclicSchedule.Frame[] frames = new CyclicSchedule.Frame[1];
         frames[0] = new CyclicSchedule.Frame(new RelativeTime(BenchConf.PERIOD, 0), handlers);
@@ -37,6 +39,7 @@ public class SorterApp extends CyclicExecutive {
 
     @Override
     @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     public void initialize() {
         new SorterHandler(BenchConf.HANDLER_SCOPE_SIZE);
     }
@@ -47,10 +50,12 @@ public class SorterApp extends CyclicExecutive {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public void setUp() {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public void tearDown() {
         BenchConf.dump();
     }

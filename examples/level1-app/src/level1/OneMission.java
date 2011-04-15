@@ -18,7 +18,6 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @Scope("OneMission")
-@DefineScope(name="OneMission", parent=IMMORTAL)
 @SCJAllowed(value=LEVEL_1, members=true)
 public class OneMission extends Mission {
 

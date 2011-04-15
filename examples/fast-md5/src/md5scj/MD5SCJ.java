@@ -78,6 +78,7 @@ public class MD5SCJ extends PeriodicEventHandler {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
     }
 }

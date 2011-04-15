@@ -1,5 +1,8 @@
 package sorter.bench;
 
+import javax.safetycritical.annotate.SCJAllowed;
+
+@SCJAllowed(members=true)
 public class BenchConf {
     public static final int FRAMES = 1 * 1000;
     public static final int SIZE = 1 * 1000;
@@ -15,10 +18,10 @@ public class BenchConf {
     static public long[]           timesBefore  = new long[FRAMES];;
     static public long[]           timesAfter = new long[FRAMES];;
 
-    public BenchConf() {
-        timesBefore = new long[FRAMES];
-        timesAfter = new long[FRAMES];
-    }
+    //public BenchConf() {
+    //    timesBefore = new long[FRAMES];
+    //    timesAfter = new long[FRAMES];
+    //}
 
 
     public static void set(long time, int index) {
@@ -26,6 +29,7 @@ public class BenchConf {
     }
 
     public static void dump() {
+        /*
         String space = " ";
 
         System.out.println("=====DETECTOR-STATS-START-BELOW====");
@@ -38,6 +42,7 @@ public class BenchConf {
         }
 
         System.out.println("=====DETECTOR-STATS-END-ABOVE====");
+        */
     }
 
 
