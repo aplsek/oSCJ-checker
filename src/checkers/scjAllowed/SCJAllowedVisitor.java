@@ -79,14 +79,14 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         Level superLevel = getSuperTypeLevel(t);
 
         if (!isSCJAllowed(t)) {
-                if (superLevel != HIDDEN) {
-                    fail(ERR_BAD_SUBCLASS, node);
-                    debugIndentDecrement();
-                    return null;
-                } else if (!isEnclosingSCJAllowed(t.getEnclosingElement())) {
-                        debugIndentDecrement();
-                        return null;
-                }
+            if (superLevel != HIDDEN) {
+                fail(ERR_BAD_SUBCLASS, node);
+                debugIndentDecrement();
+                return null;
+            } else if (!isEnclosingSCJAllowed(t.getEnclosingElement())) {
+                debugIndentDecrement();
+                return null;
+            }
         }
 
         if (isEscaped(t.toString()) || escapeEnum(node)

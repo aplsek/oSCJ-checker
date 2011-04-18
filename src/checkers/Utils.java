@@ -35,13 +35,7 @@ import checkers.types.AnnotatedTypes;
 import checkers.util.TypesUtils;
 
 public final class Utils {
-
-
     public static Level level = LEVEL_2;
-
-    /**
-     * debugging flag
-     */
     public static boolean DEBUG = false;
     private static String indent = "";
 

@@ -27,7 +27,7 @@ public enum SCJSchedulable {
             Types types) {
 
         for (SCJSchedulable sm : SCJSchedulable.values()) {
-            if (sm == null || sm.equals(DEFAULT))
+            if (sm == null || sm == DEFAULT)
                 continue;
             TypeMirror schedulable = Utils.getTypeMirror(elements, sm.clazz);
             if (types.isSubtype(m, schedulable))
