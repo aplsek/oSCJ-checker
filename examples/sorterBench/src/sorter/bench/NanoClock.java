@@ -63,7 +63,7 @@ public class NanoClock {
 
     public static long now() {
 
-        AbsoluteTime t = Clock.getRealtimeClock().getTime();
+        AbsoluteTime t = Clock.getRealtimeClock().getTimePrecise();
 
         return convert(t);
     }

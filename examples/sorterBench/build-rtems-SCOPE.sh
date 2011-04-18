@@ -28,7 +28,7 @@ rm -rf list
 # 
 
 # COMPILE FIJI
-$FIJI_HOME/bin/fivmc -o sorterBench-rtems --scj-safelet sorter.SorterApp $FIJIFLAGS $RTEMSFLAGS $SCJFLAGS sorterBench.jar
+$FIJI_HOME/bin/fivmc -o sorterBench-rtems-scope --scj-safelet sorter.SorterApp $FIJIFLAGS $RTEMSFLAGS $SCJFLAGS sorterBench.jar
 	
 	
 # RUN:	
