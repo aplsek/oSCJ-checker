@@ -446,8 +446,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         ctx.setMethodRunsIn(runsIn, m);
     }
 
-    void pln(String str) {System.out.println(str);}
-
     /**
      * Check that a method has a valid Scope annotation. A method's Scope
      * annotation is valid as long as it exists in the scope tree, or is
@@ -489,14 +487,14 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
             if (!eScope.equals(scope) && eLevel != SUPPORT) {
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
-                pln("\nERROR: Illegal Method Scope Override");
-                pln("\t method:" + m.getEnclosingElement() + "." + m);
-                pln("\t method:" + m);
-                pln("\t scope:" + scope);
-                pln("\t runsIn:" + runsIn);
+                System.err.println("\nERROR: Illegal Method Scope Override");
+                System.err.println("\t method:" + m.getEnclosingElement() + "." + m);
+                System.err.println("\t method:" + m);
+                System.err.println("\t scope:" + scope);
+                System.err.println("\t runsIn:" + runsIn);
 
-                pln("\t overriding :" + e.getEnclosingElement() + "." + e);
-                pln("\t scope :" + eScope);
+                System.err.println("\t overriding :" + e.getEnclosingElement() + "." + e);
+                System.err.println("\t scope :" + eScope);
             }
         }
         ctx.setMethodScope(scope, m);

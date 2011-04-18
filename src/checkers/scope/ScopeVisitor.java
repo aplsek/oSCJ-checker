@@ -1126,11 +1126,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return ctx.getMethodRunsIn(t.getQualifiedName().toString(), "run");
     }
 
-    private ScopeInfo getRunnnableScope(ExpressionTree expressionTree) {
-        TypeMirror runnableType = InternalUtils.typeOf(expressionTree);
-        return ctx.getClassScope(runnableType.toString());
-    }
-
     private boolean isThis(IdentifierTree node) {
         String s = node.getName().toString();
         return s.equals("this") || s.equals("super");

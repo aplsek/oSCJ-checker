@@ -2,18 +2,13 @@ package checkers.scjRestricted;
 
 import static checkers.scjAllowed.EscapeMap.escapeAnnotation;
 import static checkers.scjAllowed.EscapeMap.escapeEnum;
-import static checkers.scjAllowed.EscapeMap.isEscaped;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_INFRASTRUCTURE_OVERRIDE;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE_SUPPORT;
-import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_OVERRIDE;
-import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_NO_OVERRIDE;
-import static checkers.scjRestricted.SCJRestrictedChecker.ERR_TOO_MANY_VALUES;
 import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_ALLOCATION;
 import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_FOREACH;
 import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_METHOD_CALL;
-import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
-import static javax.safetycritical.annotate.Level.SUPPORT;
+import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_NO_OVERRIDE;
+import static checkers.scjRestricted.SCJRestrictedChecker.ERR_ILLEGAL_OVERRIDE;
+import static checkers.scjRestricted.SCJRestrictedChecker.ERR_TOO_MANY_VALUES;
+import static javax.safetycritical.annotate.Phase.ALL;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,7 +27,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.Phase;
-import static javax.safetycritical.annotate.Phase.ALL;
 import javax.safetycritical.annotate.SCJRestricted;
 
 import checkers.SCJVisitor;
@@ -44,7 +38,6 @@ import checkers.util.TreeUtils;
 import checkers.util.TypesUtils;
 
 import com.sun.source.tree.AnnotationTree;
-import com.sun.source.tree.ArrayAccessTree;
 import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
@@ -243,8 +236,6 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         if (currentAllocFree) fail(ERR_ILLEGAL_FOREACH, node);
         return super.visitEnhancedForLoop(node, p);
     }
-
-    void pln(String str) {System.out.println("\t" + str);}
 
     @Override
     public R visitMethod(MethodTree node, P p) {

@@ -7,7 +7,6 @@ import static checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_RUNS_IN_MISMATCH
 import static checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_SCOPE_DEFINESCOPE_MISMATCH;
 import static checkers.scope.SchedulableChecker.ERR_SCHED_INIT_OUT_OF_INIT_METH;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.safetycritical.annotate.DefineScope;
@@ -17,8 +16,6 @@ import checkers.SCJSchedulable;
 import checkers.SCJVisitor;
 import checkers.Utils;
 import checkers.source.SourceChecker;
-import checkers.types.AnnotatedTypeFactory;
-import checkers.types.AnnotatedTypes;
 import checkers.util.TreeUtils;
 
 import com.sun.source.tree.ClassTree;
@@ -36,17 +33,11 @@ import com.sun.source.tree.Tree;
  */
 public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     private ScopeCheckerContext ctx;
-    private ScopeTree scopeTree;
-    private AnnotatedTypeFactory atf;
-    private AnnotatedTypes ats;
 
     public SchedulableVisitor(SourceChecker checker, CompilationUnitTree root,
             ScopeCheckerContext ctx) {
         super(checker, root);
         this.ctx = ctx;
-        scopeTree = ctx.getScopeTree();
-        atf = checker.createFactory(root);
-        ats = new AnnotatedTypes(checker.getProcessingEnvironment(), atf);
     }
 
     @Override
@@ -74,7 +65,7 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         ScopeInfo dfParent = new ScopeInfo(df.parent());
 
         if (!scope.equals(dfParent)) {
-            pln("\n\n scope:" + scope + ", dfparent:" + dfParent );
+            System.err.println("\n\n scope:" + scope + ", dfparent:" + dfParent );
             fail(ERR_SCHEDULABLE_SCOPE_DEFINESCOPE_MISMATCH,node);
         }
 
@@ -162,15 +153,5 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         Void res = super.visitMethodInvocation(node, p);
         //isInitialization = oldInitialization;
         return res;
-    }
-
-
-    private void pln(String str) {System.out.println(str);}
-
-    /**
-     * Get a method or field's owning class.
-     */
-    private ScopeInfo getEnclosingClassScope(Element e) {
-        return ctx.getClassScope((TypeElement) e.getEnclosingElement());
     }
 }

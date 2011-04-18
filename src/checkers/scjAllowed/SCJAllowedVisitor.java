@@ -232,8 +232,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         return r;
     }
 
-    void pln(String str) {System.out.println("\t" + str);}
-
     /**
      * A legal sequence of overrides is Level 1 (user code) ---> SUPPORT (scj
      * code) ---> INFRASTRUCTURE (scj code)
