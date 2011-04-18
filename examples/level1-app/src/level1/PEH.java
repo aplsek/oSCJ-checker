@@ -24,20 +24,12 @@ import javax.safetycritical.StorageParameters;
 @SCJAllowed(value=LEVEL_1, members=true)
 public class PEH extends PeriodicEventHandler {
 
-    static PriorityParameters pri;
-    static PeriodicParameters per;
-    static StorageParameters stor;
-
-    static {
-        pri = new PriorityParameters(13);
-        per = new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
-                500, 0));
-        stor = new StorageParameters(1000L, 1000L, 1000L);
-    }
-
     @SCJRestricted(INITIALIZATION)
     PEH(PriorityParameters p, PeriodicParameters r, StorageParameters s) {
-        super(p, r, s);
+        super(new PriorityParameters(13),
+                new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
+                        500, 0)),
+                        new StorageParameters(1000L, 1000L, 1000L));
     }
 
     int pos = 0;
