@@ -31,7 +31,7 @@ SAFELET=papabench.scj.PapaBenchSCJLevel0Application
 #SAFELET=papabench.scj.HelloWorld
 
 # COMPILE FIJI
-$FIJI_HOME/bin/fivmc -o papabench-rtems --scj-safelet $SAFELET $RTEMSFLAGS $FIJIFLAGS $SCJFLAGS papabench.jar
+$FIJI_HOME/bin/fivmc -o papabench-rtems-scope --scj-safelet $SAFELET $RTEMSFLAGS $FIJIFLAGS $SCJFLAGS papabench.jar
 	
 	
 # RUN:	
