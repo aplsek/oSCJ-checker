@@ -80,6 +80,13 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
             return EnumSet.noneOf(Phase.class);
     }
 
+    private boolean hasSCJRestriction(ExecutableElement m) {
+        SCJRestricted s = m.getAnnotation(SCJRestricted.class);
+        if (s != null)
+            return true;
+        return false;
+    }
+
     private EnumSet<Phase> getSCJRestrictions(ExecutableElement m, MethodTree errorNode) {
         EnumSet<Phase> rs = EnumSet.noneOf(Phase.class);
         for (ExecutableElement o : orderedOverriddenMethods(m))
@@ -258,12 +265,13 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(m);
         for (ExecutableElement override : overrides.values()) {
-            if (Utils.isUserLevel(m)) {
+            //if (Utils.isUserLevel(m)) {
                 EnumSet<Phase> parrentRS = getSCJRestrictions(override, node);
+
                 if (!parrentRS.contains(ALL))
-                    if (!parrentRS.containsAll(rs))
+                    if (!parrentRS.containsAll(rs) || !hasSCJRestriction(m))
                         fail(ERR_ILLEGAL_NO_OVERRIDE,node);
-            }
+            //}
 
         }
 

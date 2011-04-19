@@ -101,11 +101,4 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         return scopeAnn != null ? new ScopeInfo(scopeAnn.value())
                 : ScopeInfo.CALLER;
     }
-
-
-    /**
-     * DEBUG : this is just useful...
-     * @param str
-     */
-    protected void pln(String str) {System.out.println("\t"+ str);}
 }
