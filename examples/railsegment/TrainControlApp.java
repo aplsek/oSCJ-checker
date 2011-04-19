@@ -21,6 +21,7 @@
 
 package railsegment;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
@@ -29,12 +30,8 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.Safelet;
 import javax.safetycritical.annotate.SCJAllowed;
-import static javax.safetycritical.annotate.Level.LEVEL_2;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
-import javax.safetycritical.annotate.RunsIn;
-import static javax.safetycritical.annotate.Scope.CALLER;
-import static javax.safetycritical.annotate.Scope.THIS;
 
 @Scope(IMMORTAL)
 @SCJAllowed(value=LEVEL_2, members=true)
@@ -47,33 +44,20 @@ public class TrainControlApp implements Safelet {
 
   // The following three methods implement the Safelet interface
   @SCJAllowed(SUPPORT)
+  @SCJRestricted(INITIALIZATION)
   public MissionSequencer getSequencer() {
     return new TrainMissionSequencer();
   }
 
   @SCJAllowed(SUPPORT)
+  @SCJRestricted(INITIALIZATION)
   public void setUp() {
     // do nothing
   }
 
   @SCJAllowed(SUPPORT)
+  @SCJRestricted(CLEANUP)
   public void tearDown() {
     // do nothing
-  }
-
-  @SCJRestricted(INITIALIZATION)
-  public void method() {
-    // do nothing
-  }
-
-
-  @RunsIn(CALLER)
-  public void foo() {
-
-  }
-
-  @Scope("B")
-  public Object bar() {
-      return null;
   }
 }

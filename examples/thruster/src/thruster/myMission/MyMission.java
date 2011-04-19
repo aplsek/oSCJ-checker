@@ -127,6 +127,7 @@ public class MyMission extends Mission {
 
     }
 
+    @SCJAllowed(value = LEVEL_1, members=true)
     @DefineScope(name = "MyMission-child", parent = "ThrusterControl")
     class MyRunnable implements SCJRunnable {
         @RunsIn("MyMission-child")
