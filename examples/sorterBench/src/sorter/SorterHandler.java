@@ -89,7 +89,7 @@ public class SorterHandler extends PeriodicEventHandler {
      *            the right-most index of the subarray.
      */
     @RunsIn("SorterHandler")
-    private static void quicksort(@Scope(UNKNOWN) Comparable[] a, int low, int high) {
+    private static void quicksort(@Scope("Level0App") Data[] a, int low, int high) {
         if (low + CUTOFF > high)
             insertionSort(a, low, high);
         else {
@@ -104,7 +104,7 @@ public class SorterHandler extends PeriodicEventHandler {
 
             // Place pivot at position high - 1
             swapReferences(a, middle, high - 1);
-            Comparable pivot = a[high - 1];
+            Data pivot = a[high - 1];
 
             // Begin partitioning
             int i, j;
@@ -137,8 +137,8 @@ public class SorterHandler extends PeriodicEventHandler {
      *            the index of the second object.
      */
     @RunsIn("SorterHandler")
-    public static final void swapReferences(@Scope(UNKNOWN) Object[] a, int index1, int index2) {
-        @Scope(UNKNOWN) Object tmp = a[index1];
+    public static final void swapReferences(@Scope("Level0App") Data[] a, int index1, int index2) {
+        Data tmp = a[index1];
         a[index1] = a[index2];
         a[index2] = tmp;
     }
@@ -154,9 +154,9 @@ public class SorterHandler extends PeriodicEventHandler {
      *            the number of items to sort.
      */
     @RunsIn("SorterHandler")
-    private static void insertionSort(@Scope(UNKNOWN) Comparable[] a, int low, int high) {
+    private static void insertionSort(@Scope("Level0App") Data[] a, int low, int high) {
         for (int p = low + 1; p <= high; p++) {
-            @Scope(UNKNOWN) Comparable tmp = a[p];
+            Data tmp = a[p];
             int j;
 
             for (j = p; j > low && tmp.compareTo(a[j - 1]) < 0; j--)
@@ -173,15 +173,15 @@ public class SorterHandler extends PeriodicEventHandler {
 }
 
 @SCJAllowed(members=true)
-class Data implements Comparable {
+@Scope("Level0App")
+class Data  {
     public int value;
 
-    @Override
     @RunsIn(CALLER)
-    public int compareTo(Object o) {
+    public int compareTo(Data o) {
         if (o == null || !(o instanceof Data))
             return -1;
-        Data elem = (Data) o;
+        Data elem = o;
         if (this.value > elem.value)
             return +1;
         else if (this.value < elem.value)
