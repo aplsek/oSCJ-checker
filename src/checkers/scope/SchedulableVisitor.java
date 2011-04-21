@@ -145,7 +145,7 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         //boolean oldInitialization = isInitialization;
         //isInitialization = false;
         if (isInitialization) {
-
+            // TODO:
         }
 
 
