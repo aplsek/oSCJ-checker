@@ -2,6 +2,7 @@ package java.util;
 
 import java.io.*;
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.RunsIn;
@@ -41,4 +42,9 @@ public class HashMap  {
     
     @SCJAllowed
     public void clear() {}
+    
+    @SCJAllowed
+    public Set keySet() {
+        return null;
+    }
 }
