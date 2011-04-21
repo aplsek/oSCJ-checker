@@ -12,7 +12,6 @@ public class Vector {
 
     @SCJAllowed
     public Vector() {
-
     }
     
     @SCJAllowed
@@ -27,6 +26,10 @@ public class Vector {
     
     @SCJAllowed
     public void addElement(Object obj) {
+    }
+    
+    @SCJAllowed
+    public void addElement22(Object obj) {
     }
     
 }

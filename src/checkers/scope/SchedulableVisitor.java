@@ -65,7 +65,6 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         ScopeInfo dfParent = new ScopeInfo(df.parent());
 
         if (!scope.equals(dfParent)) {
-            System.err.println("\n\n scope:" + scope + ", dfparent:" + dfParent );
             fail(ERR_SCHEDULABLE_SCOPE_DEFINESCOPE_MISMATCH,node);
         }
 
