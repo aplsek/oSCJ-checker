@@ -8,4 +8,6 @@ else
     cd $PAPA && hg pull && hg up
 fi
 
+cd $PAPA && hg up scj
+
 
