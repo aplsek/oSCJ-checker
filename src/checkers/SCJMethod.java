@@ -24,6 +24,9 @@ public enum SCJMethod {
     GET_MEMORY_AREA("javax.realtime.MemoryArea",
         "getMemoryArea(java.lang.Object)"),
 
+    GET_CURRENT_MEMORY_AREA("javax.realtime.RealtimeThread",
+        "getCurrentMemoryArea()"),
+
     /* AllocationContext */
     EXECUTE_IN_AREA("javax.realtime.AllocationContext",
         "executeInArea(javax.safetycritical.SCJRunnable)"),

@@ -341,19 +341,25 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return null;
     }
 
+
     @Override
     public ScopeInfo visitLiteral(LiteralTree node, P p) {
         debugIndentIncrement("visitLiteral : " + node);
         debugIndent(" node's value : " + node.getValue());
         // TODO: Are array literals handled in this?
         ScopeInfo ret = ScopeInfo.PRIMITIVE;
-        if (node.getValue() == null)
+        if (node.getValue() == null) {
             ret = ScopeInfo.NULL;
-        else if (node.getValue() instanceof String)
+        } else if (node.getValue() instanceof String) {
             // TODO I foresee much sadness in this later on. Strings can't
             // really interact between IMMORTAL and other scopes if it's not
             // RunsIn(UNKNOWN).
-            ret = ScopeInfo.IMMORTAL;
+
+            //TODO:
+            //ret = ScopeInfo.IMMORTAL;
+            debugIndent("  string literal, currentScope: " + currentScope() );
+            ret = currentScope();
+        }
         debugIndentDecrement();
         return ret;
     }
@@ -871,6 +877,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
     }
 
+    void pln(String str) {System.out.println("\t" + str);}
+
     private ScopeInfo checkMethodInvocation(ExecutableElement m,
             ScopeInfo recvScope, List<ScopeInfo> argScopes,
             MethodInvocationTree node) {
@@ -903,6 +911,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return checkNewArrayInArea(argScopes.get(0), node);
         case GET_MEMORY_AREA:
             return checkGetMemoryArea(argScopes.get(0), node);
+        case GET_CURRENT_MEMORY_AREA:
         case GET_CURRENT_MANAGED_MEMORY:
             return checkGetCurrentManagedMemory(node);
         case IMMORTAL_MEMORY_INSTANCE:

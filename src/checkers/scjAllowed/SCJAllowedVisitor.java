@@ -68,6 +68,9 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         ats = new AnnotatedTypes(checker.getProcessingEnvironment(), atf);
     }
 
+
+
+
     /**
      * Verifying that the class has an appropriate SCJAllowed level.
      */
@@ -78,8 +81,17 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         Level superLevel = getSuperTypeLevel(t);
 
+        if (isEscaped(t.toString()) || escapeEnum(node)
+                || escapeAnnotation(node)) {
+            debugIndentDecrement();
+            return null;
+        }
+
+        Level level = scjAllowedLevel(t);
+
         if (!isSCJAllowed(t)) {
-            if (superLevel != HIDDEN) {
+            if (superLevel != HIDDEN && !isEnclosingSCJAllowed(t.getEnclosingElement())) {
+                pln("\n level" + level);
                 fail(ERR_BAD_SUBCLASS, node);
                 debugIndentDecrement();
                 return null;
@@ -89,13 +101,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             }
         }
 
-        if (isEscaped(t.toString()) || escapeEnum(node)
-                || escapeAnnotation(node)) {
-            debugIndentDecrement();
-            return null;
-        }
 
-        Level level = scjAllowedLevel(t);
 
         if (Utils.isUserLevel(t) && level == INFRASTRUCTURE) {
             debugIndentDecrement();
@@ -110,6 +116,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         while (s != null
                 && !EscapeMap.isEscaped(s.getQualifiedName().toString())) {
             if (scjAllowedLevel(s).compareTo(level) > 0) {
+                pln("\n level");
+                pln("\n ");
                 fail(ERR_BAD_SUBCLASS, node);
             }
             s = Utils.superType(s);
@@ -268,6 +276,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         return false;
     }
 
+    void pln(String str) {System.out.println("\t" + str);}
+
     @Override
     public R visitMethodInvocation(MethodInvocationTree node, P p) {
         debugIndentIncrement("visit method invocation :" + node);
@@ -283,6 +293,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         if (!isSCJInternal(m, node)) {
             if (scjAllowedLevel(m, node).compareTo(topLevel()) > 0) {
+                //pln("\n level:" + scjAllowedLevel(m, node));
+                //pln("top-level:" + topLevel());
                 fail(ERR_BAD_METHOD_CALL, node, topLevel());
             }
         }
@@ -300,8 +312,11 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             return super.visitNewClass(node, p);
 
         if (checkSCJSupport(ctor, node)
-                && scjAllowedLevel(ctor, node).compareTo(topLevel()) > 0)
+                && scjAllowedLevel(ctor, node).compareTo(topLevel()) > 0) {
+            pln("\n level:" + scjAllowedLevel(ctor, node));
+            pln("top-level:" + topLevel());
             fail(ERR_BAD_NEW_CALL, node, topLevel());
+        }
 
         return super.visitNewClass(node, p);
     }

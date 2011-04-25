@@ -18,6 +18,25 @@ import javax.safetycritical.annotate.Scope;
 @SCJAllowed
 public class Thread implements Runnable {
 
+    /**
+     * The minimum priority that a thread can have. 
+     */
+    @SCJAllowed(LEVEL_1)
+    public final static int MIN_PRIORITY = 1;
+
+   /**
+     * The default priority that is assigned to a thread. 
+     */
+    @SCJAllowed(LEVEL_1)
+    public final static int NORM_PRIORITY = 5;
+
+    /**
+     * The maximum priority that a thread can have. 
+     */
+    @SCJAllowed(LEVEL_1)
+    public final static int MAX_PRIORITY = 10;
+    
+    
   @SCJAllowed(LEVEL_2)
   public static interface UncaughtExceptionHandler {
     /** 
