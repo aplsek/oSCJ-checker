@@ -4,7 +4,7 @@ set -e
 set -x
 
 
-FIJI_HOME="/home/plsek/fiji/fivm/"
+FIJI_HOME="../../../../../../"
 SCJFLAGS="--scj --scj-scope-backing 13500k --g-def-immortal-mem 12330k --g-scope-checks no --pollcheck-mode none"   #700 scope, 500 imm
 FIJIFLAGS="--max-threads 3 --more-opt"  # -v 1
 
@@ -14,8 +14,8 @@ CWD=`pwd`
 cd $SCJ && make scj.jar && cd $CWD
 
 # CLEAN-UP
-rm -rf build
-mkdir build
+#rm -rf build
+#mkdir build
 
 # COMPILE & JAR
 find ./jpapabench-jpaparazzi/jpapabench-core/src -name "*.java" > list
@@ -34,7 +34,7 @@ $FIJI_HOME/bin/fivmc -o papabench --scj-safelet $SAFELET $FIJIFLAGS $SCJFLAGS pa
 	
 	
 # RUN:	
-sudo ./papabench | tee papabench.cap
+#sudo ./papabench | tee papabench.cap
 
 
 

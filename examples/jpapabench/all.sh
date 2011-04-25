@@ -1,8 +1,8 @@
 
 
-./build-rtems.sh
-./build-rtems-SCOPE.sh
+./build.sh
+./build-scope.sh
 
 
-cp papabench-rtems ~/checker-bench/papabench-rtems
-cp papabench-rtems-scope ~/checker-bench/papabench-rtems-scope
+#cp papabench-rtems ~/checker-bench/papabench-rtems
+#cp papabench-rtems-scope ~/checker-bench/papabench-rtems-scope
