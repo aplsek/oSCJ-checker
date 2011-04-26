@@ -488,13 +488,13 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             if (!eScope.equals(scope) && eLevel != SUPPORT) {
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
                 System.err.println("\nERROR: Illegal Method Scope Override");
-                System.err.println("\t method:" + m.getEnclosingElement() + "." + m);
+                System.err.println("\t method's class:" + m.getEnclosingElement() + "." + m);
                 System.err.println("\t method:" + m);
-                System.err.println("\t scope:" + scope);
-                System.err.println("\t runsIn:" + runsIn);
+                System.err.println("\t @Scope:" + scope);
+                System.err.println("\t @RunsIn:" + runsIn);
 
-                System.err.println("\t overriding :" + e.getEnclosingElement() + "." + e);
-                System.err.println("\t scope :" + eScope);
+                System.err.println("\t Overriden method's class :" + e.getEnclosingElement() + "." + e);
+                System.err.println("\t @Scope :" + eScope);
             }
         }
         ctx.setMethodScope(scope, m);
