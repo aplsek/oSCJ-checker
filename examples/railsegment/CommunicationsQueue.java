@@ -263,6 +263,12 @@ public class CommunicationsQueue
     response_count = 0;
 
     command_args = new int[num_buffers];
+    // Note: the annotation checker does not currently allow me to
+    // allocate an array of (enum) RequestType within the TM scope
+    // because it assumes that the array and the array element reside
+    // in the same scope.  I could presumably work around this by
+    // using an array of "final" integer constant values instead of an
+    // array of RequestType.
     activity_codes = new RequestType[num_buffers];
     response_codes = new int[num_buffers];
     file_numbers = new int[num_buffers];
@@ -270,6 +276,10 @@ public class CommunicationsQueue
 
   @RunsIn(CALLER)
   void initialize() {
+    // Note: the annotation checker does not like the following line
+    // because the setCeiling() method has the implicit @RunsIn(THIS)
+    // annotation, which means it can only be invoked from IMMORTAL
+    // memory. 
     Services.setCeiling(this, my_ceiling);
   }
 

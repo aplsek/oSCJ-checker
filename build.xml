@@ -80,7 +80,7 @@
         <globmapper from="${basedir}/build/spec/*" to="${basedir}/build/jdk_out/*" />
     </uptodate>
 
-    <target name="annotate-jdk-class" unless="abs.file.uptodate">
+    <target name="annotate-jdk-class">
         <!-- Path in the jar file -->
         <pathconvert property="rel.file">
             <map from="${basedir}/build/spec/" to=""/>

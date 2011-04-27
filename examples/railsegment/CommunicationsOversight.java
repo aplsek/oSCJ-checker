@@ -35,8 +35,8 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-@Scope("A")
-@DefineScope(name="CO_Private", parent="A")
+@Scope("TM.A")
+@DefineScope(name="TM.A.0", parent="TM.A")
 @SCJAllowed(value=LEVEL_2, members=true)
 class CommunicationsOversight extends ManagedThread {
 
@@ -88,7 +88,7 @@ class CommunicationsOversight extends ManagedThread {
   }
 
   @Override
-  @RunsIn("CO_Private")
+  @RunsIn("TM.A.0")
   @SCJAllowed(SUPPORT)
   public final void run() {
     // details not shown, but generally, this thread acts as follows.

@@ -47,10 +47,10 @@ public class TrainMissionSequencer extends MissionSequencer {
 
   @SCJRestricted(INITIALIZATION)
   public TrainMissionSequencer() {
-      super(new PriorityParameters(SequencerPriority),
+    super(new PriorityParameters(SequencerPriority),
           new StorageParameters(TrainMission.BackingStoreRequirements,
-                              TrainMission.NativeStackRequirements,
-                              TrainMission.JavaStackRequirements));
+                                TrainMission.NativeStackRequirements,
+                                TrainMission.JavaStackRequirements));
     returned_mission = false;
   }
 

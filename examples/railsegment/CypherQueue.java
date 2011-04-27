@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 package railsegment;
 
@@ -35,13 +36,13 @@ import javax.safetycritical.annotate.Scope;
 // that the single client always waits for a response to a previously
 // issued request before issuing another request.
 
-@Scope("A")
+@Scope("TM.A")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class CypherQueue {
 
   // The ceiling for instances of this class needs to be in the
   // interrupt priority range
-  @Scope("A")
+  @Scope("TM.A")
   @SCJAllowed(value=LEVEL_2, members=true)
   static class HardwareCoordination {
     // a guess
@@ -298,6 +299,10 @@ public class CypherQueue {
 
   @RunsIn(CALLER)
   final void initialize() {
+    // Note: the annotation checker does not like the following line
+    // because the setCeiling() method has the implicit @RunsIn(THIS)
+    // annotation, which means it can only be invoked from IMMORTAL
+    // memory. 
     Services.setCeiling(this, CEILING_PRIORITY);
   }
 
