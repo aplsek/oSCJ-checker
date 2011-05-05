@@ -128,6 +128,7 @@ public class CDHandler extends PeriodicEventHandler {
         }
     }
 
+    @Scope("CDMission")
     class PutCallsignRunnable implements SCJRunnable {
         Callsign callsign;
 

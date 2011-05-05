@@ -25,7 +25,7 @@ public class StateTable {
     Callsign css = null;
 
     public void put(@Scope(UNKNOWN) final Callsign cs) {
-        if (ManagedMemory.allocInSame(this, cs))
+        if (ManagedMemory.allocatedInSame(this, cs))
             css = cs; // DYNAMIC GUARD
 
         if (motionVectors.get(css) != null)
