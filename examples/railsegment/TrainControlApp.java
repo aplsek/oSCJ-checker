@@ -27,6 +27,8 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+import static javax.safetycritical.annotate.Level.LEVEL_2;
+
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.Safelet;
 import javax.safetycritical.annotate.SCJAllowed;

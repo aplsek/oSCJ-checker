@@ -45,7 +45,7 @@ if [ "$LANGTOOLS_USE_BOOTCLASSPATH" != "no" ]; then
    cp=`unzip -c "$mylib/jsr308-all.jar" META-INF/MANIFEST.MF |
        grep "Class-Path:" |
        sed -e 's|\r||' -e 's|Class-Path: *||' -e 's|\([a-z]*\.jar\) *|'"$mylib"'/\1:|g'`
-   bcp="$mylib/jsr308-all.jar":$cp:$mylib/jdk.jar:$CLASSPATH
+   bcp="$mylib/jsr308-all.jar"\;$cp\;$mylib/jdk.jar\;$CLASSPATH
 fi
 
 # tools currently assumes that assertions are enabled in the launcher
@@ -85,4 +85,4 @@ unset DUALCASE
 
 IFS=$nl
 
-eval "java" "${bcp:+-Xbootclasspath/p:"$bcp"}" ${ea} ${javaOpts} -jar "${mydir}"/jsr308-all.jar ${cpOpt} ${toolOpts}
+eval "java" \'"${bcp:+-Xbootclasspath/p:"$bcp"}"\' ${ea} ${javaOpts} -jar "${mydir}"/jsr308-all.jar ${cpOpt} ${toolOpts}

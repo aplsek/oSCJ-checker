@@ -34,8 +34,8 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-@Scope("A")
-@DefineScope(name="H", parent="A")
+@Scope("TM.A")
+@DefineScope(name="TM.A.H", parent="TM.A")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class MobileCommServiceSequencer
   extends MissionSequencer //<MobileCommService>
@@ -60,7 +60,7 @@ public class MobileCommServiceSequencer
   }
 
   @Override
-  @RunsIn("H")
+  @RunsIn("TM.A.H")
   @SCJAllowed(SUPPORT)
   protected MobileCommService getNextMission()
   {
