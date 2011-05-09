@@ -8,6 +8,12 @@ import checkers.source.SourceVisitor;
 
 import com.sun.source.tree.CompilationUnitTree;
 
+
+/**
+ * ScopeTreeChecker added - this checker reports error detected when validating the ScopeTree.
+ *   This checker must run directly ater the DefineScopeChecker.
+ *
+ */
 public class ScopeTreeChecker extends SinglePassChecker {
 
     public static final String ERR_SCOPE_HAS_NO_PARENT = "scope.has.no.parent";

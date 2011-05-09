@@ -57,7 +57,7 @@ public class ScopeTreeVisitor extends SCJVisitor<Void, Void> {
                 //pln("\n ERROR NODE:" + t.toString());
                 //pln("DS:" + ds);
 
-                Tree n = scopeTree.errorScopes.get(parent);
+                Tree n = scopeTree.getErrorScopes().get(parent);
                 if (n.equals(node)) {
                    // pln("node equals!");
                     fail(ERR_SCOPE_HAS_NO_PARENT, node, scope, parent);

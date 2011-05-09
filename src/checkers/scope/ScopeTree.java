@@ -84,4 +84,7 @@ public class ScopeTree {
         }
     }
 
+    public HashMap<String, Tree> getErrorScopes() {
+        return errorScopes;
+    }
 }
