@@ -4,22 +4,15 @@ import static checkers.scope.ScopeTreeChecker.ERR_SCOPE_HAS_NO_PARENT;
 
 import java.util.HashMap;
 
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.safetycritical.annotate.DefineScope;
 
-import checkers.SCJMission;
-import checkers.SCJSchedulable;
 import checkers.SCJVisitor;
-import checkers.Utils;
 import checkers.source.SourceChecker;
 import checkers.util.TreeUtils;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.MethodInvocationTree;
-import com.sun.source.tree.MethodTree;
-import com.sun.source.tree.NewClassTree;
 import com.sun.source.tree.Tree;
 
 /**
@@ -42,7 +35,9 @@ public class ScopeTreeVisitor extends SCJVisitor<Void, Void> {
         scopeTree = ctx.getScopeTree();
     }
 
-    void pln(String str) {System.out.println("\t" + str);}
+    void pln(String str) {
+        System.out.println("\t" + str);
+    }
 
     @Override
     public Void visitClass(ClassTree node, Void p) {
@@ -54,19 +49,13 @@ public class ScopeTreeVisitor extends SCJVisitor<Void, Void> {
             String scope = ds.name();
             String parent = ds.parent();
             if (scopeTree.errorScopes.containsKey(parent)) {
-                //pln("\n ERROR NODE:" + t.toString());
-                //pln("DS:" + ds);
-
                 Tree n = scopeTree.getErrorScopes().get(parent);
                 if (n.equals(node)) {
-                   // pln("node equals!");
                     fail(ERR_SCOPE_HAS_NO_PARENT, node, scope, parent);
                 }
             }
         }
 
-
         return super.visitClass(node, p);
     }
-
 }
