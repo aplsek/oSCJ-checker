@@ -1,3 +1,11 @@
+SCJ-Checker
+Date: 05/08/2011
+Authors: Daniel Tang, Ales Plsek, Jan Vitek; PURDUE UNIVERSITY
+Web-Page: http://www.ovmj.net/oscj/
+Source Repository:  http://code.google.com/p/scj-jsr302/
+=============================
+
+
 Compilation
 ===========
 Compiling the SCJ checker currently relies on some bash scripts, which means
