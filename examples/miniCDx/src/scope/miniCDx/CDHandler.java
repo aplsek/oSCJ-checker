@@ -5,6 +5,7 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import java.util.List;
 
+import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
 import javax.realtime.RelativeTime;
@@ -94,7 +95,10 @@ public class CDHandler extends PeriodicEventHandler {
     @RunsIn("CDHandler") @Scope("CDMission")
     public Callsign makeCallsign(Callsign callsign) {
         try {
-            r.cs = (byte[]) ManagedMemory.newArrayInArea(r, byte.class,
+            @Scope(IMMORTAL)
+            @DefineScope(name="CDMission", parent=IMMORTAL)
+            ManagedMemory mem = (ManagedMemory) MemoryArea.getMemoryArea(r);
+            r.cs = (byte[]) mem.newArrayInArea(r, byte.class,
                     callsign.cs.length);
             for (int i = 0; i < callsign.length; i++)
                 r.cs[i] = callsign.cs[i];

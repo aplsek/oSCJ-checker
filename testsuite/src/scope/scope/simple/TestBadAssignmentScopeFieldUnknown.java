@@ -15,19 +15,19 @@ public class TestBadAssignmentScopeFieldUnknown {
     void foo(final @Scope(UNKNOWN) X x, final Y y) {
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
         x.y1 = y;
-        if (ManagedMemory.allocInSame(x, y)) {
+        if (ManagedMemory.allocatedInSame(x, y)) {
             x.y1 = y;
         }
-        if (ManagedMemory.allocInParent(x, y)) {
+        if (ManagedMemory.allocatedInParent(x, y)) {
             //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
             x.y1 = y;
         }
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
         x.y2 = y;
-        if (ManagedMemory.allocInSame(x, y)) {
+        if (ManagedMemory.allocatedInSame(x, y)) {
             x.y2 = y;
         }
-        if (ManagedMemory.allocInParent(x, y)) {
+        if (ManagedMemory.allocatedInParent(x, y)) {
             x.y2 = y;
         }
     }
@@ -35,19 +35,19 @@ public class TestBadAssignmentScopeFieldUnknown {
     void bar(final X x, final @Scope(UNKNOWN) Y y) {
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
         x.y1 = y;
-        if (ManagedMemory.allocInSame(x, y)) {
+        if (ManagedMemory.allocatedInSame(x, y)) {
             x.y1 = y;
         }
-        if (ManagedMemory.allocInParent(x, y)) {
+        if (ManagedMemory.allocatedInParent(x, y)) {
             //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
             x.y1 = y;
         }
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
         x.y2 = y;
-        if (ManagedMemory.allocInSame(x, y)) {
+        if (ManagedMemory.allocatedInSame(x, y)) {
             x.y2 = y;
         }
-        if (ManagedMemory.allocInParent(x, y)) {
+        if (ManagedMemory.allocatedInParent(x, y)) {
             x.y2 = y;
         }
     }

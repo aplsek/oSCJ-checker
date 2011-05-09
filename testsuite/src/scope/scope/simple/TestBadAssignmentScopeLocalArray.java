@@ -25,7 +25,7 @@ public abstract class TestBadAssignmentScopeLocalArray extends MissionSequencer 
 
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
         os2[0] = oImm;
-        if (ManagedMemory.allocInSame(os2, oImm))
+        if (ManagedMemory.allocatedInSame(os2, oImm))
             os2[0] = oImm;
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
         os2[0] = x;

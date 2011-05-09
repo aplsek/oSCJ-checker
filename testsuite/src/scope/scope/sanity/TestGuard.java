@@ -24,11 +24,11 @@ public abstract class TestGuard extends MissionSequencer {
 
     @RunsIn(CALLER)
     public void setA(@Scope(UNKNOWN) final A aa) {
-        if (ManagedMemory.allocInSame(this, aa))
+        if (ManagedMemory.allocatedInSame(this, aa))
             a = aa; // DYNAMIC GUARD
 
         //## checkers.scope.ScopeChecker.ERR_BAD_GUARD_ARGUMENT
-        if (ManagedMemory.allocInSame(a, aa))
+        if (ManagedMemory.allocatedInSame(a, aa))
             //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
             a = aa; // DYNAMIC GUARD
 
