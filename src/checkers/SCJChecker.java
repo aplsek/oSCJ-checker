@@ -12,6 +12,7 @@ import checkers.scope.SchedulableChecker;
 import checkers.scope.ScopeChecker;
 import checkers.scope.ScopeCheckerContext;
 import checkers.scope.ScopeRunsInChecker;
+import checkers.scope.ScopeTreeChecker;
 
 public class SCJChecker extends MultiPassChecker {
     public SCJChecker() {
@@ -20,6 +21,7 @@ public class SCJChecker extends MultiPassChecker {
         // Scope checking
         ScopeCheckerContext ctx = new ScopeCheckerContext();
         addPass(new DefineScopeChecker(ctx));
+        addPass(new ScopeTreeChecker(ctx));
         addPass(new ScopeRunsInChecker(ctx));
         addPass(new SchedulableChecker(ctx));
         addPass(new ScopeChecker(ctx));
