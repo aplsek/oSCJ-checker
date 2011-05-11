@@ -42,7 +42,6 @@ public class SCJAllowedChecker extends SinglePassChecker {
     public static final String ERR_BAD_OVERRIDE = "scjallowed.bad.override";
     public static final String ERR_BAD_OVERRIDE_SUPPORT = "scjallowed.bad.override.support";
     public static final String ERR_BAD_SUBCLASS = "scjallowed.bad.subclass";
-    public static final String ERR_BAD_SUPPORT = "scjallowed.bad.support";
     public static final String ERR_BAD_USER_LEVEL = "scjallowed.bad.user.level";
 
     @Override
@@ -72,8 +71,6 @@ public class SCJAllowedChecker extends SinglePassChecker {
             "Method may override @SCJAllowed(SUPPORT) method but must restate the annotation.");
         p.put(ERR_BAD_SUBCLASS,
                 "Subclasses may not decrease visibility of their superclasses.");
-        p.put(ERR_BAD_SUPPORT,
-                "Methods annotated @SCJAllowed(SUPPORT) must override an SCJ API method that is also annotated @SCJAllowed(SUPPORT).");
         p.put(ERR_BAD_USER_LEVEL,
                 "Elements outside of javax.realtime or javax.safetycritical packages cannot be annotated with @SCJAllowed(INFRASTRUCTURE).");
 

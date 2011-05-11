@@ -12,7 +12,6 @@ import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_NEW_CALL;
 import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE;
 import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE_SUPPORT;
 import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_SUBCLASS;
-import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_SUPPORT;
 import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_USER_LEVEL;
 import static javax.safetycritical.annotate.Level.HIDDEN;
 import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
@@ -164,8 +163,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         debugIndentIncrement("visitMethod " + node.getName());
         ExecutableElement m = TreeUtils.elementFromDeclaration(node);
 
-        checkSCJSupport(m, node);
-
         Level level = LEVEL_0;
         if (isDefaultConstructor(node)) {
             debugIndentDecrement();
@@ -279,8 +276,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         if (isEscaped(ctor.getEnclosingElement().toString()))
             return super.visitNewClass(node, p);
 
-        if (checkSCJSupport(ctor, node)
-                && scjAllowedLevel(ctor, node).compareTo(topLevel()) > 0) {
+        if (scjAllowedLevel(ctor, node).compareTo(topLevel()) > 0) {
             fail(ERR_BAD_NEW_CALL, node, topLevel());
         }
 
@@ -461,27 +457,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
     private boolean isSCJSupport(Element e) {
         return Utils.getSCJAllowedLevel(e) == SUPPORT;
-    }
-
-    private boolean checkSCJSupport(ExecutableElement m, Tree node) {
-        boolean isValid = !(isSCJSupport(m) && Utils.isUserLevel(m));
-
-        if (!isValid) {
-            // If we're in the user level with an SUPPORT annotation, we have
-            // to see if the method overrides a @SCJAllowed(SUPPORT) method
-            Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
-                    .overriddenMethods(m);
-            for (ExecutableElement override : overrides.values()) {
-                if (isSCJSupport(override)) {
-                    isValid = true;
-                    break;
-                }
-            }
-        }
-        if (!isValid)
-            fail(ERR_BAD_SUPPORT, node);
-
-        return isValid;
     }
 
     private boolean checkSCJInternalCall(ExecutableElement m, Tree node) {

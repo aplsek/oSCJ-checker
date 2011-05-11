@@ -41,6 +41,7 @@ public class TrainControlApp implements Safelet {
 
   public static final int SequencerPriority = 32;
 
+  @SCJAllowed(SUPPORT)
   public TrainControlApp() {
   }
 
