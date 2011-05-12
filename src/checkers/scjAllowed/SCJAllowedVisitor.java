@@ -259,7 +259,13 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         checkSCJInternalCall(m, node);
 
         if (!isSCJInternal(m, node)) {
-            if (scjAllowedLevel(m, node).compareTo(topLevel()) > 0) {
+            if (topLevel().equals(SUPPORT)) {
+                if (!topLevel().equals(scjAllowedLevel(m, node))) {
+                    if (Utils.isUserLevel(m)) {
+                         //fail(ERR_BAD_METHOD_CALL, node, topLevel());
+                    }
+                }
+            } else if (scjAllowedLevel(m, node).compareTo(topLevel()) > 0) {
                 fail(ERR_BAD_METHOD_CALL, node, topLevel());
             }
         }
@@ -267,6 +273,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         debugIndentDecrement();
         return super.visitMethodInvocation(node, p);
     }
+
+
 
     @Override
     public R visitNewClass(NewClassTree node, P p) {
@@ -451,6 +459,9 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         return e.getAnnotation(SCJAllowed.class) != null;
     }
 
+    /**
+     * @return - true if element is INFRASTRUCTURE
+     */
     private boolean isSCJInternal(Element e, Tree node) {
         return Utils.getSCJAllowedLevel(e) == INFRASTRUCTURE;
     }
@@ -466,6 +477,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             fail(ERR_BAD_INFRASTRUCTURE_CALL, node);
         return isValid;
     }
+
+
 
     /**
      * returns true if any enclosing element is SCJAllowed
