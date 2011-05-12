@@ -43,6 +43,11 @@ public class TrainControlApp implements Safelet {
 
   @SCJAllowed(SUPPORT)
   public TrainControlApp() {
+      init();
+  }
+
+  private void init() {
+
   }
 
   // The following three methods implement the Safelet interface
