@@ -26,10 +26,11 @@ import com.sun.source.tree.NewClassTree;
 import com.sun.source.tree.Tree;
 
 /**
- * This visitor is responsible for retrieving Scope and RunsIn annotations from
- * classes and methods and making sure they are valid. This information is
- * stored into a context object so that the ScopeVisitor doesn't have to deal
- * with retrieving this information.
+ * This visitor is checking that SChedulables are instantiated in Mission.init methods and
+ * in these methods only.
+ *
+ * TODO: each schedulable can be instantiated only once! Need to chatch the instantiations in
+ * loops.!
  */
 public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     private ScopeCheckerContext ctx;
