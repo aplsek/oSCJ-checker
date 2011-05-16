@@ -44,6 +44,8 @@ public class SCJAllowedChecker extends SinglePassChecker {
     public static final String ERR_BAD_SUBCLASS = "scjallowed.bad.subclass";
     public static final String ERR_BAD_USER_LEVEL = "scjallowed.bad.user.level";
 
+    public static final String ERR_BAD_SUPPORT_METHOD_CALL = "scjallowed.bad.support.method.call";
+
     @Override
     protected SourceVisitor<?, ?> createSourceVisitor(CompilationUnitTree tree) {
         return new SCJAllowedVisitor<Void, Void>(this, tree);
@@ -73,6 +75,8 @@ public class SCJAllowedChecker extends SinglePassChecker {
                 "Subclasses may not decrease visibility of their superclasses.");
         p.put(ERR_BAD_USER_LEVEL,
                 "Elements outside of javax.realtime or javax.safetycritical packages cannot be annotated with @SCJAllowed(INFRASTRUCTURE).");
+        p.put(ERR_BAD_SUPPORT_METHOD_CALL,
+            "SUPPORT methods are not allowed to invoke another SUPPORT methods.");
 
         return p;
     }

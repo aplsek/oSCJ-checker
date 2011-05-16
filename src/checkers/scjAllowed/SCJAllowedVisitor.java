@@ -13,6 +13,8 @@ import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE;
 import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE_SUPPORT;
 import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_SUBCLASS;
 import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_USER_LEVEL;
+import static checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_SUPPORT_METHOD_CALL;
+
 import static javax.safetycritical.annotate.Level.HIDDEN;
 import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
 import static javax.safetycritical.annotate.Level.LEVEL_0;
@@ -66,9 +68,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         atf = checker.createFactory(root);
         ats = new AnnotatedTypes(checker.getProcessingEnvironment(), atf);
     }
-
-
-
 
     /**
      * Verifying that the class has an appropriate SCJAllowed level.
@@ -260,7 +259,9 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         if (!isSCJInternal(m, node)) {
             if (topLevel().equals(SUPPORT)) {
-                if (!topLevel().equals(scjAllowedLevel(m, node))) {
+                if (scjAllowedLevel(m, node).equals(SUPPORT)){
+                    fail(ERR_BAD_SUPPORT_METHOD_CALL, node, topLevel());
+                } else if (!topLevel().equals(scjAllowedLevel(m, node))) {
                     if (Utils.isUserLevel(m)) {
                          //fail(ERR_BAD_METHOD_CALL, node, topLevel());
                     }
