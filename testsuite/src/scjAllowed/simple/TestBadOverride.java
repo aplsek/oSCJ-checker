@@ -16,8 +16,6 @@ import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.annotate.SCJAllowed;
 
 /**
- * The first error is because the default constructor is level 1 and we call super(); which is level 0.
- *
  * @author plsek
  *
  */

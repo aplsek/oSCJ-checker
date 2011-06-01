@@ -244,7 +244,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             Tree mErr, boolean forceVisit) {
         RunsIn runsIn = m.getAnnotation(RunsIn.class);
         if (runsIn != null) {
-            String msg = "\n\t ERROR class is :" + Utils.getMethodClass(m) + "." + m;
+            String msg = "\n\t ERROR class is :" + Utils.getMethodClass(m)
+                    + "." + m;
             fail(ERR_RUNS_IN_ON_CONSTRUCTOR, mTree, mErr, msg);
         }
 
@@ -252,7 +253,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     }
 
     void checkMethod(ExecutableElement m, MethodTree mTree, Tree errNode,
-    		boolean forceVisit) {
+            boolean forceVisit) {
         debugIndentIncrement("checkMethod: " + m);
 
         if (!(ctx.getMethodScope(m) == null || forceVisit)) {
@@ -263,7 +264,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         // The RunsIn must be checked first, because checkMethodScope uses it.
         checkMethodRunsIn(m, mTree, errNode);
         checkMethodScope(m, mTree, errNode);
-        //System.err.println(m.getEnclosingElement() + "." + m + " " + ctx.getMethodRunsIn(m) + " " + ctx.getMethodScope(m));
+        // System.err.println(m.getEnclosingElement() + "." + m + " " +
+        // ctx.getMethodRunsIn(m) + " " + ctx.getMethodScope(m));
         checkMethodParameters(m, mTree, errNode);
         debugIndentDecrement();
     }
@@ -403,6 +405,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         return ret;
     }
 
+    void pln(String str) {
+        System.out.println("\t " + str);
+    }
+
     /**
      * Check that a method has a valid RunsIn annotation. A method's RunsIn
      * annotation is valid as long as it exists in the scope tree, or is CALLER
@@ -411,8 +417,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
      */
     void checkMethodRunsIn(ExecutableElement m, MethodTree node, Tree errNode) {
         RunsIn ann = m.getAnnotation(RunsIn.class);
-        ScopeInfo runsIn = ann != null ? new ScopeInfo(ann.value())
-                : Utils.getDefaultMethodRunsIn(m);
+        ScopeInfo runsIn = ann != null ? new ScopeInfo(ann.value()) : Utils
+                .getDefaultMethodRunsIn(m);
 
         // UNKNOWN is no longer a valid RunsIn annotation.
         if (!runsIn.isValidRunsIn(scopeTree))
@@ -424,23 +430,39 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 .overriddenMethods(m);
         for (ExecutableElement e : overrides.values()) {
             ScopeInfo eRunsIn = getOverrideRunsInAndVisit(e, errNode);
-            // eLevel can be SUPPORT or INFRASTRUCTURE, though overriding an
-            // INFRASTRUCTURE method in user code is illegal. This part is
-            // checked in SCJAllowedVisitor; we include INFRASTRUCTURE here
-            // because we're pulling in SCJ types.
-            if (!eRunsIn.equals(runsIn) && !Utils.isSCJSupport(m, ats)
-                    && Utils.isUserLevel(m) && !runsIn.isCaller())
-                fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
 
-            // If the eLevel is SUPPORT, then the mLevel must be also SUPPORT
-            // and:
+            if (!Utils.isUserLevel(m)) {
+                // SCJ packages are not checked
+                continue;
+            }
+
             // if the "e" has @RunsIn annotation, then the m must explicitly
-            // restate the @RunsIn or override it with a new @RunsIn
-            // if the "e" has no @RunsIn annotation, the annotation does not
-            // have to be restated
-            if (Utils.isSCJSupport(m, ats) && !eRunsIn.equals(runsIn)
-                    && ann == null && e.getAnnotation(RunsIn.class) != null) {
+            // restate the @RunsIn
+            if (ann == null && e.getAnnotation(RunsIn.class) != null) {
                 fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE, node, errNode);
+            }
+
+            if (!Utils.isSCJSupport(m, ats)) {
+                if (!eRunsIn.equals(runsIn)) {
+                    if (isRunnable(Utils.getMethodClass(e))) {
+                        if (runsIn.isCaller() || runsIn.isImmortal()
+                                || runsIn.isThis()) {
+                            fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node,
+                                    errNode);
+                        }
+                    } else {
+                        if (!runsIn.isCaller())
+                            fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
+                    }
+                }
+            } else {
+                // If the eLevel is SUPPORT, then the mLevel must be also SUPPORT
+                // and:
+                // if the "e" has @RunsIn annotation, then the m must explicitly
+                // restate the @RunsIn
+                if (!eRunsIn.equals(runsIn)) {
+                    fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
+                }
             }
         }
         ctx.setMethodRunsIn(runsIn, m);
@@ -488,12 +510,14 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             if (!eScope.equals(scope) && eLevel != SUPPORT) {
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
                 System.err.println("\nERROR: Illegal Method Scope Override");
-                System.err.println("\t method's class:" + m.getEnclosingElement() + "." + m);
+                System.err.println("\t method's class:"
+                        + m.getEnclosingElement() + "." + m);
                 System.err.println("\t method:" + m);
                 System.err.println("\t @Scope:" + scope);
                 System.err.println("\t @RunsIn:" + runsIn);
 
-                System.err.println("\t Overriden method's class :" + e.getEnclosingElement() + "." + e);
+                System.err.println("\t Overriden method's class :"
+                        + e.getEnclosingElement() + "." + e);
                 System.err.println("\t @Scope :" + eScope);
             }
         }
@@ -521,13 +545,19 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (node != null)
             // Current item being visited. Report the error as usual.
             checker.report(r, errNode);
-        else if (r.isFailure())
+        else if (r.isFailure()) {
             // Current item is something from a library. Can't put an error on
             // it, so put an error on the node being visited stating that
             // something from the parent class or interface is broken. If the
             // result is a warning, we ignore it, since they are purely
             // informational.
+
+            pln("\n\n ERROR: " + r);
+            pln("node: " + node);
+            pln("errNode:" + errNode);
+
             fail(ERR_BAD_LIBRARY_ANNOTATION, errNode);
+        }
     }
 
     void fail(String msg, Tree src, Tree err, Object... msgParams) {

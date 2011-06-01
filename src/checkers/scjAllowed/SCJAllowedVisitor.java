@@ -156,6 +156,22 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     /**
      * Errors: - we can not override a method by a method with a higher
      * SCJallowed level
+     *
+     * 5) Method Overriding
+     *
+     *       Table: Method Overriding
+     *       -----------------------
+     *         method
+     *
+     *           parent     1  2
+     *                      ^  ^
+     *                      x  |
+     *           child      2  1
+     *
+     *       -----------------------
+     *       - Method must have the same or lower SCJ-level than all overridden methods.
+     *           (Method may not decrease visibility of their overrides.)
+     *       - Method may override @SCJAllowed(SUPPORT) method but must restate the annotation.
      */
     @Override
     public R visitMethod(MethodTree node, P p) {
@@ -193,6 +209,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
                     fail(ERR_BAD_OVERRIDE, node);
             }
 
+            // SUPPORT needs to be restated
             if (scjAllowedLevel(override, node) == SUPPORT) {
                 if (level != SUPPORT || !isSCJAllowed(m)) {
                     fail(ERR_BAD_OVERRIDE_SUPPORT, node);

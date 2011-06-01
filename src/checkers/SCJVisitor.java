@@ -59,6 +59,10 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     protected final TypeMirror schedulable = Utils.getTypeMirror(
             elements, "javax.safetycritical.Schedulable");
 
+
+    protected final TypeMirror runnable = Utils.getTypeMirror(
+            elements, "java.lang.Runnable");
+
     protected boolean alwaysImplicitlyDefinesScope(TypeElement t) {
         TypeMirror m = t.asType();
         return   types.isSubtype(m, noHeapRealtimeThread)
@@ -94,6 +98,10 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
 
     protected boolean implementsAllocationContext(TypeElement t) {
         return types.isSubtype(t.asType(), allocationContext);
+    }
+
+    protected boolean isRunnable(TypeElement t) {
+        return types.isSameType(t.asType(), runnable);
     }
 
     protected static ScopeInfo scopeOfClassDefinition(TypeElement t) {
