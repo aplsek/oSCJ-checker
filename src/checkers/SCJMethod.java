@@ -19,8 +19,6 @@ public enum SCJMethod {
     NEW_ARRAY_IN_AREA("javax.realtime.MemoryArea",
         "newArrayInArea(java.lang.Object,java.lang.Class,int)"),
 
-    ENTER("javax.realtime.MemoryArea", "enter(int,java.lang.Runnable)"),
-
     GET_MEMORY_AREA("javax.realtime.MemoryArea",
         "getMemoryArea(java.lang.Object)"),
 
@@ -29,11 +27,11 @@ public enum SCJMethod {
 
     /* AllocationContext */
     EXECUTE_IN_AREA("javax.realtime.AllocationContext",
-        "executeInArea(javax.safetycritical.SCJRunnable)"),
+        "executeInArea(java.lang.Runnable)"),
 
     /* ManagedMemory */
     ENTER_PRIVATE_MEMORY("javax.safetycritical.ManagedMemory",
-        "enterPrivateMemory(long,javax.safetycritical.SCJRunnable)"),
+        "enterPrivateMemory(long,java.lang.Runnable)"),
 
     GET_CURRENT_MANAGED_MEMORY("javax.safetycritical.ManagedMemory", "getCurrentManagedMemory()"),
 

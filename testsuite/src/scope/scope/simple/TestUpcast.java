@@ -43,13 +43,12 @@ public class TestUpcast {
         MyRun r = new MyRun();
         Runnable up ;
 
+        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
         up = r;
 
         MyRun2 r2 = new MyRun2();
         up = r2;
     }
-
-
 
     @SCJAllowed(value = LEVEL_2, members = true)
     class MyRun implements Runnable {
@@ -60,7 +59,6 @@ public class TestUpcast {
         }
     }
 
-
     @SCJAllowed(value = LEVEL_2, members = true)
     class MyRun2 implements Runnable {
 
@@ -68,8 +66,5 @@ public class TestUpcast {
         public void run() {
         }
     }
-
-
-
 }
 

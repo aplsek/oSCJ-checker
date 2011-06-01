@@ -156,21 +156,65 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             AssignmentTree tree = (AssignmentTree) node;
             castType = atypeFactory.getAnnotatedType(tree);
             exprType = atypeFactory.getAnnotatedType(tree.getExpression());
+
+            checkUpcastTypes(castType, exprType, node);
         } else if (node.getKind() == Kind.VARIABLE) {
             VariableTree tree = (VariableTree) node;
             castType = atypeFactory.getAnnotatedType(tree);
             exprType = atypeFactory.getAnnotatedType(tree.getInitializer());
+
+            checkUpcastTypes(castType, exprType, node);
         } else if (node.getKind() == Kind.TYPE_CAST) {
             TypeCastTree tree = (TypeCastTree) node;
             castType = atypeFactory.getAnnotatedType(tree);
             exprType = atypeFactory.getAnnotatedType(tree.getExpression());
+
+            checkUpcastTypes(castType, exprType, node);
+        } else if (node.getKind() == Kind.METHOD_INVOCATION) {
+            pln(" METHOD");
+
+            MethodInvocationTree tree = (MethodInvocationTree) node;
+
+            // executeInArea and enterPrivateMemory can upcast as they will:
+            switch (SCJMethod.fromMethod(TreeUtils.elementFromUse(tree), elements, types)) {
+            case ENTER_PRIVATE_MEMORY:
+            case EXECUTE_IN_AREA:
+                return;
+            default:
+
+                // pln("type args:" + tree.getTypeArguments());
+                // pln("type args:" +
+                // TreeUtils.elementFromUse(tree).getParameters());
+
+                List<? extends VariableElement> params = TreeUtils
+                        .elementFromUse(tree).getParameters();
+
+                List<? extends ExpressionTree> args = tree.getArguments();
+                for (int i = 0; i < args.size(); i++) {
+                    pln("\t arg:" + args.get(i));
+                    exprType = atypeFactory.getAnnotatedType(args.get(i));
+                    castType = atypeFactory.getAnnotatedType(params.get(i));
+
+                    if (castType.getUnderlyingType().getKind().isPrimitive())
+                        continue;
+
+                    checkUpcastTypes(castType, exprType, node);
+                    // pln("\t exprType:" + exprType);
+                    // pln("\t castType:" + castType);
+                }
+            }
         } else
             throw new RuntimeException("Unexpected assignment AST node: "
                     + node.getKind());
 
-        // ignore "upcasting" to the same type
+    }
+
+    private void checkUpcastTypes(AnnotatedTypeMirror castType,
+            AnnotatedTypeMirror exprType, Tree node) {
+
         if (Utils.areSameType(exprType, castType)) {
-            pln("\t SAME :" + exprType  + "  == "  + castType);
+            // ignore "upcasting" to the same type
+            pln("\t SAME :" + exprType + "  == " + castType);
             return;
         }
 
@@ -180,19 +224,22 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             if (hasRunsIn(exprType.getUnderlyingType().toString())) {
                 pln("\t rhs type:" + exprType);
                 pln("\t lhs type:" + castType);
-                fail(ERR_BAD_RUNNABLE_UPCAST, node, exprType.getUnderlyingType().toString(),
-                        castType.getUnderlyingType().toString());
+                fail(ERR_BAD_RUNNABLE_UPCAST, node, exprType
+                        .getUnderlyingType().toString(), castType
+                        .getUnderlyingType().toString());
             }
         }
     }
 
     /**
-     * @return - true if the clazz's run() method has a @RunsIn annotation with a named scope.
+     * @return - true if the clazz's run() method has a @RunsIn annotation with
+     *         a named scope.
      */
     private boolean hasRunsIn(String clazz) {
         ScopeInfo runsIn = ctx.getMethodRunsIn(clazz, "run");
         pln("\t runsIn:" + runsIn);
-        if (runsIn != null && !runsIn.isNull() && !runsIn.isCaller() && !runsIn.isThis())
+        if (runsIn != null && !runsIn.isNull() && !runsIn.isCaller()
+                && !runsIn.isThis())
             return true;
         return false;
     }
@@ -812,8 +859,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return null;
     }
 
-
-
     private void checkLocalAssignment(ScopeInfo lhs, ScopeInfo rhs, Tree node) {
         if (lhs.isUnknown() || rhs.isNull())
             return;
@@ -946,9 +991,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             if (isCallerContext(currentScope(), node))
                 checkExecuteInArea(recvScope, node);
             return null;
-        case ENTER:
-            // this method cannot be invoked by user
-            return null;
         case NEW_INSTANCE:
             return checkNewInstance(recvScope, node.getArguments().get(0), node);
         case NEW_INSTANCE_IN_AREA:
@@ -981,9 +1023,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private void checkMethodParameters(ExecutableElement m,
             List<ScopeInfo> argScopes, MethodInvocationTree node) {
+
+        checkUpcast(node);
+
         List<ScopeInfo> paramScopes = ctx.getParameterScopes(m);
         for (int i = 0; i < paramScopes.size(); i++)
             checkLocalAssignment(paramScopes.get(i), argScopes.get(i), node);
+
     }
 
     /**
