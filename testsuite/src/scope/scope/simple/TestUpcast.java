@@ -1,4 +1,4 @@
-package scope.scope.sanity;
+package scope.scope.simple;
 
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
@@ -16,7 +16,7 @@ import javax.safetycritical.annotate.Scope;
 
 @Scope("D")
 @SCJAllowed(value = LEVEL_2, members = true)
-public class TestRunnable implements Runnable {
+public class TestUpcast {
 
     @Scope("D")
     @DefineScope(name = "D", parent = IMMORTAL)
@@ -38,16 +38,38 @@ public class TestRunnable implements Runnable {
         }
     }
 
-    @Override
-    public void run() {
+
+    public void method() {
+        MyRun r = new MyRun();
+        Runnable up ;
+
+        up = r;
+
+        MyRun2 r2 = new MyRun2();
+        up = r2;
     }
+
+
+
+    @SCJAllowed(value = LEVEL_2, members = true)
+    class MyRun implements Runnable {
+
+        @Override
+        @RunsIn("C")
+        public void run() {
+        }
+    }
+
+
+    @SCJAllowed(value = LEVEL_2, members = true)
+    class MyRun2 implements Runnable {
+
+        @Override
+        public void run() {
+        }
+    }
+
+
+
 }
 
-@Scope("D")
-@SCJAllowed(value = LEVEL_2, members = true)
-class OverrideRunnable extends TestRunnable {
-
-    @Override
-    public void run() {
-    }
-}

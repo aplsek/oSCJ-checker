@@ -7,12 +7,15 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @Scope(IMMORTAL)
+@SCJAllowed(members=true)
 public class TestArray {
     @Scope("a")
+    @SCJAllowed(members=true)
     static class ArrayObject { }
 
     @RunsIn("a")
@@ -33,11 +36,13 @@ public class TestArray {
     }
 
     @DefineScope(name="a", parent=IMMORTAL)
+    @SCJAllowed(members=true)
     static abstract class X extends MissionSequencer {
         @SCJRestricted(INITIALIZATION)
         public X() {super(null, null);}
     }
     @DefineScope(name="b", parent="a")
+    @SCJAllowed(members=true)
     static abstract class Y extends MissionSequencer {
         @SCJRestricted(INITIALIZATION)
         public Y() {super(null, null);} }

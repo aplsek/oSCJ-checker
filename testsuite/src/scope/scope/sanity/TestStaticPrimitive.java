@@ -4,8 +4,10 @@ import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
+@SCJAllowed(members=true)
 public class TestStaticPrimitive {
 
     private static final int INTERRUPT_PRIORITY = 32;

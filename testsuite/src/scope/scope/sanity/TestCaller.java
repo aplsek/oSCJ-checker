@@ -37,6 +37,7 @@ public class TestCaller extends MissionSequencer {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     protected Mission getNextMission() {
         // TODO Auto-generated method stub
         return null;

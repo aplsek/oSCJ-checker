@@ -4,15 +4,19 @@ import javax.realtime.PriorityParameters;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
 
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import static javax.safetycritical.annotate.Level.SUPPORT;
+
 
 @Scope("A")
 @DefineScope(name="A", parent=IMMORTAL)
+@SCJAllowed(members=true)
 public class TestMissionSequencer extends MissionSequencer {
 
     @SCJRestricted(INITIALIZATION)
@@ -22,6 +26,7 @@ public class TestMissionSequencer extends MissionSequencer {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     protected Mission getNextMission() {
         return null;
     }
