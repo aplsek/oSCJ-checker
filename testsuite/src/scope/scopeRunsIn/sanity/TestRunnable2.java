@@ -1,4 +1,4 @@
-package scope.scopeRunsIn.simple;
+package scope.scopeRunsIn.sanity;
 
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
@@ -22,18 +22,23 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 @SCJAllowed(members=true)
 @Scope("D")
 @DefineScope(name="D", parent=IMMORTAL)
-public abstract class TestRunnable extends MissionSequencer {
+public abstract class TestRunnable2 extends MissionSequencer {
 
     @SCJRestricted(INITIALIZATION)
-    public TestRunnable(PriorityParameters priority, StorageParameters storage) {
+    public TestRunnable2(PriorityParameters priority, StorageParameters storage) {
         super(priority, storage);
     }
 
-}
+    @SCJAllowed(members=true)
+    class MyRunnable implements Runnable {
+        @RunsIn("D")
+        public void run() {}
+    }
 
-@SCJAllowed(members=true)
-class MyRunnable implements Runnable {
-
-    @RunsIn("D")
-    public void run() {}
+    @SCJAllowed(members=true)
+    class MyExtendedRunnable extends MyRunnable {
+        @Override
+        @RunsIn("D")
+        public void run() {}
+    }
 }
