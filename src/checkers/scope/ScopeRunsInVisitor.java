@@ -460,8 +460,10 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 // and:
                 // if the "e" has @RunsIn annotation, then the m must explicitly
                 // restate the @RunsIn
-                if (!eRunsIn.equals(runsIn)) {
-                    fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
+                if (eRunsIn.equals(runsIn) || (!eRunsIn.equals(runsIn) && e.getAnnotation(RunsIn.class) == null))
+                    continue;
+                else {
+                    fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE, node, errNode);
                 }
             }
         }

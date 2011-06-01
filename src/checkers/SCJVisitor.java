@@ -76,6 +76,7 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     protected boolean implicitlyDefinesScope(TypeElement t) {
         TypeMirror m = t.asType();
         return alwaysImplicitlyDefinesScope(t)
+                || types.isSubtype(m, runnable)
                 || types.isSubtype(m, scjRunnable);
     }
 

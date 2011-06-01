@@ -41,6 +41,8 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_SCJ_RUNNABLE_BAD_SCOPE = "bad.scjrunnable.bad.scope";
     public static final String ERR_SCOPE_RUNS_IN_DISAGREEMENT = "scope.runs.in.disagreement";
 
+    public static final String ERR_BAD_RUNNABLE_UPCAST = "err.bad.runnable.upcast";
+
     private ScopeCheckerContext ctx;
 
     public ScopeChecker(ScopeCheckerContext ctx) {
@@ -83,7 +85,7 @@ public class ScopeChecker extends SinglePassChecker {
         p.put(ERR_BAD_GUARD_ARGUMENT,
                 "Only final variables may be passed as arguments into guards.");
         p.put(ERR_BAD_METHOD_INVOKE,
-                "Illegal invocation of method of object in scope %s while in scope %s. The @RunsIn annotaiton is not set properly.");
+                "Illegal invocation of method of object in scope %s while in scope %s. The @RunsIn annotation is not set properly.");
         p.put(ERR_BAD_NEW_ARRAY,
                 "Cannot allocate objects of type %s inside scope %s.");
         p.put(ERR_BAD_NEW_ARRAY_TYPE,
@@ -109,6 +111,9 @@ public class ScopeChecker extends SinglePassChecker {
                 "The SCJRunnable's used for enterPrivateMemory()/executeInArea() must have a @Scope annotation.");
         p.put(ERR_SCOPE_RUNS_IN_DISAGREEMENT,
                 "@RunsIn annotations must be a sub-scope of @Scope annotations.");
+
+        p.put(ERR_BAD_RUNNABLE_UPCAST,
+        "Illegal Upcast : Classes implementing Runnable interface that have @RunsIn(\"some-named-scope\") annotation on run() method cannot be upcasted to Runnable.");
 
         return p;
     }

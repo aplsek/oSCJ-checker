@@ -30,6 +30,7 @@ import com.sun.source.tree.Tree.Kind;
 
 import checkers.scope.ScopeCheckerContext;
 import checkers.scope.ScopeInfo;
+import checkers.types.AnnotatedTypeMirror;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
 import checkers.types.AnnotatedTypes;
 import checkers.util.TypesUtils;
@@ -297,5 +298,11 @@ public final class Utils {
                return true;
        }
        return false;
+    }
+
+    public static boolean areSameType(AnnotatedTypeMirror t1, AnnotatedTypeMirror t2) {
+        if (t1.equals(t2))
+            return true;
+        return false;
     }
 }
