@@ -552,10 +552,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             // result is a warning, we ignore it, since they are purely
             // informational.
 
-            pln("\n\n ERROR: " + r);
-            pln("node: " + node);
-            pln("errNode:" + errNode);
-
             fail(ERR_BAD_LIBRARY_ANNOTATION, errNode);
         }
     }
