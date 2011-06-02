@@ -29,11 +29,20 @@ public abstract class TestRunnable extends MissionSequencer {
         super(priority, storage);
     }
 
-}
+    @SCJAllowed(members=true)
+    class MyRunnable implements Runnable {
 
-@SCJAllowed(members=true)
-class MyRunnable implements Runnable {
+        @RunsIn("D")
+        public void run() {}
+    }
 
-    @RunsIn("D")
-    public void run() {}
+
+    @SCJAllowed(members=true)
+    @DefineScope(name="E", parent="D")
+    class MyRunnable2 implements Runnable {
+
+        @RunsIn("E")
+        public void run() {}
+    }
+
 }

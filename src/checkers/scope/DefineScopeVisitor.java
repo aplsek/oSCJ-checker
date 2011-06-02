@@ -39,15 +39,17 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         DefineScope ds = t.getAnnotation(DefineScope.class);
 
-        //TODO:
+        // TODO:
         if (implicitlyDefinesScope(t) && ds == null)
-            fail(ERR_SCHEDULABLE_NO_DEFINE_SCOPE,node);
+            fail(ERR_SCHEDULABLE_NO_DEFINE_SCOPE, node);
 
         if (ds != null)
             // We don't check for DefineScopes on SCJRunnables. They are
             // checked on demand when seen using enterPrivateMemory.
             if (implicitlyDefinesScope(t))
-                checkNewScope(ds.name(), ds.parent(), node);
+                checkNewScope(ds.name(), ds.parent(), node,false);
+            else if (isSubtypeOfRunnable(t))
+                checkNewScope(ds.name(), ds.parent(), node, true);
             else
                 fail(ERR_UNUSED_DEFINE_SCOPE, node);
 
@@ -59,6 +61,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         ExecutableElement m = TreeUtils.elementFromUse(node);
         TypeElement t = Utils.getMethodClass(m);
 
+        /*
         if (isManagedMemoryType(t)
                 && SCJMethod.fromMethod(m, elements, types) == SCJMethod.ENTER_PRIVATE_MEMORY) {
             ExpressionTree runnable = node.getArguments().get(1);
@@ -75,41 +78,60 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
             if (ds == null)
                 fail(ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE, errNode);
             else
-                checkNewScope(ds.name(), ds.parent(), errNode);
+                checkNewScope(ds.name(), ds.parent(), errNode,true);
         }
+        */
+
         return super.visitMethodInvocation(node, p);
     }
 
     /**
      * Ensure that a DefineScope annotation is valid.
      */
-    void checkNewScope(String child, String parent, Tree node) {
+    void checkNewScope(String child, String parent, Tree node, boolean isRunnable) {
         // Null scope checks aren't necessary since Java apparently doesn't
         // consider "null" to be a constant expression.
+        ScopeInfo childScope = new ScopeInfo(child);
+        ScopeInfo parentScope = new ScopeInfo(parent);
+
+        if (checkReservedScopeName(child, parent, node))
+            return;
+
+        if (scopeTree.hasScope(childScope)) {
+            ScopeInfo expectedParent = scopeTree.getParent(childScope);
+            if (expectedParent != null && !expectedParent.equals(parentScope)) {
+                if (isRunnable) {
+                    // we do not report duplicates for @DefineScope on Runnable
+                    return;
+                } else
+                    fail(ERR_DUPLICATE_SCOPE_NAME, node, childScope);
+            }
+        }
+
+        if (scopeTree.isAncestorOf(parentScope, childScope))
+            fail(ERR_CYCLICAL_SCOPES, node, parentScope, childScope);
+        else
+            scopeTree.put(childScope, parentScope, node);
+    }
+
+    private boolean checkReservedScopeName(String child, String parent,
+            Tree node) {
         ScopeInfo childScope = new ScopeInfo(child);
         ScopeInfo parentScope = new ScopeInfo(parent);
         boolean reservedChild = childScope.isReservedScope();
         boolean reservedParent = !parentScope.isValidParentScope();
 
-        if (reservedChild)
+        boolean fail = false;
+        if (reservedChild) {
+            fail = true;
             fail(ERR_RESERVED_SCOPE_NAME, node, childScope);
-        if (reservedParent)
-            fail(ERR_RESERVED_SCOPE_NAME, node, parentScope);
-
-        if (!(reservedChild || reservedParent)) {
-            if (scopeTree.hasScope(childScope)) {
-                ScopeInfo expectedParent = scopeTree.getParent(childScope);
-                if (expectedParent != null
-                        && !expectedParent.equals(parentScope)) {
-                    fail(ERR_DUPLICATE_SCOPE_NAME, node, childScope);
-                }
-            }
-
-            if (scopeTree.isAncestorOf(parentScope, childScope))
-                fail(ERR_CYCLICAL_SCOPES, node, parentScope, childScope);
-            else
-                scopeTree.put(childScope, parentScope, node);
         }
+        if (reservedParent) {
+            fail = true;
+            fail(ERR_RESERVED_SCOPE_NAME, node, parentScope);
+        }
+
+        return fail;
     }
 
     @Override
