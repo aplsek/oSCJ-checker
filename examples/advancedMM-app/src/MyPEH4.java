@@ -66,7 +66,7 @@ public class MyPEH4 extends PeriodicEventHandler {
 
     @SCJAllowed(members=true)
     @DefineScope(name="APP",parent=IMMORTAL)
-    class MySCJRunnable implements SCJRunnable {
+    class MySCJRunnable implements Runnable {
         @SCJAllowed(SUPPORT)
         @RunsIn("APP")
         public void run() {

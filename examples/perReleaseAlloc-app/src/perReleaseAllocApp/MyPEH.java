@@ -69,7 +69,7 @@ public class MyPEH extends PeriodicEventHandler {
 
     @SCJAllowed(members=true)
     @DefineScope(name="RunScope", parent ="MyPEH")
-    static class MySCJRunnable implements SCJRunnable {
+    static class MySCJRunnable implements Runnable {
         public long times[];
         long median;
 

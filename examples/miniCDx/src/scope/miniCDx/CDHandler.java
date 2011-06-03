@@ -121,7 +121,7 @@ public class CDHandler extends PeriodicEventHandler {
     }
 
     @Scope("CDMission")
-    class CallsignRunnable implements SCJRunnable {
+    class CallsignRunnable implements Runnable {
         byte[] cs;
         Callsign result;
 
@@ -133,7 +133,7 @@ public class CDHandler extends PeriodicEventHandler {
     }
 
     @Scope("CDMission")
-    class PutCallsignRunnable implements SCJRunnable {
+    class PutCallsignRunnable implements Runnable {
         Callsign callsign;
 
         @RunsIn("CDMission")

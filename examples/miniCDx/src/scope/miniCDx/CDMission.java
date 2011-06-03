@@ -90,7 +90,7 @@ public class CDMission extends CyclicExecutive {
 @SCJAllowed(members=true)
 @Scope("CDMission")
 @DefineScope(name="CDMissionInit", parent="CDMission")
-class MIRun implements SCJRunnable {
+class MIRun implements Runnable {
     @RunsIn("CDMissionInit")
     @SCJAllowed(SUPPORT)
     public void run() {

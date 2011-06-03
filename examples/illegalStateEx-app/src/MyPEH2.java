@@ -60,7 +60,7 @@ class MyPEH2 extends PeriodicEventHandler {
 
 @SCJAllowed(members = true)
 @DefineScope(name = "new-scope", parent = "MyPEH1")
-class MyRunnable implements SCJRunnable {
+class MyRunnable implements Runnable {
 
     @SCJAllowed(SUPPORT)
     @RunsIn("new-scope")
