@@ -4,8 +4,10 @@ import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
+@SCJAllowed(members = true)
 public class TestIllegalVariableScopeOverride {
     @Scope(IMMORTAL)
     static class X { }

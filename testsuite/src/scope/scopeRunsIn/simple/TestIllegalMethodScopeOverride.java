@@ -7,6 +7,7 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
+@SCJAllowed(members = true)
 public class TestIllegalMethodScopeOverride {
     static class X {
         @SCJAllowed(SUPPORT)
@@ -19,6 +20,7 @@ public class TestIllegalMethodScopeOverride {
     }
     static class Y extends X {
         @Override
+        @SCJAllowed(SUPPORT)
         @Scope(CALLER)
         Object foo(Y y) { return null; }
         @Override

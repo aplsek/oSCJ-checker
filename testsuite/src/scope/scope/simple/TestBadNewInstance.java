@@ -10,9 +10,11 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+@SCJAllowed(members = true)
 @DefineScope(name="a", parent=IMMORTAL)
 @Scope("a")
 public abstract class TestBadNewInstance extends MissionSequencer {
@@ -20,6 +22,7 @@ public abstract class TestBadNewInstance extends MissionSequencer {
     @SCJRestricted(INITIALIZATION)
     public TestBadNewInstance() {super(null, null);}
 
+    @SCJAllowed(members = true)
     @Scope("a")
     @DefineScope(name="b", parent="a")
     static abstract class X extends MissionSequencer {

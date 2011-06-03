@@ -13,7 +13,6 @@ import javax.realtime.AbsoluteTime;
 import javax.realtime.Clock;
 import javax.realtime.ClockCallBack;
 import javax.realtime.RelativeTime;
-import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.annotate.SCJAllowed;
 
 /**

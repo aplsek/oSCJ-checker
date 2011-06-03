@@ -1,5 +1,7 @@
 package scope.schedulable.simple;
 
+
+import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -50,11 +52,13 @@ public class TestMissionInit2 extends CyclicExecutive {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @SCJRestricted(INITIALIZATION)
     public void setUp() {
     }
 
     @Override
     @SCJAllowed(SUPPORT)
+    @SCJRestricted(CLEANUP)
     public void tearDown() {
     }
 

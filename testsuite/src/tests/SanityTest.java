@@ -15,11 +15,10 @@ public class SanityTest extends ParameterizedCheckerTest {
     public static Collection<Object[]> data() {
         Collection<Object[]> tests = testFiles("scope/defineScope/sanity");
 
-        tests.addAll(testFiles("scope/scopeRunsIn/sanity"));
-        tests.addAll(testFiles("scope/scope/sanity"));
-        tests.addAll(testFiles("scope/schedulable/sanity"));
         tests.addAll(testFiles("scjAllowed/sanity"));
-
+        tests.addAll(testFiles("scope/scopeRunsIn/sanity"));
+        tests.addAll(testFiles("scope/schedulable/sanity"));
+        tests.addAll(testFiles("scope/scope/sanity"));
         return tests;
     }
 }

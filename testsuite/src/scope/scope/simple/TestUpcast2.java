@@ -28,7 +28,7 @@ public abstract class TestUpcast2 extends MissionSequencer {
         bar(y);
 
         //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
-        bar(y);
+        bar((Runnable) y);
 
         @Scope(IMMORTAL)
         @DefineScope(name = "D", parent = IMMORTAL)

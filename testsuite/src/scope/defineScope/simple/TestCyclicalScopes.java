@@ -5,8 +5,10 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 
+@SCJAllowed(members=true)
 public class TestCyclicalScopes {
     @DefineScope(name="a", parent="b")
     static abstract class X extends MissionSequencer {

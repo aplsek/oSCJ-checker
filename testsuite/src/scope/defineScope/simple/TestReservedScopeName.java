@@ -9,8 +9,10 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 
+@SCJAllowed(members=true)
 public class TestReservedScopeName {
     @DefineScope(name=CALLER, parent="a")
     //## checkers.scope.DefineScopeChecker.ERR_RESERVED_SCOPE_NAME

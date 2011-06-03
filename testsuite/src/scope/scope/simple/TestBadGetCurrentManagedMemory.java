@@ -9,8 +9,10 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 
+@SCJAllowed(members = true)
 @DefineScope(name="a", parent=IMMORTAL)
 public abstract class TestBadGetCurrentManagedMemory extends MissionSequencer {
 

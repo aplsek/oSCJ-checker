@@ -12,12 +12,8 @@ import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-import javax.realtime.AbsoluteTime;
-import javax.realtime.Clock;
-import javax.realtime.ClockCallBack;
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.CyclicExecutive;
-import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;

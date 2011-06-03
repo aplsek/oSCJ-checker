@@ -1,16 +1,16 @@
-package scope.scopeRunsIn.simple;
+package scope.scopeRunsIn.sanity;
 
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
-import javax.safetycritical.annotate.SCJAllowed;
-import javax.safetycritical.annotate.RunsIn;
+
 import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.SCJAllowed;
+
 
 @SCJAllowed(members=true)
-public class TestBadScopeNameMethodRunsIn {
+public class TestBadScopeNameField {
     @Scope(IMMORTAL)
     static class X {
-        @RunsIn("a")
         //## checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME
-        void foo() { }
+        @Scope("a") Object o;
     }
 }

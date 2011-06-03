@@ -7,10 +7,12 @@ import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="a", parent=IMMORTAL)
+@SCJAllowed(members = true)
 public abstract class TestBadAllocationArray extends MissionSequencer {
 
     @SCJRestricted(INITIALIZATION)

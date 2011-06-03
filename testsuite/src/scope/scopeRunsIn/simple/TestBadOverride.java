@@ -4,10 +4,8 @@ import static javax.safetycritical.annotate.Level.SUPPORT;
 
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
-import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.PeriodicEventHandler;
-import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
@@ -51,8 +49,7 @@ public class TestBadOverride {
     }
 
     @SCJAllowed(members=true)
-    public class PEHImplementation implements MySCJRunnable {
-        @SCJAllowed(SUPPORT)
+    public class PEHImplementation implements MyRunnable {
         //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE
         public void run() {
         }
@@ -60,9 +57,8 @@ public class TestBadOverride {
 
 
     @SCJAllowed(members=true)
-    interface MySCJRunnable extends SCJRunnable {
+    interface MyRunnable extends Runnable {
 
-        @SCJAllowed(SUPPORT)
         @RunsIn("PEH")
         public void run();
     }

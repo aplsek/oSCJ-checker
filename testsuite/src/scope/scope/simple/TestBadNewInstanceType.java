@@ -7,9 +7,11 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+@SCJAllowed(members = true)
 @DefineScope(name="a", parent=IMMORTAL)
 @Scope("a")
 public abstract class TestBadNewInstanceType extends MissionSequencer {
@@ -17,6 +19,7 @@ public abstract class TestBadNewInstanceType extends MissionSequencer {
     @SCJRestricted(INITIALIZATION)
     public TestBadNewInstanceType() {super(null, null);}
 
+    @SCJAllowed(members = true)
     @Scope("a")
     @DefineScope(name="b", parent="a")
     static abstract class X extends MissionSequencer {

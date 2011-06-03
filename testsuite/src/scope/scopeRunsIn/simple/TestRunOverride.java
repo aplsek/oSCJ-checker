@@ -1,4 +1,4 @@
-package scope.scopeRunsIn.sanity;
+package scope.scopeRunsIn.simple;
 
 import javax.realtime.PriorityParameters;
 
@@ -11,6 +11,9 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.SCJAllowed;
+
+import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_NAMED_RUNS_IN_OVERRIDE;
+import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RESERVED_RUNS_IN_OVERRIDE;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Level.SUPPORT;
@@ -42,24 +45,22 @@ public abstract class TestRunOverride extends MissionSequencer {
         public void run() { }
     }
 
-
-    @Scope("D")
-    @DefineScope(name="E", parent="D")
-    @SCJAllowed(value=LEVEL_2, members=true)
-    class MyThread2 extends MyThread {
-
-        @SCJRestricted(INITIALIZATION)
-        public MyThread2(int priority) {
-            super(priority);
-        }
-
-        @Override
-        @RunsIn("E")
-        public void run() { }
-    }
-
     class MyRun implements Runnable {
         @RunsIn("C")
+        public void run() {}
+    }
+
+    class MyRun2 extends MyRun {
+        @Override
+        @RunsIn("D")
+        //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_NAMED_RUNS_IN_OVERRIDE
+        public void run() {}
+    }
+
+    class MyRun3 implements Runnable {
+        @Override
+        @RunsIn("CALLER")
+        //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RESERVED_RUNS_IN_OVERRIDE
         public void run() {}
     }
 }

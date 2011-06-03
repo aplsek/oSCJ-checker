@@ -2,12 +2,15 @@ package scope.defineScope.simple;
 
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import javax.safetycritical.annotate.SCJAllowed;
+
 
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJRestricted;
 
+@SCJAllowed(members=true)
 public class TestDuplicateScopeName {
     @DefineScope(name="a", parent=IMMORTAL)
     static abstract class X extends MissionSequencer {

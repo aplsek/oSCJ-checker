@@ -4,9 +4,7 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.ManagedMemory;
-import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
-import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
@@ -15,6 +13,7 @@ import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="a", parent=IMMORTAL)
 @Scope("a")
+@SCJAllowed(members = true)
 public abstract class TestBadEnterPrivateMemoryTarget extends MissionSequencer {
 
     @SCJRestricted(INITIALIZATION)
@@ -31,6 +30,7 @@ public abstract class TestBadEnterPrivateMemoryTarget extends MissionSequencer {
 
     @Scope("a")
     @DefineScope(name="b", parent="a")
+    @SCJAllowed(members = true)
     static abstract class X extends MissionSequencer {
         @SCJRestricted(INITIALIZATION)
         public X() {super(null, null);}
@@ -39,7 +39,7 @@ public abstract class TestBadEnterPrivateMemoryTarget extends MissionSequencer {
     @SCJAllowed(members=true)
     @Scope("a")
     @DefineScope(name="c", parent="a")
-    static class Z implements SCJRunnable {
+    static class Z implements Runnable {
         @RunsIn("c")
         public void run() { }
     }

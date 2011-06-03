@@ -8,10 +8,12 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @DefineScope(name="a", parent=IMMORTAL)
+@SCJAllowed(members = true)
 public abstract class TestBadAssignmentScopeLocalArray extends MissionSequencer {
 
     @SCJRestricted(INITIALIZATION)
@@ -40,6 +42,7 @@ public abstract class TestBadAssignmentScopeLocalArray extends MissionSequencer 
     static class X { }
 
     void baz(@Scope(UNKNOWN) X[] xs, X x) {
+        //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
         xs[0] = x;
     }
 }

@@ -14,6 +14,14 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
 
+
+
+
+
+
+
+
+
 @Scope("A")
 @DefineScope(name="A", parent=IMMORTAL)
 @SCJAllowed(members=true)

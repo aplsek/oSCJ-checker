@@ -8,8 +8,11 @@ import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.SCJAllowed;
+
 
 // This is the same test as TestBadAssignmentScopeField except with upcasts
+@SCJAllowed(members=true)
 public class TestBadAssignmentScopeFieldUpcast {
     @DefineScope(name="a", parent=IMMORTAL)
     static abstract class X extends MissionSequencer {

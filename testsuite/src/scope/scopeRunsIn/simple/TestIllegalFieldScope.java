@@ -6,9 +6,11 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+@SCJAllowed(members = true)
 @Scope(IMMORTAL)
 @DefineScope(name="a", parent=IMMORTAL)
 public abstract class TestIllegalFieldScope extends MissionSequencer {

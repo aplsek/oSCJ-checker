@@ -3,7 +3,7 @@
 package scope.schedulable.simple;
 
 import static javax.safetycritical.annotate.Level.SUPPORT;
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Phase.*;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.realtime.PriorityParameters;
@@ -34,12 +34,15 @@ public class TestHandleAsyncEventRunsIn extends CyclicExecutive {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
+    @SCJRestricted(INITIALIZATION)
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         return null;
     }
 
     @Override
     @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     public void initialize() {
         new WordHandler(20000);
     }
@@ -50,10 +53,14 @@ public class TestHandleAsyncEventRunsIn extends CyclicExecutive {
     }
 
     @Override
+    @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     public void setUp() {
     }
 
     @Override
+    @SCJRestricted(CLEANUP)
+    @SCJAllowed(SUPPORT)
     public void tearDown() {
     }
 
@@ -72,11 +79,11 @@ public class TestHandleAsyncEventRunsIn extends CyclicExecutive {
         @Override
         @SCJAllowed(SUPPORT)
         public void handleAsyncEvent() {
-            // printing HelloWorld!!!!
         }
 
         @Override
-        @SCJAllowed()
+        @SCJAllowed(SUPPORT)
+        @SCJRestricted(CLEANUP)
         public void cleanUp() {
         }
     }

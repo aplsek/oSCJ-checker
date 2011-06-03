@@ -7,9 +7,11 @@ import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+@SCJAllowed(members = true)
 public abstract class TestMemoryAreaDefineScopeNotConsistentWithScope {
     @DefineScope(name="a", parent=IMMORTAL)
     static abstract class X extends MissionSequencer {

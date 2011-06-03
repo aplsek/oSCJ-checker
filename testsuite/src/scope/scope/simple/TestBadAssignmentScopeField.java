@@ -6,11 +6,15 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+@SCJAllowed(members = true)
 public class TestBadAssignmentScopeField {
+
     @DefineScope(name="a", parent=IMMORTAL)
+    @SCJAllowed(members = true)
     static abstract class X extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)

@@ -12,7 +12,6 @@ import static javax.safetycritical.annotate.Level.LEVEL_2;
 import javax.realtime.AbsoluteTime;
 import javax.realtime.Clock;
 import javax.realtime.ClockCallBack;
-import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.annotate.SCJAllowed;
 
 /**
@@ -20,7 +19,7 @@ import javax.safetycritical.annotate.SCJAllowed;
  *
  */
 @SCJAllowed(value=LEVEL_0)
-public abstract class TestBadOverride extends Clock implements SCJRunnable {
+public abstract class TestBadOverride extends Clock implements Runnable {
     @Override
     @SCJAllowed(LEVEL_2)
     //## checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE

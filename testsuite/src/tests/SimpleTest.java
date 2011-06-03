@@ -14,11 +14,11 @@ public class SimpleTest extends ParameterizedCheckerTest {
     @Parameters
     public static Collection<Object[]> data() {
         Collection<Object[]> tests = testFiles("scope/defineScope/simple");
-        tests.addAll(testFiles("scope/scopeRunsIn/simple"));
-        tests.addAll(testFiles("scope/scope/simple"));
-        tests.addAll(testFiles("scope/schedulable/simple"));
         tests.addAll(SCJAllowedTest.data());
         tests.addAll(SCJRestrictedTest.data());
+        tests.addAll(testFiles("scope/scopeRunsIn/simple"));
+        tests.addAll(testFiles("scope/schedulable/simple"));
+        tests.addAll(testFiles("scope/scope/simple"));
         return tests;
     }
 }
