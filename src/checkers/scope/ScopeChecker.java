@@ -38,7 +38,9 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR = "err.mem.area.no.def.scope.on.var";
     public static final String ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT = "err.mem.type.def.scope.not.consistent";
     public static final String ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE = "err.mem.type.def.scope.not.consistent.with.scope";
-    public static final String ERR_SCJ_RUNNABLE_BAD_SCOPE = "bad.scjrunnable.bad.scope";
+
+    // Uncomment this to enforce @SCope on the runnable classes.
+    //public static final String ERR_SCJ_RUNNABLE_BAD_SCOPE = "bad.scjrunnable.bad.scope";
     public static final String ERR_SCOPE_RUNS_IN_DISAGREEMENT = "scope.runs.in.disagreement";
 
     public static final String ERR_BAD_RUNNABLE_UPCAST = "err.bad.runnable.upcast";
@@ -69,7 +71,7 @@ public class ScopeChecker extends SinglePassChecker {
         p.put(ERR_BAD_ASSIGNMENT_SCOPE,
                 "Cannot assign expression in scope %s to variable in scope %s.");
         p.put(ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH,
-                "The Runnable's @RunsIn must be a child scope of the CurrentScope\n\t @RunsIn: %s\n\t Current Scope: %s");
+                "The Runnable's @RunsIn must be a child scope of the current scope: \n\t @RunsIn: %s\n\t Current Scope: %s");
         p.put(ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET,
                 "The Runnable's @RunsIn must be a child scope of the scope represented by the @DefineScope annotation on the memory area variable.\n\t @RunsIn: %s\n\t Target Scope: %s");
         p.put(ERR_BAD_CONTEXT_CHANGE_CALLER,
@@ -107,8 +109,8 @@ public class ScopeChecker extends SinglePassChecker {
                 "MemoryArea variable's @DefineScope annotation is not consistent with the @DefineScope annotations on classes.");
         p.put(ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE,
                 "MemoryArea variable @DefineScope annotation is not consistent with the @Scope annotations of the field. (Field's scope is %s, @DefineScope requires %s) ");
-        p.put(ERR_SCJ_RUNNABLE_BAD_SCOPE,
-                "The SCJRunnable's used for enterPrivateMemory()/executeInArea() must have a @Scope annotation.");
+        //p.put(ERR_SCJ_RUNNABLE_BAD_SCOPE,
+        //        "The Runnable used for enterPrivateMemory()/executeInArea() must have a @Scope annotation.");
         p.put(ERR_SCOPE_RUNS_IN_DISAGREEMENT,
                 "@RunsIn annotations must be a sub-scope of @Scope annotations.");
 

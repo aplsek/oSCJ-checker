@@ -1,20 +1,6 @@
 package checkers.scope;
 
-import static checkers.scope.ScopeRunsInChecker.ERR_BAD_LIBRARY_ANNOTATION;
-import static checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME;
-import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE;
-import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_FIELD_SCOPE;
-import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE;
-import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE;
-import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE;
-import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_STATIC_FIELD_SCOPE;
-import static checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE;
-import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT;
-import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_DEFINE_SCOPE_NOT_CONSISTENT_WITH_SCOPE;
-import static checkers.scope.ScopeRunsInChecker.ERR_MEMORY_AREA_NO_DEFINE_SCOPE;
-import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CLASS;
-import static checkers.scope.ScopeRunsInChecker.ERR_RUNS_IN_ON_CONSTRUCTOR;
-import static checkers.scope.ScopeRunsInChecker.ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN;
+import static checkers.scope.ScopeRunsInChecker.*;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
 import java.util.List;
@@ -52,6 +38,7 @@ import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.PrimitiveTypeTree;
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.VariableTree;
 
 /**
@@ -107,7 +94,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 && elem.getKind() == ElementKind.FIELD) {
             VariableElement f = (VariableElement) elem;
             TypeElement t = Utils.getFieldClass(f);
-            checkClassScope(t, trees.getTree(t), node, false);
+            if (node.getExpression().getKind() != Kind.PRIMITIVE_TYPE) {
+                checkClassScope(t, trees.getTree(t), node, false);
+            }
         }
         return super.visitMemberSelect(node, p);
     }
@@ -266,7 +255,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         checkMethodScope(m, mTree, errNode);
         // System.err.println(m.getEnclosingElement() + "." + m + " " +
         // ctx.getMethodRunsIn(m) + " " + ctx.getMethodScope(m));
+
         checkMethodParameters(m, mTree, errNode);
+
         debugIndentDecrement();
     }
 
@@ -405,9 +396,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         return ret;
     }
 
-    void pln(String str) {
-        System.out.println("\t " + str);
-    }
+    void pln(String str) {System.out.println("\t" + str);}
 
     /**
      * Check that a method has a valid RunsIn annotation. A method's RunsIn
@@ -426,6 +415,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (Utils.isStatic(m) && runsIn.isThis())
             fail(ERR_BAD_SCOPE_NAME, node, errNode, runsIn);
 
+
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(m);
         for (ExecutableElement e : overrides.values()) {
@@ -433,7 +423,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
             if (!Utils.isUserLevel(m)) {
                 // SCJ packages are not checked
-                continue;
+                break;
             }
 
             // if the "e" has @RunsIn annotation, then the m must explicitly
@@ -444,15 +434,43 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
             if (!Utils.isSCJSupport(m, ats)) {
                 if (!eRunsIn.equals(runsIn)) {
-                    if (isRunnable(Utils.getMethodClass(e))) {
-                        if (runsIn.isCaller() || runsIn.isImmortal()
-                                || runsIn.isThis()) {
-                            fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node,
+
+                    /*
+                    pln("\n class: " + m.getEnclosingElement());
+                    pln(" over:" + e.getEnclosingElement());
+                    pln("m:"  + isRunnable(Utils.getMethodClass(m)));
+                    pln("e:"  + isRunnable(Utils.getMethodClass(e)));
+                    pln("e:"  + isRunnableSubtype(Utils.getMethodClass(e)));
+                    */
+
+                    if (isRunnable(Utils.getMethodClass(e)) || isManagedThread(Utils.getMethodClass(m))) {
+                        /*
+                        pln("\n runnable:" + m);
+                        pln("class: " + m.getEnclosingElement());
+                        pln(" over:" + e.getEnclosingElement());
+                        pln(" eRunsIn:" + eRunsIn);
+                        pln(" runsIn:" + runsIn);
+                        pln("m:"  + isRunnable(Utils.getMethodClass(m)));
+                        pln("e:"  + isRunnable(Utils.getMethodClass(e)));
+                        pln("# over: " + overrides.size());
+                        */
+
+                        if (runsIn.isReservedScope()) {
+                            fail(ERR_ILLEGAL_METHOD_RESERVED_RUNS_IN_OVERRIDE, node,
                                     errNode);
+                        } else if (!eRunsIn.isReservedScope()) {
+                            fail(ERR_ILLEGAL_METHOD_NAMED_RUNS_IN_OVERRIDE, node,
+                                    errNode);
+                        } else {
+                            continue;
                         }
+                    } else if (isRunnableSubtype(Utils.getMethodClass(e))) {
+                        fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
                     } else {
-                        if (!runsIn.isCaller())
+                        if (!runsIn.isCaller()) {
+                            //TODO: is it allowed to override the default with CALLER?
                             fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
+                        }
                     }
                 }
             } else {
@@ -467,6 +485,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 }
             }
         }
+
+
         ctx.setMethodRunsIn(runsIn, m);
     }
 

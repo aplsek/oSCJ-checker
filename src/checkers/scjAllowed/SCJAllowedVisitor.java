@@ -88,7 +88,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         Level level = scjAllowedLevel(t);
 
         if (!isSCJAllowed(t)) {
-            if (superLevel != HIDDEN && !isEnclosingSCJAllowed(t.getEnclosingElement())) {
+            if (superLevel != HIDDEN
+                    && !isEnclosingSCJAllowed(t.getEnclosingElement())) {
                 fail(ERR_BAD_SUBCLASS, node);
                 debugIndentDecrement();
                 return null;
@@ -97,8 +98,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
                 return null;
             }
         }
-
-
 
         if (Utils.isUserLevel(t) && level == INFRASTRUCTURE) {
             debugIndentDecrement();
@@ -129,9 +128,9 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         Level level = HIDDEN;
 
         TypeElement s = Utils.superType(t);
-        while (s != null ) {
+        while (s != null) {
             if (isSCJAllowed(s)) {
-                    level = scjAllowedLevel(s);
+                level = scjAllowedLevel(s);
             }
             s = Utils.superType(s);
         }
@@ -148,10 +147,17 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             return super.visitMemberSelect(node, p);
 
         if (f.getKind() == ElementKind.FIELD
-                && scjAllowedLevel(f).compareTo(topLevel()) > 0)
+                && scjAllowedLevel(f).compareTo(topLevel()) > 0) {
+           if (!f.toString().equals("class"))
             fail(ERR_BAD_FIELD_ACCESS, node, topLevel());
+        }
+
+
         return super.visitMemberSelect(node, p);
     }
+
+
+    void pln(String str) {System.out.println("\t" + str);}
 
     /**
      * Errors: - we can not override a method by a method with a higher
@@ -159,19 +165,14 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      *
      * 5) Method Overriding
      *
-     *       Table: Method Overriding
-     *       -----------------------
-     *         method
+     * Table: Method Overriding ----------------------- method
      *
-     *           parent     1  2
-     *                      ^  ^
-     *                      x  |
-     *           child      2  1
+     * parent 1 2 ^ ^ x | child 2 1
      *
-     *       -----------------------
-     *       - Method must have the same or lower SCJ-level than all overridden methods.
-     *           (Method may not decrease visibility of their overrides.)
-     *       - Method may override @SCJAllowed(SUPPORT) method but must restate the annotation.
+     * ----------------------- - Method must have the same or lower SCJ-level
+     * than all overridden methods. (Method may not decrease visibility of their
+     * overrides.) - Method may override @SCJAllowed(SUPPORT) method but must
+     * restate the annotation.
      */
     @Override
     public R visitMethod(MethodTree node, P p) {
@@ -203,17 +204,18 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
                             .compareTo(INFRASTRUCTURE) >= 0)
                 fail(ERR_BAD_INFRASTRUCTURE_OVERRIDE, node);
 
-            if (!isEscaped(override.getEnclosingElement().toString())
-                    && level.compareTo(scjAllowedLevel(override, node)) > 0
-                    && !level.equals(enclosingLevel)) {
-                    fail(ERR_BAD_OVERRIDE, node);
-            }
-
             // SUPPORT needs to be restated
             if (scjAllowedLevel(override, node) == SUPPORT) {
                 if (level != SUPPORT || !isSCJAllowed(m)) {
                     fail(ERR_BAD_OVERRIDE_SUPPORT, node);
                 }
+            }
+
+            if (!isEscaped(override.getEnclosingElement().toString())
+                    && level.compareTo(scjAllowedLevel(override, node)) > 0
+                    && !level.equals(enclosingLevel)) {
+                if (! (isManagedThread(Utils.getMethodClass(m)) && level.equals(SUPPORT)))
+                    fail(ERR_BAD_OVERRIDE, node);
             }
         }
 
@@ -229,7 +231,8 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      * A legal sequence of overrides is Level 1 (user code) ---> SUPPORT (scj
      * code) ---> INFRASTRUCTURE (scj code)
      *
-     * an illegal sequence is: Level 1 (user code) ---> INFRASTRUCTURE (scj code)
+     * an illegal sequence is: Level 1 (user code) ---> INFRASTRUCTURE (scj
+     * code)
      *
      * --> so by this we rule out all cases where an INFRASTRUCTURE method was
      * overriden by SUPPORT or lower level in the SCJ packages -------> since
@@ -276,11 +279,12 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         if (!isSCJInternal(m, node)) {
             if (topLevel().equals(SUPPORT)) {
-                if (scjAllowedLevel(m, node).equals(SUPPORT)){
+                if (scjAllowedLevel(m, node).equals(SUPPORT)) {
                     fail(ERR_BAD_SUPPORT_METHOD_CALL, node, topLevel());
                 } else if (!topLevel().equals(scjAllowedLevel(m, node))) {
                     if (Utils.isUserLevel(m)) {
-                         //fail(ERR_BAD_METHOD_CALL, node, topLevel());
+                        // TODO:
+                        // fail(ERR_BAD_METHOD_CALL, node, topLevel());
                     }
                 }
             } else if (scjAllowedLevel(m, node).compareTo(topLevel()) > 0) {
@@ -291,8 +295,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         debugIndentDecrement();
         return super.visitMethodInvocation(node, p);
     }
-
-
 
     @Override
     public R visitNewClass(NewClassTree node, P p) {
@@ -495,8 +497,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             fail(ERR_BAD_INFRASTRUCTURE_CALL, node);
         return isValid;
     }
-
-
 
     /**
      * returns true if any enclosing element is SCJAllowed

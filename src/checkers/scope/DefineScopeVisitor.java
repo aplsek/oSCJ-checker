@@ -43,15 +43,15 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         if (implicitlyDefinesScope(t) && ds == null)
             fail(ERR_SCHEDULABLE_NO_DEFINE_SCOPE, node);
 
-        if (ds != null)
-            // We don't check for DefineScopes on SCJRunnables. They are
-            // checked on demand when seen using enterPrivateMemory.
+        if (ds != null) {
+            // check for @DefineScope on the methods that must have a @DS and the we look at all the classes implementing Runnable interface
             if (implicitlyDefinesScope(t))
                 checkNewScope(ds.name(), ds.parent(), node,false);
             else if (isSubtypeOfRunnable(t))
                 checkNewScope(ds.name(), ds.parent(), node, true);
             else
                 fail(ERR_UNUSED_DEFINE_SCOPE, node);
+        }
 
         return super.visitClass(node, p);
     }
@@ -61,7 +61,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         ExecutableElement m = TreeUtils.elementFromUse(node);
         TypeElement t = Utils.getMethodClass(m);
 
-        /*
+
         if (isManagedMemoryType(t)
                 && SCJMethod.fromMethod(m, elements, types) == SCJMethod.ENTER_PRIVATE_MEMORY) {
             ExpressionTree runnable = node.getArguments().get(1);
@@ -70,17 +70,18 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
             Tree errNode = trees.getTree(t2);
             DefineScope ds = t2.getAnnotation(DefineScope.class);
 
-            // Report errors on the SCJRunnable being used, if possible, rather
+            // Report errors on the Runnable being used, if possible, rather
             // than the method invocation site. Error messages from
             // checkNewScope() are much less confusing on classes.
             if (errNode == null)
                 errNode = node;
-            if (ds == null)
+           if (ds == null)
                 fail(ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE, errNode);
-            else
-                checkNewScope(ds.name(), ds.parent(), errNode,true);
+
+            // NOTE: the scope was already added in the visitClass.
+            //checkNewScope(ds.name(), ds.parent(), errNode,true);
         }
-        */
+
 
         return super.visitMethodInvocation(node, p);
     }
