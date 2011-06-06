@@ -16,6 +16,9 @@ import javax.safetycritical.annotate.Scope;
 @SCJAllowed(members = true)
 public abstract class TestUpcast2 extends MissionSequencer {
 
+    //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+    Runnable r = new Y();
+
     @SCJRestricted(INITIALIZATION)
     public TestUpcast2() {
         super(null, null);
@@ -28,7 +31,7 @@ public abstract class TestUpcast2 extends MissionSequencer {
         bar(y);
 
         //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
-        bar((Runnable) y);
+        bar((Runnable)y);
 
         @Scope(IMMORTAL)
         @DefineScope(name = "D", parent = IMMORTAL)

@@ -180,16 +180,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             case EXECUTE_IN_AREA:
                 return;
             default:
-                List<? extends VariableElement> params = TreeUtils
-                        .elementFromUse(tree).getParameters();
-
+                List<? extends VariableElement> params = TreeUtils.elementFromUse(tree).getParameters();
                 List<? extends ExpressionTree> args = tree.getArguments();
-                checkMethodArgsForUpcast(params,args,node);
 
+                checkMethodArgsForUpcast(params,args,node);
             }
         } else if (node.getKind() == Kind.NEW_CLASS) {
-            List<? extends VariableElement> params = TreeUtils
-            .elementFromUse((NewClassTree)node).getParameters();
+            List<? extends VariableElement> params = TreeUtils.elementFromUse((NewClassTree)node).getParameters();
             List<? extends ExpressionTree> args = ((NewClassTree)node).getArguments();
 
             checkMethodArgsForUpcast(params,args,node);
@@ -198,6 +195,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // TODO:
             throw new RuntimeException("Unexpected assignment AST node: "
                     + node.getKind());
+        } else if (node.getKind() == Kind.RETURN) {
+            ReturnTree tree = (ReturnTree)node;
+
+            MethodTree enclosingMethod = TreeUtils.enclosingMethod(getCurrentPath());
+            ExecutableElement m = TreeUtils.elementFromDeclaration(enclosingMethod);
+
+            if (m.getReturnType().getKind().isPrimitive())
+                return;
+
+            castType = atypeFactory.fromElement(Utils.getTypeElement(m.getReturnType()));
+            exprType = atypeFactory.getAnnotatedType(tree.getExpression());
+
+            checkUpcastTypes(castType, exprType, node);
         } else
             throw new RuntimeException("Unexpected assignment AST node: "
                     + node.getKind());
@@ -446,12 +456,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (node.getValue() == null) {
             ret = ScopeInfo.NULL;
         } else if (node.getValue() instanceof String) {
-            // TODO I foresee much sadness in this later on. Strings can't
-            // really interact between IMMORTAL and other scopes if it's not
-            // RunsIn(UNKNOWN).
+            // STRING LITERALS - instead of making them IMMORTAL, we inferer their scope to be the "current scope".
 
-            // TODO:
-            // ret = ScopeInfo.IMMORTAL;
             debugIndent("  string literal, currentScope: " + currentScope());
             ret = currentScope();
         }
@@ -557,6 +563,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                     scope)))
                 fail(ERR_BAD_ALLOCATION_ARRAY, node, scope);
         }
+
+        // TODO: check upcast for new array
+        //checkUpcast(node);
+
         super.visitNewArray(node, p);
         debugIndentDecrement();
         return currentScope();
@@ -606,9 +616,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo returnScope = ctx.getMethodScope(m);
         ScopeInfo exprScope = node.getExpression().accept(this, p);
 
-        debugIndent("\t expected return scope is: " + returnScope);
-        debugIndent("\t actual return scope is:" + exprScope);
+        //debugIndent("\t expected return scope is: " + returnScope);
+        //debugIndent("\t actual return scope is:" + exprScope);
+
         checkReturnScope(exprScope, returnScope, node);
+
+        checkUpcast(node);
+
         debugIndentDecrement();
         return returnScope;
     }

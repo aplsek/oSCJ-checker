@@ -51,6 +51,13 @@ public abstract class TestUpcast3 extends MissionSequencer {
 
     }
 
+    public Runnable method() {
+        MyHandlerRun r = new MyHandlerRun();
+
+        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+        return r;
+    }
+
     @SCJAllowed(members=true)
     @Scope("D")
     @DefineScope(name="PEH", parent="D")
