@@ -400,7 +400,7 @@
 
 
 
-  <target name="Scope-test" depends="jar,compile-tests"
+  <target name="scope-test" depends="jar,compile-tests"
   		    description="Run tests for all checkers">
     <!-- Copied from -run-tests target -->
     <mkdir dir="${build.reports}"/>
@@ -448,7 +448,7 @@
     				DefineScope-test,
     				ScopeRunsIn-test,
     				Schedulable-test,
-    				Scope-test"
+    				scope-test"
     		    description="Run tests for all checkers">
   </target>
 
