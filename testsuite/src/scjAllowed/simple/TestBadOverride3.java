@@ -34,9 +34,11 @@ class Over extends TestBadOverride3 {
 
     @Override
     @SCJAllowed(SUPPORT)
+    //## checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE
     public void method() {}
 
     @Override
     @SCJAllowed(LEVEL_0)
+    //## checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_OVERRIDE_SUPPORT
     public void method2() {}
 }

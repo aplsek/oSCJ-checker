@@ -7,7 +7,6 @@ import javax.safetycritical.annotate.SCJAllowed;
 @SCJAllowed(members=true)
 public class TestBadSupport implements Runnable {
     @SCJAllowed(SUPPORT)
-    //## checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_SUPPORT
     public void foo() { }
 
     @Override

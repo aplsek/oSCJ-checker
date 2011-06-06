@@ -42,7 +42,7 @@ public abstract class TestBadNewArray extends MissionSequencer {
                 //## checkers.scope.ScopeChecker.ERR_BAD_NEW_ARRAY
                 mem2.newArray(Y.class, 1);
             } catch (Exception e) {
-                e.printStackTrace();
+                //...
             }
         }
     }

@@ -1,4 +1,4 @@
-package scope.scope.simple;
+package scope.scopeRunsIn.simple;
 
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
@@ -10,9 +10,13 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
+
 @SCJAllowed(members=true)
 public class TestSimpleOverride {
 
+    @SCJAllowed(members=true)
+    @Scope("ZERO")
+    @DefineScope(name="ZERO", parent=IMMORTAL)
     static class A extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)
@@ -29,15 +33,22 @@ public class TestSimpleOverride {
         }
 
         @Override
+        @SCJAllowed(SUPPORT)
         protected Mission getNextMission() {
             return null;
         }
     }
 
+    @SCJAllowed(members=true)
     @Scope("ONE")
-    @DefineScope(name="ONE", parent=IMMORTAL)
+    @DefineScope(name="ONE", parent="ZERO")
+    //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE
     static abstract class B extends A {
 
+        @SCJRestricted(INITIALIZATION)
+        public B() {
+            super();
+        }
         A aa;
 
         public void method2() {

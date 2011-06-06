@@ -20,14 +20,12 @@ public abstract class TestBadEnterPrivateMemoryRunnableScope extends MissionSequ
     @SCJRestricted(INITIALIZATION)
     public TestBadEnterPrivateMemoryRunnableScope() {super(null, null);}
 
-
     public void bar() {
 
         @Scope(IMMORTAL)
         @DefineScope(name="a", parent=IMMORTAL)
         ManagedMemory mem = null;
         Y y = new Y();
-        //## checkers.scope.ScopeChecker.ERR_SCJ_RUNNABLE_BAD_SCOPE
         mem.enterPrivateMemory(1000, y);
     }
 

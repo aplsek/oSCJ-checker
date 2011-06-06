@@ -18,7 +18,7 @@ import javax.safetycritical.annotate.SCJAllowed;
  * @author plsek
  *
  */
-@SCJAllowed(value=LEVEL_0)
+@SCJAllowed(value=LEVEL_0, members=true)
 public abstract class TestBadOverride extends Clock implements Runnable {
     @Override
     @SCJAllowed(LEVEL_2)

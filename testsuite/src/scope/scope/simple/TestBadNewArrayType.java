@@ -41,7 +41,7 @@ public abstract class TestBadNewArrayType extends MissionSequencer {
                 //mem.newArray(void.class, 1);
                 mem.newArray(int.class, 1);
             } catch (Exception e) {
-                e.printStackTrace();
+                // ....
             }
         }
     }

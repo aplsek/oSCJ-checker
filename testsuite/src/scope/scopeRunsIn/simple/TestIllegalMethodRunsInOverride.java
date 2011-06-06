@@ -32,8 +32,7 @@ public class TestIllegalMethodRunsInOverride {
         void foo(Y y) { }
 
         @Override
-        @RunsIn(CALLER)
-        //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE
+        @RunsIn(CALLER)  // OK, caller can override anything.
         void bar() { }
 
         @Override

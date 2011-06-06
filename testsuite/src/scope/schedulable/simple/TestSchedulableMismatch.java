@@ -28,7 +28,7 @@ public abstract class TestSchedulableMismatch extends MissionSequencer {
     @Scope("a")
     @DefineScope(name = "b", parent = "a")
     @SCJAllowed(members=true)
-    //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_RUNS_IN_MISMATCH
+    //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_NO_RUNS_IN
     static abstract class PEH extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)

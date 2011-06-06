@@ -53,7 +53,7 @@ public abstract class TestRunOverride extends MissionSequencer {
     class MyRun2 extends MyRun {
         @Override
         @RunsIn("D")
-        //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_NAMED_RUNS_IN_OVERRIDE
+        //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE
         public void run() {}
     }
 

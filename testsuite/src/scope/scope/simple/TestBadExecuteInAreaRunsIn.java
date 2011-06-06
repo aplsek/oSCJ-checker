@@ -3,9 +3,11 @@ package scope.scope.simple;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+import javax.realtime.PriorityParameters;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
+import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
@@ -22,7 +24,14 @@ public abstract class TestBadExecuteInAreaRunsIn extends MissionSequencer {
 
     @Scope("C")
     @DefineScope(name="C", parent="B")
-    static abstract class X extends Mission { }
+    @SCJAllowed(members = true)
+    static abstract class X extends MissionSequencer {
+
+        @SCJRestricted(INITIALIZATION)
+        public X(PriorityParameters priority, StorageParameters storage) {
+            super(priority, storage);
+        }
+    }
 
     @SCJAllowed(members = true)
     @Scope("B")

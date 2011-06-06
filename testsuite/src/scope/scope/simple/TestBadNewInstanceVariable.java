@@ -35,7 +35,7 @@ public abstract class TestBadNewInstanceVariable extends MissionSequencer  {
                 //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
                 mem.newInstance(Y.class);
             } catch (Exception e) {
-                e.printStackTrace();
+                // exception handling...
             }
         }
     }

@@ -20,16 +20,25 @@ public abstract class TestBadAssignmentScopeString extends MissionSequencer {
 
     @RunsIn("a")
     void foo() {
-        // String literals are allocated in IMMORTAL
+        // String literals are allocated in the current scope
+        //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
         @Scope(IMMORTAL) String s1 = "test";
-        // String literals added together are still compile-time strings, and
-        // therefore allocated in IMMORTAL
+
+
+        // String literals added together are still compile-time strings, but
+        // still allocated in the current scope
+        //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
         @Scope(IMMORTAL) String s2 = "test" + "test2" + "test3";
+
+
         String s3 = new String("test");
-        //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
+
         String s4 = "test";
-        //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
+
         String s5 = "test" + "test2" + "test3";
+
+
+
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
         @Scope(IMMORTAL) String s6 = new String("test");
     }

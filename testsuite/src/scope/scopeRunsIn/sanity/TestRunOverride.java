@@ -42,22 +42,6 @@ public abstract class TestRunOverride extends MissionSequencer {
         public void run() { }
     }
 
-
-    @Scope("D")
-    @DefineScope(name="E", parent="D")
-    @SCJAllowed(value=LEVEL_2, members=true)
-    class MyThread2 extends MyThread {
-
-        @SCJRestricted(INITIALIZATION)
-        public MyThread2(int priority) {
-            super(priority);
-        }
-
-        @Override
-        @RunsIn("E")
-        public void run() { }
-    }
-
     class MyRun implements Runnable {
         @RunsIn("C")
         public void run() {}
