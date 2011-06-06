@@ -29,10 +29,8 @@ public class TestCaller extends MissionSequencer {
     // called periodically by the GPS Driver
     @RunsIn(CALLER)
     synchronized void updatePosition(@Scope(CALLER) AbsoluteTime time_stamp) {
-        //## checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE
         update_time.set(time_stamp);
 
-        //## checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE
         update_time.set(0, 0);
     }
 
