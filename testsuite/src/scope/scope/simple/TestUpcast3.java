@@ -27,16 +27,29 @@ public abstract class TestUpcast3 extends MissionSequencer {
         super(null, null);
     }
 
-    public void bar() {
-        MyHandlerRun r = new MyHandlerRun();
+    @SCJAllowed(members = true)
+    @Scope("D")
+    class MyMission extends Mission {
 
-        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
-        new RealPEH(r);
+        @Override
+        public long missionMemorySize() {
+            return 0;
+        }
 
-        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
-        new RealPEH(new MyHandlerRun());
+        @Override
+        @SCJAllowed(SUPPORT)
+        @SCJRestricted(INITIALIZATION)
+        protected void initialize() {
+            MyHandlerRun r = new MyHandlerRun();
+
+            //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+            new RealPEH(r);
+
+            //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+            new RealPEH(new MyHandlerRun());
+        }
+
     }
-
 
     @SCJAllowed(members=true)
     @Scope("D")
