@@ -13,7 +13,6 @@ import javax.safetycritical.AperiodicEvent;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
 import javax.safetycritical.PrivateMemory;
-import javax.safetycritical.SCJRunnable;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.MissionMemory;
 import javax.safetycritical.annotate.DefineScope;
