@@ -52,7 +52,7 @@ public class ScopeRunsInChecker extends SinglePassChecker {
         p.put(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE, "Illegal @RunsIn override: SUPPORT method may overrived the @RunsIn annotation but must explicitly use the @RunsIn annotation.");
         p.put(ERR_ILLEGAL_METHOD_NAMED_RUNS_IN_OVERRIDE, "Illegal @RunsIn override: Overriden @RunsIn(named-scope) annotation is not allowed to be re-overriden again by a child class.");
         p.put(ERR_ILLEGAL_METHOD_RESERVED_RUNS_IN_OVERRIDE, "Illegal @RunsIn override: The @RunsIn of the Runnable.run() may be overriden only by a @RunsIn(named-scope).");
-        p.put(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, "Illegal @RunsIn override: Non-SUPPORT level methods may not override Scope annotations, nor the run() methods that do not direclty override Runnable.run().");
+        p.put(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, "Illegal @RunsIn override: Non-SUPPORT level methods may not override @RunsIn annotation, nor the run() methods that do not directly override Runnable.run().");
         p.put(ERR_ILLEGAL_STATIC_FIELD_SCOPE, "Static fields must be in the immortal scope, not %s.");
         p.put(ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE, "Variable scope %s may not override its type's scope %s.");
         p.put(ERR_MEMORY_AREA_NO_DEFINE_SCOPE, "MemoryArea type does not have a @DefineScope annotation.");
