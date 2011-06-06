@@ -1,0 +1,68 @@
+package scope.scope.simple;
+
+import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
+
+import javax.realtime.PeriodicParameters;
+import javax.realtime.PriorityParameters;
+import javax.safetycritical.ManagedMemory;
+import javax.safetycritical.Mission;
+import javax.safetycritical.MissionSequencer;
+import javax.safetycritical.PeriodicEventHandler;
+import javax.safetycritical.StorageParameters;
+import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.RunsIn;
+import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
+import javax.safetycritical.annotate.Scope;
+
+@Scope("D")
+@DefineScope(name="D", parent=IMMORTAL)
+@SCJAllowed(members = true)
+public abstract class TestUpcast3 extends MissionSequencer {
+
+    @SCJRestricted(INITIALIZATION)
+    public TestUpcast3() {
+        super(null, null);
+    }
+
+    public void bar() {
+        MyHandlerRun r = new MyHandlerRun();
+
+        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+        new RealPEH(r);
+
+        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+        new RealPEH(new MyHandlerRun());
+    }
+
+
+    @SCJAllowed(members=true)
+    @Scope("D")
+    @DefineScope(name="PEH", parent="D")
+    class RealPEH extends PeriodicEventHandler {
+
+        Runnable run;
+
+        @SCJRestricted(INITIALIZATION)
+        public RealPEH(Runnable run) {
+            super(null, null, null);
+            this.run = run;
+        }
+
+        @Override
+        @SCJAllowed(SUPPORT)
+        @RunsIn("PEH")
+        public void handleAsyncEvent() {
+        }
+
+    }
+
+    @Scope("D")
+    class MyHandlerRun implements Runnable {
+
+        @RunsIn("PEH")
+        public void run() { }
+    }
+}

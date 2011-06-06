@@ -147,14 +147,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     }
 
     private void checkUpcast(Tree node) {
-        //if (true)
-        //    return;
-        //pln("\n Check UPCAST: " + node);
 
         AnnotatedTypeMirror castType = null;
         AnnotatedTypeMirror exprType = null;
 
-        if (node.getKind() == Kind.ASSIGNMENT) {
+        if (node.getKind() == Kind.PRIMITIVE_TYPE) {
+            return;
+        } else if (node.getKind() == Kind.ASSIGNMENT) {
             AssignmentTree tree = (AssignmentTree) node;
             castType = atypeFactory.getAnnotatedType(tree);
             exprType = atypeFactory.getAnnotatedType(tree.getExpression());
@@ -173,8 +172,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
             checkUpcastTypes(castType, exprType, node);
         } else if (node.getKind() == Kind.METHOD_INVOCATION) {
-            //pln(" METHOD");
-
             MethodInvocationTree tree = (MethodInvocationTree) node;
 
             // executeInArea and enterPrivateMemory can upcast as they want:
@@ -183,36 +180,50 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             case EXECUTE_IN_AREA:
                 return;
             default:
-
-                // pln("type args:" + tree.getTypeArguments());
-                // pln("type args:" +
-                // TreeUtils.elementFromUse(tree).getParameters());
-
                 List<? extends VariableElement> params = TreeUtils
                         .elementFromUse(tree).getParameters();
 
                 List<? extends ExpressionTree> args = tree.getArguments();
-                for (int i = 0; i < args.size(); i++) {
-                    exprType = atypeFactory.getAnnotatedType(args.get(i));
-                    castType = atypeFactory.getAnnotatedType(params.get(i));
-
-                    if (castType.getUnderlyingType().getKind().isPrimitive())
-                        continue;
-
-                    checkUpcastTypes(castType, exprType, node);
-                    // pln("\t exprType:" + exprType);
-                    // pln("\t castType:" + castType);
-                }
+                checkMethodArgsForUpcast(params,args,node);
 
             }
+        } else if (node.getKind() == Kind.NEW_CLASS) {
+            List<? extends VariableElement> params = TreeUtils
+            .elementFromUse((NewClassTree)node).getParameters();
+            List<? extends ExpressionTree> args = ((NewClassTree)node).getArguments();
+
+            checkMethodArgsForUpcast(params,args,node);
+
+        } else if (node.getKind() == Kind.NEW_ARRAY) {
+            // TODO:
+            throw new RuntimeException("Unexpected assignment AST node: "
+                    + node.getKind());
         } else
             throw new RuntimeException("Unexpected assignment AST node: "
                     + node.getKind());
 
     }
 
+    private void checkMethodArgsForUpcast(List<? extends VariableElement> params,
+                                          List<? extends ExpressionTree> args, Tree node) {
+        for (int i = 0; i < args.size(); i++) {
+            AnnotatedTypeMirror exprType = atypeFactory.getAnnotatedType(args.get(i));
+            AnnotatedTypeMirror castType = atypeFactory.getAnnotatedType(params.get(i));
+
+            if (castType.getUnderlyingType().getKind().isPrimitive())
+                continue;
+
+            checkUpcastTypes(castType, exprType, node);
+        }
+    }
+
+
+    void pln(String str) {System.out.println("\t"+str);}
+
     private void checkUpcastTypes(AnnotatedTypeMirror castType,
             AnnotatedTypeMirror exprType, Tree node) {
+        if (castType.getKind().isPrimitive())
+            return;
 
         if (Utils.areSameType(exprType, castType)) {
             // ignore "upcasting" to the same type
@@ -561,11 +572,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ExecutableElement ctorElement = TreeUtils.elementFromUse(node);
         ScopeInfo nodeClassScope = ctx.getClassScope(Utils
                 .getMethodClass(ctorElement));
+
         if (nodeClassScope != null && !currentScope().equals(nodeClassScope)
                 && !nodeClassScope.isCaller())
             // Can't call new unless the type has the same scope as the
             // current context
             fail(ERR_BAD_ALLOCATION, node, currentScope(), nodeClassScope);
+
+        checkUpcast(node);
+
         super.visitNewClass(node, p);
         debugIndentDecrement();
         return currentScope();
