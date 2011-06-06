@@ -148,16 +148,16 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         if (f.getKind() == ElementKind.FIELD
                 && scjAllowedLevel(f).compareTo(topLevel()) > 0) {
-           if (!f.toString().equals("class"))
-            fail(ERR_BAD_FIELD_ACCESS, node, topLevel());
+            if (!f.toString().equals("class"))
+                fail(ERR_BAD_FIELD_ACCESS, node, topLevel());
         }
-
 
         return super.visitMemberSelect(node, p);
     }
 
-
-    void pln(String str) {System.out.println("\t" + str);}
+    void pln(String str) {
+        System.out.println("\t" + str);
+    }
 
     /**
      * Errors: - we can not override a method by a method with a higher
@@ -214,9 +214,18 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             if (!isEscaped(override.getEnclosingElement().toString())
                     && level.compareTo(scjAllowedLevel(override, node)) > 0
                     && !level.equals(enclosingLevel)) {
-                if (! (isManagedThread(Utils.getMethodClass(m)) && level.equals(SUPPORT)))
+                if (!(isManagedThread(Utils.getMethodClass(m)) && level
+                        .equals(SUPPORT)))
                     fail(ERR_BAD_OVERRIDE, node);
             }
+
+            //pln("\n method:" + m);
+            //pln("Override:" + override.getEnclosingElement() + "." + override);
+            //pln("level: " + level);
+            //pln("level.compareTo(scjAllowedLevel(override, node)) :" + level.compareTo(scjAllowedLevel(override, node)));
+            //pln("enclosing level : " + enclosingLevel );
+            //pln("over-level: " + scjAllowedLevel(override, node));
+
         }
 
         scjAllowedStack.push(level);

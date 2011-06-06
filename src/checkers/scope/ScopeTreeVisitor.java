@@ -35,10 +35,6 @@ public class ScopeTreeVisitor extends SCJVisitor<Void, Void> {
         scopeTree = ctx.getScopeTree();
     }
 
-    void pln(String str) {
-        System.out.println("\t" + str);
-    }
-
     @Override
     public Void visitClass(ClassTree node, Void p) {
 

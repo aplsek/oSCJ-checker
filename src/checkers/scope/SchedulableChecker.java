@@ -30,9 +30,8 @@ public class SchedulableChecker extends SinglePassChecker {
     public Properties getMessages() {
         Properties p = new Properties();
         p.put(ERR_SCHEDULABLE_NO_SCOPE, "Missing @Scope: Class that implements Schedulable must have a @Scope annotation.");
-        p.put(ERR_SCHEDULABLE_SCOPE_DEFINESCOPE_MISMATCH, "Bad @Scope: The @Scope of a Schedulable must match with the parent value of Schedulable's @DefineScope.");
-        p.put(ERR_SCHEDULABLE_NO_RUNS_IN, "Missing @RunsIn: Class that implements Schedulable must have a @RunsIn annotation on the according method.");
-        p.put(ERR_SCHEDULABLE_RUNS_IN_MISMATCH, "Bad @RunsIn: The @RunsIn annotation of the schedulable's method (@RusnIn(%s)) is not in accordance with the @DefineScope annotation (@DefineScope(name=%s,...)).");
+        p.put(ERR_SCHEDULABLE_SCOPE_DEFINESCOPE_MISMATCH, "Illegal @Scope annotation: The @Scope annotation must refer to the parent-scope in the @DefineScope annotation of this Schedulable.");
+        p.put(ERR_SCHEDULABLE_RUNS_IN_MISMATCH, "Bad @RunsIn: The @RunsIn annotation of the schedulable's method (@RusnIn(%s)) does not correspond to the @DefineScope annotation (@DefineScope(name=%s,...)).");
         p.put(ERR_SCHED_INIT_OUT_OF_INIT_METH, "A Schedulable object may be instantiated only in an initialization method of a Mission object.");
         return p;
     }

@@ -396,7 +396,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         return ret;
     }
 
-    void pln(String str) {System.out.println("\t" + str);}
+    //void pln(String str) {System.out.println("\t" + str);}
 
     /**
      * Check that a method has a valid RunsIn annotation. A method's RunsIn
@@ -477,11 +477,14 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 // If the eLevel is SUPPORT, then the mLevel must be also SUPPORT
                 // and:
                 // if the "e" has @RunsIn annotation, then the m must explicitly
-                // restate the @RunsIn
+                // restate the @RunsIn, if e does not have the annotation, then we can override
                 if (eRunsIn.equals(runsIn) || (!eRunsIn.equals(runsIn) && e.getAnnotation(RunsIn.class) == null))
                     continue;
                 else {
-                    fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE, node, errNode);
+                    // when overriding, we must explicitly restate
+                    if (!eRunsIn.equals(runsIn) && m.getAnnotation(RunsIn.class) == null) {
+                            fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE, node, errNode);
+                    }
                 }
             }
         }

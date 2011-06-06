@@ -59,7 +59,7 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
 
     private ScopeInfo checkClassScope(TypeElement t, DefineScope df, ClassTree node, Tree errNode) {
         debugIndentIncrement("checkClassScope: " + t);
-        if (ctx.getClassScope(t) == null )
+        if (ctx.getClassScope(t) == null || ctx.getClassScope(t).isCaller())
             fail(ERR_SCHEDULABLE_NO_SCOPE,node);
 
         ScopeInfo scope = scopeOfClassDefinition(t);
@@ -79,18 +79,17 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     private void checkRunsIn(TypeElement t,ScopeInfo scope, DefineScope df, ClassTree node) {
         ScopeInfo runsIn = getSchedulableRunsIn(t);
 
-        if (runsIn == null) {
+        if (runsIn == null || runsIn.isReservedScope()) {
             fail(ERR_SCHEDULABLE_NO_RUNS_IN,node);
             return;
         }
 
         ScopeInfo child = new ScopeInfo(df.name());
 
-        if (!runsIn.equals(child))
+        if (!runsIn.equals(child)) {
             fail(ERR_SCHEDULABLE_RUNS_IN_MISMATCH,node,child,runsIn);
+        }
     }
-
-
 
     private ScopeInfo getSchedulableRunsIn(TypeElement t) {
         switch (SCJSchedulable.fromMethod(t.asType(), elements, types)) {
