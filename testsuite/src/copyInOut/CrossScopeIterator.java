@@ -68,7 +68,7 @@ class CrossScopeIterator<E> {
 
         // asdfasd
 
-        if (ManagedMemory.allocInSame(temp_header, this)) {
+        if (ManagedMemory.allocatedInSame(temp_header, this)) {
             // ...
             this.lastReturned = temp_header; // NOTE: assigning to a field of
                                              // this, dynamic check is for
