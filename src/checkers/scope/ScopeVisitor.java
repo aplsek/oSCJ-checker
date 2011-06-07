@@ -1193,13 +1193,18 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private ScopeInfo checkGetMemoryArea(ScopeInfo scope,
             MethodInvocationTree node) {
-        // TODO: CALLER is also illegal if it can't be made into a concrete
-        // scope name.
-        if (scope.isUnknown()) {
+
+        scope = concretize(scope);
+        if (scope.isUnknown() || scope.isCaller()) {
+            // CALLER is also illegal if it can't be made into a concrete
+            // scope name.
+
             fail(ERR_BAD_GET_MEMORY_AREA, node);
             return ScopeInfo.UNKNOWN;
         }
-        scope = concretize(scope);
+        if (scope.isImmortal())
+            return ScopeInfo.IMMORTAL;
+
         ScopeInfo parent = scopeTree.getParent(scope);
 
         return new ScopeInfo(parent.getScope(), scope);

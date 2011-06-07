@@ -84,6 +84,7 @@ public class ScopeChecker extends SinglePassChecker {
                 "getCurrentManagedMemory may only be called from a concrete, non-IMMORTAL scope.");
         p.put(ERR_BAD_GET_MEMORY_AREA,
                 "getMemoryArea may only be passed objects of known scopes.");
+
         p.put(ERR_BAD_GUARD_ARGUMENT,
                 "Only final variables may be passed as arguments into guards.");
         p.put(ERR_BAD_METHOD_INVOKE,
