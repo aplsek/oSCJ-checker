@@ -138,7 +138,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("> lhs : " + lhs.getScope());
         debugIndent("> rhs : " + rhs.getScope());
 
-        if (!lhs.equals(rhs) || lhs.isUnknown())
+        if (!lhs.equals(rhs) || lhs.isUnknown() || rhs.getRepresentedScope() != null)
             checkAssignment(lhs, rhs, node);
         checkUpcast(node);
 
@@ -1203,7 +1203,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return ScopeInfo.UNKNOWN;
         }
         if (scope.isImmortal())
-            return ScopeInfo.IMMORTAL;
+            return new ScopeInfo(ScopeInfo.IMMORTAL.toString(), ScopeInfo.IMMORTAL);
 
         ScopeInfo parent = scopeTree.getParent(scope);
 

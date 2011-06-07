@@ -56,7 +56,7 @@ public abstract class TestBadContextChangeCaller {
     }
 
     public void method3() {
-        @DefineScope(name="a",parent=IMMORTAL)
+        @DefineScope(name=IMMORTAL,parent=IMMORTAL)
         @Scope(IMMORTAL)
         MemoryArea m = ManagedMemory.getMemoryArea(ms);
 
