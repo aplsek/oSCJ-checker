@@ -199,7 +199,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             List<? extends ExpressionTree> args = ((NewClassTree) node)
                     .getArguments();
 
-            checkMethodArgsForUpcast(params,args,node);
+            checkMethodArgsForUpcast(params, args, node);
 
         } else if (node.getKind() == Kind.NEW_ARRAY) {
             // TODO:
@@ -219,7 +219,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             TypeMirror cT = m.getReturnType();
             TypeMirror eT = InternalUtils.typeOf(tree.getExpression());
 
-             checkUpcastTypes(cT, eT, node);
+            checkUpcastTypes(cT, eT, node);
         } else
             throw new RuntimeException("Unexpected assignment AST node: "
                     + node.getKind());
@@ -237,14 +237,17 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
     }
 
-    void pln(String str) { System.out.println("\t" + str); }
+    void pln(String str) {
+        System.out.println("\t" + str);
+    }
 
     private void checkUpcastTypes(TypeMirror castType, TypeMirror exprType, Tree node) {
 
+        castType = Utils.getBaseType(castType);
+        exprType = Utils.getBaseType(exprType);
+
         if (castType.getKind().isPrimitive())
             return;
-
-        // TODO: handle type arrays!!
 
         if (castType.toString().equals(exprType.toString())) {
             // ignore "upcasting" to the same type
@@ -260,6 +263,14 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             //   return;
             //}
         }
+
+        //pln("\n CAST");
+        //pln("cast type :" + castType);
+        //pln("exprType :" + exprType);
+        //pln("node: "  + node);
+        //
+        //pln("cast type :" + castType.getKind());
+        //pln("cast type :" + exprType.getKind());
 
         if (isRunnable(Utils.getTypeElement(castType))) {
 
