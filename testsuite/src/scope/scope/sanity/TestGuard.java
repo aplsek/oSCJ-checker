@@ -16,7 +16,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 
-@Scope("a")
+@Scope(IMMORTAL)
 @DefineScope(name="a", parent=IMMORTAL)
 @SCJAllowed(value = LEVEL_2, members = true)
 public abstract class TestGuard extends MissionSequencer {

@@ -13,33 +13,50 @@ import javax.safetycritical.annotate.Scope;
 @SCJAllowed(members = true)
 public class TestBadAssignmentScopeField {
 
+    @Scope(IMMORTAL)
     @DefineScope(name="a", parent=IMMORTAL)
     @SCJAllowed(members = true)
-    static abstract class X extends MissionSequencer {
+    static abstract class MissionSeq extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)
-        public X() {super(null, null);}
+        public MissionSeq() {super(null, null);}
 
         Y y1;
         @Scope(IMMORTAL) Y y2;
         static Y y3;
     }
-    static class Y { }
 
-    void foo(X x, Y y, @Scope(IMMORTAL) Y yImm) {
-        x.y1 = y;
-        //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-        x.y2 = y;
-        x.y2 = yImm;
+    @Scope("a")
+    static class X {
+        Y y1;
+        @Scope(IMMORTAL) Y y2;
+        static Y y3;
+
     }
 
-    void bar(@Scope(IMMORTAL) X x, Y y, @Scope(IMMORTAL) Y yImm) {
+    static class Z {
+        Y y1;
+        @Scope(IMMORTAL) Y y2;
+        static Y y3;
+
+    }
+
+    static class Y { }
+
+    void foo(Z z, Y y, @Scope(IMMORTAL) Y yImm) {
+        z.y1 = y;
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-        x.y1 = y;
+        z.y2 = y;
+        z.y2 = yImm;
+    }
+
+    void bar(@Scope(IMMORTAL) Z z, Y y, @Scope(IMMORTAL) Y yImm) {
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-        x.y2 = y;
-        x.y1 = yImm;
-        x.y2 = yImm;
+        z.y1 = y;
+        //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
+        z.y2 = y;
+        z.y1 = yImm;
+        z.y2 = yImm;
     }
 
     void baz(Y y, @Scope(IMMORTAL) Y yImm) {

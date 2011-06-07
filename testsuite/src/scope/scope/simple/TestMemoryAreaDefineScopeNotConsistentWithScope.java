@@ -14,6 +14,7 @@ import javax.safetycritical.annotate.Scope;
 @SCJAllowed(members = true)
 public abstract class TestMemoryAreaDefineScopeNotConsistentWithScope {
     @DefineScope(name="a", parent=IMMORTAL)
+    @Scope(IMMORTAL)
     static abstract class X extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)

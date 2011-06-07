@@ -7,6 +7,7 @@ import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.DefineScope;
 
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
@@ -16,13 +17,7 @@ import static javax.safetycritical.annotate.Level.SUPPORT;
 
 
 
-
-
-
-
-
-
-@Scope("A")
+@Scope(IMMORTAL)
 @DefineScope(name="A", parent=IMMORTAL)
 @SCJAllowed(members=true)
 public class TestMissionSequencer extends MissionSequencer {
@@ -35,6 +30,7 @@ public class TestMissionSequencer extends MissionSequencer {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @RunsIn("A")
     protected Mission getNextMission() {
         return null;
     }

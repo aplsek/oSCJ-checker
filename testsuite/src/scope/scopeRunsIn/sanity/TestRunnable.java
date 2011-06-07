@@ -15,7 +15,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 
 
 @SCJAllowed(members=true)
-@Scope("D")
+@Scope(IMMORTAL)
 @DefineScope(name="D", parent=IMMORTAL)
 public abstract class TestRunnable extends MissionSequencer {
 

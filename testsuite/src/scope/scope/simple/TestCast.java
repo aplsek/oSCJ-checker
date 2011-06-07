@@ -33,6 +33,7 @@ public class TestCast {
     @Scope(IMMORTAL)
     class Bar extends Foo{}
 
+    @Scope(IMMORTAL)
     @DefineScope(name="a", parent=IMMORTAL)
     static abstract class X extends MissionSequencer {
 

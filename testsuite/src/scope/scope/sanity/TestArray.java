@@ -36,12 +36,14 @@ public class TestArray {
     }
 
     @DefineScope(name="a", parent=IMMORTAL)
+    @Scope(IMMORTAL)
     @SCJAllowed(members=true)
     static abstract class X extends MissionSequencer {
         @SCJRestricted(INITIALIZATION)
         public X() {super(null, null);}
     }
     @DefineScope(name="b", parent="a")
+    @Scope("a")
     @SCJAllowed(members=true)
     static abstract class Y extends MissionSequencer {
         @SCJRestricted(INITIALIZATION)

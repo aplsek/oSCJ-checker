@@ -14,12 +14,12 @@ import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Level.SUPPORT;
-
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 
 @SCJAllowed(value=LEVEL_2, members=true)
-@Scope("D")
-@DefineScope(name="D", parent="IMMORTAL")
+@Scope(IMMORTAL)
+@DefineScope(name="D", parent=IMMORTAL)
 public abstract class TestRunOverride extends MissionSequencer {
 
     @SCJRestricted(INITIALIZATION)

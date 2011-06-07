@@ -17,7 +17,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-@Scope("D")
+@Scope(IMMORTAL)
 @DefineScope(name="D", parent=IMMORTAL)
 @SCJAllowed(members = true)
 public abstract class TestUpcast3 extends MissionSequencer {
@@ -51,6 +51,7 @@ public abstract class TestUpcast3 extends MissionSequencer {
 
     }
 
+    @RunsIn("D")
     public Runnable method() {
         MyHandlerRun r = new MyHandlerRun();
 

@@ -17,6 +17,7 @@ import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.RunsIn;
 
 @SCJAllowed(members=true)
+@Scope(IMMORTAL)
 @DefineScope(name = "a", parent = IMMORTAL)
 public abstract class TestSchedulableRunsInMismatch extends MissionSequencer {
 
@@ -24,7 +25,6 @@ public abstract class TestSchedulableRunsInMismatch extends MissionSequencer {
     public TestSchedulableRunsInMismatch(PriorityParameters priority,
             StorageParameters storage) {
         super(priority, storage);
-        // TODO Auto-generated constructor stub
     }
 
     @SCJAllowed(members=true)
@@ -47,12 +47,12 @@ public abstract class TestSchedulableRunsInMismatch extends MissionSequencer {
     }
 
     @SCJAllowed(members=true)
+    @Scope(IMMORTAL)
     @DefineScope(name = "c", parent = IMMORTAL)
     abstract class X extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)
         public X(PriorityParameters priority, StorageParameters storage) {
             super(priority, storage);
-            // TODO Auto-generated constructor stub
         }}
 }

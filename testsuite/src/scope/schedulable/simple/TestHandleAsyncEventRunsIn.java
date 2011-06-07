@@ -21,13 +21,6 @@ import javax.safetycritical.annotate.Scope;
 @DefineScope(name="Level0App", parent=IMMORTAL)
 public class TestHandleAsyncEventRunsIn extends CyclicExecutive {
 
-    @DefineScope(name="Level007", parent=IMMORTAL)
-    abstract class Level007 extends CyclicExecutive {
-
-        public Level007(PriorityParameters priority, StorageParameters storage) {
-            super(priority, storage);
-        }}
-
     @SCJRestricted(INITIALIZATION)
     public TestHandleAsyncEventRunsIn() {
         super(null);

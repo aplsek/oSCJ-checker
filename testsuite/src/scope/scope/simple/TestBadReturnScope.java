@@ -14,7 +14,7 @@ import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members = true)
 @DefineScope(name="a", parent=IMMORTAL)
-@Scope("a")
+@Scope(IMMORTAL)
 public abstract class TestBadReturnScope extends MissionSequencer {
 
     @SCJRestricted(INITIALIZATION)
@@ -34,7 +34,7 @@ public abstract class TestBadReturnScope extends MissionSequencer {
         return;
     }
 
-    @Scope(IMMORTAL)
+    @Scope(IMMORTAL) @RunsIn("a")
     public int[] getArray() {
         //## checkers.scope.ScopeChecker.ERR_BAD_RETURN_SCOPE
         return new int[] { 1 };
@@ -45,7 +45,7 @@ public abstract class TestBadReturnScope extends MissionSequencer {
         return null;
     }
 
-    @Scope(UNKNOWN)
+    @Scope(UNKNOWN) @RunsIn("a")
     public Y methUNK() {
         @Scope("a") Y y = new Y();
         return y;

@@ -18,7 +18,7 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 @SCJAllowed(members=true)
 @DefineScope(name="a", parent=IMMORTAL)
-//## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_NO_SCOPE
+//## checkers.scope.SchedulableChecker.ERR_NO_SCOPE
 public abstract class TestSchedulableNoScope extends PeriodicEventHandler {
 
     @SCJRestricted(INITIALIZATION)
@@ -37,7 +37,7 @@ public abstract class TestSchedulableNoScope extends PeriodicEventHandler {
     @SCJAllowed(members=true)
     @Scope("a")
     @DefineScope(name="b", parent=IMMORTAL)
-    //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_SCOPE_DEFINESCOPE_MISMATCH
+    //## checkers.scope.SchedulableChecker.ERR_SCOPE_DEFINESCOPE_MISMATCH
     public abstract class MySchedulable extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)

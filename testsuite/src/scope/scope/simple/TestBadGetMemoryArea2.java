@@ -15,7 +15,7 @@ import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members = true)
 @DefineScope(name="a", parent=IMMORTAL)
-@Scope("a")
+@Scope(IMMORTAL)
 public abstract class TestBadGetMemoryArea2 extends MissionSequencer {
 
     @SCJRestricted(INITIALIZATION)

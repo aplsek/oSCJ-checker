@@ -15,7 +15,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-@Scope("IMMORTAL")
+@Scope(IMMORTAL)
 @DefineScope(name = "D", parent = IMMORTAL)
 @SCJAllowed(members = true)
 public class TestCaller extends MissionSequencer {
@@ -36,7 +36,7 @@ public class TestCaller extends MissionSequencer {
 
     @Override
     @SCJAllowed(SUPPORT)
-    // TODO: error
+    @RunsIn("D")
     protected Mission getNextMission() {
         return null;
     }

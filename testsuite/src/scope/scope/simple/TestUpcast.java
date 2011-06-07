@@ -18,7 +18,7 @@ import javax.safetycritical.annotate.Scope;
 @SCJAllowed(value = LEVEL_2, members = true)
 public class TestUpcast {
 
-    @Scope("D")
+    @Scope(IMMORTAL)
     @DefineScope(name = "D", parent = IMMORTAL)
     @SCJAllowed(value = LEVEL_2, members = true)
     static abstract class X extends MissionSequencer {
@@ -28,7 +28,7 @@ public class TestUpcast {
         }
     }
 
-    @Scope("C")
+    @Scope(IMMORTAL)
     @DefineScope(name = "C", parent = IMMORTAL)
     @SCJAllowed(value = LEVEL_2, members = true)
     static abstract class Y extends MissionSequencer {

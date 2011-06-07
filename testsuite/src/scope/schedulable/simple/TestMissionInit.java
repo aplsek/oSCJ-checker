@@ -1,5 +1,6 @@
 package scope.schedulable.simple;
 
+import static checkers.scope.SchedulableChecker.ERR_SCHED_INIT_OUT_OF_INIT_METH;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -38,7 +39,7 @@ public class TestMissionInit extends Mission {
 
     @SCJRestricted(INITIALIZATION)
     private void method() {
-        /// ERROR
+        //## checkers.scope.SchedulableChecker.ERR_SCHED_INIT_OUT_OF_INIT_METH
         new PEH(null,null,null);
     }
 
@@ -66,7 +67,7 @@ public class TestMissionInit extends Mission {
         return 0;
     }
 
-    @Scope("a")
+    @Scope(IMMORTAL)
     @DefineScope(name = "a", parent = IMMORTAL)
     @SCJAllowed(members = true)
     public class X extends MissionSequencer {
@@ -78,9 +79,28 @@ public class TestMissionInit extends Mission {
 
         @Override
         @SCJAllowed(SUPPORT)
+        @RunsIn("a")
         protected Mission getNextMission() {
             return null;
         }
+    }
+
+    @SCJAllowed(members=true)
+    @Scope("a")
+    class TestMissionErr extends Mission {
+
+        @Override
+        public long missionMemorySize() {
+            return 0;
+        }
+
+        @Override
+        @RunsIn("b")
+        @SCJAllowed(SUPPORT)
+        //## checkers.scope.SchedulableChecker.ERR_MISSION_INIT_RUNS_IN_MISMATCH
+        protected void initialize() {
+        }
+
     }
 
 }

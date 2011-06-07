@@ -12,7 +12,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-@Scope("D")
+@Scope(IMMORTAL)
 @DefineScope(name="D", parent=IMMORTAL)
 @SCJAllowed(members=true)
 public class TestPrimitiveAssignment extends MissionSequencer {
@@ -36,6 +36,7 @@ public class TestPrimitiveAssignment extends MissionSequencer {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @RunsIn("D")
     protected Mission getNextMission() {
         return null;
     }

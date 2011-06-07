@@ -12,6 +12,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members = true)
+@Scope(IMMORTAL)
 @DefineScope(name="a", parent=IMMORTAL)
 public abstract class TestBadAssignmentScopeString extends MissionSequencer {
 

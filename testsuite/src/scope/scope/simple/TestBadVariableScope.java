@@ -22,10 +22,14 @@ public class TestBadVariableScope {
     }
 
     @Scope("a")
+    static class X {}
+
+
+    @Scope(IMMORTAL)
     @DefineScope(name="a", parent=IMMORTAL)
-    static abstract class X extends MissionSequencer {
+    static abstract class MS extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)
-        public X() {super(null, null);}
+        public MS() {super(null, null);}
     }
 }

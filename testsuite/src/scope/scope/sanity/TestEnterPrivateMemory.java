@@ -13,12 +13,13 @@ import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members = true)
 @DefineScope(name="A", parent=IMMORTAL)
-@Scope("A")
+@Scope(IMMORTAL)
 public abstract class TestEnterPrivateMemory extends MissionSequencer {
 
     @SCJRestricted(INITIALIZATION)
     public TestEnterPrivateMemory() {super(null, null);}
 
+    @RunsIn("A")
     public void bar() {
         Y y = new Y();
         @Scope(IMMORTAL) @DefineScope(name="A", parent=IMMORTAL)

@@ -14,16 +14,21 @@ import javax.safetycritical.annotate.SCJAllowed;
 // This is the same test as TestBadAssignmentScopeField except with upcasts
 @SCJAllowed(members=true)
 public class TestBadAssignmentScopeFieldUpcast {
+
+    @Scope(IMMORTAL)
     @DefineScope(name="a", parent=IMMORTAL)
-    static abstract class X extends MissionSequencer {
+    static abstract class MS extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)
-        public X() {super(null, null);}
+        public MS() {super(null, null);}
+    }
 
+    static class X {
         Object y1;
         @Scope(IMMORTAL) Object y2;
         static Object y3;
     }
+
     static class Y { }
 
     void foo(X x, Y y, @Scope(IMMORTAL) Y yImm) {

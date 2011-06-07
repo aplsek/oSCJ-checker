@@ -12,7 +12,7 @@ import javax.safetycritical.annotate.Scope;
 
 
 @SCJAllowed(members=true)
-@Scope("a")
+@Scope(IMMORTAL)
 @DefineScope(name="a", parent=IMMORTAL)
 public abstract class TestNullAssignement extends MissionSequencer {
 

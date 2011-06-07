@@ -46,7 +46,7 @@ public class TestMissionInit2 extends CyclicExecutive {
 
     @SCJRestricted(INITIALIZATION)
     private void method() {
-        /// ERROR
+        //## checkers.scope.SchedulableChecker.ERR_SCHED_INIT_OUT_OF_INIT_METH
         new PEH(null,null,null);
     }
 

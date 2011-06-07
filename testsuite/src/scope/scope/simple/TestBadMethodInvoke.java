@@ -14,7 +14,7 @@ import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members = true)
 @DefineScope(name="a", parent=IMMORTAL)
-@Scope("a")
+@Scope(IMMORTAL)
 public abstract class TestBadMethodInvoke extends MissionSequencer {
 
     @SCJRestricted(INITIALIZATION)
@@ -64,7 +64,7 @@ public abstract class TestBadMethodInvoke extends MissionSequencer {
     }
 
     @SCJAllowed(members = true)
-    @Scope("c")
+    @Scope("b")
     @DefineScope(name="c", parent="b")
     static abstract class W extends MissionSequencer {
         @SCJRestricted(INITIALIZATION)

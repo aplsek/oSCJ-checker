@@ -12,7 +12,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members = true)
-@Scope("A")
+@Scope(IMMORTAL)
 @DefineScope(name="A", parent=IMMORTAL)
 public abstract class TestExecuteInArea extends MissionSequencer {
 
@@ -20,7 +20,7 @@ public abstract class TestExecuteInArea extends MissionSequencer {
     public TestExecuteInArea() {super(null, null);}
 
     @SCJAllowed(members = true)
-    @Scope("B")
+    @Scope("A")
     @DefineScope(name="B", parent="A")
     static abstract class Y extends MissionSequencer {
 
@@ -31,6 +31,7 @@ public abstract class TestExecuteInArea extends MissionSequencer {
         @Scope(IMMORTAL)
         ManagedMemory a;
 
+        @RunsIn("B")
         public void m() {
             Run r = new Run();
             a.executeInArea(r);

@@ -12,21 +12,21 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members = true)
-@Scope("a")
+@Scope(IMMORTAL)
 @DefineScope(name="a", parent=IMMORTAL)
 public abstract class TestBadRunnableBadScope extends MissionSequencer {
 
     @SCJRestricted(INITIALIZATION)
     public TestBadRunnableBadScope() {super(null, null);}
 
-    @Scope("c")
+    @Scope("b")
     @DefineScope(name="c", parent="b")
     static abstract class X extends MissionSequencer {
         @SCJRestricted(INITIALIZATION)
         public X() {super(null, null);}
     }
 
-    @Scope("b")
+    @Scope("a")
     @DefineScope(name="b", parent="a")
     static abstract class Y extends MissionSequencer {
 
@@ -37,6 +37,7 @@ public abstract class TestBadRunnableBadScope extends MissionSequencer {
         @Scope(IMMORTAL)
         ManagedMemory a;
 
+        @RunsIn("b")
         public void m() {
             Run3 r3 = new Run3();
             a.executeInArea(r3);

@@ -15,7 +15,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members = true)
-@Scope("A")
+@Scope(IMMORTAL)
 @DefineScope(name="A", parent=IMMORTAL)
 public abstract class TestBadExecuteInAreaRunsIn extends MissionSequencer {
 
@@ -23,23 +23,35 @@ public abstract class TestBadExecuteInAreaRunsIn extends MissionSequencer {
     public TestBadExecuteInAreaRunsIn() {super(null, null);}
 
     @Scope("C")
-    @DefineScope(name="C", parent="B")
+    static class X {
+    }
+
+    @Scope("A")
+    @DefineScope(name="B", parent="A")
     @SCJAllowed(members = true)
-    static abstract class X extends MissionSequencer {
+    static abstract class MS2 extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)
-        public X(PriorityParameters priority, StorageParameters storage) {
+        public MS2(PriorityParameters priority, StorageParameters storage) {
             super(priority, storage);
         }
     }
 
-    @SCJAllowed(members = true)
     @Scope("B")
-    @DefineScope(name="B", parent="A")
-    static abstract class Y extends MissionSequencer {
+    @DefineScope(name="C", parent="B")
+    @SCJAllowed(members = true)
+    static abstract class MS extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)
-        public Y() {super(null, null);}
+        public MS(PriorityParameters priority, StorageParameters storage) {
+            super(priority, storage);
+        }
+    }
+
+
+    @SCJAllowed(members = true)
+    @Scope("B")
+    static class Y {
 
         @DefineScope(name="A", parent=IMMORTAL)
         @Scope(IMMORTAL)
@@ -49,6 +61,7 @@ public abstract class TestBadExecuteInAreaRunsIn extends MissionSequencer {
         @Scope("B")
         ManagedMemory c;
 
+        @RunsIn("B")
         public void m() {
             Run r = new Run();
             a.executeInArea(r);

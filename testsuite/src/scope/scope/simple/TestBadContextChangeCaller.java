@@ -15,7 +15,7 @@ import javax.safetycritical.annotate.DefineScope;
 
 @SCJAllowed(members = true)
 @DefineScope(name="a", parent=IMMORTAL)
-@Scope("a")
+@Scope(IMMORTAL)
 public abstract class TestBadContextChangeCaller extends MissionSequencer {
     MyRun1 runnable1 = new MyRun1();
     MyRun2 runnable2 = new MyRun2();
