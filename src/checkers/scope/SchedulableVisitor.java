@@ -1,11 +1,7 @@
 package checkers.scope;
 
 
-import static checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_NO_RUNS_IN;
-import static checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_NO_SCOPE;
-import static checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_RUNS_IN_MISMATCH;
-import static checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_SCOPE_DEFINESCOPE_MISMATCH;
-import static checkers.scope.SchedulableChecker.ERR_SCHED_INIT_OUT_OF_INIT_METH;
+import static checkers.scope.SchedulableChecker.*;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -45,14 +41,18 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     public Void visitClass(ClassTree node, Void p) {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
 
-        if (!isSchedulable(t))
+        if (!(isSchedulable(t) || isMissionSequencer(t) || isCyclicExecutive(t))) {
+            //pln("\n SKIP"+ t);
             return super.visitClass(node, p);
+        }
 
+        if (isSchedulable(t) || isMissionSequencer(t)) {
+            DefineScope df = getDefineScope(t);
+            ScopeInfo scope = checkClassScope(t,df,node,node);
 
-        DefineScope df = getDefineScope(t);
-        ScopeInfo scope = checkClassScope(t,df,node,node);
-
-        checkRunsIn(t,scope,df,node);
+            if (isSchedulable(t))
+                checkRunsIn(t,scope,df,node);
+        }
 
         return super.visitClass(node, p);
     }
@@ -60,13 +60,13 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     private ScopeInfo checkClassScope(TypeElement t, DefineScope df, ClassTree node, Tree errNode) {
         debugIndentIncrement("checkClassScope: " + t);
         if (ctx.getClassScope(t) == null || ctx.getClassScope(t).isCaller())
-            fail(ERR_SCHEDULABLE_NO_SCOPE,node);
+            fail(ERR_NO_SCOPE,node);
 
         ScopeInfo scope = scopeOfClassDefinition(t);
         ScopeInfo dfParent = new ScopeInfo(df.parent());
 
         if (!scope.equals(dfParent)) {
-            fail(ERR_SCHEDULABLE_SCOPE_DEFINESCOPE_MISMATCH,node);
+            fail(ERR_SCOPE_DEFINESCOPE_MISMATCH,node);
         }
 
         return scope;
@@ -85,7 +85,6 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         }
 
         ScopeInfo child = new ScopeInfo(df.name());
-
         if (!runsIn.equals(child)) {
             fail(ERR_SCHEDULABLE_RUNS_IN_MISMATCH,node,child,runsIn);
         }
@@ -108,11 +107,20 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     @Override
     public Void visitMethod(MethodTree node, Void p) {
         ExecutableElement m = TreeUtils.elementFromDeclaration(node);
+
         switch (SCJMission.fromMethod(m, elements, types)) {
         case CYCLIC_EXECUTIVE:
+            isInitialization = true;
+            break;
         case MISSION:
             isInitialization = true;
+            checkMissionInit(node);
+            break;
+        case MS_NEXT_MISSION:
+            checkMSnextMission(node);
+            break;
         default:
+            break;
         }
 
         Void res = super.visitMethod(node, p);
@@ -122,6 +130,32 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         return res;
     }
 
+    /**
+     * Mission.initialize() CANNOT override @RunsIn.
+     */
+    private void checkMissionInit(MethodTree node) {
+        ExecutableElement m = TreeUtils.elementFromDeclaration(node);
+        ScopeInfo runsIn = ctx.getMethodRunsIn(m.getEnclosingElement().toString(), SCJMission.MISSION.signature);
+        if (runsIn == null)
+            throw new RuntimeException("ERR: Every method must have @RunsIn value. Bug.");
+        if (!runsIn.isThis())
+            fail(ERR_MISSION_INIT_RUNS_IN_MISMATCH,node,runsIn);
+    }
+
+    private void checkMSnextMission(MethodTree node) {
+        ExecutableElement m = TreeUtils.elementFromDeclaration(node);
+        ScopeInfo runsIn = ctx.getMethodRunsIn(m.getEnclosingElement().toString(), SCJMission.MS_NEXT_MISSION.signature);
+        if (runsIn == null)
+            throw new RuntimeException("ERR: Every method must have @RunsIn value. Bug.");
+        TypeElement e = (TypeElement) m.getEnclosingElement();
+        DefineScope df = getDefineScope(e);
+        if (df == null )
+            throw new RuntimeException("ERR: @DefineScope on class expected");
+
+        if (!df.name().equals(runsIn.toString())) {
+            fail(ERR_MISSION_SEQUENCER_RUNS_IN,node,runsIn,df.name());
+        }
+    }
 
     @Override
     public Void visitNewClass(NewClassTree node, Void p) {

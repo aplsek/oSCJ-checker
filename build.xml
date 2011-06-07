@@ -274,7 +274,7 @@
 
 
 
-  <target name="DefineScope-test" depends="jar,compile-tests"
+  <target name="defineScope-test" depends="jar,compile-tests"
   		    description="Run tests for all checkers">
     <!-- Copied from -run-tests target -->
     <mkdir dir="${build.reports}"/>
@@ -316,7 +316,7 @@
 
 
 
-  <target name="ScopeRunsIn-test" depends="jar,compile-tests"
+  <target name="scopeRunsIn-test" depends="jar,compile-tests"
   		    description="Run tests for all checkers">
     <!-- Copied from -run-tests target -->
     <mkdir dir="${build.reports}"/>
@@ -358,7 +358,7 @@
 
 
 
-  <target name="Schedulable-test" depends="jar,compile-tests"
+  <target name="schedulable-test" depends="jar,compile-tests"
   		    description="Run tests for all checkers">
     <!-- Copied from -run-tests target -->
     <mkdir dir="${build.reports}"/>
@@ -445,9 +445,9 @@
     				sanity-test,
     				SCJAllowed-test,
       				SCJRestricted-test,
-    				DefineScope-test,
-    				ScopeRunsIn-test,
-    				Schedulable-test,
+    				defineScope-test,
+    				scopeRunsIn-test,
+    				schedulable-test,
     				scope-test"
     		    description="Run tests for all checkers">
   </target>

@@ -88,6 +88,17 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         return types.isSubtype(m, schedulable);
     }
 
+    protected boolean isMissionSequencer(TypeElement t) {
+        TypeMirror m = t.asType();
+        return types.isSubtype(m, missionSequencer);
+    }
+
+    protected boolean isCyclicExecutive(TypeElement t) {
+        TypeMirror m = t.asType();
+        return types.isSubtype(m, cyclicExecutive);
+    }
+
+
     protected boolean needsDefineScope(TypeElement t) {
         return implementsAllocationContext(t);
     }
@@ -121,4 +132,7 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         return scopeAnn != null ? new ScopeInfo(scopeAnn.value())
                 : ScopeInfo.CALLER;
     }
+
+    //DEBUG:
+    protected void pln(String str) {System.out.println("\t" + str);}
 }

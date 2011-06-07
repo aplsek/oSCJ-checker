@@ -237,10 +237,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
     }
 
-    void pln(String str) {
-        System.out.println("\t" + str);
-    }
-
     private void checkUpcastTypes(TypeMirror castType, TypeMirror exprType, Tree node) {
 
         castType = Utils.getBaseType(castType);
@@ -264,16 +260,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             //}
         }
 
-        //pln("\n CAST");
-        //pln("cast type :" + castType);
-        //pln("exprType :" + exprType);
-        //pln("node: "  + node);
-        //
-        //pln("cast type :" + castType.getKind());
-        //pln("cast type :" + exprType.getKind());
-
         if (isRunnable(Utils.getTypeElement(castType))) {
-
             if (hasRunsIn(exprType.toString())) {
                 fail(ERR_BAD_RUNNABLE_UPCAST, node, exprType.toString(),
                         castType.toString());

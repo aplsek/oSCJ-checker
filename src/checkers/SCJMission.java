@@ -7,16 +7,19 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 public enum SCJMission {
-    CYCLIC_EXECUTIVE("javax.safetycritical.CyclicExecutive", "initialize"),
-    MISSION("javax.safetycritical.Mission", "initialize"),
-    DEFAULT(null, null);
+    CYCLIC_EXECUTIVE("javax.safetycritical.CyclicExecutive", "initialize",""),
+    MISSION("javax.safetycritical.Mission", "initialize",""),
+    MS_NEXT_MISSION("javax.safetycritical.MissionSequencer", "getNextMission",""),
+    DEFAULT(null, null,null);
 
     public final String clazz;
     public final String signature;
+    public final String params;
 
-    SCJMission(String clazz, String signature) {
+    SCJMission(String clazz, String signature, String params) {
         this.clazz = clazz;
         this.signature = signature;
+        this.params = params;
     }
 
     @Override
@@ -25,8 +28,6 @@ public enum SCJMission {
     }
     public static SCJMission fromMethod(ExecutableElement m, Elements elements,
             Types types) {
-        //boolean isStatic = Utils.isStatic(m);
-        //String signature = Utils.buildSignatureString(m);
         TypeMirror t = Utils.getMethodClass(m).asType();
 
         for (SCJMission sm : SCJMission.values()) {
@@ -35,7 +36,10 @@ public enum SCJMission {
             TypeMirror superType = Utils.getTypeMirror(
                     elements, sm.clazz);
             if (types.isSubtype(t,superType)) {
-                return sm;
+                if (m.toString().equals(Utils.buildSignatureString(sm.signature, sm.params)))
+                    return sm;
+                else
+                    continue;
             }
         }
         return DEFAULT;
