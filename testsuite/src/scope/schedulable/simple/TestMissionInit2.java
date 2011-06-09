@@ -19,7 +19,7 @@ import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
 @SCJAllowed(members=true)
-@Scope("a")
+@Scope(IMMORTAL)
 @DefineScope(name="a", parent=IMMORTAL)
 public class TestMissionInit2 extends CyclicExecutive {
 
