@@ -332,9 +332,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
            topLevel = getEnclosingLevelFromSUPPORT(v);
         }
         if (topLevel.compareTo(level) > 0) {
-            pln("\n ERR: node:" + node);
-            pln("level : " + level);
-            pln("toplevel : " + topLevel());
             fail(ERR_BAD_ENCLOSED, node);
         }
         return super.visitVariable(node, p);

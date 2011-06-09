@@ -11,7 +11,11 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.RunsIn;
 
+
+
+@Scope(IMMORTAL)
 @DefineScope(name="a", parent=IMMORTAL)
 @SCJAllowed(members = true)
 public abstract class TestBadAssignmentScopeLocalArray extends MissionSequencer {
@@ -19,6 +23,7 @@ public abstract class TestBadAssignmentScopeLocalArray extends MissionSequencer 
     @SCJRestricted(INITIALIZATION)
     public TestBadAssignmentScopeLocalArray() {super(null, null);}
 
+    @RunsIn("a")
     void foo(@Scope(IMMORTAL) Object[] os, final @Scope(UNKNOWN) Object[] os2,
             final @Scope(IMMORTAL) Object oImm, X x) {
         os[0] = oImm;
@@ -41,6 +46,7 @@ public abstract class TestBadAssignmentScopeLocalArray extends MissionSequencer 
     @Scope("a")
     static class X { }
 
+    @RunsIn("a")
     void baz(@Scope(UNKNOWN) X[] xs, X x) {
         //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
         xs[0] = x;
