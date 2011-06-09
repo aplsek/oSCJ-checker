@@ -46,7 +46,7 @@ public abstract class TestUpcast3 extends MissionSequencer {
             new RealPEH(r);
 
             //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
-            new RealPEH(new MyHandlerRun());
+            new RealPEH2(new MyHandlerRun());
         }
 
     }
@@ -75,6 +75,27 @@ public abstract class TestUpcast3 extends MissionSequencer {
         @Override
         @SCJAllowed(SUPPORT)
         @RunsIn("PEH")
+        public void handleAsyncEvent() {
+        }
+
+    }
+
+    @SCJAllowed(members=true)
+    @Scope("D")
+    @DefineScope(name="PEH2", parent="D")
+    class RealPEH2 extends PeriodicEventHandler {
+
+        Runnable run;
+
+        @SCJRestricted(INITIALIZATION)
+        public RealPEH2(Runnable run) {
+            super(null, null, null);
+            this.run = run;
+        }
+
+        @Override
+        @SCJAllowed(SUPPORT)
+        @RunsIn("PEH2")
         public void handleAsyncEvent() {
         }
 

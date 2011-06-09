@@ -39,6 +39,8 @@ public class TestMissionInit2 extends CyclicExecutive {
     @SCJAllowed(SUPPORT)
     public void initialize() {
         new PEH(null,null,null);
+
+        //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_MULTI_INIT
         new PEH(null,null,null);
 
         method();
