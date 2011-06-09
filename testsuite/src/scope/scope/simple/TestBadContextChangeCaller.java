@@ -62,6 +62,7 @@ public abstract class TestBadContextChangeCaller {
 
         @DefineScope(name="a",parent=IMMORTAL)
         @Scope(IMMORTAL)
+        //## checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT
         ImmortalMemory imm = (ImmortalMemory) m;
     }
 

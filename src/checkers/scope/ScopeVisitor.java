@@ -138,7 +138,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndent("> lhs : " + lhs.getScope());
         debugIndent("> rhs : " + rhs.getScope());
 
-        if (!lhs.equals(rhs) || lhs.isUnknown() || rhs.getRepresentedScope() != null)
+        if (!lhs.equals(rhs) || lhs.isUnknown()
+                || rhs.getRepresentedScope() != null)
             checkAssignment(lhs, rhs, node);
         checkUpcast(node);
 
@@ -237,7 +238,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
     }
 
-    private void checkUpcastTypes(TypeMirror castType, TypeMirror exprType, Tree node) {
+    private void checkUpcastTypes(TypeMirror castType, TypeMirror exprType,
+            Tree node) {
 
         castType = Utils.getBaseType(castType);
         exprType = Utils.getBaseType(exprType);
@@ -247,17 +249,19 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         if (castType.toString().equals(exprType.toString())) {
             // ignore "upcasting" to the same type
-            // NOTE 1: this test is faster then calling "types.isSameType(exprType, castType))"
-            //   which was causing unncessary delays. SEe the ALTERNATIVE
-            // Note 2: this is actually only a heuristic, if this condition fails
-            //    we still check "isRunnable(castType)" which is what we need.
+            // NOTE 1: this test is faster then calling
+            // "types.isSameType(exprType, castType))"
+            // which was causing unncessary delays. SEe the ALTERNATIVE
+            // Note 2: this is actually only a heuristic, if this condition
+            // fails
+            // we still check "isRunnable(castType)" which is what we need.
             return;
 
             // ALTERNATIVE
-            //if (types.isSameType(exprType, castType)) {
-            //    // ignore "upcasting" to the same type
-            //   return;
-            //}
+            // if (types.isSameType(exprType, castType)) {
+            // // ignore "upcasting" to the same type
+            // return;
+            // }
         }
 
         if (isRunnable(Utils.getTypeElement(castType))) {
@@ -1000,6 +1004,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return;
         MethodInvocationTree method = (MethodInvocationTree) condition;
         ExecutableElement m = TreeUtils.elementFromUse(method);
+
         SCJMethod sig = SCJMethod.fromMethod(m, elements, types);
         switch (sig) {
         case ALLOC_IN_PARENT:
@@ -1203,7 +1208,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return ScopeInfo.UNKNOWN;
         }
         if (scope.isImmortal())
-            return new ScopeInfo(ScopeInfo.IMMORTAL.toString(), ScopeInfo.IMMORTAL);
+            return new ScopeInfo(ScopeInfo.IMMORTAL.toString(),
+                    ScopeInfo.IMMORTAL);
 
         ScopeInfo parent = scopeTree.getParent(scope);
 
