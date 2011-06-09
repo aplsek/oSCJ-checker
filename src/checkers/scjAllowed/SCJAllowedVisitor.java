@@ -87,7 +87,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         Level level = scjAllowedLevel(t);
 
-        if (!isSCJAllowed(t)) {
+        if (!isSCJAllowed(t) && level.isHIDDEN()) {
             if (superLevel != HIDDEN
                     && !isEnclosingSCJAllowed(t.getEnclosingElement())) {
                 fail(ERR_BAD_SUBCLASS, node);
@@ -188,6 +188,10 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             return null;
         }
 
+        //pln("\n METHOD:" + m );
+        //pln("   level: " + level);
+
+
         Level enclosingLevel = getEnclosingLevel(m);
 
         // checking overrides
@@ -215,12 +219,14 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
                     fail(ERR_BAD_OVERRIDE, node);
             }
 
-            //pln("\n method:" + m);
-            //pln("Override:" + override.getEnclosingElement() + "." + override);
-            //pln("level: " + level);
-            //pln("level.compareTo(scjAllowedLevel(override, node)) :" + level.compareTo(scjAllowedLevel(override, node)));
-            //pln("enclosing level : " + enclosingLevel );
-            //pln("over-level: " + scjAllowedLevel(override, node));
+            // pln("\n method:" + m);
+            // pln("Override:" + override.getEnclosingElement() + "." +
+            // override);
+            // pln("level: " + level);
+            // pln("level.compareTo(scjAllowedLevel(override, node)) :" +
+            // level.compareTo(scjAllowedLevel(override, node)));
+            // pln("enclosing level : " + enclosingLevel );
+            // pln("over-level: " + scjAllowedLevel(override, node));
 
         }
 
@@ -321,9 +327,25 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         VariableElement v = TreeUtils.elementFromDeclaration(node);
 
         Level level = scjAllowedLevel(v);
-        if (topLevel().compareTo(level) > 0)
+        Level topLevel = topLevel();
+        if (topLevel.isSUPPORT()) {
+           topLevel = getEnclosingLevelFromSUPPORT(v);
+        }
+        if (topLevel.compareTo(level) > 0) {
+            pln("\n ERR: node:" + node);
+            pln("level : " + level);
+            pln("toplevel : " + topLevel());
             fail(ERR_BAD_ENCLOSED, node);
+        }
         return super.visitVariable(node, p);
+    }
+
+    private Level getEnclosingLevelFromSUPPORT(Element f) {
+        Level level = getEnclosingLevel(f);
+        if (level.isSUPPORT())
+            level = getEnclosingLevel(f.getEnclosingElement());
+
+        return level;
     }
 
     /**
@@ -443,7 +465,11 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     private Level scjAllowedLevel(Element f) {
         if (isSCJAllowed(f))
             return Utils.getSCJAllowedLevel(f);
-        return getEnclosingLevel(f);
+        Level level = getEnclosingLevel(f);
+        if (level.isHIDDEN())
+            return Utils.defaultLevel;
+        else
+            return level;
     }
 
     /**
@@ -457,13 +483,13 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         Element e = m.getEnclosingElement();
 
         if (e == null)
-            return HIDDEN;
+            return Utils.defaultLevel;
 
         if (isSCJAllowed(e))
             if (scjAllowedMembers(e))
                 return Utils.getSCJAllowedLevel(e);
             else
-                return HIDDEN;
+                return Utils.defaultLevel;
         return getEnclosingLevel(e);
         // recursive call, this enclosing was not allocated, so we search even
         // higher

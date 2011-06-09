@@ -1,6 +1,5 @@
 package checkers;
 
-import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.HIDDEN;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
@@ -36,8 +35,9 @@ import checkers.types.AnnotatedTypes;
 import checkers.util.TypesUtils;
 
 public final class Utils {
-    public static Level level = LEVEL_2;
+    public static Level defaultLevel = HIDDEN;
     public static boolean DEBUG = false;
+    public static boolean SCOPE_CHECKS = true;
     private static String indent = "";
 
     public static void increaseIndent() {
@@ -285,7 +285,13 @@ public final class Utils {
 
     public static Level getSCJAllowedLevel(Element e) {
         SCJAllowed a = e.getAnnotation(SCJAllowed.class);
-        return a == null ? HIDDEN : a.value();
+        if (a == null) {
+            if (Utils.defaultLevel.isHIDDEN())
+                return HIDDEN;
+            else
+                return Utils.defaultLevel;
+        } else
+            return a.value();
     }
 
     public static boolean isSCJSupport(ExecutableElement m, AnnotatedTypes ats) {

@@ -44,28 +44,30 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
             elements, "javax.realtime.InterruptServiceRoutine");
     protected final TypeMirror managedEventHandler = Utils.getTypeMirror(
             elements, "javax.safetycritical.ManagedEventHandler");
-    protected final TypeMirror managedMemory = Utils.getTypeMirror(
-            elements, "javax.safetycritical.ManagedMemory");
+    protected final TypeMirror managedMemory = Utils.getTypeMirror(elements,
+            "javax.safetycritical.ManagedMemory");
     protected final TypeMirror mission = Utils.getTypeMirror(elements,
             "javax.safetycritical.Mission");
     protected final TypeMirror noHeapRealtimeThread = Utils.getTypeMirror(
             elements, "javax.realtime.NoHeapRealtimeThread");
-    protected final TypeMirror missionSequencer = Utils.getTypeMirror(
-            elements, "javax.safetycritical.MissionSequencer");
-    protected final TypeMirror cyclicExecutive = Utils.getTypeMirror(
-            elements, "javax.safetycritical.CyclicExecutive");
-    protected final TypeMirror schedulable = Utils.getTypeMirror(
-            elements, "javax.safetycritical.Schedulable");
+    protected final TypeMirror missionSequencer = Utils.getTypeMirror(elements,
+            "javax.safetycritical.MissionSequencer");
+    protected final TypeMirror cyclicExecutive = Utils.getTypeMirror(elements,
+            "javax.safetycritical.CyclicExecutive");
+    protected final TypeMirror schedulable = Utils.getTypeMirror(elements,
+            "javax.safetycritical.Schedulable");
 
+    protected final TypeMirror safelet = Utils.getTypeMirror(elements,
+            "javax.safetycritical.Safelet");
 
-    protected final TypeMirror runnable = Utils.getTypeMirror(
-            elements, "java.lang.Runnable");
-    protected final TypeMirror managedThread = Utils.getTypeMirror(
-            elements, "javax.safetycritical.ManagedThread");
+    protected final TypeMirror runnable = Utils.getTypeMirror(elements,
+            "java.lang.Runnable");
+    protected final TypeMirror managedThread = Utils.getTypeMirror(elements,
+            "javax.safetycritical.ManagedThread");
 
     protected boolean alwaysImplicitlyDefinesScope(TypeElement t) {
         TypeMirror m = t.asType();
-        return   types.isSubtype(m, noHeapRealtimeThread)
+        return types.isSubtype(m, noHeapRealtimeThread)
                 || types.isSubtype(m, managedEventHandler)
                 || types.isSubtype(m, missionSequencer)
                 || types.isSubtype(m, cyclicExecutive)
@@ -76,6 +78,11 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     protected boolean implicitlyDefinesScope(TypeElement t) {
         TypeMirror m = t.asType();
         return alwaysImplicitlyDefinesScope(t);
+    }
+
+    protected boolean isSafelet(TypeElement t) {
+        TypeMirror m = t.asType();
+        return types.isSubtype(m, safelet);
     }
 
     protected boolean isSubtypeOfRunnable(TypeElement t) {
@@ -97,7 +104,6 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
         TypeMirror m = t.asType();
         return types.isSubtype(m, cyclicExecutive);
     }
-
 
     protected boolean needsDefineScope(TypeElement t) {
         return implementsAllocationContext(t);
@@ -133,6 +139,8 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
                 : ScopeInfo.CALLER;
     }
 
-    //DEBUG:
-    protected void pln(String str) {System.out.println("\t" + str);}
+    // DEBUG:
+    protected void pln(String str) {
+        System.out.println("\t" + str);
+    }
 }
