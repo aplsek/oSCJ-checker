@@ -35,10 +35,21 @@ import checkers.types.AnnotatedTypes;
 import checkers.util.TypesUtils;
 
 public final class Utils {
-    public static Level defaultLevel = HIDDEN;
+    private static Level defaultLevel = HIDDEN;
     public static boolean DEBUG = false;
     public static boolean SCOPE_CHECKS = true;
     private static String indent = "";
+
+    public static void setDefaultLevel(Level l) {
+        defaultLevel = l;
+    }
+
+    public static Level getDefaultLevel(Element e) {
+        if (isUserLevel(e))
+            return defaultLevel;
+        else
+            return HIDDEN;
+    }
 
     public static void increaseIndent() {
         indent += " ";
@@ -232,6 +243,9 @@ public final class Utils {
      * javax.safetycritical packages.
      */
     public static boolean isUserLevel(Element e) {
+        if (e == null)
+            return true;
+
         ElementKind k = e.getKind();
         while (!(k.isClass() || k.isInterface())) {
             e = e.getEnclosingElement();

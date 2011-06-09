@@ -464,7 +464,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             return Utils.getSCJAllowedLevel(f);
         Level level = getEnclosingLevel(f);
         if (level.isHIDDEN())
-            return Utils.defaultLevel;
+            return Utils.getDefaultLevel(f);
         else
             return level;
     }
@@ -478,15 +478,14 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
      */
     private Level getEnclosingLevel(Element m) {
         Element e = m.getEnclosingElement();
-
         if (e == null)
-            return Utils.defaultLevel;
+            return Utils.getDefaultLevel(e);
 
         if (isSCJAllowed(e))
             if (scjAllowedMembers(e))
                 return Utils.getSCJAllowedLevel(e);
             else
-                return Utils.defaultLevel;
+                return Utils.getDefaultLevel(e);
         return getEnclosingLevel(e);
         // recursive call, this enclosing was not allocated, so we search even
         // higher

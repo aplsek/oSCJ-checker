@@ -44,7 +44,7 @@ public class SCJChecker extends MultiPassChecker {
         String level = processingEnv.getOptions().get("level");
 
         if (level != null)
-            Utils.defaultLevel = Level.getLevel(level);
+            Utils.setDefaultLevel(Level.getLevel(level));
 
     }
 
