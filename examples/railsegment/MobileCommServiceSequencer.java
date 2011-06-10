@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 
 package railsegment;
@@ -51,12 +52,18 @@ public class MobileCommServiceSequencer
   {
     super(new PriorityParameters(mobile_priority),
           new StorageParameters(MobileCommService.BackingStoreRequirements,
-                                MobileCommService.NativeStackRequirements,
-                                MobileCommService.JavaStackRequirements),
+                                storageArgs(), 0, 0),
           new String("Communication Services Sequencer"));
     MOBILE_PRIORITY = mobile_priority;
     this.mobile_data = mobile_data;
     did_mission = false;
+  }
+
+  private static long[] storageArgs() {
+    long[] storage_args = {MobileCommService.NestedBackingStoreRequirements,
+                           MobileCommService.NativeStackRequirements,
+                           MobileCommService.JavaStackRequirements};
+    return storage_args;
   }
 
   @Override

@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 package railsegment;
 
@@ -30,15 +31,16 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
-import railsegment.clock.SynchronizedTime;
+import railsegment.clock.TrainClock;
 
-@Scope("B")
+@Scope("TM.B")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class TrainControl extends Mission
 {
   // These three constants determined by static analysis or other
   // vendor-specific approaches
-  public static final long BackingStoreRequirements = 5000;
+  public static final long BackingStoreRequirements = 500;
+  public static final long NestedBackingStoreRequirements = 5000;
   public static final long NativeStackRequirements = 3000;
   public static final long JavaStackRequirements = 2000;
 
@@ -47,20 +49,21 @@ public class TrainControl extends Mission
   private final int CONTROL_PRIORITY;
 
   private final CommunicationsQueue comms_data;
-  private final SynchronizedTime times_data;
   private final NavigationInfo navs_data;
+
+  private final TrainClock train_clock;
 
   private TrainControlThread train_thread;
 
   public TrainControl(final CommunicationsQueue comms_data,
-                      final SynchronizedTime times_data,
                       final NavigationInfo navs_data,
+                      final TrainClock train_clock,
                       final int CONTROL_PRIORITY)
   {
     this.comms_data = comms_data;
-    this.times_data = times_data;
     this.navs_data = navs_data;
 
+    this.train_clock = train_clock;
     this.CONTROL_PRIORITY = CONTROL_PRIORITY;
   }
 
@@ -84,7 +87,7 @@ public class TrainControl extends Mission
 
     // Implementation not shown for expediency.
 
-    train_thread = new TrainControlThread(comms_data, times_data, navs_data,
+    train_thread = new TrainControlThread(comms_data, navs_data, train_clock,
                                           CONTROL_PRIORITY);
 
     // spawn one NHRT to take responsibility for maintaining

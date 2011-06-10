@@ -40,35 +40,41 @@ import javax.safetycritical.annotate.Scope;
 @SCJAllowed(value=LEVEL_2, members=true)
 public class TrackModulatedCommServiceSequencer extends MissionSequencer // <ModulatedCommService>
 {
-    private boolean did_mission;
+  private boolean did_mission;
+  
+  private final int MODULATED_PRIORITY;
+  private final ModulatedQueue modulated_data;
+  
+  @SCJRestricted(INITIALIZATION)
+  public TrackModulatedCommServiceSequencer(final int modulated_priority,
+                                            ModulatedQueue modulated_data) {
+    super(new PriorityParameters(modulated_priority),
+          new StorageParameters(ModulatedCommService.BackingStoreRequirements,
+                                storageArgs(), 0, 0),
+          new String("Communication Services Sequencer"));
+    
+    MODULATED_PRIORITY = modulated_priority;
+    this.modulated_data = modulated_data;
+    did_mission = false;
+  }
+  
+  private static long[] storageArgs() {
+    long[] storage_args = {ModulatedCommService.NestedBackingStoreRequirements,
+                           ModulatedCommService.NativeStackRequirements,
+                           ModulatedCommService.JavaStackRequirements};
+    return storage_args;
+  }
 
-    private final int MODULATED_PRIORITY;
-    private final ModulatedQueue modulated_data;
 
-    @SCJRestricted(INITIALIZATION)
-    public TrackModulatedCommServiceSequencer(final int modulated_priority,
-            ModulatedQueue modulated_data) {
-        super(new PriorityParameters(modulated_priority),
-                new StorageParameters(
-                        ModulatedCommService.BackingStoreRequirements,
-                        ModulatedCommService.NativeStackRequirements,
-                        ModulatedCommService.JavaStackRequirements),
-                new String("Communication Services Sequencer"));
-
-        MODULATED_PRIORITY = modulated_priority;
-        this.modulated_data = modulated_data;
-        did_mission = false;
+  @Override
+  @RunsIn("TM.A.F")
+  @SCJAllowed(SUPPORT)
+  protected ModulatedCommService getNextMission() {
+    if (!did_mission) {
+      did_mission = true;
+      return new ModulatedCommService(MODULATED_PRIORITY, modulated_data);
+    } else {
+      return null;
     }
-
-    @Override
-    @RunsIn("F")
-     @SCJAllowed(SUPPORT)
-    protected ModulatedCommService getNextMission() {
-        if (!did_mission) {
-            did_mission = true;
-            return new ModulatedCommService(MODULATED_PRIORITY, modulated_data);
-        } else {
-            return null;
-        }
-    }
+  }
 }

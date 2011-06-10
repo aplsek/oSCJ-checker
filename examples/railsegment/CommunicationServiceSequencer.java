@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 package railsegment;
 
@@ -41,22 +42,38 @@ public class CommunicationServiceSequencer
 {
   private boolean did_mission;
 
-  private final int COMMS_PRIORITY;
-  private final CommunicationsQueue comms_data;
+  private final int COMMS_DRIVER_PRIORITY;
+  private final int COMMS_CONTROL_SERVER_PRIORITY;
+  private final int COMMS_TIMES_SERVER_PRIORITY;
+
+  private final CommunicationsQueue comms_control_data;
+  private final CommunicationsQueue comms_times_data;
 
   @SCJRestricted(INITIALIZATION)
-  public CommunicationServiceSequencer(final int COMMS_PRIORITY,
-                                       final CommunicationsQueue comms_data)
+  public CommunicationServiceSequencer(CommunicationsQueue comms_control_data,
+                                       CommunicationsQueue comms_times_data,
+                                       int COMMS_DRIVER_PRIORITY,
+                                       int COMMS_CONTROL_SERVER_PRIORITY,
+                                       int COMMS_TIMES_SERVER_PRIORITY)
   {
-    super(new PriorityParameters(COMMS_PRIORITY),
+    super(new PriorityParameters(COMMS_DRIVER_PRIORITY),
           new StorageParameters(CommunicationService.BackingStoreRequirements,
-                                CommunicationService.NativeStackRequirements,
-                                CommunicationService.JavaStackRequirements),
+                                storageArgs(), 0, 0),
           new String("Communication Services Sequencer"));
 
-    this.COMMS_PRIORITY = COMMS_PRIORITY;
-    this.comms_data = comms_data;
+    this.COMMS_DRIVER_PRIORITY = COMMS_DRIVER_PRIORITY;
+    this.COMMS_CONTROL_SERVER_PRIORITY = COMMS_CONTROL_SERVER_PRIORITY;
+    this.COMMS_TIMES_SERVER_PRIORITY = COMMS_TIMES_SERVER_PRIORITY;
+    this.comms_control_data = comms_control_data;
+    this.comms_times_data = comms_times_data;
     did_mission = false;
+  }
+
+  private static long[] storageArgs() {
+    long[] storage_args = {CommunicationService.NestedBackingStoreRequirements,
+                           CommunicationService.NativeStackRequirements,
+                           CommunicationService.JavaStackRequirements};
+    return storage_args;
   }
 
   @Override
@@ -66,7 +83,10 @@ public class CommunicationServiceSequencer
   {
     if (!did_mission) {
       did_mission = true;
-      return new CommunicationService(comms_data, COMMS_PRIORITY);
+      return new CommunicationService(comms_control_data, comms_times_data, 
+                                      COMMS_DRIVER_PRIORITY,
+                                      COMMS_CONTROL_SERVER_PRIORITY,
+                                      COMMS_TIMES_SERVER_PRIORITY);
     }
     else {
       return null;

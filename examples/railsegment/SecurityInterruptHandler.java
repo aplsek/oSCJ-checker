@@ -32,8 +32,8 @@ import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.DefineScope;
 
 
-@Scope("E")
-@DefineScope(name="SIH_Private", parent="E")
+@Scope("TM.A.E")
+@DefineScope(name="TM.A.E.0", parent="TM.A.E")
 @SCJAllowed(value=LEVEL_2, members=true)
 class SecurityInterruptHandler extends InterruptServiceRoutine {
 
@@ -61,7 +61,7 @@ class SecurityInterruptHandler extends InterruptServiceRoutine {
   }
 
   @Override
-  @RunsIn("SIH_Private")
+  @RunsIn("TM.A.E.0")
   @SCJAllowed(SUPPORT)
   public final void handle() {
     // this interrupt means the previously issued security operation

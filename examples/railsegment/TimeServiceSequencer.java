@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 
 package railsegment;
@@ -40,38 +41,47 @@ import railsegment.clock.TrainClock;
 
 
 @Scope("TM")
-@DefineScope(name="C", parent="TM")
+@DefineScope(name="TM.C", parent="TM")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class TimeServiceSequencer extends MissionSequencer
 {
-    private final SynchronizedTime times_data;
-    private final CommunicationsQueue comms_data;
-    private final TrainClock train_clock;
-    private final int TIMES_PRIORITY;
+  private final SynchronizedTime times_data;
+  private final CommunicationsQueue comms_data;
+  private final TrainClock train_clock;
+  private final int TIMES_TICK_PRIORITY;
+  private final int TIMES_COORDINATION_PRIORITY;
+  
+  @SCJRestricted(INITIALIZATION)
+  public TimeServiceSequencer(CommunicationsQueue comms_data,
+                              SynchronizedTime times_data,
+                              TrainClock train_clock,
+                              final int TIMES_TICK_PRIORITY,
+                              final int TIMES_COORDINATION_PRIORITY)
+  {
+    super(new PriorityParameters(TIMES_TICK_PRIORITY),
+          new StorageParameters(TimeService.BackingStoreRequirements,
+                                storageArgs(), 0, 0),
+          new String ("Time Service Sequencer"));
+    this.TIMES_TICK_PRIORITY = TIMES_TICK_PRIORITY;
+    this.TIMES_COORDINATION_PRIORITY = TIMES_COORDINATION_PRIORITY;
+    this.times_data = times_data;
+    this.comms_data = comms_data;
+    this.train_clock = train_clock;
+  }
 
-    @SCJRestricted(INITIALIZATION)
-    public TimeServiceSequencer(final int TIMES_PRIORITY,
-            CommunicationsQueue comms_data,
-            SynchronizedTime times_data,
-            TrainClock train_clock)
-    {
-        super(new PriorityParameters(TIMES_PRIORITY),
-                new StorageParameters(TimeService.BackingStoreRequirements,
-                        TimeService.NativeStackRequirements,
-                        TimeService.JavaStackRequirements),
-                        new String ("Time Service Sequencer"));
-        this.TIMES_PRIORITY = TIMES_PRIORITY;
-        this.times_data = times_data;
-        this.comms_data = comms_data;
-        this.train_clock = train_clock;
-    }
-
-    @Override
-    @RunsIn("C")
-    @SCJAllowed(SUPPORT)
-    public TimeService getNextMission()
-    {
-        return new TimeService(times_data,
-                comms_data, train_clock, TIMES_PRIORITY);
-    }
+  private static long[] storageArgs() {
+    long[] storage_args = {TimeService.NestedBackingStoreRequirements,
+                           TimeService.NativeStackRequirements,
+                           TimeService.JavaStackRequirements};
+    return storage_args;
+  }
+  
+  @Override
+  @RunsIn("TM.C")
+  @SCJAllowed(SUPPORT)
+  public TimeService getNextMission()
+  {
+    return new TimeService(times_data, comms_data, train_clock,
+                           TIMES_TICK_PRIORITY, TIMES_COORDINATION_PRIORITY);
+  }
 }

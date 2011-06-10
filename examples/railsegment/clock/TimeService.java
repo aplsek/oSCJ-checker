@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 package railsegment.clock;
 import static javax.safetycritical.annotate.Level.SUPPORT;
@@ -25,6 +26,8 @@ import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.realtime.AbsoluteTime;
 import javax.safetycritical.Mission;
+import javax.safetycritical.Services;
+
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
@@ -33,18 +36,20 @@ import javax.safetycritical.annotate.Scope;
 import railsegment.CommunicationsQueue;
 
 @SCJAllowed(value=LEVEL_2, members=true)
-@Scope("C")
+@Scope("TM.C")
 public class TimeService extends Mission
 {
-  // These three constants determined by static analysis or other
+  // These four constants determined by static analysis or other
   // vendor-specific approaches
-  public static final long BackingStoreRequirements = 5000;
+  public static final long BackingStoreRequirements = 500;
+  public static final long NestedBackingStoreRequirements = 5000;
   public static final long NativeStackRequirements = 3000;
   public static final long JavaStackRequirements = 2000;
 
   public static final long MissionMemorySize = 500;
 
-  private final int TIME_PRIORITY;
+  private final int TIME_TICK_PRIORITY;
+  private final int TIME_COORDINATION_PRIORITY;
 
   private final SynchronizedTime times_data;
 
@@ -61,12 +66,14 @@ public class TimeService extends Mission
   public TimeService(final SynchronizedTime times_data,
                      final CommunicationsQueue comms_data,
                      final TrainClock train_clock,
-                     final int TIME_PRIORITY)
+                     final int TIME_TICK_PRIORITY,
+                     final int TIME_COORDINATION_PRIORITY)
   {
     this.times_data = times_data;
     this.comms_data = comms_data;
     this.train_clock = train_clock;
-    this.TIME_PRIORITY = TIME_PRIORITY;
+    this.TIME_TICK_PRIORITY = TIME_TICK_PRIORITY;
+    this.TIME_COORDINATION_PRIORITY = TIME_COORDINATION_PRIORITY;
   }
 
   @Override
@@ -88,8 +95,14 @@ public class TimeService extends Mission
     // NHRT thread that takes responsibility for awaiting call back
     // times and invoking the call-back service.
 
-    timer_thread = new TimerOversight(this, comms_data, TIME_PRIORITY - 1);
-    timer_tick = new TimerTick(this, train_clock, TIME_PRIORITY);
+    // Set my ceiling to the tick priority since that's higher than
+    // the coordination priority.  The timer tick invokes my
+    // synchronized updateGlobalTime method.
+    Services.setCeiling(this, TIME_TICK_PRIORITY);
+
+    timer_thread = new TimerOversight(this, comms_data,
+                                      TIME_COORDINATION_PRIORITY - 1);
+    timer_tick = new TimerTick(this, train_clock, TIME_TICK_PRIORITY);
   }
 
   @RunsIn(CALLER)

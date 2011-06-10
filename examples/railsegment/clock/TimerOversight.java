@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 
 package railsegment.clock;
@@ -41,8 +42,9 @@ import railsegment.CommunicationsQueue;
 @DefineScope(name="C:TO", parent="C")
 public class TimerOversight extends ManagedThread
 {
-// Determined by VM-specific static analysis tools
+  // Determined by VM-specific static analysis tools
   private static final long BackingStoreRequirements = 500;
+  private static final long NestedBackingStoreRequirements = 500;
   private static final long NativeStackRequirements = 2000;
   private static final long JavaStackRequirements = 300;
 
@@ -53,12 +55,18 @@ public class TimerOversight extends ManagedThread
   public TimerOversight(TimeService time_mission,
                         CommunicationsQueue comms_data,
                         int priority) {
-      super(new PriorityParameters(priority),
-          new StorageParameters(BackingStoreRequirements,
-                                NativeStackRequirements,
-                                JavaStackRequirements));
+    super(new PriorityParameters(priority),
+          new StorageParameters(BackingStoreRequirements, storageArgs(), 0, 0));
     //this.comms_data = comms_data;
   }
+
+  private static long[] storageArgs() {
+    long[] storage_args = {NestedBackingStoreRequirements,
+                           NativeStackRequirements,
+                           JavaStackRequirements};
+    return storage_args;
+  }
+
   @Override
   @RunsIn("C:TO")
   @SCJAllowed(SUPPORT)
