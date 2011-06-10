@@ -191,7 +191,7 @@
   </target>
 
 
-  <target name="SCJAllowed-test" depends="jar,compile-tests"
+  <target name="scjallowed-test" depends="jar,compile-tests"
     		    description="Run tests for all checkers">
     <!-- Copied from -run-tests target -->
     <mkdir dir="${build.reports}"/>
@@ -232,7 +232,7 @@
   </target>
 
 
-  <target name="SCJRestricted-test" depends="jar,compile-tests"
+  <target name="scjrestricted-test" depends="jar,compile-tests"
   		    description="Run tests for all checkers">
     <!-- Copied from -run-tests target -->
     <mkdir dir="${build.reports}"/>
@@ -443,8 +443,8 @@
 
   <target name="all-tests" depends="jar,compile-tests,
     				sanity-test,
-    				SCJAllowed-test,
-      				SCJRestricted-test,
+   				    scjallowed-test,
+      				scjrestricted-test,
     				defineScope-test,
     				scopeRunsIn-test,
     				schedulable-test,

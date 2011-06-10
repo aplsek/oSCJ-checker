@@ -45,7 +45,7 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
 
         if (ds != null) {
             // check for @DefineScope on the methods that must have a @DS and the we look at all the classes implementing Runnable interface
-            if (implicitlyDefinesScope(t))
+            if (implicitlyDefinesScope(t) || isSafelet(t))
                 checkNewScope(ds.name(), ds.parent(), node,false);
             else if (isSubtypeOfRunnable(t))
                 checkNewScope(ds.name(), ds.parent(), node, true);

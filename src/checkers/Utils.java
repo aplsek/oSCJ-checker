@@ -1,6 +1,5 @@
 package checkers;
 
-import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.HIDDEN;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
@@ -36,9 +35,21 @@ import checkers.types.AnnotatedTypes;
 import checkers.util.TypesUtils;
 
 public final class Utils {
-    public static Level level = LEVEL_2;
+    private static Level defaultLevel = HIDDEN;
     public static boolean DEBUG = false;
+    public static boolean SCOPE_CHECKS = true;
     private static String indent = "";
+
+    public static void setDefaultLevel(Level l) {
+        defaultLevel = l;
+    }
+
+    public static Level getDefaultLevel(Element e) {
+        if (isUserLevel(e))
+            return defaultLevel;
+        else
+            return HIDDEN;
+    }
 
     public static void increaseIndent() {
         indent += " ";
@@ -232,6 +243,9 @@ public final class Utils {
      * javax.safetycritical packages.
      */
     public static boolean isUserLevel(Element e) {
+        if (e == null)
+            return true;
+
         ElementKind k = e.getKind();
         while (!(k.isClass() || k.isInterface())) {
             e = e.getEnclosingElement();
@@ -285,7 +299,13 @@ public final class Utils {
 
     public static Level getSCJAllowedLevel(Element e) {
         SCJAllowed a = e.getAnnotation(SCJAllowed.class);
-        return a == null ? HIDDEN : a.value();
+        if (a == null) {
+            if (Utils.defaultLevel.isHIDDEN())
+                return HIDDEN;
+            else
+                return Utils.defaultLevel;
+        } else
+            return a.value();
     }
 
     public static boolean isSCJSupport(ExecutableElement m, AnnotatedTypes ats) {

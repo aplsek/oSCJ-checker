@@ -32,6 +32,7 @@ public class TestMissionInit extends Mission {
     @SCJAllowed(SUPPORT)
     public void initialize() {
         new PEH(null,null,null);
+        //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_MULTI_INIT
         new PEH(null,null,null);
 
         method();

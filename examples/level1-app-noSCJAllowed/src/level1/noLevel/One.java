@@ -1,4 +1,5 @@
-package level1;
+package level1.noLevel;
+
 
 
 import javax.realtime.PriorityParameters;
@@ -18,7 +19,6 @@ import javax.safetycritical.Safelet;
 import javax.safetycritical.StorageParameters;
 
 @Scope(IMMORTAL)
-@SCJAllowed(value=LEVEL_1, members=true)
 public class One implements Safelet {
 
     @SCJRestricted(INITIALIZATION)

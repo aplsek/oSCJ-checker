@@ -17,7 +17,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members=true)
-@Scope("Level0App")
+@Scope(IMMORTAL)
 @DefineScope(name="Level0App", parent=IMMORTAL)
 public class TestHandleAsyncEventRunsIn extends CyclicExecutive {
 

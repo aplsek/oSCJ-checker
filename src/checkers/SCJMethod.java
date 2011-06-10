@@ -36,10 +36,10 @@ public enum SCJMethod {
     GET_CURRENT_MANAGED_MEMORY("javax.safetycritical.ManagedMemory", "getCurrentManagedMemory()"),
 
     ALLOC_IN_SAME("javax.safetycritical.ManagedMemory",
-        "allocInSame(java.lang.Object,java.lang.Object)"),
+        "allocatedInSame(java.lang.Object,java.lang.Object)"),
 
     ALLOC_IN_PARENT("javax.safetycritical.ManagedMemory",
-        "allocInParent(java.lang.Object,java.lang.Object)"),
+        "allocatedInParent(java.lang.Object,java.lang.Object)"),
 
     /* ImmortalMemory */
     IMMORTAL_MEMORY_INSTANCE("javax.realtime.ImmortalMemory", "instance()");

@@ -19,7 +19,7 @@ import javax.safetycritical.annotate.Scope;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 
 @SCJAllowed(members=true)
-@Scope("a")
+@Scope(IMMORTAL)
 @DefineScope(name="a", parent=IMMORTAL)
 public class TestMissionInit2 extends CyclicExecutive {
 
@@ -39,6 +39,8 @@ public class TestMissionInit2 extends CyclicExecutive {
     @SCJAllowed(SUPPORT)
     public void initialize() {
         new PEH(null,null,null);
+
+        //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_MULTI_INIT
         new PEH(null,null,null);
 
         method();
