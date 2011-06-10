@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 
 package railsegment;
@@ -32,13 +33,14 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
 
-@Scope("E")
+@Scope("TM.A.E")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class SecurityService extends Mission
 {
-  // These three constants determined by static analysis or other
+  // These four constants determined by static analysis or other
   // vendor-specific approaches
-  public static final long BackingStoreRequirements = 5000;
+  public static final long BackingStoreRequirements = 1000;
+  public static final long NestedBackingStoreRequirements = 5000;
   public static final long NativeStackRequirements = 3000;
   public static final long JavaStackRequirements = 2000;
 

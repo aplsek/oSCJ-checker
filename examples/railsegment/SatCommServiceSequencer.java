@@ -49,16 +49,22 @@ extends MissionSequencer //<SatCommService>
     @SCJRestricted(INITIALIZATION)
     public SatCommServiceSequencer(final int sat_priority, SatQueue sat_data)
     {
-        super(new PriorityParameters(sat_priority),
-                new StorageParameters(SatCommService.BackingStoreRequirements,
-                        SatCommService.NativeStackRequirements,
-                        SatCommService.JavaStackRequirements),
-        new String ("Communication Services Sequencer"));
-
-        SAT_PRIORITY = sat_priority;
-        this.sat_data = sat_data;
-        did_mission = false;
+      super(new PriorityParameters(sat_priority),
+            new StorageParameters(SatCommService.BackingStoreRequirements,
+                                  storageArgs(), 0, 0),
+            new String ("Communication Services Sequencer"));
+      
+      SAT_PRIORITY = sat_priority;
+      this.sat_data = sat_data;
+      did_mission = false;
     }
+
+  private static long[] storageArgs() {
+    long[] storage_args = {SatCommService.NestedBackingStoreRequirements,
+                           SatCommService.NativeStackRequirements,
+                           SatCommService.JavaStackRequirements};
+    return storage_args;
+  }
 
     @Override
     @RunsIn("TM.A.G")

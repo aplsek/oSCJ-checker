@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 package railsegment;
 
@@ -34,14 +35,15 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-@Scope("H")
-@DefineScope(name="MOB_Private", parent="H")
+@Scope("TM.A.H")
+@DefineScope(name="TM.A.H.0", parent="TM.A.H")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class MobileOversight extends ManagedThread {
 
-  // These three constants determined by static analysis or other
+  // These four constants determined by static analysis or other
   // vendor-specific approaches
   public static final long BackingStoreRequirements = 5000;
+  public static final long NestedBackingStoreRequirements = 5000;
   public static final long NativeStackRequirements = 3000;
   public static final long JavaStackRequirements = 2000;
 
@@ -62,15 +64,19 @@ public class MobileOversight extends ManagedThread {
                          final MobileQueue mobile_data)
   {
     super(new PriorityParameters(mobile_priority),
-          new StorageParameters(BackingStoreRequirements,
-                                NativeStackRequirements,
-                                JavaStackRequirements));
+          new StorageParameters(BackingStoreRequirements, storageArgs(), 0, 0));
 
     this.mobile_data = mobile_data;
     this.mission = my_mission;
     MOBILE_PRIORITY = mobile_priority;
   }
 
+  private static long[] storageArgs() {
+    long[] storage_args = {NestedBackingStoreRequirements,
+                           NativeStackRequirements,
+                           JavaStackRequirements};
+    return storage_args;
+  }
 
   @RunsIn(CALLER)
   public void requestTermination()
@@ -80,7 +86,7 @@ public class MobileOversight extends ManagedThread {
   }
 
   @Override
-  @RunsIn("MOB_Private")
+  @RunsIn("TM.A.H.0")
   @SCJAllowed(SUPPORT)
   public void run() {
 
@@ -95,8 +101,6 @@ public class MobileOversight extends ManagedThread {
         // do some work
 
       }
-
     }
-
   }
 }

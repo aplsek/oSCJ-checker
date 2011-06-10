@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 
 package railsegment;
@@ -34,10 +35,10 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-import railsegment.clock.SynchronizedTime;
+import railsegment.clock.TrainClock;
 
-@Scope("TM")
-@DefineScope(name="B", parent="TM")
+@Scope("TM.B")
+@DefineScope(name="TM.B", parent="TM")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class TrainControlSequencer extends MissionSequencer // <TrainControl>
 {
@@ -46,36 +47,45 @@ public class TrainControlSequencer extends MissionSequencer // <TrainControl>
   private final int CONTROL_PRIORITY;
 
   private final CommunicationsQueue comms_data;
-  private final SynchronizedTime times_data;
   private final NavigationInfo navs_data;
 
+  private final TrainClock train_clock;
+
   @SCJRestricted(INITIALIZATION)
-  public TrainControlSequencer(final int CONTROL_PRIORITY,
-                               CommunicationsQueue comms_data,
-                               SynchronizedTime times_data,
-                               NavigationInfo navs_data) {
-    super(new PriorityParameters(CONTROL_PRIORITY), new StorageParameters(
-            TrainControl.BackingStoreRequirements,
-            TrainControl.NativeStackRequirements,
-            TrainControl.JavaStackRequirements), new String("Train Control Sequencer"));
+  public TrainControlSequencer(CommunicationsQueue comms_data,
+                               NavigationInfo navs_data,
+                               TrainClock train_clock,
+                               final int CONTROL_PRIORITY) {
+    super(new PriorityParameters(CONTROL_PRIORITY),
+          new StorageParameters(TrainControl.BackingStoreRequirements,
+                                storageArgs(), 0, 0),
+          new String("Train Control Sequencer"));
 
     this.CONTROL_PRIORITY = CONTROL_PRIORITY;
 
     this.comms_data = comms_data;
-    this.times_data = times_data;
     this.navs_data = navs_data;
+    this.train_clock = train_clock;
 
     did_mission = false;
   }
 
+  private static long[] storageArgs() {
+    long[] storage_args = {TrainControl.NestedBackingStoreRequirements,
+                           TrainControl.NativeStackRequirements,
+                           TrainControl.JavaStackRequirements};
+    return storage_args;
+  }
+
+
   @Override
-  @RunsIn("B")
+  @RunsIn("TM.B")
   @SCJAllowed(SUPPORT)
   public TrainControl getNextMission() {
     if (!did_mission) {
       did_mission = true;
-      return new TrainControl(comms_data,
-                              times_data, navs_data, CONTROL_PRIORITY);
+      return new TrainControl(comms_data, navs_data, 
+                              train_clock, CONTROL_PRIORITY);
     } else {
       return null;
     }

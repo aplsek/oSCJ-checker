@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 package railsegment;
 
@@ -41,6 +42,7 @@ public class NavigationOversight extends ManagedThread
 {
   // Determined by VM-specific static analysis tools
   private static final long BackingStoreRequirements = 500;
+  private static final long NestedBackingStoreRequirements = 500;
   private static final long NativeStackRequirements = 2000;
   private static final long JavaStackRequirements = 300;
 
@@ -54,12 +56,18 @@ public class NavigationOversight extends ManagedThread
                              RouteData route_data,
                              int priority) {
     super(new PriorityParameters(priority),
-          new StorageParameters(BackingStoreRequirements,
-                                NativeStackRequirements,
-                                JavaStackRequirements));
+          new StorageParameters(BackingStoreRequirements, storageArgs(), 0, 0));
+
     this.nav_mission = nav_mission;
     this.nav_data = nav_data;
     this.route_data = route_data;
+  }
+
+  private static long[] storageArgs() {
+    long[] storage_args = {NestedBackingStoreRequirements,
+                           NativeStackRequirements,
+                           JavaStackRequirements};
+    return storage_args;
   }
 
   @Override

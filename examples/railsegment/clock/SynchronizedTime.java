@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 package railsegment.clock;
 
@@ -31,7 +32,13 @@ import javax.safetycritical.annotate.Scope;
 
 // SynchronizedTime is used in the implementation of a globally
 // synchronized time service.  The implementation assures
-// monotonically increasing time.
+// monotonically increasing time.  Note that the methods are package
+// protected, and are not visible from the railsegment package.  
+//
+// The driver thread that takes responsibility for maintaining the
+// globally synchronized time uses an instance of SynchronizedTime to
+// coordinate with the implementation of the TrainClock object.
+
 
 @SCJAllowed(value=LEVEL_2, members=true)
 @Scope("TM")
@@ -49,6 +56,9 @@ public class SynchronizedTime
 
   TrainClock train_clock;
   private boolean initialized;
+
+  // TODO: review code to make sure the synchronized methods are only
+  // invoked by the time coordination thread and the control thread.
 
   public SynchronizedTime(int ceiling)
   {
@@ -68,8 +78,10 @@ public class SynchronizedTime
     return train_clock;
   }
 
+  // not for application code.  Application code invokes
+  // train_clock.getTime() instead.
   @RunsIn(CALLER)
-  public synchronized final AbsoluteTime getTime()
+  synchronized final AbsoluteTime getTime()
   {
     while (!initialized) {
       try {
@@ -84,6 +96,7 @@ public class SynchronizedTime
                             synchronized_ns, train_clock);
   }
 
+  // who uses this?
   @RunsIn(CALLER)
   private synchronized void updateTime(long new_ms, int new_ns)
   {

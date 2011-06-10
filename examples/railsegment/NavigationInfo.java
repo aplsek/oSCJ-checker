@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 package railsegment;
 
@@ -63,6 +64,9 @@ public class NavigationInfo {
   private final int CEILING_PRIORITY;
 
   private final TrainClock train_clock;
+
+  // TODO: review code to ensure that the synchronized methods are
+  // only invoked by the Navigation server thread and the control thread.
 
   NavigationInfo(TrainClock train_clock, int ceiling) {
     CEILING_PRIORITY = ceiling;

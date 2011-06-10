@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 
 package railsegment;
@@ -35,8 +36,7 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-import railsegment.clock.SynchronizedTime;
-
+import railsegment.clock.TrainClock;
 
 @Scope("B")
 @DefineScope(name="B:TCT", parent="B")
@@ -44,27 +44,35 @@ import railsegment.clock.SynchronizedTime;
 public class TrainControlThread extends ManagedThread
 {
   private final static int BackingStoreSize = 1000;
+  private final static int NestedBackingStoreSize = 1000;
   private final static int NativeStackSize = 1000;
   private final static int JavaStackSize = 1000;
 
   private final CommunicationsQueue comms_data;
-  private final SynchronizedTime times_data;
   private final NavigationInfo navs_data;
+
+  private final TrainClock train_clock;
 
   @SCJRestricted(INITIALIZATION)
   public TrainControlThread(final CommunicationsQueue comms_data,
-                            final SynchronizedTime times_data,
                             final NavigationInfo navs_data,
+                            final TrainClock train_clock,
                             final int priority)
   {
     super(new PriorityParameters(priority),
-          new StorageParameters(BackingStoreSize,
-                                NativeStackSize, JavaStackSize));
+          new StorageParameters(BackingStoreSize, storageArgs(), 0, 0));
 
     this.comms_data = comms_data;
-    this.times_data = times_data;
     this.navs_data = navs_data;
+    this.train_clock = train_clock;
   }
+
+  private static long[] storageArgs() {
+    long[] storage_args = {NestedBackingStoreSize,
+                           NativeStackSize,
+                           JavaStackSize};
+    return storage_args;
+  }  
 
   private boolean shutting_down = false;
 

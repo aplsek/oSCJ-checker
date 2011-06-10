@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 package railsegment;
 
@@ -235,6 +236,10 @@ public class CommunicationsQueue
   // todo: why do I have SubmissionCoordination?  Is it supposed to
   // have a different ceiling priority than me?
   private int my_ceiling;
+
+  // TODO: review code.  make sure that the synchronized methods are
+  // only invoked by the control thread and the communications control
+  // server thread.
 
   CommunicationsQueue(int num_buffers, int buffer_length, int ceiling_priority)
   {

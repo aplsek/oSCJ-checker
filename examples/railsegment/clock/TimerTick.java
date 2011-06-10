@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 
 package railsegment.clock;
@@ -44,6 +45,7 @@ public class TimerTick extends PeriodicEventHandler
 {
   // Determined by VM-specific static analysis tools
   private static final long BackingStoreRequirements = 500;
+  private static final long NestedBackingStoreRequirements = 500;
   private static final long NativeStackRequirements = 2000;
   private static final long JavaStackRequirements = 300;
 
@@ -56,11 +58,17 @@ public class TimerTick extends PeriodicEventHandler
                    TrainClock train_clock, int priority) {
     super(new PriorityParameters(priority),
           new PeriodicParameters(null, new RelativeTime(0L, 250000)),
-          new StorageParameters(BackingStoreRequirements,
-                                NativeStackRequirements,
-                                JavaStackRequirements));
+          new StorageParameters(BackingStoreRequirements, storageArgs(), 0, 0));
+
     this.time_mission = time_mission;
     this.train_clock = train_clock;
+  }
+
+  private static long[] storageArgs() {
+    long[] storage_args = {BackingStoreRequirements,
+                           NativeStackRequirements,
+                           JavaStackRequirements};
+    return storage_args;
   }
 
   @Override

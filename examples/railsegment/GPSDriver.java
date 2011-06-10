@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 
 package railsegment;
@@ -44,26 +45,33 @@ import railsegment.clock.TrainClock;
 @SCJAllowed(value=LEVEL_2, members=true)
 public class GPSDriver extends PeriodicEventHandler
 {
-    // Determined by VM-specific static analysis tools
-    private static final long BackingStoreRequirements = 500;
-    private static final long NativeStackRequirements = 2000;
-    private static final long JavaStackRequirements = 300;
+  // Determined by VM-specific static analysis tools
+  private static final long BackingStoreRequirements = 500;
+  private static final long NestedBackingStoreRequirements = 500;
+  private static final long NativeStackRequirements = 2000;
+  private static final long JavaStackRequirements = 300;
+  
+  private NavigationService nav_mission;
+  private TrainClock train_clock;
+  
+  // This periodic task runs every 1 ms
+  @SCJRestricted(INITIALIZATION)
+  public GPSDriver(NavigationService nav_mission,
+                   TrainClock train_clock, int priority) {
+    super(new PriorityParameters(priority),
+          new PeriodicParameters(null, new RelativeTime(1L, 0)),
+          new StorageParameters(BackingStoreRequirements, storageArgs(), 0, 0));
+    
+    this.nav_mission = nav_mission;
+    this.train_clock = train_clock;
+  }
 
-    private NavigationService nav_mission;
-    private TrainClock train_clock;
-
-    // This periodic task runs every 1 ms
-    @SCJRestricted(INITIALIZATION)
-    public GPSDriver(NavigationService nav_mission,
-            TrainClock train_clock, int priority) {
-        super(new PriorityParameters(priority),
-                new PeriodicParameters(null, new RelativeTime(1L, 0)),
-                new StorageParameters(BackingStoreRequirements,
-                        NativeStackRequirements,
-                        JavaStackRequirements));
-        this.nav_mission = nav_mission;
-        this.train_clock = train_clock;
-    }
+  private static long[] storageArgs() {
+    long[] storage_args = {NestedBackingStoreRequirements,
+                           NativeStackRequirements,
+                           JavaStackRequirements};
+    return storage_args;
+  }
 
     @Override
     @RunsIn("D:GPSD")

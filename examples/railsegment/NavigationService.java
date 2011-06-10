@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 package railsegment;
 
@@ -35,14 +36,14 @@ import javax.safetycritical.annotate.Scope;
 
 import railsegment.clock.TrainClock;
 
-
-@Scope("D")
+@Scope("TM.D")
 @SCJAllowed(value=LEVEL_2, members=true)
 class NavigationService extends Mission {
 
   // These three constants are determined by static analysis or other
   // vendor-specific approaches
-  public static final long BackingStoreRequirements = 10000;
+  public static final long BackingStoreRequirements = 1000;
+  public static final long NestedBackingStoreRequirements = 10000;
   public static final long NativeStackRequirements = 5000;
   public static final long JavaStackRequirements = 2000;
 
@@ -182,5 +183,4 @@ class NavigationService extends Mission {
     }
     return result;
   }
-
 }

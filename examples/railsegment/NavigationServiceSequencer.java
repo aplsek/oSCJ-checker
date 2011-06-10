@@ -16,7 +16,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with Railsegment; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *  USA
  */
 
 package railsegment;
@@ -37,45 +38,57 @@ import javax.safetycritical.annotate.Scope;
 import railsegment.clock.TrainClock;
 
 @Scope("TM")
-@DefineScope(name="D", parent = "TM")
+@DefineScope(name="TM.D", parent = "TM")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class NavigationServiceSequencer
   extends MissionSequencer //<NavigationService>
 {
   boolean did_mission;
-  private final int NAVS_PRIORITY;
-  private final int GPS_PRIORITY;
+  private final int NAVS_SERVER_PRIORITY;
+  private final int NAVS_GPS_PRIORITY;
   private final NavigationInfo navs_data;
   private final TrainClock train_clock;
 
   @SCJRestricted(INITIALIZATION)
-  public NavigationServiceSequencer(final int NAVS_PRIORITY,
-                                    final int GPS_PRIORITY,
-                                    TrainClock train_clock,
-                                    NavigationInfo navs_data)
+  public NavigationServiceSequencer(TrainClock train_clock,
+                                    NavigationInfo navs_data,
+                                    int NAVS_GPS_PRIORITY,
+                                    int NAVS_SERVER_PRIORITY)
   {
-    super(new PriorityParameters(NAVS_PRIORITY),
+    // note: the sequencer thread will be blocked throughout most of
+    // the mission's execution.  since the sequencer is coordinating
+    // with multiple subordinate threads, it seems reasonable to think
+    // of it as a server to all of those.  and as a server, it seems
+    // appropriate that its priority is the maximum of the subordinate
+    // threads' priorities.
+    super(new PriorityParameters(NAVS_GPS_PRIORITY),
           new StorageParameters(NavigationService.BackingStoreRequirements,
-                                NavigationService.NativeStackRequirements,
-                                NavigationService.JavaStackRequirements),
+                                storageArgs(), 0, 0),
           new String("Navigation Service Sequencer"));
 
     did_mission = false;
-    this.NAVS_PRIORITY = NAVS_PRIORITY;
-    this.GPS_PRIORITY = GPS_PRIORITY;
+    this.NAVS_GPS_PRIORITY = NAVS_GPS_PRIORITY;
+    this.NAVS_SERVER_PRIORITY = NAVS_SERVER_PRIORITY;
     this.train_clock = train_clock;
     this.navs_data = navs_data;
   }
 
+  private static long[] storageArgs() {
+    long[] storage_args = {NavigationService.NestedBackingStoreRequirements,
+                           NavigationService.NativeStackRequirements,
+                           NavigationService.JavaStackRequirements};
+    return storage_args;
+  }
+
   @Override
-  @RunsIn("D")
+  @RunsIn("TM.D")
   @SCJAllowed(SUPPORT)
   public NavigationService getNextMission()
   {
     if (!did_mission) {
       did_mission = true;
       return new NavigationService(navs_data, train_clock, new RouteData(),
-                                   GPS_PRIORITY, NAVS_PRIORITY);
+                                   NAVS_GPS_PRIORITY, NAVS_SERVER_PRIORITY);
     }
     else {
       return null;
