@@ -37,9 +37,9 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @Scope("TM.A")
-@DefineScope(name="TM.A.0", parent="TM.A")
+@DefineScope(name="TM.A.B", parent="TM.A")
 @SCJAllowed(value=LEVEL_2, members=true)
-class CommunicationsOversight extends ManagedThread {
+class CommsControlServer extends ManagedThread {
 
   // Determined by VM-specific static analysis tools
   private static final long BackingStoreRequirements = 500;
@@ -56,12 +56,12 @@ class CommunicationsOversight extends ManagedThread {
   final MobileQueue mobileq;
 
   @SCJRestricted(INITIALIZATION)
-  CommunicationsOversight(int comms_priority,
-                          CommunicationsQueue comms_data,
-                          CypherQueue cypherq,
-                          ModulatedQueue modulatedq,
-                          SatQueue satq,
-                          MobileQueue mobileq) {
+  CommsControlServer(int comms_priority,
+                     CommunicationsQueue comms_data,
+                     CypherQueue cypherq,
+                     ModulatedQueue modulatedq,
+                     SatQueue satq,
+                     MobileQueue mobileq) {
     super(new PriorityParameters(comms_priority),
           new StorageParameters(BackingStoreRequirements, storageArgs(), 0, 0));
 
@@ -95,7 +95,7 @@ class CommunicationsOversight extends ManagedThread {
   }
 
   @Override
-  @RunsIn("TM.A.0")
+  @RunsIn("TM.A.B")
   @SCJAllowed(SUPPORT)
   public final void run() {
     // details not shown, but generally, this thread acts as follows.

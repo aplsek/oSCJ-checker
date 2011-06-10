@@ -40,8 +40,8 @@ import javax.safetycritical.annotate.Scope;
 
 import railsegment.clock.TrainClock;
 
-@Scope("D")
-@DefineScope(name="D:GPSD", parent="D")
+@Scope("TM.D")
+@DefineScope(name="TM.D.A", parent="TM.D")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class GPSDriver extends PeriodicEventHandler
 {
@@ -73,21 +73,21 @@ public class GPSDriver extends PeriodicEventHandler
     return storage_args;
   }
 
-    @Override
-    @RunsIn("D:GPSD")
-    @SCJAllowed(SUPPORT)
-    public void handleAsyncEvent() {
-
-        // Let's just assume that this is not interrupt driven.
-
-        // every time i'm called, i'll update the global lat and long, and
-        // post a timestamp according to the global distributed clock
-
-        // assume these are fetched from the GPS hardware
-        int longitude = 0;
-        int lattitude = 0;
-
-        AbsoluteTime now = train_clock.getPrivateTime();
-        nav_mission.updatePosition(now, longitude, lattitude);
-    }
+  @Override
+  @RunsIn("TM.D.A")
+  @SCJAllowed(SUPPORT)
+  public void handleAsyncEvent() {
+    
+    // Let's just assume that this is not interrupt driven.
+    
+    // every time i'm called, i'll update the global lat and long, and
+    // post a timestamp according to the global distributed clock
+    
+    // assume these are fetched from the GPS hardware
+    int longitude = 0;
+    int lattitude = 0;
+    
+    AbsoluteTime now = train_clock.getPrivateTime();
+    nav_mission.updatePosition(now, longitude, lattitude);
+  }
 }

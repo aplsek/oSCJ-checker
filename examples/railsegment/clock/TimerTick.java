@@ -39,8 +39,8 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(value=LEVEL_2, members=true)
-@Scope("C")
-@DefineScope(name="C:TT", parent="C")
+@Scope("TM.C")
+@DefineScope(name="TM.C.B", parent="TM.C")
 public class TimerTick extends PeriodicEventHandler
 {
   // Determined by VM-specific static analysis tools
@@ -72,7 +72,7 @@ public class TimerTick extends PeriodicEventHandler
   }
 
   @Override
-  @RunsIn("C:TT")
+  @RunsIn("TM.C.B")
   @SCJAllowed(SUPPORT)
   public void handleAsyncEvent() {
     AbsoluteTime t = new AbsoluteTime(0L, 0, train_clock);

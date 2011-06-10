@@ -35,8 +35,8 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 
-@Scope("D")
-@DefineScope(name="D:NO", parent="D")
+@Scope("TM.D")
+@DefineScope(name="TM.D.B", parent="TM.D")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class NavigationOversight extends ManagedThread
 {
@@ -71,7 +71,7 @@ public class NavigationOversight extends ManagedThread
   }
 
   @Override
-  @RunsIn("D:NO")
+  @RunsIn("TM.D.B")
   @SCJAllowed(SUPPORT)
   public void run() {
 

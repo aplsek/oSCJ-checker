@@ -36,6 +36,9 @@ import javax.safetycritical.annotate.Scope;
 // that the single client always waits for a response to a previously
 // issued request before issuing another request.
 
+// TODO: Is it ok to invoke particular methods from both
+// CommsTimerServer and CommsControlServer?
+
 @Scope("TM.A")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class CypherQueue {
@@ -313,7 +316,7 @@ public class CypherQueue {
    * a separate sub-mission.
    */
 
-  // invoked by CommunicationsOversight thread
+  // invoked by CommsControlServer and CommsTimerServer
   @RunsIn(CALLER)
   final void encrypt(@Scope(IMMORTAL) byte[] buffer, int length, long cypher)
     throws InterruptedException
@@ -321,7 +324,7 @@ public class CypherQueue {
     hardware.issueEncryptRequest(buffer, length, cypher);
   }
 
-  // invoked by CommunicationsOversight thread
+  // invoked by CommsControlServer and CommsTimerServer
   @RunsIn(CALLER)
   final void decrypt(@Scope(IMMORTAL) byte[] buffer, int length, long cypher)
     throws InterruptedException
