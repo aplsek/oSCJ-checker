@@ -6,12 +6,27 @@ Source Repository:  http://code.google.com/p/scj-jsr302/
 =============================
 
 
-Compilation
+I. Download the Checker
+===========
+
+Check-out the latest sources : 
+
+$ cd <installation-dir>
+$ hg clone https://scj-jsr302.googlecode.com/hg/ scj
+
+
+II. Compilation
 ===========
 Compiling the SCJ checker currently relies on some bash scripts, which means
 you probably need Cygwin to compile on Windows.
 
-  1. Create a file named build.properties in the current directory. Inside this
+  0. DIR
+     CD into the Checker directory:
+     $ cd <installation-dir>/scj/oSCJ/tools/checker
+     (all the paths in the remaining steps are relative to this directory)
+
+  1. SETTING PROPERTIES
+      Create a file named "build.properties" in the current directory. Inside this
      file, add a single line in the format "jdk.input.jar=<jdk jar>". The JDK
      JAR is the path to either rt.jar on Windows/Linux or classes.jar on OS X.
 
@@ -28,28 +43,61 @@ you probably need Cygwin to compile on Windows.
 
      jdk.input.jar=/cygdrive/c/Program\ Files\ \(x86\)/Java/jdk1.6.0_23/jre/lib/rt.jar
 
-  2. Compile simply by running "ant".
+  2. COMPILE:
+     Compile simply by running:
+     
+     $ ant
 
 
-Testing and Checking
+III. Testing and Checking
 ====================
-To run the SCJ checker tests, simply run "ant simple-tests". There are a few
-other test targets, but they do not usually need to be run. To check your own
-program with the SCJ checker, you may use the included check.sh script or do
-one of the following:
+
+
+Test the Checker implementation:
+--------------------------------
+To run the SCJ checker tests, simply run "ant tests". There are a few
+other test targets, but they do not usually need to be run. 
+
+    1. $ ant tests
+
+Then run the following to see the results of the tests:
+
+    2. $ open reports/html/index.html 
+
+
+Run the Checker:
+------------------
+
+To check your own program with the SCJ checker, you may use the included check.sh script:
+   
+    $ ./check.sh <program files to check...>
+
+or do one of the following:
 
   1. On UNIX:
 
-     localbin/javac -proc:only -cp lib/scj.jar:lib/scj-checker.jar \
+    $ localbin/javac -proc:only -cp lib/scj.jar:lib/scj-checker.jar \
          -processor checkers.SCJChecker <program files to check...>
 
   2. On Windows:
-     localbin\javac.bat -proc:only -cp lib\scj.jar;lib\scj-checker.jar
+    $ localbin\javac.bat -proc:only -cp lib\scj.jar;lib\scj-checker.jar
          -processor <program files to check...>
 
 
-Checker Implementation
+
+IV. Checker Implementation
 ======================
+
+
+Eclipse Setting
+------------------
+
+Import the Eclipse project "scj-checker" from "<installation-dir>/scj/oSCJ/tools/checker/".
+
+
+Implementation Details
+------------------------
+
 The SCJ checker is implemented using the Checker Framework and the annotations
 work in JSR 308.
 

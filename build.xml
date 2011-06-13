@@ -483,9 +483,9 @@
 
 
   <target name="tests" depends="jar,compile-tests,
-    				sanity-test,
    				    scjallowed-test,
       				scjrestricted-test,
+   					sanity-test,
     				defineScope-test,
     				scopeRunsIn-test,
     				schedulable-test,

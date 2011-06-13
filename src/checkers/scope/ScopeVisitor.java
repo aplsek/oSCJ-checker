@@ -149,24 +149,32 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (node.getKind() == Kind.PRIMITIVE_TYPE) {
             return;
         } else if (node.getKind() == Kind.ASSIGNMENT) {
+            pln("\n NODE   ASSIGNMENT:" + node);
+
             AssignmentTree tree = (AssignmentTree) node;
             TypeMirror cT = InternalUtils.typeOf(tree);
             TypeMirror eT = InternalUtils.typeOf(tree.getExpression());
             checkUpcastTypes(cT, eT, node);
 
         } else if (node.getKind() == Kind.VARIABLE) {
+            pln("\n NODE   VARIABLE:" + node);
+
             VariableTree tree = (VariableTree) node;
             TypeMirror cT = InternalUtils.typeOf(tree);
             TypeMirror eT = InternalUtils.typeOf(tree.getInitializer());
             checkUpcastTypes(cT, eT, node);
 
         } else if (node.getKind() == Kind.TYPE_CAST) {
+            pln("\n NODE   TYPE_CAST:" + node);
+
             TypeCastTree tree = (TypeCastTree) node;
             TypeMirror cT = InternalUtils.typeOf(tree);
             TypeMirror eT = InternalUtils.typeOf(tree.getExpression());
             checkUpcastTypes(cT, eT, node);
 
         } else if (node.getKind() == Kind.METHOD_INVOCATION) {
+            pln("\n NODE METHOD_INVOCATION:" + node);
+
             MethodInvocationTree tree = (MethodInvocationTree) node;
             if (!Utils.isUserLevel(TreeUtils.elementFromUse(tree)))
                 return;
@@ -178,6 +186,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             checkMethodArgsForUpcast(params, args, node);
 
         } else if (node.getKind() == Kind.NEW_CLASS) {
+            pln("\n NODE :" + node);
+
             List<? extends VariableElement> params = TreeUtils.elementFromUse(
                     (NewClassTree) node).getParameters();
             List<? extends ExpressionTree> args = ((NewClassTree) node)
@@ -185,10 +195,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             checkMethodArgsForUpcast(params, args, node);
 
         } else if (node.getKind() == Kind.NEW_ARRAY) {
-            // TODO:
-            throw new RuntimeException("Unexpected assignment AST node: "
-                    + node.getKind());
-
+            // There is nothing to check for NEW_ARRAY. -
+            // the result will be assigned - which will be checked later.
+            return;
         } else if (node.getKind() == Kind.RETURN) {
             ReturnTree tree = (ReturnTree) node;
             MethodTree enclosingMethod = TreeUtils
@@ -580,9 +589,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                     scope)))
                 fail(ERR_BAD_ALLOCATION_ARRAY, node, scope);
         }
-
-        // TODO: check upcast for new array
-        // checkUpcast(node);
 
         super.visitNewArray(node, p);
         debugIndentDecrement();
