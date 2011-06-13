@@ -13,8 +13,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
 import checkers.Utils;
-import checkers.scope.ScopeCheckerContext.ClassInfo;
-import checkers.scope.ScopeCheckerContext.MethodScopeInfo;
 
 /**
  * Context object that stores information about scopes in a program.

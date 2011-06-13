@@ -380,7 +380,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitEnhancedForLoop(EnhancedForLoopTree node, P p) {
-        // TODO: Not sure if this needs to be checked. This implicitly does
+        // Not sure if this needs to be checked. This implicitly does
         // .iterator() and .next() calls.
         varScopes.pushBlock();
         super.visitEnhancedForLoop(node, p);
@@ -474,12 +474,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeInfo visitLiteral(LiteralTree node, P p) {
         debugIndentIncrement("visitLiteral : " + node);
 
-        // TODO: Are array literals handled in this?
         ScopeInfo ret = ScopeInfo.PRIMITIVE;
         if (node.getValue() == null) {
             ret = ScopeInfo.NULL;
         } else if (node.getValue() instanceof String) {
-            // STRING LITERALS - instead of making them IMMORTAL, we inferer
+            // STRING LITERALS - instead of making them IMMORTAL, we infer
             // their scope to be the "current scope".
             debugIndent("  string literal, currentScope: " + currentScope());
             ret = currentScope();
@@ -503,10 +502,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // visitMethodInvocation has its scope.
             ret = node.getExpression().accept(this, p);
         } else if (elem.getKind() == ElementKind.CLASS) {
-            // TODO: inner class?, issue 22
+            // TODO: inner class, issue 22
             ret = null;
         } else if (elem.getKind() == ElementKind.ENUM) {
-            // TODO: inner enum type class?, issue 22
+            // TODO: inner enum type class, issue 22
             ret = null;
         } else {
             VariableElement f = (VariableElement) elem;
@@ -926,14 +925,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         if (!scopeTree.isParentOf(argRunsIn, target))
             fail(ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET, node, argRunsIn, target);
-
-        // NOTE: uncomment this to enforce @Scope annotation on the Runnable
-        // ScopeInfo runnableScope = getRunnnableScope(arg);
-        // if (runnableScope.isCaller() || !runnableScope.equals(target))
-        // fail(ERR_SCJ_RUNNABLE_BAD_SCOPE, node, argRunsIn, target);
     }
 
-    private ScopeInfo checkExecuteInArea(ScopeInfo recvScope,
+    private void checkExecuteInArea(ScopeInfo recvScope,
             MethodInvocationTree node) {
         ScopeInfo target = recvScope.getRepresentedScope();
         ExpressionTree arg = node.getArguments().get(0);
@@ -946,15 +940,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (!target.equals(argRunsIn))
             // target and @RunsIn on runnable must be the same
             fail(ERR_BAD_EXECUTE_IN_AREA_RUNS_IN, node, target, argRunsIn);
-
-        // NOTE: uncomment this to enforce @Scope annotation on Runnables used
-        // for executeInAre
-        // ScopeInfo runnableScope = getRunnnableScope(arg);
-        // if (runnableScope.isCaller() ||
-        // !runnableScope.equals(currentScope()))
-        // fail(ERR_SCJ_RUNNABLE_BAD_SCOPE, node, argRunsIn, target);
-
-        return null;
     }
 
     private boolean checkForValidGuardArgument(ExpressionTree arg) {
@@ -1168,9 +1153,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return checkNewInstance(target, node.getArguments().get(1), node);
     }
 
-    /**
-     * TODO: this needs to be tested.
-     */
     private ScopeInfo checkNewArrayInArea(ScopeInfo scope,
             MethodInvocationTree node) {
         ScopeInfo target = checkGetMemoryArea(scope, node);
@@ -1184,7 +1166,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (scope.isUnknown() || scope.isCaller()) {
             // CALLER is also illegal if it can't be made into a concrete
             // scope name.
-
             fail(ERR_BAD_GET_MEMORY_AREA, node);
             return ScopeInfo.UNKNOWN;
         }

@@ -56,5 +56,9 @@ public class TestConditionalExpression {
         test = (ff) ? test : str;
     }
 
+    @RunsIn("D")
+    void arrayLiterals() {
+        String[] str = {"hello", "world"};
+    }
 
 }
