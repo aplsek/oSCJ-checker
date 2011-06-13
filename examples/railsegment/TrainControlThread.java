@@ -38,8 +38,8 @@ import javax.safetycritical.annotate.Scope;
 
 import railsegment.clock.TrainClock;
 
-@Scope("B")
-@DefineScope(name="B:TCT", parent="B")
+@Scope("TM.B")
+@DefineScope(name="TM.B.0", parent="TM.B")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class TrainControlThread extends ManagedThread
 {
@@ -87,7 +87,7 @@ public class TrainControlThread extends ManagedThread
   }
 
   @Override
-  @RunsIn("B:TCT")
+  @RunsIn("TM.B.0")
   @SCJAllowed(SUPPORT)
   public void run()
   {

@@ -30,9 +30,8 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
-// This assumes there is at most one client for NavigationInfo, and
-// that the single client always waits for a response to a previously
-// issued request before issuing another request.
+// TODO: Is it ok to invoke particular methods from both
+// CommsTimerServer and CommsControlServer?
 
 @Scope("TM.A")
 @SCJAllowed(value=LEVEL_2, members=true)
@@ -72,7 +71,7 @@ public class ModulatedQueue {
    * a separate sub-mission.
    */
 
-  // invoked by CommunicationsOversight thread
+  // invoked by CommsControlServer and CommsTimerServer
   @RunsIn(CALLER)
   int transmit(@Scope(IMMORTAL) byte[] buffer, int length, int channel_no) {
     // by requiring an immortal buffer, this instance can keep a reference
@@ -102,7 +101,7 @@ public class ModulatedQueue {
     return int_response;
   }
 
-  // invoked by CommunicationsOversight thread
+  // invoked by CommsControlServer and CommsTimerServer
   @RunsIn(CALLER)
   int receive(@Scope(IMMORTAL) byte[] buffer, int length, int channel_no) {
     // by requiring an immortal buffer, this instance can keep a reference
@@ -132,7 +131,7 @@ public class ModulatedQueue {
     return int_response;
   }
 
-  // invoked by CommunicationsOversight thread
+  // invoked by CommsControlServer and CommsTimerServer
   @RunsIn(CALLER)
   void issueShutdownRequest() {
     pending_request = RequestEncoding.RequestShutdown;

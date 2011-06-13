@@ -37,7 +37,7 @@ import javax.safetycritical.annotate.Scope;
 
 import railsegment.clock.TrainClock;
 
-@Scope("TM.B")
+@Scope("TM")
 @DefineScope(name="TM.B", parent="TM")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class TrainControlSequencer extends MissionSequencer // <TrainControl>

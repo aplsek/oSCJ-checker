@@ -64,8 +64,8 @@ public class CommunicationService extends Mission
   private SatQueue satq;
   private MobileQueue mobileq;
 
-  CommunicationsOversight control_server_thread;
-  CommunicationsOversight times_server_thread;
+  CommsControlServer control_server_thread;
+  CommsTimerServer times_server_thread;
 
   SecurityServiceSequencer cyphersq;
   TrackModulatedCommServiceSequencer trackcommsq;
@@ -111,30 +111,29 @@ public class CommunicationService extends Mission
     mobileq = new MobileQueue(COMMS_DRIVER_PRIORITY);
     mobileq.initialize();
 
-    // TODO: i've duplicated the CommunicationsOversight
-    // instantiations without differentiating the implementation.
+    // TODO: i've copied what used to be the CommunicationsOversight
+    // implementation into CommsControlServer and CommsTimerServer.
     // Does this "work"?  Can I have multiple threads issuing
     // requests to the cypherq and modulatedq and satq and mobileq
-    // objects. 
+    // objects?
 
     // We'll have one oversight NHRT that monitors comms_control_data for
     // service requests and assumes responsibility for providing an
     // appropriate response.  This thread delegates each communication
     // service request to one or more sub-missions.
-    control_server_thread =
-    new CommunicationsOversight(COMMS_CONTROL_SERVER_PRIORITY,
-                                comms_control_data, cypherq,
-                                modulatedq, satq, mobileq);
+    control_server_thread = (new
+                             CommsControlServer(COMMS_CONTROL_SERVER_PRIORITY,
+                                                comms_control_data, cypherq,
+                                                modulatedq, satq, mobileq));
 
     // We'll have a different oversight NHRT that monitors
     // comms_times_data for service requests and assumes
     // responsibility for providing an appropriate response.  This
     // thread delegates each communication service request to one or
     // more sub-missions. 
-    times_server_thread = 
-    new CommunicationsOversight(COMMS_TIMES_SERVER_PRIORITY,
-                                comms_times_data, cypherq,
-                                modulatedq, satq, mobileq);
+    times_server_thread = new CommsTimerServer(COMMS_TIMES_SERVER_PRIORITY,
+                                               comms_times_data, cypherq,
+                                               modulatedq, satq, mobileq);
 
     // TODO: The ceiling priority of SecurityServiceSequencer needs to
     // be interrupt level, because we're assuming a hardware

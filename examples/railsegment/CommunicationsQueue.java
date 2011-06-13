@@ -31,6 +31,9 @@ import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.Scope;
 
+// Each CommunicationsQueue instantiation is serviced by either a
+// CommsTimerServer or a CommsControlServer, but not both.
+
 @Scope("TM")
 @SCJAllowed(value=LEVEL_2, members=true)
 public class CommunicationsQueue
@@ -64,7 +67,7 @@ public class CommunicationsQueue
     }
 
     // This is how I implement the equivalent of Unix select.  This is
-    // invoked from the CommunicationsOversight thread.
+    // invoked from the CommsTimerServer or CommsControlServer threads.
     @RunsIn(CALLER)
     final synchronized int waitForWork() {
       while (status == 0) {
@@ -84,12 +87,12 @@ public class CommunicationsQueue
       notifyAll();
     }
 
-    // invoked by CommunicationOversight component
+    // invoked by CommsTimerServer or CommsControlServer components
     // Important to avoid a race condition here:
     //  Suppose the application issues an application request
-    //  The CommunicationsOversight thread recocgnizes the request and
-    //    begins to service it.  At this point, the
-    //    CommunicationsOversight thread invokes
+    //  The CommsTimerServer or CommsControlServer thread recocgnizes
+    //  the request and begins to service it.  At this point, the
+    //    CommsTimerServer or CommsControlServer thread invokes
     //    unissueApplicationRequest. The application waits on a
     //    different condition for the response to the issued request.
     @RunsIn(CALLER)
@@ -104,7 +107,7 @@ public class CommunicationsQueue
       notifyAll();
     }
 
-    // invoked by CommunicationsOversight
+    // invoked from the CommsTimerServer or CommsControlServer threads.
     @RunsIn(CALLER)
     final synchronized void unfinishModulatedService() {
       status &= ~MODULATED_SERVICE_DONE;
@@ -117,7 +120,7 @@ public class CommunicationsQueue
       notifyAll();
     }
 
-    // invoked by CommunicationsOversight
+    // invoked from the CommsTimerServer or CommsControlServer threads.
     @RunsIn(CALLER)
     final synchronized void unfinishSatelliteService() {
       status &= ~SATELLITE_SERVICE_DONE;
@@ -130,7 +133,7 @@ public class CommunicationsQueue
       notifyAll();
     }
 
-    // invoked by CommunicationsOversight
+    // invoked from the CommsTimerServer or CommsControlServer threads.
     @RunsIn(CALLER)
     final synchronized void unfinishMobileService() {
       status &= ~MOBILE_SERVICE_DONE;
@@ -172,7 +175,7 @@ public class CommunicationsQueue
       notifyAll();
     }
 
-    // invoked by CommunicationsOversight
+    // invoked by CommsControlServer and CommsTimerServer
     @RunsIn(CALLER)
     final synchronized void acknowledgeMobileMessage() {
       mobile_message_count--;
@@ -181,7 +184,7 @@ public class CommunicationsQueue
       }
     }
 
-    // invoked by CommunicationsOversight
+    // invoked by CommsControlServer and CommsTimerServer
     @RunsIn(CALLER)
     final synchronized void acknowledgeModulatedMessage() {
       modulated_message_count--;
@@ -190,7 +193,7 @@ public class CommunicationsQueue
       }
     }
 
-    // invoked by CommunicationsOversight
+    // invoked by CommsControlServer and CommsTimerServer
     @RunsIn(CALLER)
     final synchronized void acknowledgeSatelliteMessage() {
       satellite_message_count--;
@@ -239,7 +242,7 @@ public class CommunicationsQueue
 
   // TODO: review code.  make sure that the synchronized methods are
   // only invoked by the control thread and the communications control
-  // server thread.
+  // server thread or communications timer thread.  Is it ok to allow both?
 
   CommunicationsQueue(int num_buffers, int buffer_length, int ceiling_priority)
   {

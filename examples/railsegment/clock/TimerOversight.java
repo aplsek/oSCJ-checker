@@ -38,8 +38,8 @@ import javax.safetycritical.annotate.Scope;
 import railsegment.CommunicationsQueue;
 
 @SCJAllowed(value=LEVEL_2, members=true)
-@Scope("C")
-@DefineScope(name="C:TO", parent="C")
+@Scope("TM.C")
+@DefineScope(name="TM.C.A", parent="TM.C")
 public class TimerOversight extends ManagedThread
 {
   // Determined by VM-specific static analysis tools
@@ -68,7 +68,7 @@ public class TimerOversight extends ManagedThread
   }
 
   @Override
-  @RunsIn("C:TO")
+  @RunsIn("TM.C.A")
   @SCJAllowed(SUPPORT)
   public void run() {
     // I assume there's a fairly complicated algorithm required to
