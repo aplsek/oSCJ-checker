@@ -368,10 +368,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo t = node.getTrueExpression().accept(this, p);
         ScopeInfo f = node.getFalseExpression().accept(this, p);
         ScopeInfo ret = null;
-        // TODO: Not sure if this is right
         if (t != null) {
             if (!t.equals(f)) {
-                // TODO: report error
+                fail(ERR_BAD_ASSIGNMENT_SCOPE, node, t ,f);
             }
             ret = t;
         }
