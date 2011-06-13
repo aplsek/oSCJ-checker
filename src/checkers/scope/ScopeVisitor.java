@@ -24,13 +24,8 @@ import checkers.SCJSafeUpcastDefinition;
 import checkers.SCJMethod;
 import checkers.SCJVisitor;
 import checkers.Utils;
-import checkers.scope.ScopeCheckerContext.ClassInfo;
-import checkers.source.Result;
 import checkers.source.SourceChecker;
 import checkers.types.AnnotatedTypeFactory;
-import checkers.types.AnnotatedTypeMirror;
-import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
-import checkers.util.AnnotationUtils;
 import checkers.util.InternalUtils;
 import checkers.util.TreeUtils;
 
