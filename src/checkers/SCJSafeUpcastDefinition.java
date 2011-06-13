@@ -11,6 +11,9 @@ public enum SCJSafeUpcastDefinition {
     GET_NEXT_MISSION("javax.safetycritical.MissionSequencer",
             "getNextMission()"),
 
+    MSEQ_GET_INSTANCE("javax.safetycritical.MissionSequencer",
+            "getInstance()"),
+
     IMMORTAL_MEMORY_INSTANCE("javax.safetycritical.Safelet", "getSequencer()");
 
     private final String clazz;
@@ -28,7 +31,6 @@ public enum SCJSafeUpcastDefinition {
 
     public static SCJSafeUpcastDefinition fromMethod(ExecutableElement m,
             Elements elements, Types types) {
-        boolean isStatic = Utils.isStatic(m);
         String signature = Utils.buildSignatureString(m);
         TypeMirror t = Utils.getMethodClass(m).asType();
 
@@ -37,9 +39,7 @@ public enum SCJSafeUpcastDefinition {
                 continue;
             TypeMirror s = Utils.getTypeMirror(elements, sm.clazz);
             if (signature.equals(sm.signature)) {
-                if (isStatic && types.isSameType(s, t))
-                    return sm;
-                if (!isStatic && types.isSubtype(t, s))
+                if (types.isSubtype(t, s))
                     return sm;
             }
         }

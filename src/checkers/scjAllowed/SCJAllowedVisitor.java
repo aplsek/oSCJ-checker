@@ -188,10 +188,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             return null;
         }
 
-        //pln("\n METHOD:" + m );
-        //pln("   level: " + level);
-
-
         Level enclosingLevel = getEnclosingLevel(m);
 
         // checking overrides

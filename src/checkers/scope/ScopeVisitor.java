@@ -289,6 +289,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 elements, types)) {
         case GET_NEXT_MISSION:
         case IMMORTAL_MEMORY_INSTANCE:
+        case MSEQ_GET_INSTANCE:
             return true;
         default:
             return false;
