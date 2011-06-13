@@ -257,6 +257,13 @@ public final class Utils {
                 .startsWith(JAVAX_SAFETYCRITICAL));
     }
 
+    public static boolean isUserLevel(String name) {
+        if (name == null)
+            return true;
+        return !(name.startsWith(JAVAX_REALTIME) || name
+                .startsWith(JAVAX_SAFETYCRITICAL));
+    }
+
     public static boolean isUserLevel(Level l) {
         return !(l == Level.INFRASTRUCTURE || l == Level.SUPPORT);
     }

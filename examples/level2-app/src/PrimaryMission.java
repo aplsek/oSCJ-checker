@@ -35,12 +35,6 @@ public class PrimaryMission extends Mission {
         // sms.register();
         (new PrimaryPeriodicEventHandler("AEH A", new RelativeTime(0, 0),
                 new RelativeTime(500, 0))).register();
-
-        (new PrimaryPeriodicEventHandler("AEH B", new RelativeTime(0, 0),
-                new RelativeTime(1000, 0))).register();
-        (new PrimaryPeriodicEventHandler("AEH C", new RelativeTime(500, 0),
-                new RelativeTime(500, 0))).register();
-
     }
 
     @Override

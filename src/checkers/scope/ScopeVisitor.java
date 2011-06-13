@@ -20,9 +20,11 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.safetycritical.annotate.DefineScope;
 
+import checkers.SCJSafeUpcastDefinition;
 import checkers.SCJMethod;
 import checkers.SCJVisitor;
 import checkers.Utils;
+import checkers.scope.ScopeCheckerContext.ClassInfo;
 import checkers.source.Result;
 import checkers.source.SourceChecker;
 import checkers.types.AnnotatedTypeFactory;
@@ -247,29 +249,59 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (castType.getKind().isPrimitive())
             return;
 
-        if (castType.toString().equals(exprType.toString())) {
-            // ignore "upcasting" to the same type
-            // NOTE 1: this test is faster then calling
-            // "types.isSameType(exprType, castType))"
-            // which was causing unncessary delays. SEe the ALTERNATIVE
-            // Note 2: this is actually only a heuristic, if this condition
-            // fails
-            // we still check "isRunnable(castType)" which is what we need.
+        if (exprType.toString().equals("<nulltype>"))
             return;
 
-            // ALTERNATIVE
-            // if (types.isSameType(exprType, castType)) {
-            // // ignore "upcasting" to the same type
-            // return;
-            // }
-        }
+        if (castType.toString().equals(exprType.toString()))
+            return;
 
-        if (isRunnable(Utils.getTypeElement(castType))) {
-            if (hasRunsIn(exprType.toString())) {
-                fail(ERR_BAD_RUNNABLE_UPCAST, node, exprType.toString(),
+        //pln("\n CASTED TYPES:");
+        //pln("castType : " + castType);
+        //pln("exprType :" + exprType);
+        // ctx.dumpClassInfo(castType.toString());
+        // pln("");
+        // ctx.dumpClassInfo(exprType.toString());
+
+        if (!upcastsAllowed(exprType, castType, node))
+            if (!ctx.isSafeUpcast(exprType, castType))
+                fail(ERR_BAD_UPCAST, node, exprType.toString(),
                         castType.toString());
-            }
+    }
+
+    /**
+     * This method deals with the special cases where UPCAST is allowed no
+     * matter what. This is defined by the SCJ SPEC.
+     *
+     * Example:
+     *
+     * (i) The value returned from MissionSequencer.getNextMission() is upcast
+     * to Mission.
+     *
+     */
+    private boolean upcastsAllowed(TypeMirror exprType, TypeMirror castType,
+            Tree node) {
+        // the specific upcasts appear only in return statements.
+        if (node.getKind() != Kind.RETURN)
+            return false;
+
+        // executeInArea and enterPrivateMemory can upcast as they want:
+        switch (SCJSafeUpcastDefinition.fromMethod(getEnclosingMethod(),
+                elements, types)) {
+        case GET_NEXT_MISSION:
+        case IMMORTAL_MEMORY_INSTANCE:
+            return true;
+        default:
+            return false;
         }
+    }
+
+
+    private ExecutableElement getEnclosingMethod() {
+        MethodTree enclosingMethod = TreeUtils
+                .enclosingMethod(getCurrentPath());
+        ExecutableElement m = TreeUtils
+                .elementFromDeclaration(enclosingMethod);
+        return m;
     }
 
     /**

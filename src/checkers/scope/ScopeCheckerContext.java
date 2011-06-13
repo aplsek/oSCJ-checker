@@ -7,11 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
 import checkers.Utils;
+import checkers.scope.ScopeCheckerContext.ClassInfo;
+import checkers.scope.ScopeCheckerContext.MethodScopeInfo;
 
 /**
  * Context object that stores information about scopes in a program.
@@ -184,8 +187,8 @@ public class ScopeCheckerContext {
      * available.
      *
      * <ul>
-     * <li>If the method annotation is Scope(CALLER), the effective Scope is
-     * the current scope.
+     * <li>If the method annotation is Scope(CALLER), the effective Scope is the
+     * current scope.
      * <li>If the method annotation is Scope(THIS), the effective Scope is the
      * receiver object.
      * <li>Otherwise, the effective Scope is the annotation that was calculated
@@ -368,7 +371,7 @@ public class ScopeCheckerContext {
                 methodScopes.get(key).dump();
             }
 
-            System.out.println(" fieldScopes : " +fieldScopes.size());
+            System.out.println(" fieldScopes : " + fieldScopes.size());
             for (String key : fieldScopes.keySet())
                 System.out.println("\t key:" + key + "  - "
                         + fieldScopes.get(key));
@@ -387,7 +390,8 @@ public class ScopeCheckerContext {
         }
 
         public void dump() {
-            System.out.print(" @RunsIn("+ runsIn +")" +", @Scope("+ scope +"), args:");
+            System.out.print(" @RunsIn(" + runsIn + ")" + ", @Scope(" + scope
+                    + "), args:");
             for (ScopeInfo sc : parameters) {
                 System.out.print(sc.getScope() + ", ");
             }
@@ -399,12 +403,41 @@ public class ScopeCheckerContext {
         System.out.println("\n\n============ CLASS INFO-=========");
         System.out.println("class:" + str);
         for (Entry<String, ClassInfo> e : classScopes.entrySet()) {
-           if (e.getKey().contains(str))  {
-               e.getValue().dumpCSI();
-           }
+            if (e.getKey().contains(str)) {
+                e.getValue().dumpCSI();
+            }
 
         }
         System.err.println("============ CLASS INFO-=========\n\n");
+    }
+
+    void pln(String str) {System.out.println("\t" + str);}
+
+    public ClassInfo testCI(TypeMirror exprType) {
+        ClassInfo expr = classScopes.get(exprType.toString());
+        return expr;
+    }
+
+    public boolean isSafeUpcast(TypeMirror exprType, TypeMirror castType) {
+
+        ClassInfo expr = classScopes.get(exprType.toString());
+        ClassInfo cast = classScopes.get(castType.toString());
+
+        if (!Utils.isUserLevel(exprType.toString()) && !Utils.isUserLevel(castType.toString())) {
+            // ignore upcasting between SCJ classes (classes from javax.safetycritical and javax.realtime)
+            // Note: This is for example for the executeInArea() method that has different @RunsIn but we need to upcast here.
+            return true;
+        }
+
+        for (Entry<String, MethodScopeInfo> e : cast.methodScopes.entrySet()) {
+            if (expr.methodScopes.containsKey(e.getKey())) {
+                MethodScopeInfo eM = expr.methodScopes.get(e.getKey());
+                if (!e.getValue().runsIn.equals(eM.runsIn)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public void dumpClassScopes() {

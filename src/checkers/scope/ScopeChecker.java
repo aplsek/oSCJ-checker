@@ -43,7 +43,7 @@ public class ScopeChecker extends SinglePassChecker {
     //public static final String ERR_SCJ_RUNNABLE_BAD_SCOPE = "bad.scjrunnable.bad.scope";
     public static final String ERR_SCOPE_RUNS_IN_DISAGREEMENT = "scope.runs.in.disagreement";
 
-    public static final String ERR_BAD_RUNNABLE_UPCAST = "err.bad.runnable.upcast";
+    public static final String ERR_BAD_UPCAST = "err.bad.upcast";
 
     private ScopeCheckerContext ctx;
 
@@ -115,8 +115,8 @@ public class ScopeChecker extends SinglePassChecker {
         p.put(ERR_SCOPE_RUNS_IN_DISAGREEMENT,
                 "@RunsIn annotations must be a sub-scope of @Scope annotations.");
 
-        p.put(ERR_BAD_RUNNABLE_UPCAST,
-        "Illegal Upcast : Classes implementing Runnable interface that have @RunsIn(\"some-named-scope\") annotation on run() method cannot be upcasted to Runnable.");
+        p.put(ERR_BAD_UPCAST,
+            "Illegal Upcast : Classes overriding @RunsIn annotation cannot be upcasted to its supertype.");
 
         return p;
     }

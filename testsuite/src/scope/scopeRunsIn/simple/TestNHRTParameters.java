@@ -15,7 +15,7 @@ import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-@Scope("IMMORTAL")
+@Scope(IMMORTAL)
 @DefineScope(name="D", parent=IMMORTAL)
 @SCJAllowed(value=LEVEL_2, members=true)
 public class TestNHRTParameters extends ManagedThread

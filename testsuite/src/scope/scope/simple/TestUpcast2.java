@@ -18,7 +18,7 @@ public abstract class TestUpcast2 extends MissionSequencer {
 
     @Scope("D")
     class Test {
-        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+        //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
         Runnable r = new Y();
     }
 
@@ -31,10 +31,10 @@ public abstract class TestUpcast2 extends MissionSequencer {
     public void bar() {
         Y y = new Y();
 
-        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+        //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
         bar(y);
 
-        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+        //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
         bar(y);
 
         @Scope(IMMORTAL)

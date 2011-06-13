@@ -426,6 +426,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 break;
             }
 
+
+            /*
             // if the "e" has @RunsIn annotation, then the m must explicitly
             // restate the @RunsIn
             if (ann == null && e.getAnnotation(RunsIn.class) != null) {
@@ -435,25 +437,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             if (!Utils.isSCJSupport(m, ats)) {
                 if (!eRunsIn.equals(runsIn)) {
 
-                    /*
-                    pln("\n class: " + m.getEnclosingElement());
-                    pln(" over:" + e.getEnclosingElement());
-                    pln("m:"  + isRunnable(Utils.getMethodClass(m)));
-                    pln("e:"  + isRunnable(Utils.getMethodClass(e)));
-                    pln("e:"  + isRunnableSubtype(Utils.getMethodClass(e)));
-                    */
-
                     if (isRunnable(Utils.getMethodClass(e)) || isManagedThread(Utils.getMethodClass(m))) {
-                        /*
-                        pln("\n runnable:" + m);
-                        pln("class: " + m.getEnclosingElement());
-                        pln(" over:" + e.getEnclosingElement());
-                        pln(" eRunsIn:" + eRunsIn);
-                        pln(" runsIn:" + runsIn);
-                        pln("m:"  + isRunnable(Utils.getMethodClass(m)));
-                        pln("e:"  + isRunnable(Utils.getMethodClass(e)));
-                        pln("# over: " + overrides.size());
-                        */
 
                         if (runsIn.isReservedScope()) {
                             fail(ERR_ILLEGAL_METHOD_RESERVED_RUNS_IN_OVERRIDE, node,
@@ -487,8 +471,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                     }
                 }
             }
+            */
         }
-
 
         ctx.setMethodRunsIn(runsIn, m);
     }

@@ -43,10 +43,10 @@ public abstract class TestUpcast3 extends MissionSequencer {
         protected void initialize() {
             MyHandlerRun r = new MyHandlerRun();
 
-            //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+            //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
             new RealPEH(r);
 
-            //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+            //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
             new RealPEH2(new MyHandlerRun());
         }
 
@@ -56,7 +56,7 @@ public abstract class TestUpcast3 extends MissionSequencer {
     public Runnable method() {
         MyHandlerRun r = new MyHandlerRun();
 
-        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+        //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
         return r;
     }
 

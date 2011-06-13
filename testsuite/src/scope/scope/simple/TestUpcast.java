@@ -43,7 +43,7 @@ public class TestUpcast {
         MyRun r = new MyRun();
         Runnable up ;
 
-        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+        //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
         up = r;
 
         MyRun2 r2 = new MyRun2();
