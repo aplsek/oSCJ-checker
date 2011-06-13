@@ -5,6 +5,12 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
+/**
+ * Special Cases for UPCASTS:
+ *
+ * Defines a set pairs <class,method> that are implicitly safe to be upcasted to anything.
+ *
+ */
 public enum SCJSafeUpcastDefinition {
     DEFAULT(null, null),
 

@@ -351,6 +351,37 @@ public class ScopeCheckerContext {
         return paramsArray;
     }
 
+    public ClassInfo testCI(TypeMirror exprType) {
+        ClassInfo expr = classScopes.get(exprType.toString());
+        return expr;
+    }
+
+    /**
+     * Determines if a given subtype can be upcasted to a given supertype.
+     * @return true if upcast is safe.
+     */
+    public boolean isSafeUpcast(TypeMirror exprType, TypeMirror castType) {
+
+        ClassInfo expr = classScopes.get(exprType.toString());
+        ClassInfo cast = classScopes.get(castType.toString());
+
+        if (!Utils.isUserLevel(exprType.toString()) && !Utils.isUserLevel(castType.toString())) {
+            // ignore upcasting between SCJ classes (classes from javax.safetycritical and javax.realtime)
+            // Note: This is for example for the executeInArea() method that has different @RunsIn but we need to upcast here.
+            return true;
+        }
+
+        for (Entry<String, MethodScopeInfo> e : cast.methodScopes.entrySet()) {
+            if (expr.methodScopes.containsKey(e.getKey())) {
+                MethodScopeInfo eM = expr.methodScopes.get(e.getKey());
+                if (!e.getValue().runsIn.equals(eM.runsIn)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     static class ClassInfo {
         ScopeInfo scope;
         /**
@@ -409,35 +440,6 @@ public class ScopeCheckerContext {
 
         }
         System.err.println("============ CLASS INFO-=========\n\n");
-    }
-
-    void pln(String str) {System.out.println("\t" + str);}
-
-    public ClassInfo testCI(TypeMirror exprType) {
-        ClassInfo expr = classScopes.get(exprType.toString());
-        return expr;
-    }
-
-    public boolean isSafeUpcast(TypeMirror exprType, TypeMirror castType) {
-
-        ClassInfo expr = classScopes.get(exprType.toString());
-        ClassInfo cast = classScopes.get(castType.toString());
-
-        if (!Utils.isUserLevel(exprType.toString()) && !Utils.isUserLevel(castType.toString())) {
-            // ignore upcasting between SCJ classes (classes from javax.safetycritical and javax.realtime)
-            // Note: This is for example for the executeInArea() method that has different @RunsIn but we need to upcast here.
-            return true;
-        }
-
-        for (Entry<String, MethodScopeInfo> e : cast.methodScopes.entrySet()) {
-            if (expr.methodScopes.containsKey(e.getKey())) {
-                MethodScopeInfo eM = expr.methodScopes.get(e.getKey());
-                if (!e.getValue().runsIn.equals(eM.runsIn)) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     public void dumpClassScopes() {

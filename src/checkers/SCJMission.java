@@ -44,10 +44,4 @@ public enum SCJMission {
         }
         return DEFAULT;
     }
-
-    protected boolean isMissionInitialization(TypeElement t, ExecutableElement m) {
-        //TypeMirror m = t.asType();
-        //return types.isSubtype(m, schedulable);
-        return false;
-    }
 }
