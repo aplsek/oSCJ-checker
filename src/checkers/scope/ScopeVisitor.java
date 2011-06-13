@@ -149,32 +149,24 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (node.getKind() == Kind.PRIMITIVE_TYPE) {
             return;
         } else if (node.getKind() == Kind.ASSIGNMENT) {
-            pln("\n NODE   ASSIGNMENT:" + node);
-
             AssignmentTree tree = (AssignmentTree) node;
             TypeMirror cT = InternalUtils.typeOf(tree);
             TypeMirror eT = InternalUtils.typeOf(tree.getExpression());
             checkUpcastTypes(cT, eT, node);
 
         } else if (node.getKind() == Kind.VARIABLE) {
-            pln("\n NODE   VARIABLE:" + node);
-
             VariableTree tree = (VariableTree) node;
             TypeMirror cT = InternalUtils.typeOf(tree);
             TypeMirror eT = InternalUtils.typeOf(tree.getInitializer());
             checkUpcastTypes(cT, eT, node);
 
         } else if (node.getKind() == Kind.TYPE_CAST) {
-            pln("\n NODE   TYPE_CAST:" + node);
-
             TypeCastTree tree = (TypeCastTree) node;
             TypeMirror cT = InternalUtils.typeOf(tree);
             TypeMirror eT = InternalUtils.typeOf(tree.getExpression());
             checkUpcastTypes(cT, eT, node);
 
         } else if (node.getKind() == Kind.METHOD_INVOCATION) {
-            pln("\n NODE METHOD_INVOCATION:" + node);
-
             MethodInvocationTree tree = (MethodInvocationTree) node;
             if (!Utils.isUserLevel(TreeUtils.elementFromUse(tree)))
                 return;
@@ -186,8 +178,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             checkMethodArgsForUpcast(params, args, node);
 
         } else if (node.getKind() == Kind.NEW_CLASS) {
-            pln("\n NODE :" + node);
-
             List<? extends VariableElement> params = TreeUtils.elementFromUse(
                     (NewClassTree) node).getParameters();
             List<? extends ExpressionTree> args = ((NewClassTree) node)
@@ -355,11 +345,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     @Override
     public ScopeInfo visitCompoundAssignment(CompoundAssignmentTree node, P p) {
         debugIndentIncrement("visitCompoundAssignment : " + node);
+
         ScopeInfo ret = null;
         ScopeInfo lhs = node.getVariable().accept(this, p);
         if (TreeUtils.isStringCompoundConcatenation(node)) {
-            if (!lhs.isCaller()) {
-                // TODO: report error
+            ScopeInfo current = currentScope();
+            if (!lhs.equals(current)) {
+                fail(ERR_BAD_ASSIGNMENT_SCOPE, node, current ,lhs);
             }
             ret = lhs;
         }
