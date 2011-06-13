@@ -47,7 +47,6 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
 
         if (!(isSchedulable(t) || isMissionSequencer(t) || isCyclicExecutive(t))) {
-            // pln("\n SKIP"+ t);
             return super.visitClass(node, p);
         }
 

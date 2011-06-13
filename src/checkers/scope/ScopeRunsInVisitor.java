@@ -253,9 +253,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         // The RunsIn must be checked first, because checkMethodScope uses it.
         checkMethodRunsIn(m, mTree, errNode);
         checkMethodScope(m, mTree, errNode);
-        // System.err.println(m.getEnclosingElement() + "." + m + " " +
-        // ctx.getMethodRunsIn(m) + " " + ctx.getMethodScope(m));
-
         checkMethodParameters(m, mTree, errNode);
 
         debugIndentDecrement();
@@ -267,7 +264,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         List<? extends VariableTree> paramTrees = mTree != null ? mTree
                 .getParameters() : null;
         for (int i = 0; i < params.size(); i++) {
-            // TODO: Check overridden annotations
             VariableElement p = params.get(i);
             VariableTree pTree = paramTrees != null ? paramTrees.get(i) : null;
             ScopeInfo scope = checkMethodParameter(p, pTree, i, m, errNode);
@@ -396,8 +392,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         return ret;
     }
 
-    //void pln(String str) {System.out.println("\t" + str);}
-
     /**
      * Check that a method has a valid RunsIn annotation. A method's RunsIn
      * annotation is valid as long as it exists in the scope tree, or is CALLER
@@ -427,7 +421,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             }
 
 
-            /*
+            /* THIS is for SUPPORT and @RunsIn overriding - now disabled.
             // if the "e" has @RunsIn annotation, then the m must explicitly
             // restate the @RunsIn
             if (ann == null && e.getAnnotation(RunsIn.class) != null) {
@@ -518,15 +512,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
             if (!eScope.equals(scope) && eLevel != SUPPORT) {
                 fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
-                //pln("\nERROR: Illegal Method Scope Override");
-                //pln("\t method's class:"
-                //        + m.getEnclosingElement() + "." + m);
-                //pln("\t method:" + m);
-                //pln("\t @Scope:" + scope);
-                //pln("\t @RunsIn:" + runsIn);
-                //pln("\t Overriden method's class :"
-                //        + e.getEnclosingElement() + "." + e);
-                //pln("\t @Scope :" + eScope);
             }
         }
         ctx.setMethodScope(scope, m);
