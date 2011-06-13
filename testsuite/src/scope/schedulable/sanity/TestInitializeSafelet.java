@@ -1,4 +1,5 @@
-package scope.miniCDx;
+package scope.schedulable.sanity;
+
 
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
@@ -21,10 +22,7 @@ import javax.safetycritical.annotate.Scope;
 @Scope(IMMORTAL)
 @SCJAllowed(members=true)
 @DefineScope(name="CDMission", parent=IMMORTAL)
-public class CDMission extends CyclicExecutive {
-
-    //static PriorityParameters p = new PriorityParameters(18);
-    // static StorageParameters s = new StorageParameters(1000L, 1000L, 1000L);
+public class TestInitializeSafelet extends CyclicExecutive {
 
     static int priorityParameter = 18;
     static long totalBackingStore = 1000L;
@@ -32,7 +30,7 @@ public class CDMission extends CyclicExecutive {
     static long javaStackSize = 1000L;
     static RelativeTime t = new RelativeTime(5, 0);
 
-    public CDMission() {
+    public TestInitializeSafelet() {
         super(new PriorityParameters(priorityParameter),
               new StorageParameters(totalBackingStore, nativeStackSize, javaStackSize));
     }
@@ -41,24 +39,20 @@ public class CDMission extends CyclicExecutive {
     @SCJAllowed(SUPPORT)
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
        return null;
-      // TODO: issue 22:
-      //  return new CyclicSchedule(
-      //          new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(t,
-      //                  handlers) });
     }
 
     @Override
     @SCJRestricted(INITIALIZATION)
     @SCJAllowed(SUPPORT)
-    @RunsIn("CDMission")
+    //## ERROR  - needs @RunsIn
     protected void initialize() {
-        new CDHandler();
         MIRun miRun = new MIRun();
-
-        @Scope(IMMORTAL)
         @DefineScope(name="CDMission", parent=IMMORTAL)
+        @Scope(IMMORTAL)
         ManagedMemory m = ManagedMemory.getCurrentManagedMemory();
         m.enterPrivateMemory(2000, miRun);
+
+        //NOTE: no handler created
     }
 
     /**
@@ -97,3 +91,4 @@ class MIRun implements Runnable {
         // ...
     }
 }
+

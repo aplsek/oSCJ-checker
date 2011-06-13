@@ -4,6 +4,7 @@ package sorter;
 
 
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -51,11 +52,13 @@ public class SorterApp extends CyclicExecutive {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @SCJRestricted(INITIALIZATION)
     public void setUp() {
     }
 
     @Override
     @SCJAllowed(SUPPORT)
+    @SCJRestricted(CLEANUP)
     public void tearDown() {
         BenchConf.dump();
     }

@@ -3,6 +3,9 @@ package thruster.myMission;
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+import static javax.safetycritical.annotate.Phase.CLEANUP;
+
+
 
 import javax.realtime.PriorityParameters;
 import javax.safetycritical.AperiodicEventHandler;
@@ -83,7 +86,6 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
     class MyRunnable1 implements Runnable {
 
         @RunsIn("aperiodic-child-scope-1")
-        @SCJAllowed(SUPPORT)
         public void run() {
 
             @Scope("MyAperiodicEventHandler")
@@ -110,7 +112,6 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
     class MyRunnable2 implements Runnable {
 
         @RunsIn("aperiodic-child-scope-2")
-        @SCJAllowed(SUPPORT)
         public void run() {
 
             @Scope("MyAperiodicEventHandler")
@@ -133,6 +134,7 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @SCJRestricted(CLEANUP)
     public void cleanUp() {
         //System.out.println("TestCase 20: PASS. APEH.cleanup() is executed.");
     }

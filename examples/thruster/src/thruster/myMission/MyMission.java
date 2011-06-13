@@ -130,7 +130,6 @@ public class MyMission extends Mission {
     @DefineScope(name = "MyMission-child", parent = "ThrusterControl")
     class MyRunnable implements Runnable {
         @RunsIn("MyMission-child")
-        @SCJAllowed(SUPPORT)
         public void run() {
             //System.out
             //        .println("TestCase 08: FAIL. enterPrivateMemory cannot be called in MissionMemory.");

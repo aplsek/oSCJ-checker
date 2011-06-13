@@ -3,6 +3,8 @@ package scope.miniCDx;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
+import static javax.safetycritical.annotate.Phase.CLEANUP;
+
 import java.util.List;
 
 import javax.realtime.MemoryArea;
@@ -112,6 +114,7 @@ public class CDHandler extends PeriodicEventHandler {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @SCJRestricted(CLEANUP)
     public void cleanUp() {
     }
 
@@ -120,23 +123,23 @@ public class CDHandler extends PeriodicEventHandler {
     }
 
     @Scope("CDMission")
+    @SCJAllowed(members=true)
     class CallsignRunnable implements Runnable {
         byte[] cs;
         Callsign result;
 
         @RunsIn("CDMission")
-        @SCJAllowed(SUPPORT)
         public void run() {
             result = new Callsign(cs);
         }
     }
 
     @Scope("CDMission")
+    @SCJAllowed(members=true)
     class PutCallsignRunnable implements Runnable {
         Callsign callsign;
 
         @RunsIn("CDMission")
-        @SCJAllowed(SUPPORT)
         public void run() {
             st.put(callsign);
         }
