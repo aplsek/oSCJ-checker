@@ -370,6 +370,10 @@ public class ScopeCheckerContext {
         }
 
         for (Entry<String, MethodScopeInfo> e : cast.methodScopes.entrySet()) {
+            if (expr == null) {
+                // TODO: this e.g. happens for generics!!!
+                throw new RuntimeException("ClassScopes: given class is not in the map of the classscopes: " + exprType.toString());
+            }
             if (expr.methodScopes.containsKey(e.getKey())) {
                 MethodScopeInfo eM = expr.methodScopes.get(e.getKey());
                 if (!e.getValue().runsIn.equals(eM.runsIn)) {

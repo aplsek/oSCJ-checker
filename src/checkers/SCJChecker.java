@@ -15,23 +15,31 @@ import checkers.scope.ScopeRunsInChecker;
 import checkers.scope.ScopeTreeChecker;
 
 public class SCJChecker extends MultiPassChecker {
+
+    ScopeChecker scopeChecker;
+    SchedulableChecker schedulableChecker;
+    ScopeRunsInChecker scopeRunsInChecker;
+    ScopeTreeChecker scopeTreeChecker;
+    DefineScopeChecker defineScopeChecker;
+
     public SCJChecker() {
 
         addPass(new SCJRestrictedChecker());
         addPass(new SCJAllowedChecker());
 
+        // Scope checking
+        ScopeCheckerContext ctx = new ScopeCheckerContext();
+        defineScopeChecker = new DefineScopeChecker(ctx);
+        scopeTreeChecker = new ScopeTreeChecker(ctx);
+        scopeRunsInChecker = new ScopeRunsInChecker(ctx);
+        schedulableChecker = new SchedulableChecker(ctx);
+        scopeChecker = new ScopeChecker(ctx);
 
-        // TODO: this does not work as it is supposed to work.
-        if (Utils.SCOPE_CHECKS) {
-            // Scope checking
-            ScopeCheckerContext ctx = new ScopeCheckerContext();
-            addPass(new DefineScopeChecker(ctx));
-            addPass(new ScopeTreeChecker(ctx));
-            addPass(new ScopeRunsInChecker(ctx));
-            addPass(new SchedulableChecker(ctx));
-            addPass(new ScopeChecker(ctx));
-        } else
-            System.out.println("WARNING: Scope-Checks DISABLED.");
+        addPass(defineScopeChecker);
+        addPass(scopeTreeChecker);
+        addPass(scopeRunsInChecker);
+        addPass(schedulableChecker);
+        addPass(scopeChecker);
 
     }
 
@@ -40,11 +48,21 @@ public class SCJChecker extends MultiPassChecker {
         super.init(env);
 
         Utils.DEBUG = processingEnv.getOptions().containsKey("debug");
-        Utils.SCOPE_CHECKS = processingEnv.getOptions().containsKey("noScopeChecks");
+        Utils.NO_SCOPE_CHECKS = processingEnv.getOptions().containsKey(
+                "noScopeChecks");
         String level = processingEnv.getOptions().get("level");
 
         if (level != null)
             Utils.setDefaultLevel(Level.getLevel(level));
+
+        if (Utils.NO_SCOPE_CHECKS) {
+            System.out.println("WARNING: Scope-Checks DISABLED. : " + Utils.NO_SCOPE_CHECKS);
+            removePass(defineScopeChecker);
+            removePass(scopeTreeChecker);
+            removePass(scopeRunsInChecker);
+            removePass(schedulableChecker);
+            removePass(scopeChecker);
+        }
 
     }
 

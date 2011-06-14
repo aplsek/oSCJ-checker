@@ -36,9 +36,10 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.RunsIn;
 
 @SCJAllowed(members=true)
-@Scope("APP")
+@Scope(IMMORTAL)
 @DefineScope(name="APP", parent=IMMORTAL)
 public class MyApp4 extends CyclicExecutive {
 
@@ -58,6 +59,7 @@ public class MyApp4 extends CyclicExecutive {
 	@Override
 	@SCJRestricted(INITIALIZATION)
 	@SCJAllowed(SUPPORT)
+	@RunsIn("APP")
     public void initialize() {
 		new MyPEH4();
 	}

@@ -1,4 +1,4 @@
-package all.sanity;
+package scope.scope.sanity;
 
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
@@ -18,10 +18,10 @@ import javax.safetycritical.annotate.Scope;
 @SCJAllowed(members=true)
 @Scope(IMMORTAL)
 @DefineScope(name="Level0App", parent=IMMORTAL)
-public class Level0Hello extends CyclicExecutive {
+public class TestMemberSelectClass extends CyclicExecutive {
 
     @SCJRestricted(INITIALIZATION)
-    public Level0Hello() {
+    public TestMemberSelectClass() {
         super(null);
     }
 
@@ -33,12 +33,15 @@ public class Level0Hello extends CyclicExecutive {
                                   handlers) });
     }
 
+    void method() {
+
+    }
+
     @Override
     @SCJRestricted(INITIALIZATION)
     @SCJAllowed(SUPPORT)
     @RunsIn("Level0App")
     public void initialize() {
-        new WordHandler(20000);
     }
 
     @Override
@@ -56,30 +59,5 @@ public class Level0Hello extends CyclicExecutive {
     @SCJAllowed(SUPPORT)
     @SCJRestricted(CLEANUP)
     public void tearDown() {
-    }
-
-    @SCJAllowed(members=true)
-    @Scope("Level0App")
-    @DefineScope(name="WordHandler", parent="Level0App")
-    class WordHandler extends PeriodicEventHandler {
-
-        @SCJAllowed()
-        @SCJRestricted(INITIALIZATION)
-        public WordHandler(long psize) {
-            super(null, null, null);
-        }
-
-        @Override
-        @SCJAllowed(SUPPORT)
-        @RunsIn("WordHandler")
-        public void handleAsyncEvent() {
-            // printing HelloWorld!!!!
-        }
-
-        @Override
-        @SCJAllowed(SUPPORT)
-        @SCJRestricted(CLEANUP)
-        public void cleanUp() {
-        }
     }
 }

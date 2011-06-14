@@ -502,10 +502,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ret = node.getExpression().accept(this, p);
         } else if (elem.getKind() == ElementKind.CLASS) {
             // TODO: inner class, issue 22
+            pln("\n visitMemberSelect TODO: ElementKind.CLASS : " + node);
             ret = null;
         } else if (elem.getKind() == ElementKind.ENUM) {
-            // TODO: inner enum type class, issue 22
-            ret = null;
+            // NOTE: java.lang.Enum is IMMORTAL
+            ret = ScopeInfo.IMMORTAL;
         } else {
             VariableElement f = (VariableElement) elem;
             if (f.toString().equals("this")) {
