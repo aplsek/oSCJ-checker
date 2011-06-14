@@ -3,6 +3,7 @@ package checkers.scope;
 import static checkers.scope.SchedulableChecker.*;
 
 import java.util.HashSet;
+import java.util.Hashtable;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -34,13 +35,13 @@ import com.sun.source.tree.Tree;
 public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     private ScopeCheckerContext ctx;
 
-    HashSet<TypeMirror> schedulables;
+    Hashtable<TypeMirror,HashSet> schedulables;
 
     public SchedulableVisitor(SourceChecker checker, CompilationUnitTree root,
             ScopeCheckerContext ctx) {
         super(checker, root);
         this.ctx = ctx;
-        schedulables = new HashSet();
+        schedulables = new Hashtable();
     }
 
     @Override
@@ -112,19 +113,22 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     }
 
     private boolean isInitialization = false;
+    TypeMirror currentMission = null;
+
 
     @Override
     public Void visitMethod(MethodTree node, Void p) {
         ExecutableElement m = TreeUtils.elementFromDeclaration(node);
 
-
         switch (SCJMission.fromMethod(m, elements, types)) {
         case CYCLIC_EXECUTIVE_INIT:
             isInitialization = true;
+            currentMission = Utils.getMethodClass(TreeUtils.elementFromDeclaration(node)).asType();
             checkCyclicExecutiveInit(node);
             break;
         case MISSION_INIT:
             isInitialization = true;
+            currentMission = Utils.getMethodClass(TreeUtils.elementFromDeclaration(node)).asType();
             checkMissionInit(node);
             break;
         case MS_NEXT_MISSION:
@@ -139,8 +143,10 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         }
 
         Void res = super.visitMethod(node, p);
-        if (isInitialization)
+        if (isInitialization) {
             isInitialization = false;
+            currentMission = null;
+        }
 
         return res;
     }
@@ -221,20 +227,27 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
 
     @Override
     public Void visitNewClass(NewClassTree node, Void p) {
-
         ExecutableElement ctorElement = TreeUtils.elementFromUse(node);
         TypeMirror tt = Utils.getMethodClass(ctorElement).asType();
-        switch (SCJSchedulable.fromMethod(Utils.getMethodClass(ctorElement)
-                .asType(), elements, types)) {
+        switch (SCJSchedulable.fromMethod(tt, elements, types)) {
         case PEH:
         case APEH:
         case MANAGED_THREAD:
             if (!isInitialization)
                 fail(ERR_SCHED_INIT_OUT_OF_INIT_METH, node);
-            else if (schedulables.contains(tt))
-                fail(ERR_SCHEDULABLE_MULTI_INIT, node);
-            else
-                schedulables.add(tt);
+            else {
+                HashSet ss = schedulables.get(currentMission);
+                if (ss != null) {
+                    if (ss.contains(tt))
+                        fail(ERR_SCHEDULABLE_MULTI_INIT, node);
+                    else
+                        ss.add(tt);
+                } else {
+                    ss = new HashSet();
+                    ss.add(tt);
+                    schedulables.put(currentMission, ss);
+                }
+            }
         default:
         }
 
