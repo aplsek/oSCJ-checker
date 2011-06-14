@@ -164,8 +164,6 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         ExecutableElement m = TreeUtils.elementFromDeclaration(node);
         ScopeInfo runsIn = ctx.getMethodRunsIn(m.getEnclosingElement()
                 .toString(), SCJMission.CYCLIC_EXECUTIVE_INIT.signature);
-        pln("runsIn:" + runsIn);
-
         DefineScope ds = getDefineScope(m);
         if (ds == null)
             throw new RuntimeException("ERROR: @DefineScope expected on CyclicExecutive.");
