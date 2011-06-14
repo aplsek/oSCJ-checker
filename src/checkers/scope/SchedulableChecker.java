@@ -42,7 +42,7 @@ public class SchedulableChecker extends SinglePassChecker {
         p.put(ERR_SCHEDULABLE_RUNS_IN_MISMATCH, "Bad @RunsIn: The @RunsIn annotation of the schedulable's method (@RusnIn(%s)) does not correspond to the @DefineScope annotation (@DefineScope(name=%s,...)).");
         p.put(ERR_SCHED_INIT_OUT_OF_INIT_METH, "A Schedulable object may be instantiated only in an initialization method of a Mission object.");
 
-        p.put(ERR_MISSION_INIT_RUNS_IN_MISMATCH, "Illegal @RunsIn: Mission.initialize() method is not allowed to override the default @RunsIn annotation, but the method defines @RunsIn(%s).");
+        p.put(ERR_MISSION_INIT_RUNS_IN_MISMATCH, "Illegal @RunsIn: Mission.initialize() method must have according @RunsIn. It is expected to have @RusnIn(%s) but the @RusnIn(%s) was detected.");
 
         p.put(ERR_SCHEDULABLE_MULTI_INIT, "Bad Schedulable Instantiation: A schedulable can be instantiated only once per a given mission.");
 

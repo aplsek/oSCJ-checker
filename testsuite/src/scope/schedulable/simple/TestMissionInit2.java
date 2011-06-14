@@ -37,6 +37,7 @@ public class TestMissionInit2 extends CyclicExecutive {
     @Override
     @SCJRestricted(INITIALIZATION)
     @SCJAllowed(SUPPORT)
+    @RunsIn("a")
     public void initialize() {
         new PEH(null,null,null);
 

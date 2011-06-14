@@ -150,7 +150,7 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
 
         ScopeInfo runsIn = ctx.getMethodRunsIn(m.getEnclosingElement()
                 .toString(), m.toString().substring(0,m.toString().length()-2));
-        if (!runsIn.isThis())
+        if (!runsIn.isThis() && !runsIn.isImmortal())
             fail(ERR_SAFELET_RUNSIN, node, runsIn);
     }
 
@@ -160,12 +160,19 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
                 .toString(), SCJMission.CYCLIC_EXECUTIVE_INIT.signature);
         pln("runsIn:" + runsIn);
 
-        Element clazz = m.getEnclosingElement();
-        DefineScope ds = Utils.getDefineScope(clazz);
+        DefineScope ds = getDefineScope(m);
         if (ds == null)
             throw new RuntimeException("ERROR: @DefineScope expected on CyclicExecutive.");
         if (!runsIn.toString().equals(ds.name()))
             fail(ERR_CYCLIC_EXEC_INIT_RUNS_IN_MISMATCH, node, ds.name());
+    }
+
+    private DefineScope getDefineScope(ExecutableElement m) {
+        Element clazz = m.getEnclosingElement();
+        DefineScope ds = Utils.getDefineScope(clazz);
+        if (ds == null)
+            throw new RuntimeException("ERROR: @DefineScope expected on CyclicExecutive.");
+        return ds;
     }
 
     /**
@@ -178,8 +185,21 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         if (runsIn == null)
             throw new RuntimeException(
                     "ERR: Every method must have @RunsIn value. Bug.");
-        if (!runsIn.isThis())
-            fail(ERR_MISSION_INIT_RUNS_IN_MISMATCH, node, runsIn);
+
+        // handling the case when the class "extends Mission implements Safelet"
+        if (isMissionAndSafelet(m)) {
+            DefineScope ds = getDefineScope(m);
+            if (!runsIn.toString().equals(ds.name()))
+                fail(ERR_MISSION_INIT_RUNS_IN_MISMATCH, node, ds.name(),runsIn);
+        } else if (!runsIn.isThis())
+            fail(ERR_MISSION_INIT_RUNS_IN_MISMATCH, node, ScopeInfo.THIS, runsIn);
+    }
+
+    private boolean isMissionAndSafelet(ExecutableElement m) {
+        TypeMirror t = Utils.getMethodClass(m).asType();
+        if (types.isSubtype(t,safelet) )
+            return true;
+        return false;
     }
 
     private void checkMSnextMission(MethodTree node) {

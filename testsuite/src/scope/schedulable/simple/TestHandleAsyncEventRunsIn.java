@@ -15,6 +15,7 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.RunsIn;
 
 @SCJAllowed(members=true)
 @Scope(IMMORTAL)
@@ -36,6 +37,7 @@ public class TestHandleAsyncEventRunsIn extends CyclicExecutive {
     @Override
     @SCJRestricted(INITIALIZATION)
     @SCJAllowed(SUPPORT)
+    @RunsIn("Level0App")
     public void initialize() {
         new WordHandler(20000);
     }

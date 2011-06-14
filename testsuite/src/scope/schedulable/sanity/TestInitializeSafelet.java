@@ -45,7 +45,7 @@ public class TestInitializeSafelet extends CyclicExecutive {
     @Override
     @SCJRestricted(INITIALIZATION)
     @SCJAllowed(SUPPORT)
-    //## checkers.scope.SchedulableChecker.ERR_CYCLIC_EXEC_INIT_RUNS_IN_MISMATCH
+    @RunsIn("CDMission")
     protected void initialize() {
         MIRun miRun = new MIRun();
         @DefineScope(name="CDMission", parent=IMMORTAL)
