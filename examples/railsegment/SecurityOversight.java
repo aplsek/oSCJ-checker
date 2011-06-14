@@ -44,9 +44,7 @@ class SecurityOversight extends ManagedThread {
 
   // Determined by VM-specific static analysis tools
   private static final int BackingStoreRequirements = 500;
-  private static final int NestedBackingStoreRequirements = 500;
-  private static final int NativeStackRequirements = 2000;
-  private static final int JavaStackRequirements = 300;
+  private static final int StackRequirements = 6000;
 
   final int CYPHER_PRIORITY;
   final CypherQueue cypher_data;
@@ -65,9 +63,7 @@ class SecurityOversight extends ManagedThread {
   }
 
   private static long[] storageArgs() {
-    long[] storage_args = {NestedBackingStoreRequirements,
-                           NativeStackRequirements,
-                           JavaStackRequirements};
+    long[] storage_args = {StackRequirements};
     return storage_args;
   }
 

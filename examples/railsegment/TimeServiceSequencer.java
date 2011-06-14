@@ -70,9 +70,7 @@ public class TimeServiceSequencer extends MissionSequencer
   }
 
   private static long[] storageArgs() {
-    long[] storage_args = {TimeService.NestedBackingStoreRequirements,
-                           TimeService.NativeStackRequirements,
-                           TimeService.JavaStackRequirements};
+    long[] storage_args = {TimeService.StackRequirements};
     return storage_args;
   }
   

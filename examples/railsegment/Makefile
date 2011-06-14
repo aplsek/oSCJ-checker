@@ -12,7 +12,8 @@ endif
 
 MYCLASSPATH=..$(SEP)$(JSR302_HOME)
 
-all: CommunicationService.class CommunicationsOversight.class \
+all: CommunicationService.class CommsControlServer.class \
+  CommsTimerServer.class \
   CommunicationsQueue.class CypherQueue.class GPSDriver.class \
   MobileCommService.class MobileInterruptHandler.class \
   MobileOversight.class MobileQueue.class ModulatedCommService.class \

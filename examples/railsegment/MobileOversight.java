@@ -40,12 +40,10 @@ import javax.safetycritical.annotate.Scope;
 @SCJAllowed(value=LEVEL_2, members=true)
 public class MobileOversight extends ManagedThread {
 
-  // These four constants determined by static analysis or other
+  // These constants determined by static analysis or other
   // vendor-specific approaches
-  public static final long BackingStoreRequirements = 5000;
-  public static final long NestedBackingStoreRequirements = 5000;
-  public static final long NativeStackRequirements = 3000;
-  public static final long JavaStackRequirements = 2000;
+  public static final long BackingStoreRequirements = 3000;
+  public static final long StackRequirements = 20000;
 
   // a guess
   private static final int ISR_PRIORITY = 32;
@@ -72,9 +70,7 @@ public class MobileOversight extends ManagedThread {
   }
 
   private static long[] storageArgs() {
-    long[] storage_args = {NestedBackingStoreRequirements,
-                           NativeStackRequirements,
-                           JavaStackRequirements};
+    long[] storage_args = {StackRequirements};
     return storage_args;
   }
 

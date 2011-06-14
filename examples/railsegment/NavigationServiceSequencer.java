@@ -74,9 +74,7 @@ public class NavigationServiceSequencer
   }
 
   private static long[] storageArgs() {
-    long[] storage_args = {NavigationService.NestedBackingStoreRequirements,
-                           NavigationService.NativeStackRequirements,
-                           NavigationService.JavaStackRequirements};
+    long[] storage_args = {NavigationService.StackRequirements};
     return storage_args;
   }
 

@@ -40,9 +40,7 @@ public class SecurityService extends Mission
   // These four constants determined by static analysis or other
   // vendor-specific approaches
   public static final long BackingStoreRequirements = 1000;
-  public static final long NestedBackingStoreRequirements = 5000;
-  public static final long NativeStackRequirements = 3000;
-  public static final long JavaStackRequirements = 2000;
+  public static final long StackRequirements = 5000;
 
   public static final long MissionMemorySize = 500;
 

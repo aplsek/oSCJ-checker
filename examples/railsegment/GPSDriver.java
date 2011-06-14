@@ -47,9 +47,7 @@ public class GPSDriver extends PeriodicEventHandler
 {
   // Determined by VM-specific static analysis tools
   private static final long BackingStoreRequirements = 500;
-  private static final long NestedBackingStoreRequirements = 500;
-  private static final long NativeStackRequirements = 2000;
-  private static final long JavaStackRequirements = 300;
+  private static final long StackRequirements = 5000;
   
   private NavigationService nav_mission;
   private TrainClock train_clock;
@@ -67,9 +65,7 @@ public class GPSDriver extends PeriodicEventHandler
   }
 
   private static long[] storageArgs() {
-    long[] storage_args = {NestedBackingStoreRequirements,
-                           NativeStackRequirements,
-                           JavaStackRequirements};
+    long[] storage_args = {StackRequirements};
     return storage_args;
   }
 

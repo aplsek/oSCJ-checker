@@ -44,9 +44,7 @@ public class CommunicationService extends Mission
   // These four constants are determined by static analysis or other
   // vendor-specific approaches
   public static final long BackingStoreRequirements = 1000;
-  public static final long NestedBackingStoreRequirements = 10000;
-  public static final long NativeStackRequirements = 5000;
-  public static final long JavaStackRequirements = 2000;
+  public static final long StackRequirements = 5000;
 
   // This is large enough to represent the four sub-mission sequencers
   // allocated by my initialize method
