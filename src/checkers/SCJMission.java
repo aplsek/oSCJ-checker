@@ -5,10 +5,13 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import javax.safetycritical.PeriodicEventHandler;
 
 public enum SCJMission {
 
     CYCLIC_EXECUTIVE_INIT("javax.safetycritical.CyclicExecutive", "initialize",""),
+
+    CYCLIC_EXECUTIVE_GET_SCHEDULE("javax.safetycritical.CyclicExecutive", "getSchedule","javax.safetycritical.PeriodicEventHandler[]"),
 
     MISSION_INIT("javax.safetycritical.Mission", "initialize",""),
 

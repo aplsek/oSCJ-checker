@@ -5,6 +5,7 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+import javax.realtime.RelativeTime;
 import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
 import javax.safetycritical.PeriodicEventHandler;
@@ -30,7 +31,9 @@ public class Level0Hello extends CyclicExecutive {
     @Override
     @SCJAllowed(SUPPORT)
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
-        return null;
+        return new CyclicSchedule(
+                new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(new RelativeTime(200, 0),
+                        handlers) });
     }
 
     @Override

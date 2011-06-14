@@ -126,6 +126,9 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
             currentMission = Utils.getMethodClass(TreeUtils.elementFromDeclaration(node)).asType();
             checkCyclicExecutiveInit(node);
             break;
+        case CYCLIC_EXECUTIVE_GET_SCHEDULE:
+            checkGetSchedule(node);
+            break;
         case MISSION_INIT:
             isInitialization = true;
             currentMission = Utils.getMethodClass(TreeUtils.elementFromDeclaration(node)).asType();
@@ -149,6 +152,20 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         }
 
         return res;
+    }
+
+    private void checkGetSchedule(MethodTree node) {
+        ExecutableElement m = TreeUtils.elementFromDeclaration(node);
+
+        ScopeInfo runsIn = ctx.getMethodRunsIn(m.getEnclosingElement()
+                .toString(), SCJMission.CYCLIC_EXECUTIVE_GET_SCHEDULE.signature,
+                SCJMission.CYCLIC_EXECUTIVE_GET_SCHEDULE.params);
+        DefineScope ds = getDefineScope(m);
+        if (ds == null)
+            throw new RuntimeException("ERROR: @DefineScope expected on CyclicExecutive.");
+        if (!runsIn.toString().equals(ds.name()))
+            fail(ERR_CYCLIC_EXEC_GET_SCHEDULE_RUNS_IN_MISMATCH, node, ds.name());
+
     }
 
     private void checkSafeletMethod(MethodTree node) {

@@ -1,6 +1,8 @@
 package checkers.scope;
 
 
+import static checkers.scope.SchedulableChecker.ERR_CYCLIC_EXEC_INIT_RUNS_IN_MISMATCH;
+
 import java.util.Properties;
 
 import checkers.SinglePassChecker;
@@ -20,6 +22,7 @@ public class SchedulableChecker extends SinglePassChecker {
     public static final String ERR_SCHEDULABLE_MULTI_INIT = "err.schedulalbe.multi.init";
 
     public static final String ERR_SAFELET_RUNSIN = "err.safelet.runsIn";
+    public static final String ERR_CYCLIC_EXEC_GET_SCHEDULE_RUNS_IN_MISMATCH = "err.cyclic.exec.get.schedule";
 
     private ScopeCheckerContext ctx;
 
@@ -53,6 +56,7 @@ public class SchedulableChecker extends SinglePassChecker {
 
 
         p.put(ERR_CYCLIC_EXEC_INIT_RUNS_IN_MISMATCH, "Illegal @RunsIn: CyclicExecutive.initialize() must have a @RunsIn(<named-scope>) corresponding to the @DefineScope annotation. The @RunsIn(\"%s\") is expected.");
+        p.put(ERR_CYCLIC_EXEC_GET_SCHEDULE_RUNS_IN_MISMATCH, "Illegal @RunsIn: CyclicExecutive.getSchedule() must have a @RunsIn(<named-scope>) corresponding to the MissionMemory of the CyclicExecutive. The @RunsIn(\"%s\") is expected.");
 
         return p;
     }

@@ -1,11 +1,11 @@
-package all.sanity;
+package scope.schedulable.simple;
 
+import static checkers.scope.SchedulableChecker.ERR_CYCLIC_EXEC_GET_SCHEDULE_RUNS_IN_MISMATCH;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-import javax.realtime.RelativeTime;
 import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
 import javax.safetycritical.PeriodicEventHandler;
@@ -18,20 +18,18 @@ import javax.safetycritical.annotate.Scope;
 @SCJAllowed(members=true)
 @Scope(IMMORTAL)
 @DefineScope(name="Level0App", parent=IMMORTAL)
-public class Level0Hello extends CyclicExecutive {
+public class TestGetSchedule extends CyclicExecutive {
 
     @SCJRestricted(INITIALIZATION)
-    public Level0Hello() {
+    public TestGetSchedule() {
         super(null);
     }
 
     @Override
     @SCJAllowed(SUPPORT)
-    @RunsIn("Level0App")
+    //## checkers.scope.SchedulableChecker.ERR_CYCLIC_EXEC_GET_SCHEDULE_RUNS_IN_MISMATCH
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
-        return new CyclicSchedule(
-                          new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(new RelativeTime(200, 0),
-                                  handlers) });
+        return null;
     }
 
     @Override
@@ -39,7 +37,6 @@ public class Level0Hello extends CyclicExecutive {
     @SCJAllowed(SUPPORT)
     @RunsIn("Level0App")
     public void initialize() {
-        new WordHandler(20000);
     }
 
     @Override
@@ -57,30 +54,6 @@ public class Level0Hello extends CyclicExecutive {
     @SCJAllowed(SUPPORT)
     @SCJRestricted(CLEANUP)
     public void tearDown() {
-    }
 
-    @SCJAllowed(members=true)
-    @Scope("Level0App")
-    @DefineScope(name="WordHandler", parent="Level0App")
-    class WordHandler extends PeriodicEventHandler {
-
-        @SCJAllowed()
-        @SCJRestricted(INITIALIZATION)
-        public WordHandler(long psize) {
-            super(null, null, null);
-        }
-
-        @Override
-        @SCJAllowed(SUPPORT)
-        @RunsIn("WordHandler")
-        public void handleAsyncEvent() {
-            // printing HelloWorld!!!!
-        }
-
-        @Override
-        @SCJAllowed(SUPPORT)
-        @SCJRestricted(CLEANUP)
-        public void cleanUp() {
-        }
     }
 }
