@@ -30,6 +30,7 @@ public class TestHandleAsyncEventRunsIn extends CyclicExecutive {
     @Override
     @SCJAllowed(SUPPORT)
     @SCJRestricted(INITIALIZATION)
+    @RunsIn("Level0App")
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         return null;
     }

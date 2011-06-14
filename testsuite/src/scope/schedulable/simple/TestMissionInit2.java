@@ -30,6 +30,7 @@ public class TestMissionInit2 extends CyclicExecutive {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @RunsIn("a")
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         return null;
     }

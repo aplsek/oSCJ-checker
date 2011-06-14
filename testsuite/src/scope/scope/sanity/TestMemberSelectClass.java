@@ -27,6 +27,7 @@ public class TestMemberSelectClass extends CyclicExecutive {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @RunsIn("Level0App")
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         return new CyclicSchedule(
                           new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(new RelativeTime(200, 0),
