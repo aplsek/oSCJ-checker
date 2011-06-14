@@ -70,9 +70,7 @@ public class CommunicationServiceSequencer
   }
 
   private static long[] storageArgs() {
-    long[] storage_args = {CommunicationService.NestedBackingStoreRequirements,
-                           CommunicationService.NativeStackRequirements,
-                           CommunicationService.JavaStackRequirements};
+    long[] storage_args = {CommunicationService.StackRequirements};
     return storage_args;
   }
 

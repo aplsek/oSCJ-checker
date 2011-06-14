@@ -59,9 +59,7 @@ public class TrackModulatedCommServiceSequencer extends MissionSequencer // <Mod
   }
   
   private static long[] storageArgs() {
-    long[] storage_args = {ModulatedCommService.NestedBackingStoreRequirements,
-                           ModulatedCommService.NativeStackRequirements,
-                           ModulatedCommService.JavaStackRequirements};
+    long[] storage_args = {ModulatedCommService.StackRequirements};
     return storage_args;
   }
 

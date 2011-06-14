@@ -71,9 +71,7 @@ public class TrainControlSequencer extends MissionSequencer // <TrainControl>
   }
 
   private static long[] storageArgs() {
-    long[] storage_args = {TrainControl.NestedBackingStoreRequirements,
-                           TrainControl.NativeStackRequirements,
-                           TrainControl.JavaStackRequirements};
+    long[] storage_args = {TrainControl.StackRequirements};
     return storage_args;
   }
 

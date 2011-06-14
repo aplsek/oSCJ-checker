@@ -43,9 +43,7 @@ class CommsControlServer extends ManagedThread {
 
   // Determined by VM-specific static analysis tools
   private static final long BackingStoreRequirements = 500;
-  private static final long NestedBackingStoreRequirements = 500;
-  private static final long NativeStackRequirements = 2000;
-  private static final long JavaStackRequirements = 300;
+  private static final long StackRequirements = 5000;
 
   final int COMMS_PRIORITY;
   final CommunicationsQueue comms_data;
@@ -74,9 +72,7 @@ class CommsControlServer extends ManagedThread {
   }
 
   private static long[] storageArgs() {
-    long[] storage_args = {NestedBackingStoreRequirements,
-                           NativeStackRequirements,
-                           JavaStackRequirements};
+    long[] storage_args = {StackRequirements};
     return storage_args;
   }
 

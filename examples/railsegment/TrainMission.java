@@ -44,9 +44,7 @@ import railsegment.clock.TrainClock;
 public class TrainMission extends Mission
 {
   public final static long BackingStoreRequirements = 1000;
-  public final static long NestedBackingStoreRequirements = 10000;
-  public final static long NativeStackRequirements = 10000;
-  public final static long JavaStackRequirements = 8000;
+  public final static long StackRequirements = 16000;
 
   private final static long MissionMemorySize = 1000;
 

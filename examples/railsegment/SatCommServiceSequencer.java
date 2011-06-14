@@ -60,9 +60,7 @@ extends MissionSequencer //<SatCommService>
     }
 
   private static long[] storageArgs() {
-    long[] storage_args = {SatCommService.NestedBackingStoreRequirements,
-                           SatCommService.NativeStackRequirements,
-                           SatCommService.JavaStackRequirements};
+    long[] storage_args = {SatCommService.StackRequirements};
     return storage_args;
   }
 

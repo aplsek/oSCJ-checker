@@ -60,9 +60,7 @@ public class MobileCommServiceSequencer
   }
 
   private static long[] storageArgs() {
-    long[] storage_args = {MobileCommService.NestedBackingStoreRequirements,
-                           MobileCommService.NativeStackRequirements,
-                           MobileCommService.JavaStackRequirements};
+    long[] storage_args = {MobileCommService.StackRequirements};
     return storage_args;
   }
 

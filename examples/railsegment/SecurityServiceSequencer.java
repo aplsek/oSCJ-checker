@@ -60,10 +60,7 @@ extends MissionSequencer //<SecurityService>
   }
 
   private static long[] storageArgs() {
-    long[] storage_args = {
-      SecurityService.NestedBackingStoreRequirements,
-      SecurityService.NativeStackRequirements,
-      SecurityService.JavaStackRequirements};
+    long[] storage_args = {SecurityService.StackRequirements};
     return storage_args;
   }
 
