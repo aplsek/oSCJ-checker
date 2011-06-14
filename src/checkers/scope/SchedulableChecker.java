@@ -16,8 +16,10 @@ public class SchedulableChecker extends SinglePassChecker {
     public static final String ERR_SCHED_INIT_OUT_OF_INIT_METH = "schedulable.ctor.out.of.init.method" ;
     public static final String ERR_MISSION_INIT_RUNS_IN_MISMATCH = "schedulable.err.mission.init.runsin" ;
     public static final String ERR_MISSION_SEQUENCER_RUNS_IN = "err.mission.sequencer.runsin";
-
+    public static final String ERR_CYCLIC_EXEC_INIT_RUNS_IN_MISMATCH = "err.cyclic.exec.init.runsin.mismatch";
     public static final String ERR_SCHEDULABLE_MULTI_INIT = "err.schedulalbe.multi.init";
+
+    public static final String ERR_SAFELET_RUNSIN = "err.safelet.runsIn";
 
     private ScopeCheckerContext ctx;
 
@@ -46,6 +48,11 @@ public class SchedulableChecker extends SinglePassChecker {
 
 
         p.put(ERR_MISSION_SEQUENCER_RUNS_IN, "Illegal @RunsIn: MissionSequencer.getNextMission() must have a @RunsIn(<named-scope>) corresponding to the @DefineScope annotation. The @RunsIn(\"%s\") is expected.");
+
+        p.put(ERR_SAFELET_RUNSIN, "Illegal @RunsIn: Safelet methods getSequencer()/cleanUp()/tearDown() are expected to have the default annotation - @RunsIn(THIS). But, @RunsIn(\"%s\") detected.");
+
+
+        p.put(ERR_CYCLIC_EXEC_INIT_RUNS_IN_MISMATCH, "Illegal @RunsIn: CyclicExecutive.initialize() must have a @RunsIn(<named-scope>) corresponding to the @DefineScope annotation. The @RunsIn(\"%s\") is expected.");
 
         return p;
     }

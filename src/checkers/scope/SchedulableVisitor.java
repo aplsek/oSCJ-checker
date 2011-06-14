@@ -4,6 +4,7 @@ import static checkers.scope.SchedulableChecker.*;
 
 import java.util.HashSet;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -116,17 +117,23 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     public Void visitMethod(MethodTree node, Void p) {
         ExecutableElement m = TreeUtils.elementFromDeclaration(node);
 
+
         switch (SCJMission.fromMethod(m, elements, types)) {
-        case CYCLIC_EXECUTIVE:
+        case CYCLIC_EXECUTIVE_INIT:
             isInitialization = true;
+            checkCyclicExecutiveInit(node);
             break;
-        case MISSION:
+        case MISSION_INIT:
             isInitialization = true;
             checkMissionInit(node);
             break;
         case MS_NEXT_MISSION:
             checkMSnextMission(node);
             break;
+        case SAFELET_GET_SEQUENCER:
+        case SAFELET_SET_UP:
+        case SAFELET_TEAR_DOWN:
+            checkSafeletMethod(node);
         default:
             break;
         }
@@ -138,13 +145,36 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         return res;
     }
 
+    private void checkSafeletMethod(MethodTree node) {
+        ExecutableElement m = TreeUtils.elementFromDeclaration(node);
+
+        ScopeInfo runsIn = ctx.getMethodRunsIn(m.getEnclosingElement()
+                .toString(), m.toString().substring(0,m.toString().length()-2));
+        if (!runsIn.isThis())
+            fail(ERR_SAFELET_RUNSIN, node, runsIn);
+    }
+
+    private void checkCyclicExecutiveInit(MethodTree node) {
+        ExecutableElement m = TreeUtils.elementFromDeclaration(node);
+        ScopeInfo runsIn = ctx.getMethodRunsIn(m.getEnclosingElement()
+                .toString(), SCJMission.CYCLIC_EXECUTIVE_INIT.signature);
+        pln("runsIn:" + runsIn);
+
+        Element clazz = m.getEnclosingElement();
+        DefineScope ds = Utils.getDefineScope(clazz);
+        if (ds == null)
+            throw new RuntimeException("ERROR: @DefineScope expected on CyclicExecutive.");
+        if (!runsIn.toString().equals(ds.name()))
+            fail(ERR_CYCLIC_EXEC_INIT_RUNS_IN_MISMATCH, node, ds.name());
+    }
+
     /**
      * Mission.initialize() CANNOT override @RunsIn.
      */
     private void checkMissionInit(MethodTree node) {
         ExecutableElement m = TreeUtils.elementFromDeclaration(node);
         ScopeInfo runsIn = ctx.getMethodRunsIn(m.getEnclosingElement()
-                .toString(), SCJMission.MISSION.signature);
+                .toString(), SCJMission.MISSION_INIT.signature);
         if (runsIn == null)
             throw new RuntimeException(
                     "ERR: Every method must have @RunsIn value. Bug.");

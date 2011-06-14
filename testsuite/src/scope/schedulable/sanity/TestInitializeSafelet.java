@@ -1,6 +1,7 @@
 package scope.schedulable.sanity;
 
 
+import static checkers.scope.SchedulableChecker.ERR_CYCLIC_EXEC_INIT_RUNS_IN_MISMATCH;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
@@ -44,7 +45,7 @@ public class TestInitializeSafelet extends CyclicExecutive {
     @Override
     @SCJRestricted(INITIALIZATION)
     @SCJAllowed(SUPPORT)
-    //## ERROR  - needs @RunsIn
+    //## checkers.scope.SchedulableChecker.ERR_CYCLIC_EXEC_INIT_RUNS_IN_MISMATCH
     protected void initialize() {
         MIRun miRun = new MIRun();
         @DefineScope(name="CDMission", parent=IMMORTAL)
@@ -91,4 +92,5 @@ class MIRun implements Runnable {
         // ...
     }
 }
+
 

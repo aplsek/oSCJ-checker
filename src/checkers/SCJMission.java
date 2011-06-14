@@ -7,9 +7,17 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 public enum SCJMission {
-    CYCLIC_EXECUTIVE("javax.safetycritical.CyclicExecutive", "initialize",""),
-    MISSION("javax.safetycritical.Mission", "initialize",""),
+
+    CYCLIC_EXECUTIVE_INIT("javax.safetycritical.CyclicExecutive", "initialize",""),
+
+    MISSION_INIT("javax.safetycritical.Mission", "initialize",""),
+
     MS_NEXT_MISSION("javax.safetycritical.MissionSequencer", "getNextMission",""),
+
+    SAFELET_GET_SEQUENCER("javax.safetycritical.Safelet","getSequencer",""),
+    SAFELET_SET_UP("javax.safetycritical.Safelet","setUp",""),
+    SAFELET_TEAR_DOWN("javax.safetycritical.Safelet","tearDown",""),
+
     DEFAULT(null, null,null);
 
     public final String clazz;
@@ -35,13 +43,16 @@ public enum SCJMission {
                 continue;
             TypeMirror superType = Utils.getTypeMirror(
                     elements, sm.clazz);
-            if (types.isSubtype(t,superType)) {
-                if (m.toString().equals(Utils.buildSignatureString(sm.signature, sm.params)))
+            if (types.isSubtype(t,superType) ) {
+                if (m.toString().equals(Utils.buildSignatureString(sm.signature, sm.params))) {
                     return sm;
+                }
                 else
                     continue;
             }
         }
         return DEFAULT;
     }
+
+    static void pln(String str) {System.out.println("\t" + str);}
 }

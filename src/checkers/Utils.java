@@ -18,6 +18,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
@@ -331,5 +332,15 @@ public final class Utils {
         if (t1.equals(t2))
             return true;
         return false;
+    }
+
+    /**
+     * Returns true if element is annotated by SCJAllowed
+     */
+    public static DefineScope getDefineScope(Element e) {
+        DefineScope ds = e.getAnnotation(DefineScope.class);
+        if (ds!= null)
+            return ds;
+        return null;
     }
 }
