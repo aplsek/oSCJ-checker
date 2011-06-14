@@ -447,7 +447,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             //pln("\n " + node);
             //pln("" + elem.getEnclosingElement());
             //
-        } else {
+        }  else if (elem.getKind() == ElementKind.ENUM_CONSTANT) {
+            // TODO: handle ENUM identifiers, NEW ISSUE: 07/14/2011
+            // eg: activity_codes = new RequestType[num_buffers];
+            //pln("\n " + node);
+            //pln("" + elem.getEnclosingElement());
+            //
+            //fail(ERR_BAD_ASSIGNMENT_SCOPE, node, null ,null);
+        }
+
+        else {
             throw new RuntimeException("Unexpected assignment AST node: "
                     + elem.getKind());
         }
