@@ -298,7 +298,7 @@
         <batchtest todir="${build.reports}">
           <fileset dir="testsuite/src/">
 
-            <include name="tests/SCJAllowedTNoLEVELTest.java"/>
+            <include name="tests/SCJAllowedNoLEVELTest.java"/>
             <!-- Framework classes -->
             <exclude name="tests/CheckerTest.java"/>
             <exclude name="tests/ParameterizedCheckerTest.java"/>
@@ -312,6 +312,46 @@
         <report todir="${build.reports}/html" />
       </junitreport>
     </target>
+  
+  <target name="noScopeCheckerTest" depends="jar,compile-tests"
+        		    description="Run tests for all checkers">
+        <!-- Copied from -run-tests target -->
+        <mkdir dir="${build.reports}"/>
+
+        <junit fork="${run.tests.should.fork}"
+        		       dir="${basedir}"
+        		       printsummary="true"
+        		       haltonfailure="${halt.on.test.failure}">
+          <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
+          <jvmarg line="-ea"/>
+
+          <classpath>
+            <pathelement path="${scj.classpath}"/>
+            <pathelement path="${scj.checker.classpath}"/>
+            <pathelement path="${junit.classpath}"/>
+            <pathelement path="testsuite/build"/>
+          </classpath>
+
+          <formatter type="xml"/>
+          <formatter type="brief" usefile="false"/>
+
+          <batchtest todir="${build.reports}">
+            <fileset dir="testsuite/src/">
+
+              <include name="tests/NoScopeCheckerTest.java"/>
+              <!-- Framework classes -->
+              <exclude name="tests/CheckerTest.java"/>
+              <exclude name="tests/ParameterizedCheckerTest.java"/>
+            </fileset>
+          </batchtest>
+        </junit>
+        <junitreport todir="${build.reports}">
+          <fileset dir="${build.reports}">
+            <include name="TEST-*.xml" />
+          </fileset>
+          <report todir="${build.reports}/html" />
+        </junitreport>
+      </target>
 
   <target name="scjrestricted-test" depends="jar,compile-tests"
   		    description="Run tests for all checkers">
@@ -531,7 +571,8 @@
     				scopeRunsIn-test,
     				schedulable-test,
     				scope-test,
-                    all-sanity-test"
+                    all-sanity-test,
+    				noScopeCheckerTest"
     		    description="Run tests for all checkers">
   </target>
 
