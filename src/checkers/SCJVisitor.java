@@ -140,7 +140,7 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     }
 
     // DEBUG:
-    //protected void pln(String str) {
-    //    System.out.println("\t" + str);
-    //}
+    protected void pln(String str) {
+        System.out.println("\t" + str);
+    }
 }

@@ -441,15 +441,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // If we're visiting an identifer that's a class, then it's
             // probably being used in a static field member select.
             ret = ScopeInfo.IMMORTAL;
-        } else if (elem.getKind() == ElementKind.ENUM) {
-            // TODO: handle ENUM identifiers, NEW ISSUE: 07/14/2011
-            // eg: activity_codes = new RequestType[num_buffers];
-            //pln("\n " + node);
-            //pln("" + elem.getEnclosingElement());
-            //
-        } else if (elem.getKind() == ElementKind.ENUM_CONSTANT) {
-            // TODO: handle ENUM identifiers, NEW ISSUE: 07/14/2011
-            //fail(ERR_BAD_ASSIGNMENT_SCOPE, node, null ,null);
+        } else if (elem.getKind() == ElementKind.ENUM ||
+                elem.getKind() == ElementKind.ENUM_CONSTANT) {
+            // NOTE: java.lang.Enum has @Scope(IMMORTAL)
+            ret = ScopeInfo.IMMORTAL;
         } else {
             throw new RuntimeException("Unexpected assignment AST node: "
                     + elem.getKind());

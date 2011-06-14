@@ -1,6 +1,5 @@
 package scope.scope.sanity;
 
-import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
