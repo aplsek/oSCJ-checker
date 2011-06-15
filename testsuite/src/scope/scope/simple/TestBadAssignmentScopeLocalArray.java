@@ -23,6 +23,7 @@ public abstract class TestBadAssignmentScopeLocalArray extends MissionSequencer 
     @SCJRestricted(INITIALIZATION)
     public TestBadAssignmentScopeLocalArray() {super(null, null);}
 
+
     @RunsIn("a")
     void foo(@Scope(IMMORTAL) Object[] os, final @Scope(UNKNOWN) Object[] os2,
             final @Scope(IMMORTAL) Object oImm, X x) {
@@ -46,9 +47,20 @@ public abstract class TestBadAssignmentScopeLocalArray extends MissionSequencer 
     @Scope("a")
     static class X { }
 
+    static class Y { }
+
     @RunsIn("a")
     void baz(@Scope(UNKNOWN) X[] xs, X x) {
-        //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
         xs[0] = x;
+
+        X[] xx;
+        //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
+        xx = xs;
+    }
+
+    @RunsIn("a")
+    void baz(@Scope(UNKNOWN) Y[] ys, Y y) {
+        //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
+        ys[0] = y;
     }
 }

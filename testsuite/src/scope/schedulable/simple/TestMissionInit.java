@@ -35,6 +35,9 @@ public class TestMissionInit extends Mission {
         //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_MULTI_INIT
         new PEH(null,null,null);
 
+        for (int i = 0; i < 5 ; i++)
+            new PEH2();
+
         method();
     }
 
@@ -57,6 +60,23 @@ public class TestMissionInit extends Mission {
 
         @Override
         @RunsIn("b")
+        @SCJAllowed(SUPPORT)
+        public void handleAsyncEvent() {
+        }
+    }
+
+    @Scope("a")
+    @SCJAllowed(members=true)
+    @DefineScope(name = "c", parent = "a")
+    public class PEH2 extends PeriodicEventHandler {
+
+        @SCJRestricted(INITIALIZATION)
+        public PEH2() {
+            super(null, null, null);
+        }
+
+        @Override
+        @RunsIn("c")
         @SCJAllowed(SUPPORT)
         public void handleAsyncEvent() {
         }
@@ -101,7 +121,5 @@ public class TestMissionInit extends Mission {
         //## checkers.scope.SchedulableChecker.ERR_MISSION_INIT_RUNS_IN_MISMATCH
         protected void initialize() {
         }
-
     }
-
 }
