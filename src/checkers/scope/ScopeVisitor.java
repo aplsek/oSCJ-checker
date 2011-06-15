@@ -59,27 +59,6 @@ import com.sun.source.tree.TryTree;
 import com.sun.source.tree.TypeCastTree;
 import com.sun.source.tree.VariableTree;
 
-/**
- * @Scope("FooMission") RunsIn is implied to be FooMission class FooMission
- *
- *                      We can no longer infer the scope we need to add based on
- *                      the annotations. Thus, each mission must have a @DefineScope
- *                      on it now, and if it doesn't it's assumed to add a scope
- *                      namve with the name of the mission and the parent as
- *                      immortal.
- *
- *                      For any EH, you should have something like
- *
- * @Scope("AMissionMemory") @RunsIn("MyPEH") class MyPEH extends PEH ...
- *
- *                          And the checker should automatically detect that
- *                          allocations of MyPEH objects are in AMissionMemory.
- *                          It might be worth it to restrict it to initialize(),
- *                          but that's just extra work. I wouldn't bother doing
- *                          it unless not restricting it breaks in some case
- *                          (which it may, I have not thought about it much).
- *
- */
 public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private AnnotatedTypeFactory atf;

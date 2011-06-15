@@ -29,8 +29,6 @@ import com.sun.source.tree.Tree;
  * This visitor is checking that SChedulables are instantiated in Mission.init
  * methods and in these methods only.
  *
- * TODO: each schedulable can be instantiated only once! Need to chatch the
- * instantiations in loops.!
  */
 public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     private ScopeCheckerContext ctx;
@@ -248,6 +246,8 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         case PEH:
         case APEH:
         case MANAGED_THREAD:
+            // TODO: must catch the case when the Schedulable is instantiated in loops!
+
             if (!isInitialization)
                 fail(ERR_SCHED_INIT_OUT_OF_INIT_METH, node);
             else {
