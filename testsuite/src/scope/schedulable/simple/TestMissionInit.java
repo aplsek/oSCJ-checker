@@ -35,8 +35,10 @@ public class TestMissionInit extends Mission {
         //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_MULTI_INIT
         new PEH(null,null,null);
 
-        for (int i = 0; i < 5 ; i++)
+        for (int i = 0; i < 5 ; i++) {
+            //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_MULTI_INIT
             new PEH2();
+        }
 
         method();
     }
