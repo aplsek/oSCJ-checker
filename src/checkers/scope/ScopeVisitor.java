@@ -142,8 +142,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         } else if (node.getKind() == Kind.METHOD_INVOCATION) {
             MethodInvocationTree tree = (MethodInvocationTree) node;
-            if (!Utils.isUserLevel(TreeUtils.elementFromUse(tree)))   // TODO what is this? is it the context?
+            if (!Utils.isUserLevel(TreeUtils.elementFromUse(tree)))  { // TODO what is this? is it the context?
                 return;
+            }
             if (escapeUpcastOnInvoke(tree))
                 return;
             List<? extends VariableElement> params = TreeUtils.elementFromUse(
