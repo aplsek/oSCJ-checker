@@ -25,26 +25,25 @@ import javax.safetycritical.annotate.RunsIn;
 
 @SCJAllowed(members=true)
 @DefineScope(name="APP", parent=IMMORTAL)
-@Scope("APP")
+@Scope(IMMORTAL)
 public class ErrorApp extends CyclicExecutive {
-    static PriorityParameters p = new PriorityParameters(18);
-    static StorageParameters s = new StorageParameters(1000L, 1000L, 1000L);
-    static RelativeTime t = new RelativeTime(5,0);
 
     @Override
     @SCJAllowed(SUPPORT)
+    @RunsIn("APP")
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
-        return new CyclicSchedule(new CyclicSchedule.Frame[]{new CyclicSchedule.Frame(t,handlers)});
+        return new CyclicSchedule(new CyclicSchedule.Frame[]{new CyclicSchedule.Frame(null,handlers)});
     }
 
     @SCJRestricted(INITIALIZATION)
     public ErrorApp() {
-        super(p, s);
+        super(null, null);
     }
 
     @Override
     @SCJRestricted(INITIALIZATION)
     @SCJAllowed(SUPPORT)
+    @RunsIn("APP")
     public void initialize() {
         new PEH();
     }
@@ -82,20 +81,9 @@ public class ErrorApp extends CyclicExecutive {
     @DefineScope(name="PEH", parent="APP")
     public static class PEH extends PeriodicEventHandler {
 
-        static PriorityParameters pri;
-        static PeriodicParameters per;
-        static StorageParameters stor;
-
-        static {
-            pri = new PriorityParameters(13);
-            per = new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
-                    500, 0));
-            stor = new StorageParameters(1000L, 1000L, 1000L);
-        }
-
         @SCJRestricted(INITIALIZATION)
         public PEH() {
-            super(pri, per, stor);
+            super(null, null, null);
         }
 
         List a = new List();

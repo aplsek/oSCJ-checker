@@ -23,12 +23,13 @@ import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.RunsIn;
 
 @SCJAllowed(members=true)
-@Scope("MyApp")
+@Scope(IMMORTAL)
 @DefineScope(name="MyApp", parent=IMMORTAL)
 public class PerReleaseExample extends CyclicExecutive {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @RunsIn("MyApp")
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         return new CyclicSchedule(
                 new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(new RelativeTime(5, 0),
@@ -43,7 +44,8 @@ public class PerReleaseExample extends CyclicExecutive {
 
     @Override
     @SCJRestricted(INITIALIZATION)
-     @SCJAllowed(SUPPORT)
+    @SCJAllowed(SUPPORT)
+    @RunsIn("MyApp")
     public void initialize() {
         new MyPEH();
     }
@@ -127,7 +129,6 @@ public class PerReleaseExample extends CyclicExecutive {
             long median;
 
             @RunsIn("RunScope")
-            @SCJAllowed(SUPPORT)
             public void run() {
                 long[] copy = new long[1000];
                 for (int i = 0; i < 1000; i++)

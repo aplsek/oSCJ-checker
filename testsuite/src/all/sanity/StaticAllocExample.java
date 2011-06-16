@@ -27,6 +27,7 @@ public class StaticAllocExample extends CyclicExecutive {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @RunsIn("MyApp")
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         return new CyclicSchedule(
                 new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(new RelativeTime(5, 0),

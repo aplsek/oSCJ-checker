@@ -26,7 +26,7 @@ import javax.safetycritical.annotate.RunsIn;
 
 
 @SCJAllowed(members=true)
-@Scope("MyApp")
+@Scope(IMMORTAL)
 @DefineScope(name="MyApp", parent=IMMORTAL)
 public class IllegalStateEx extends CyclicExecutive {
 
@@ -35,6 +35,8 @@ public class IllegalStateEx extends CyclicExecutive {
     public ManagedMemory pri;
 
     @Override
+    @SCJAllowed(SUPPORT)
+    @RunsIn("MyApp")
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         return new CyclicSchedule(
                 new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(new RelativeTime(5, 0),
@@ -48,6 +50,8 @@ public class IllegalStateEx extends CyclicExecutive {
 
     @Override
     @SCJRestricted(INITIALIZATION)
+    @RunsIn("MyApp")
+    @SCJAllowed(SUPPORT)
     public void initialize() {
         new MyPEH1();
         new MyPEH2();
@@ -64,15 +68,18 @@ public class IllegalStateEx extends CyclicExecutive {
     }
 
     @SCJRestricted(INITIALIZATION)
+    @SCJAllowed(SUPPORT)
     public void setUp() {
     }
 
     @SCJRestricted(CLEANUP)
+    @SCJAllowed(SUPPORT)
     public void tearDown() {
     }
 
     @Override
     @SCJRestricted(CLEANUP)
+    @SCJAllowed(SUPPORT)
     public void cleanUp() {
     }
 
@@ -100,6 +107,7 @@ public class IllegalStateEx extends CyclicExecutive {
 
         @Override
         @SCJRestricted(CLEANUP)
+        @SCJAllowed(SUPPORT)
         public void cleanUp() {
         }
 
@@ -124,6 +132,7 @@ public class IllegalStateEx extends CyclicExecutive {
 
         @Override
         @RunsIn("MyPEH2")
+        @SCJAllowed(SUPPORT)
         public void handleAsyncEvent() {
             try {
                 MyRunnable run = new MyRunnable();
@@ -140,6 +149,8 @@ public class IllegalStateEx extends CyclicExecutive {
         }
 
         @Override
+        @SCJAllowed(SUPPORT)
+        @SCJRestricted(CLEANUP)
         public void cleanUp() {
         }
 
@@ -152,7 +163,6 @@ public class IllegalStateEx extends CyclicExecutive {
     @DefineScope(name = "new-scope", parent = "MyPEH1")
     public static class MyRunnable implements Runnable {
 
-        @SCJAllowed(SUPPORT)
         @RunsIn("new-scope")
         public void run() {
         }

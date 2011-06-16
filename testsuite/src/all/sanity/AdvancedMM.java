@@ -29,6 +29,7 @@ public class AdvancedMM extends CyclicExecutive {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @RunsIn("APP")
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         return new CyclicSchedule(new CyclicSchedule.Frame[]{new CyclicSchedule.Frame(
                 new RelativeTime(5,0),handlers)});
