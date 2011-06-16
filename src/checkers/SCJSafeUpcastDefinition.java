@@ -20,7 +20,7 @@ public enum SCJSafeUpcastDefinition {
     MSEQ_GET_INSTANCE("javax.safetycritical.MissionSequencer",
             "getInstance()"),
 
-    IMMORTAL_MEMORY_INSTANCE("javax.safetycritical.Safelet", "getSequencer()");
+    SAFELET_GET_SEQUENCER("javax.safetycritical.Safelet", "getSequencer()");
 
     private final String clazz;
     private final String signature;

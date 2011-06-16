@@ -269,6 +269,10 @@ public final class Utils {
         return !(l == Level.INFRASTRUCTURE || l == Level.SUPPORT);
     }
 
+    public static boolean isSUPPORTLevel(Level l) {
+        return l == Level.SUPPORT;
+    }
+
     public static ScopeInfo getDefaultMethodRunsIn(ExecutableElement m) {
         if (Utils.isStatic(m))
             return ScopeInfo.CALLER;
@@ -314,6 +318,13 @@ public final class Utils {
                 return Utils.defaultLevel;
         } else
             return a.value();
+    }
+
+    public static boolean hasSUPPORT(Element m) {
+        Level l = getSCJAllowedLevel(m);
+        if (isSUPPORTLevel(l))
+            return true;
+        return false;
     }
 
     public static boolean isSCJSupport(ExecutableElement m, AnnotatedTypes ats) {

@@ -244,7 +244,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         switch (SCJSafeUpcastDefinition.fromMethod(getEnclosingMethod(),
                 elements, types)) {
         case GET_NEXT_MISSION:
-        case IMMORTAL_MEMORY_INSTANCE:
+        case SAFELET_GET_SEQUENCER:
         case MSEQ_GET_INSTANCE:
             return true;
         default:

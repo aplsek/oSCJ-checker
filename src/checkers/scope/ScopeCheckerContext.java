@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -388,12 +389,28 @@ public class ScopeCheckerContext {
         for (Entry<String, MethodScopeInfo> e : cast.methodScopes.entrySet()) {
             if (expr.methodScopes.containsKey(e.getKey())) {            // TODO: check that its a signature
                 MethodScopeInfo eM = expr.methodScopes.get(e.getKey());
-                if (!e.getValue().runsIn.equals(eM.runsIn)) {
-                    return false;
+                if (!e.getValue().runsIn.equals(eM.runsIn) ) {
+                    if (!isSupport(castType,e.getKey()))
+                        return false;
                 }
             }
         }
         return true;
+    }
+
+    /**
+     * return true if a give method is declared as SUPPORT
+     */
+    private boolean isSupport(TypeMirror castType, String method) {
+        TypeElement elem = Utils.getTypeElement(castType);
+        List<? extends Element> elements = elem.getEnclosedElements();
+        for (Element meth : elements ) {
+            if (meth instanceof ExecutableElement)
+                if (Utils.buildSignatureString((ExecutableElement)meth).equals(method))
+                    if (Utils.hasSUPPORT(meth))
+                        return true;
+        }
+        return false;
     }
 
     static class ClassInfo {

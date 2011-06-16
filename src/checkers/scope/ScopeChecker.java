@@ -116,7 +116,7 @@ public class ScopeChecker extends SinglePassChecker {
                 "@RunsIn annotations must be a sub-scope of @Scope annotations.");
 
         p.put(ERR_BAD_UPCAST,
-            "Illegal Upcast : Classes overriding @RunsIn annotation cannot be upcasted to its supertype.");
+            "Illegal Upcast : Class %s overriding @RunsIn annotation cannot be upcasted to its supertype %s.");
 
         return p;
     }

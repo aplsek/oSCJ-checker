@@ -102,7 +102,7 @@ public class AdvancedMM extends CyclicExecutive {
                 ManagedMemory m = (ManagedMemory) MemoryArea.getMemoryArea(this);
 
                 @Scope("APP") Tick time = (Tick) m.newInstance(Tick.class);
-                MySCJRunnable r = new MySCJRunnable();
+                MySCJRunnable r = new MySCJRunnable(this);
                 m.executeInArea(r);
 
             } catch (InstantiationException e) {
@@ -123,11 +123,17 @@ public class AdvancedMM extends CyclicExecutive {
         }
 
         @SCJAllowed(members=true)
-        @DefineScope(name="APP",parent=IMMORTAL)
-        class MySCJRunnable implements Runnable {
+        @Scope("PEH")
+        static public class MySCJRunnable implements Runnable {
+            MyPEH4 peh;
+
+            public MySCJRunnable(MyPEH4 p) {
+                peh = p;
+            }
+
             @RunsIn("APP")
             public void run() {
-                MyPEH4.this.tock = new Tick();
+                peh.tock = new Tick();
             }
         }
     }

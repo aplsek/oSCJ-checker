@@ -16,7 +16,9 @@ import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.Mission;
+import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.PeriodicEventHandler;
+import javax.safetycritical.Safelet;
 import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
@@ -27,44 +29,12 @@ import javax.safetycritical.annotate.RunsIn;
 
 @SCJAllowed(members=true)
 @Scope(IMMORTAL)
-@DefineScope(name="MyApp", parent=IMMORTAL)
-public class IllegalStateEx extends CyclicExecutive {
-
-    @Scope("MyApp")
-    @DefineScope(name="MyPEH1", parent="MyApp")
-    public ManagedMemory pri;
+public class IllegalStateEx implements Safelet {
 
     @Override
     @SCJAllowed(SUPPORT)
-    @RunsIn("MyApp")
-    public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
-        return new CyclicSchedule(
-                new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(new RelativeTime(5, 0),
-                        handlers) });
-    }
-
-    @SCJRestricted(INITIALIZATION)
-    public IllegalStateEx() {
-        super(new PriorityParameters(18), new StorageParameters(1000L, 1000L, 1000L));
-    }
-
-    @Override
-    @SCJRestricted(INITIALIZATION)
-    @RunsIn("MyApp")
-    @SCJAllowed(SUPPORT)
-    public void initialize() {
-        new MyPEH1();
-        new MyPEH2();
-    }
-
-    /**
-     * A method to query the maximum amount of memory needed by this mission.
-     *
-     * @return the amount of memory needed
-     */
-    @Override
-    public long missionMemorySize() {
-        return 1420; // MIN without printing is 430 bytes.
+    public MissionSequencer getSequencer() {
+        return new MS();
     }
 
     @SCJRestricted(INITIALIZATION)
@@ -77,10 +47,42 @@ public class IllegalStateEx extends CyclicExecutive {
     public void tearDown() {
     }
 
-    @Override
-    @SCJRestricted(CLEANUP)
-    @SCJAllowed(SUPPORT)
-    public void cleanUp() {
+    @Scope(IMMORTAL)
+    @DefineScope(name="MyApp", parent=IMMORTAL)
+    public static class MS extends MissionSequencer {
+
+        @SCJRestricted(INITIALIZATION)
+        public MS() {
+            super(null, null);
+        }
+
+        @Override
+        @SCJAllowed(SUPPORT)
+        @RunsIn("MyApp")
+        protected Mission getNextMission() {
+            return new MyMission();
+        }
+    }
+
+    public static class MyMission extends Mission {
+
+        @Scope("MyApp")
+        @DefineScope(name="MyPEH1", parent="MyApp")
+        public ManagedMemory pri;
+
+        @Override
+        @SCJRestricted(INITIALIZATION)
+        @RunsIn("MyApp")
+        @SCJAllowed(SUPPORT)
+        public void initialize() {
+            new MyPEH1().register();
+            new MyPEH2().register();
+        }
+
+        @Override
+        public long missionMemorySize() {
+            return 0;
+        }
     }
 
 
@@ -101,7 +103,7 @@ public class IllegalStateEx extends CyclicExecutive {
         @SCJAllowed(SUPPORT)
         @RunsIn("MyPEH1")
         public void handleAsyncEvent() {
-            IllegalStateEx m1 = (IllegalStateEx) Mission.getCurrentMission();
+            MyMission m1 = (MyMission) Mission.getCurrentMission();
             m1.pri = (ManagedMemory) MemoryArea.getMemoryArea(new int[0]);
         }
 
@@ -137,7 +139,7 @@ public class IllegalStateEx extends CyclicExecutive {
             try {
                 MyRunnable run = new MyRunnable();
 
-                IllegalStateEx m1 = (IllegalStateEx) Mission.getCurrentMission();
+                MyMission m1 = (MyMission) Mission.getCurrentMission();
                 m1.pri.newInstance(List.class);
                 m1.pri.enterPrivateMemory(500, run);
 
