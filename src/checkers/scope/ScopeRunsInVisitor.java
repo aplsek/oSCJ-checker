@@ -184,26 +184,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             ScopeInfo parent = getClassScopeAndVisit(p, errNode);
             ScopeInfo enclosed = getEnclosingClassScopeRecursive(t);
 
-            if (t.toString().equals("scope.scope.sanity.TestInnerClass.X")) {
-                pln("\n CLASS: " + t);
-                pln(" scope:" + scope);
-                pln(" parent:" + parent);
-                pln(" super:" + p);
-                // ScopeInfo enclosed =
-                // getEnclosingClassScopeRecursive(enclosingType(t));
-                pln(" enclosed:" + enclosed);
-            }
-
-            if (t.toString().equals("scope.scope.sanity.TestInnerClass")) {
-                pln("\n CLASS: " + t);
-                pln(" scope:" + scope);
-                pln(" parent:" + parent);
-                pln(" super:" + p);
-                // ScopeInfo enclosed =
-                // getEnclosingClassScopeRecursive(enclosingType(t));
-                pln(" enclosed:" + enclosed);
-            }
-
             ScopeInfo sc = null;
             if (parent.isCaller())
                 sc = scope;
@@ -211,12 +191,13 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 sc = parent;
             else {
                 // Set the scope to something, in case processing continues past this class
-                ctx.setClassScope(scope, t);
+                //ctx.setClassScope(scope, t);
+                sc = scope;
                 fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, p);
             }
 
             if (enclosed != null) {
-                if ( Utils.isStatic(t)) {
+                if (Utils.isStatic(t)) {
                     // static inner class is independent from the enclosing class
                     ctx.setClassScope(sc, t);
                 } else {
@@ -234,56 +215,8 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 }
             } else
                 ctx.setClassScope(sc, t);
-
-            /*
-            if (enclosed.isCaller()) {
-                ctx.setClassScope(sc, t);
-            } else if ( Utils.isStatic(t)) {
-
-            }
-
-            // TODO: static classes!!!
-            if (parent.isCaller()) {
-                if (enclosed.isCaller())
-                    ctx.setClassScope(scope, t);
-                else if (scope.isCaller())
-                    ctx.setClassScope(enclosed, t);
-                else {
-                    if (!scopeTree.isAncestorOf(enclosed, scope)) {
-                        // NOTE/TODO: inner class @Scope value should probably have some restrictons
-                        // but our test-cases do not follow this restriction. - but only if its non static
-                        //fail(ERR_BAD_INNER_SCOPE_NAME, node, errNode, scope,enclosed);
-                    }
-                    ctx.setClassScope(scope, t);
-                }
-            } else if (scope.equals(parent))
-                ctx.setClassScope(parent, t);
-            else {
-                // Set the scope to something, in case processing continues past
-                // this class
-                if (scope.isCaller()) {
-                    if (!enclosed.isCaller()) {
-                        if (enclosed != parent)
-                            fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, p);
-                        ctx.setClassScope(enclosed, t);
-                    } else {
-                        ctx.setClassScope(scope, t);
-                        fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, p);
-                    }
-                } else {
-                    ctx.setClassScope(scope, t);
-                    fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, p);
-                }
-            }*/
-
-            /*
-             * if (parent.isCaller()) ctx.setClassScope(scope, t); else if
-             * (scope.equals(parent)) ctx.setClassScope(parent, t); else { //
-             * Set the scope to something, in case processing continues past //
-             * this class ctx.setClassScope(scope, t);
-             * fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, p); }
-             */
         }
+
         // Ensure that the class doesn't change any Scope annotations on its
         // implemented interfaces. This shouldn't require the retrieval of
         // all interfaces implemented by superclasses and interfaces, since

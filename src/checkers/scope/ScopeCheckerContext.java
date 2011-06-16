@@ -354,14 +354,24 @@ public class ScopeCheckerContext {
         return expr;
     }
 
+    public ClassInfo getClassInfo(String clazz) {
+        ClassInfo ci = classScopes.get(clazz);
+        if (ci == null) {
+            // try to deal with generics
+            clazz = clazz.substring(0, clazz.indexOf("<"));
+            ci = classScopes.get(clazz);
+        }
+        return ci;
+    }
+
     /**
      * Determines if a given subtype can be upcasted to a given supertype.
      * @return true if upcast is safe.
      */
     public boolean isSafeUpcast(TypeMirror exprType, TypeMirror castType) {
 
-        ClassInfo expr = classScopes.get(exprType.toString());
-        ClassInfo cast = classScopes.get(castType.toString());
+        ClassInfo expr = getClassInfo(exprType.toString());
+        ClassInfo cast = getClassInfo(castType.toString());
 
         if (expr == null) {
             // TODO: this e.g. happens for generics!!!
