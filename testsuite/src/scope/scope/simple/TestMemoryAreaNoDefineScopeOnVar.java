@@ -21,7 +21,7 @@ public abstract class TestMemoryAreaNoDefineScopeOnVar extends MissionSequencer 
 
     @Scope("a")
     @DefineScope(name="b", parent="a")
-    abstract class X extends MissionSequencer {
+    static abstract class X extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)
         public X() {super(null, null);}

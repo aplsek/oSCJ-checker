@@ -46,7 +46,7 @@ public class Level1Hello implements Safelet {
 
     @Scope(IMMORTAL)
     @DefineScope(name = "OneMission", parent = IMMORTAL)
-    class OneSequencer extends MissionSequencer {
+    static class OneSequencer extends MissionSequencer {
         @SCJRestricted(INITIALIZATION)
         OneSequencer(PriorityParameters p, StorageParameters s) {
             super(p, s);
@@ -62,7 +62,7 @@ public class Level1Hello implements Safelet {
     }
 
     @Scope("OneMission")
-    class OneMission extends Mission {
+    static class OneMission extends Mission {
 
         @SCJRestricted(INITIALIZATION)
         @Override
@@ -84,7 +84,7 @@ public class Level1Hello implements Safelet {
 
     @Scope("OneMission")
     @DefineScope(name = "PEH", parent = "OneMission")
-    class PEH extends PeriodicEventHandler {
+    static class PEH extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)
         PEH(PriorityParameters p, PeriodicParameters r, StorageParameters s) {

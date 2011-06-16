@@ -29,6 +29,7 @@ import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
 import checkers.types.AnnotatedTypes;
 import checkers.util.InternalUtils;
 import checkers.util.TreeUtils;
+import checkers.util.TypesUtils;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
@@ -181,16 +182,107 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             ctx.setClassScope(scope, t); // t == java.lang.Object
         else {
             ScopeInfo parent = getClassScopeAndVisit(p, errNode);
+            ScopeInfo enclosed = getEnclosingClassScopeRecursive(t);
+
+            if (t.toString().equals("scope.scope.sanity.TestInnerClass.X")) {
+                pln("\n CLASS: " + t);
+                pln(" scope:" + scope);
+                pln(" parent:" + parent);
+                pln(" super:" + p);
+                // ScopeInfo enclosed =
+                // getEnclosingClassScopeRecursive(enclosingType(t));
+                pln(" enclosed:" + enclosed);
+            }
+
+            if (t.toString().equals("scope.scope.sanity.TestInnerClass")) {
+                pln("\n CLASS: " + t);
+                pln(" scope:" + scope);
+                pln(" parent:" + parent);
+                pln(" super:" + p);
+                // ScopeInfo enclosed =
+                // getEnclosingClassScopeRecursive(enclosingType(t));
+                pln(" enclosed:" + enclosed);
+            }
+
+            ScopeInfo sc = null;
             if (parent.isCaller())
-                ctx.setClassScope(scope, t);
+                sc = scope;
             else if (scope.equals(parent))
+                sc = parent;
+            else {
+                // Set the scope to something, in case processing continues past this class
+                ctx.setClassScope(scope, t);
+                fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, p);
+            }
+
+            if (enclosed != null) {
+                if ( Utils.isStatic(t)) {
+                    // static inner class is independent from the enclosing class
+                    ctx.setClassScope(sc, t);
+                } else {
+                    if (enclosed.isCaller()) {
+                        // TODO : perhaps sc should be also CALLER otherwise
+                        ctx.setClassScope(sc, t);
+                    } else {
+                        if (sc.isCaller())
+                            ctx.setClassScope(enclosed, t);
+                        else if (!sc.equals(enclosed)) {
+                            fail(ERR_BAD_INNER_SCOPE_NAME, node, errNode, sc, enclosed);
+                        } else
+                            ctx.setClassScope(sc, t);
+                    }
+                }
+            } else
+                ctx.setClassScope(sc, t);
+
+            /*
+            if (enclosed.isCaller()) {
+                ctx.setClassScope(sc, t);
+            } else if ( Utils.isStatic(t)) {
+
+            }
+
+            // TODO: static classes!!!
+            if (parent.isCaller()) {
+                if (enclosed.isCaller())
+                    ctx.setClassScope(scope, t);
+                else if (scope.isCaller())
+                    ctx.setClassScope(enclosed, t);
+                else {
+                    if (!scopeTree.isAncestorOf(enclosed, scope)) {
+                        // NOTE/TODO: inner class @Scope value should probably have some restrictons
+                        // but our test-cases do not follow this restriction. - but only if its non static
+                        //fail(ERR_BAD_INNER_SCOPE_NAME, node, errNode, scope,enclosed);
+                    }
+                    ctx.setClassScope(scope, t);
+                }
+            } else if (scope.equals(parent))
                 ctx.setClassScope(parent, t);
             else {
                 // Set the scope to something, in case processing continues past
                 // this class
-                ctx.setClassScope(scope, t);
-                fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, p);
-            }
+                if (scope.isCaller()) {
+                    if (!enclosed.isCaller()) {
+                        if (enclosed != parent)
+                            fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, p);
+                        ctx.setClassScope(enclosed, t);
+                    } else {
+                        ctx.setClassScope(scope, t);
+                        fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, p);
+                    }
+                } else {
+                    ctx.setClassScope(scope, t);
+                    fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, p);
+                }
+            }*/
+
+            /*
+             * if (parent.isCaller()) ctx.setClassScope(scope, t); else if
+             * (scope.equals(parent)) ctx.setClassScope(parent, t); else { //
+             * Set the scope to something, in case processing continues past //
+             * this class ctx.setClassScope(scope, t);
+             * fail(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, node, errNode, t, p); }
+             */
         }
         // Ensure that the class doesn't change any Scope annotations on its
         // implemented interfaces. This shouldn't require the retrieval of
@@ -227,6 +319,34 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             fail(ERR_RUNS_IN_ON_CLASS, node, errNode);
 
         debugIndentDecrement();
+    }
+
+    /**
+     *
+     * @return
+     *  - null - the class is not an inner class
+     *  - CALLER - the enclosing class has no annotation
+     *  - named-scope - enclosing class has an annotation.
+     */
+    private ScopeInfo getEnclosingClassScopeRecursive(Element elem) {
+        ScopeInfo scope = null;
+        String clazz = elem.toString();
+        while (elem != null) {
+            if ( clazz.lastIndexOf(".") == -1)
+                return null;
+            clazz = clazz.substring(0, clazz.lastIndexOf("."));
+            ScopeInfo enclosed = ctx.getClassScope(clazz);
+            if (enclosed == null && scope == null)
+                return null;
+            else if (enclosed == null )
+                return scope;
+            else
+                scope = enclosed;
+
+            if (!scope.isCaller())
+                break;
+        }
+        return scope;
     }
 
     private void checkConstructor(ExecutableElement m, MethodTree mTree,
@@ -409,7 +529,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         if (Utils.isStatic(m) && runsIn.isThis())
             fail(ERR_BAD_SCOPE_NAME, node, errNode, runsIn);
 
-
         Map<AnnotatedDeclaredType, ExecutableElement> overrides = ats
                 .overriddenMethods(m);
         for (ExecutableElement e : overrides.values()) {
@@ -420,52 +539,39 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 break;
             }
 
-
-            /* THIS is for SUPPORT and @RunsIn overriding - now disabled.
-            // if the "e" has @RunsIn annotation, then the m must explicitly
-            // restate the @RunsIn
-            if (ann == null && e.getAnnotation(RunsIn.class) != null) {
-                fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE, node, errNode);
-            }
-
-            if (!Utils.isSCJSupport(m, ats)) {
-                if (!eRunsIn.equals(runsIn)) {
-
-                    if (isRunnable(Utils.getMethodClass(e)) || isManagedThread(Utils.getMethodClass(m))) {
-
-                        if (runsIn.isReservedScope()) {
-                            fail(ERR_ILLEGAL_METHOD_RESERVED_RUNS_IN_OVERRIDE, node,
-                                    errNode);
-                        } else if (!eRunsIn.isReservedScope()) {
-                            fail(ERR_ILLEGAL_METHOD_NAMED_RUNS_IN_OVERRIDE, node,
-                                    errNode);
-                        } else {
-                            continue;
-                        }
-                    } else if (isRunnableSubtype(Utils.getMethodClass(e))) {
-                        fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
-                    } else {
-                        if (!runsIn.isCaller()) {
-                            //TODO: is it allowed to override the default with CALLER?
-                            fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode);
-                        }
-                    }
-                }
-            } else {
-                // If the eLevel is SUPPORT, then the mLevel must be also SUPPORT
-                // and:
-                // if the "e" has @RunsIn annotation, then the m must explicitly
-                // restate the @RunsIn, if e does not have the annotation, then we can override
-                if (eRunsIn.equals(runsIn) || (!eRunsIn.equals(runsIn) && e.getAnnotation(RunsIn.class) == null))
-                    continue;
-                else {
-                    // when overriding, we must explicitly restate
-                    if (!eRunsIn.equals(runsIn) && m.getAnnotation(RunsIn.class) == null) {
-                            fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE, node, errNode);
-                    }
-                }
-            }
-            */
+            /*
+             * THIS is for SUPPORT and @RunsIn overriding - now disabled. // if
+             * the "e" has @RunsIn annotation, then the m must explicitly //
+             * restate the @RunsIn if (ann == null &&
+             * e.getAnnotation(RunsIn.class) != null) {
+             * fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE, node, errNode);
+             * }
+             *
+             * if (!Utils.isSCJSupport(m, ats)) { if (!eRunsIn.equals(runsIn)) {
+             *
+             * if (isRunnable(Utils.getMethodClass(e)) ||
+             * isManagedThread(Utils.getMethodClass(m))) {
+             *
+             * if (runsIn.isReservedScope()) {
+             * fail(ERR_ILLEGAL_METHOD_RESERVED_RUNS_IN_OVERRIDE, node,
+             * errNode); } else if (!eRunsIn.isReservedScope()) {
+             * fail(ERR_ILLEGAL_METHOD_NAMED_RUNS_IN_OVERRIDE, node, errNode); }
+             * else { continue; } } else if
+             * (isRunnableSubtype(Utils.getMethodClass(e))) {
+             * fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode); } else
+             * { if (!runsIn.isCaller()) { //TODO: is it allowed to override the
+             * default with CALLER? fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE,
+             * node, errNode); } } } } else { // If the eLevel is SUPPORT, then
+             * the mLevel must be also SUPPORT // and: // if the "e" has @RunsIn
+             * annotation, then the m must explicitly // restate the @RunsIn, if
+             * e does not have the annotation, then we can override if
+             * (eRunsIn.equals(runsIn) || (!eRunsIn.equals(runsIn) &&
+             * e.getAnnotation(RunsIn.class) == null)) continue; else { // when
+             * overriding, we must explicitly restate if
+             * (!eRunsIn.equals(runsIn) && m.getAnnotation(RunsIn.class) ==
+             * null) { fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE, node,
+             * errNode); } } }
+             */
         }
 
         ctx.setMethodRunsIn(runsIn, m);

@@ -29,7 +29,7 @@ public abstract class TestRunOverride2 extends MissionSequencer {
     @Scope("D")
     @DefineScope(name = "C", parent = "D")
     @SCJAllowed(value = LEVEL_2, members = true)
-    class MyThread extends ManagedThread {
+    static class MyThread extends ManagedThread {
 
         @SCJRestricted(INITIALIZATION)
         public MyThread(int priority) {
@@ -46,7 +46,7 @@ public abstract class TestRunOverride2 extends MissionSequencer {
     @Scope("D")
     @DefineScope(name = "E", parent = "D")
     @SCJAllowed(value = LEVEL_2, members = true)
-    class MyThread2 extends MyThread {
+    static class MyThread2 extends MyThread {
 
         @SCJRestricted(INITIALIZATION)
         public MyThread2(int priority) {
@@ -62,7 +62,7 @@ public abstract class TestRunOverride2 extends MissionSequencer {
     @Scope("D")
     @DefineScope(name = "F", parent = "D")
     @SCJAllowed(value = LEVEL_2, members = true)
-    class MyThread3 extends ManagedThread {
+    static class MyThread3 extends ManagedThread {
 
         @SCJRestricted(INITIALIZATION)
         public MyThread3(int priority) {

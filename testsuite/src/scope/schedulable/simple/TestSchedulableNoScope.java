@@ -38,7 +38,7 @@ public abstract class TestSchedulableNoScope extends PeriodicEventHandler {
     @Scope("a")
     @DefineScope(name="b", parent=IMMORTAL)
     //## checkers.scope.SchedulableChecker.ERR_SCOPE_DEFINESCOPE_MISMATCH
-    public abstract class MySchedulable extends PeriodicEventHandler {
+    public static abstract class MySchedulable extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)
         public MySchedulable(PriorityParameters priority,
@@ -58,7 +58,7 @@ public abstract class TestSchedulableNoScope extends PeriodicEventHandler {
     @Scope(IMMORTAL)
     @DefineScope(name="c", parent=IMMORTAL)
     //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_RUNS_IN_MISMATCH
-    public abstract class MySchedulable2 extends PeriodicEventHandler {
+    public static abstract class MySchedulable2 extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)
         public MySchedulable2(PriorityParameters priority,

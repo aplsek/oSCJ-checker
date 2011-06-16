@@ -31,7 +31,7 @@ public abstract class TestSchedulableNoRunsIn extends MissionSequencer {
     @Scope("a")
     @DefineScope(name = "b", parent = "a")
     //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_NO_RUNS_IN
-    public abstract class PEH extends PeriodicEventHandler {
+    public static abstract class PEH extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)
         public PEH(PriorityParameters priority,

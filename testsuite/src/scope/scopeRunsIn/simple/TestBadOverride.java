@@ -48,14 +48,14 @@ public class TestBadOverride {
     }
 
     @SCJAllowed(members=true)
-    public class PEHImplementation implements MyRunnable {
+    static public class PEHImplementation implements MyRunnable {
         public void run() {
         }
     }
 
 
     @SCJAllowed(members=true)
-    interface MyRunnable extends Runnable {
+    static interface MyRunnable extends Runnable {
 
         @RunsIn("PEH")
         public void run();

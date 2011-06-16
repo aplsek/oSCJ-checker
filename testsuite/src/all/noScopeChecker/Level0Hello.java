@@ -61,7 +61,7 @@ public class Level0Hello extends CyclicExecutive {
     }
 
     @SCJAllowed(members=true)
-    class WordHandler extends PeriodicEventHandler {
+    static public class WordHandler extends PeriodicEventHandler {
 
         @SCJAllowed()
         @SCJRestricted(INITIALIZATION)

@@ -32,7 +32,7 @@ public abstract class TestRunOverride extends MissionSequencer {
     @Scope("D")
     @DefineScope(name="C", parent="D")
     @SCJAllowed(value=LEVEL_2, members=true)
-    class MyThread extends ManagedThread {
+    static class MyThread extends ManagedThread {
 
         @SCJRestricted(INITIALIZATION)
         public MyThread(int priority) {
@@ -44,18 +44,18 @@ public abstract class TestRunOverride extends MissionSequencer {
         public void run() { }
     }
 
-    class MyRun implements Runnable {
+    static class MyRun implements Runnable {
         @RunsIn("C")
         public void run() {}
     }
 
-    class MyRun2 extends MyRun {
+    static class MyRun2 extends MyRun {
         @Override
         @RunsIn("D")
         public void run() {}
     }
 
-    class MyRun3 implements Runnable {
+    static class MyRun3 implements Runnable {
         @Override
         @RunsIn("CALLER")
         public void run() {}

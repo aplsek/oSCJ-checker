@@ -142,7 +142,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         } else if (node.getKind() == Kind.METHOD_INVOCATION) {
             MethodInvocationTree tree = (MethodInvocationTree) node;
-            if (!Utils.isUserLevel(TreeUtils.elementFromUse(tree)))
+            if (!Utils.isUserLevel(TreeUtils.elementFromUse(tree)))   // TODO what is this? is it the context?
                 return;
             if (escapeUpcastOnInvoke(tree))
                 return;
@@ -325,7 +325,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (TreeUtils.isStringCompoundConcatenation(node)) {
             ScopeInfo current = currentScope();
             if (!lhs.equals(current)) {
-                fail(ERR_BAD_ASSIGNMENT_SCOPE, node, current ,lhs);
+                fail(ERR_BAD_ASSIGNMENT_SCOPE, node, current, lhs);
             }
             ret = lhs;
         }
@@ -344,7 +344,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo ret = null;
         if (t != null) {
             if (!t.equals(f)) {
-                fail(ERR_BAD_ASSIGNMENT_SCOPE, node, t ,f);
+                fail(ERR_BAD_ASSIGNMENT_SCOPE, node, t, f);
             }
             ret = t;
         }
@@ -420,8 +420,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // If we're visiting an identifer that's a class, then it's
             // probably being used in a static field member select.
             ret = ScopeInfo.IMMORTAL;
-        } else if (elem.getKind() == ElementKind.ENUM ||
-                elem.getKind() == ElementKind.ENUM_CONSTANT) {
+        } else if (elem.getKind() == ElementKind.ENUM
+                || elem.getKind() == ElementKind.ENUM_CONSTANT) {
             // NOTE: java.lang.Enum has @Scope(IMMORTAL)
             ret = ScopeInfo.IMMORTAL;
         } else {
@@ -480,9 +480,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // visitMethodInvocation has its scope.
             ret = node.getExpression().accept(this, p);
         } else if (elem.getKind() == ElementKind.CLASS) {
-            // TODO: inner class, issue 22
-            //pln("\n visitMemberSelect TODO: ElementKind.CLASS : " + node);
-            ret = null;
+            ScopeInfo scope = ctx.getClassScope((TypeElement) elem);
+            ret = scope;
         } else if (elem.getKind() == ElementKind.ENUM) {
             // NOTE: java.lang.Enum is IMMORTAL
             ret = ScopeInfo.IMMORTAL;
@@ -498,6 +497,17 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
         debugIndentDecrement();
         return ret;
+    }
+
+    public ScopeInfo getEnclosingClassScope(Element elem) {
+        ScopeInfo scope = ScopeInfo.CALLER;
+        while (elem != null) {
+            scope = ctx.getClassScope(elem.toString());
+            if (!scope.isCaller())
+                break;
+            elem = elem.getEnclosingElement();
+        }
+        return scope;
     }
 
     @Override
@@ -797,26 +807,27 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndentIncrement("checkFieldAssignment");
 
         rhs = concretize(rhs);
+
         String rhsVar = getRhsVariableNameFromAssignment(node);
         String lhsVar = getLhsVariableNameFromAssignment(node);
 
         if (!rhs.isNull()) {
             if (!lhs.isUnknown()) {
-                if (lhs.getFieldScope().isThis()) {
+                if (lhs.getFieldScope().isThis()) {    // no check for THIS?
                     if (!lhs.getReceiverScope().equals(rhs)
                             && !varScopes.hasSameRelation(lhsVar, rhsVar))
                         fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
                 } else if (!lhs.getFieldScope().equals(rhs))
                     fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
             } else {
-                ScopeInfo fScope = lhs.getFieldScope();
-                if (fScope.isThis()) {
+                if (lhs.getFieldScope().isThis()) {
                     if (!varScopes.hasSameRelation(lhsVar, rhsVar))
                         fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
                 } else if (!varScopes.hasParentRelation(lhsVar, rhsVar))
                     fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
             }
         }
+
         ScopeInfo rhsDsi = rhs.getRepresentedScope();
         if (rhsDsi != null && !rhsDsi.equals(lhs.getRepresentedScope()))
             fail(ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT, node);

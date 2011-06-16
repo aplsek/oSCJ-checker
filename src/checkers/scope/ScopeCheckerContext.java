@@ -363,6 +363,12 @@ public class ScopeCheckerContext {
         ClassInfo expr = classScopes.get(exprType.toString());
         ClassInfo cast = classScopes.get(castType.toString());
 
+        if (expr == null) {
+            // TODO: this e.g. happens for generics!!!
+            throw new RuntimeException("ClassScopes: given class is not in the map of the classscopes: " + exprType.toString());
+        }
+
+
         if (!Utils.isUserLevel(exprType.toString()) && !Utils.isUserLevel(castType.toString())) {
             // ignore upcasting between SCJ classes (classes from javax.safetycritical and javax.realtime)
             // Note: This is for example for the executeInArea() method that has different @RunsIn but we need to upcast here.
@@ -370,11 +376,7 @@ public class ScopeCheckerContext {
         }
 
         for (Entry<String, MethodScopeInfo> e : cast.methodScopes.entrySet()) {
-            if (expr == null) {
-                // TODO: this e.g. happens for generics!!!
-                throw new RuntimeException("ClassScopes: given class is not in the map of the classscopes: " + exprType.toString());
-            }
-            if (expr.methodScopes.containsKey(e.getKey())) {
+            if (expr.methodScopes.containsKey(e.getKey())) {            // TODO: check that its a signature
                 MethodScopeInfo eM = expr.methodScopes.get(e.getKey());
                 if (!e.getValue().runsIn.equals(eM.runsIn)) {
                     return false;

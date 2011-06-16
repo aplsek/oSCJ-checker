@@ -6,6 +6,8 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 
 import static javax.safetycritical.annotate.Level.SUPPORT;
+
+import javax.realtime.MemoryArea;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
@@ -24,7 +26,7 @@ public abstract class TestUpcast5 extends MissionSequencer {
     @Scope("A")
     @DefineScope(name="B", parent="A")
     @SCJAllowed(members = true)
-    abstract class MS extends MissionSequencer {
+    abstract static class MS extends MissionSequencer {
         @SCJRestricted(INITIALIZATION)
         public MS() { super(null, null); }
     }
@@ -37,26 +39,40 @@ public abstract class TestUpcast5 extends MissionSequencer {
         BarBar bar = new BarBar();
         //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
         FooFoo foo = bar;
+
+    }
+
+    public void bar2() {
+        Bar b  = new Bar();
+        Foo f ;
+
+        try {
+            //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
+            MemoryArea.newInstanceInArea(f=b, Object.class);
+
+        } catch (InstantiationException e) {
+        } catch (IllegalAccessException e) {
+        }
     }
 
 
-    class Foo {
+    static class Foo {
         void method() {}
     }
 
-    class Bar extends Foo {
+    static class Bar extends Foo {
 
         @Override
         @RunsIn("A")
         void method() {}
     }
 
-    class FooFoo {
+    static class FooFoo {
         @RunsIn("A")
         void method() {}
     }
 
-    class BarBar extends FooFoo {
+    static class BarBar extends FooFoo {
 
         @Override
         @RunsIn("B")

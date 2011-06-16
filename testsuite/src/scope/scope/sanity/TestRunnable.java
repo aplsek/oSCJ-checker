@@ -24,7 +24,7 @@ public abstract class TestRunnable extends MissionSequencer {
 
     @Scope("D")
     @SCJAllowed(value = LEVEL_2, members = true)
-    class MyRun implements Runnable {
+    static class MyRun implements Runnable {
         @Override
         public void run() {}
     }
@@ -32,7 +32,7 @@ public abstract class TestRunnable extends MissionSequencer {
 
     @Scope("D")
     @SCJAllowed(value = LEVEL_2, members = true)
-    class OverrideRunnable extends MyRun {
+    static class OverrideRunnable extends MyRun {
 
         @Override
         public void run() {

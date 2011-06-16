@@ -17,9 +17,6 @@ import javax.safetycritical.annotate.Scope;
 /**
  * This class is the Safelet for unit test. This unit test program is also an example level one
  * SCJ application.
- *
- * @author Lilei Zhai
- *
  */
 @SCJAllowed(value = LEVEL_1, members=true)
 @Scope(IMMORTAL)

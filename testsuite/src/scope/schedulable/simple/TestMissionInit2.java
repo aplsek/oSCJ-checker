@@ -70,7 +70,7 @@ public class TestMissionInit2 extends CyclicExecutive {
     @Scope("a")
     @SCJAllowed(members=true)
     @DefineScope(name = "b", parent = "a")
-    public class PEH extends PeriodicEventHandler {
+    public static class PEH extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)
         public PEH(PriorityParameters priority,

@@ -62,7 +62,7 @@ public class Level0Hello extends CyclicExecutive {
     @SCJAllowed(members=true)
     @Scope("Level0App")
     @DefineScope(name="WordHandler", parent="Level0App")
-    class WordHandler extends PeriodicEventHandler {
+    static public class WordHandler extends PeriodicEventHandler {
 
         @SCJAllowed()
         @SCJRestricted(INITIALIZATION)

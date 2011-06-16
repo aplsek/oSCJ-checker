@@ -17,7 +17,7 @@ import javax.safetycritical.annotate.Scope;
 public abstract class TestUpcast2 extends MissionSequencer {
 
     @Scope("D")
-    class Test {
+    static class Test {
         //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
         Runnable r = new Y();
     }
@@ -41,17 +41,45 @@ public abstract class TestUpcast2 extends MissionSequencer {
         @DefineScope(name = "D", parent = IMMORTAL)
         ManagedMemory mem = null;
         mem.enterPrivateMemory(1000, y);
+
+
+
     }
 
     @RunsIn("D")
     public void bar(Runnable run) {}
 
+    @RunsIn("D")
+    public void bar2() {
+        YY  yy  = new YY();
+        Y  y  = new Y();
+
+        @Scope(IMMORTAL)
+        @DefineScope(name = "D", parent = IMMORTAL)
+        ManagedMemory mem = null;
+        //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
+        mem.enterPrivateMemory(1000, (yy = y));
+
+        //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
+        Runnable[] arr = new Runnable[]{(yy=y)};
+    }
+
+    @SCJAllowed(members = true)
+    @Scope("D")
+    @DefineScope(name = "YY", parent = "D")
+    static class YY implements Runnable {
+        @RunsIn("YY")
+        public void run() {}
+    }
+
 
     @SCJAllowed(members = true)
     @Scope("D")
     @DefineScope(name = "C", parent = "D")
-    static class Y implements Runnable {
+    static class Y extends YY {
+        @Override
         @RunsIn("C")
         public void run() {}
     }
+
 }

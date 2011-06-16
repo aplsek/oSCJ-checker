@@ -28,7 +28,7 @@ public class Level2Hello {
     @SCJAllowed(members = true, value = LEVEL_2)
     @Scope(IMMORTAL)
     @DefineScope(name = "PrimaryMission", parent = IMMORTAL)
-    class MainMissionSequencer extends MissionSequencer {
+    static public class MainMissionSequencer extends MissionSequencer {
 
         private boolean initialized, finalized;
 
@@ -61,7 +61,7 @@ public class Level2Hello {
 
     @SCJAllowed(members = true, value = LEVEL_2)
     @Scope("PrimaryMission")
-    class PrimaryMission extends Mission {
+    static public class PrimaryMission extends Mission {
         final int MISSION_MEMORY_SIZE = 10000;
 
         @Override
@@ -94,7 +94,7 @@ public class Level2Hello {
 
     @SCJAllowed(members = true, value = LEVEL_2)
     @Scope("StageMission")
-    class StageOneMission extends Mission {
+    static public class StageOneMission extends Mission {
         private static final int MISSION_MEMORY_SIZE = 10000;
 
         @Override
@@ -115,7 +115,7 @@ public class Level2Hello {
 
     @SCJAllowed(members = true, value = LEVEL_2)
     @Scope("StageMission")
-    class StageTwoMission extends Mission {
+    static public  class StageTwoMission extends Mission {
         private static final int MISSION_MEMORY_SIZE = 10000;
 
         @Override
@@ -137,7 +137,7 @@ public class Level2Hello {
     @SCJAllowed(members = true, value = LEVEL_2)
     @Scope("PrimaryMission")
     @DefineScope(name = "StageMission", parent = "PrimaryMission")
-    class SubMissionSequencer extends MissionSequencer {
+    static public class SubMissionSequencer extends MissionSequencer {
 
         private boolean initialized, finalized;
 
@@ -167,7 +167,7 @@ public class Level2Hello {
     @SCJAllowed(members = true, value = LEVEL_2)
     @Scope("PrimaryMission")
     @DefineScope(name = "PrimaryPeriodicEventHandler", parent = "PrimaryMission")
-    class PrimaryPeriodicEventHandler extends PeriodicEventHandler {
+    static public class PrimaryPeriodicEventHandler extends PeriodicEventHandler {
         private static final int _priority = 17;
         private static final int _memSize = 5000;
         private int _eventCounter;
@@ -197,7 +197,7 @@ public class Level2Hello {
     @SCJAllowed(members = true, value = LEVEL_2)
     @Scope("StageMission")
     @DefineScope(name = "SecondaryPeriodicEventHandler", parent = "StageMission")
-    class SecondaryPeriodicEventHandler extends PeriodicEventHandler {
+    static public class SecondaryPeriodicEventHandler extends PeriodicEventHandler {
         private static final int _priority = 17;
         private static final int _memSize = 5000;
         private int _eventCounter;
@@ -226,7 +226,7 @@ public class Level2Hello {
 
     @SCJAllowed(members = true, value = LEVEL_2)
     @Scope("PrimaryMission")
-    class CleanupMission extends Mission {
+    static public class CleanupMission extends Mission {
         static final private int MISSION_MEMORY_SIZE = 10000;
 
         @Override
@@ -249,7 +249,7 @@ public class Level2Hello {
     @SCJAllowed(members = true, value = LEVEL_2)
     @Scope("PrimaryMission")
     @DefineScope(name = "MyCleanupThread", parent = "PrimaryMission")
-    class MyCleanupThread extends ManagedThread {
+    static public class MyCleanupThread extends ManagedThread {
 
         @SCJRestricted(INITIALIZATION)
         public MyCleanupThread(PriorityParameters priority,
