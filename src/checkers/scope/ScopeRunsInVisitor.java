@@ -202,12 +202,24 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                     ctx.setClassScope(sc, t);
                 } else {
                     if (enclosed.isCaller()) {
-                        // TODO : perhaps sc should be also CALLER otherwise
-                        ctx.setClassScope(sc, t);
+                        if (sc.isCaller()) {
+                            ctx.setClassScope(sc, t);
+                        }
+                        else {
+                            ctx.setClassScope(sc, t);
+                            // if enclosed is CALLER, we are not allowed to override it
+                            fail(ERR_BAD_INNER_SCOPE_NAME, node, errNode, sc, enclosed);
+                        }
                     } else {
-                        if (sc.isCaller())
+                        if (sc.isCaller()) {
+                            // if enclosed is some named-scope, we need to restate it also
+                            // for the innter class
                             ctx.setClassScope(enclosed, t);
+                            fail(ERR_BAD_INNER_SCOPE_NAME, node, errNode, sc, enclosed);
+                        }
                         else if (!sc.equals(enclosed)) {
+                            // if non-static inner class changes the @Scope then its an error
+                            ctx.setClassScope(sc, t);
                             fail(ERR_BAD_INNER_SCOPE_NAME, node, errNode, sc, enclosed);
                         } else
                             ctx.setClassScope(sc, t);

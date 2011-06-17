@@ -31,8 +31,8 @@ public class TestInnerClass  {
     @RunsIn(IMMORTAL)
     void method () {
 
-      //## checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION
-        new TestInnerClass.X();  // OK
+        //## checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION
+        new TestInnerClass.X();  // ERR
 
         new TestInnerClass.Y();  // OK
 
@@ -41,6 +41,7 @@ public class TestInnerClass  {
     }
 
     @SCJAllowed(members = true)
+    @Scope("A")
     public class X {}
 
     @SCJAllowed(members = true)

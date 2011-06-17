@@ -32,6 +32,7 @@ import scope.scope.sanity.TestInnerClass2.Z;
 public class TestInnerClass2  {
 
     @SCJAllowed(members = true)
+    @Scope("A")
     public class X {}
 
     @SCJAllowed(members = true)

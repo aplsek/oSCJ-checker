@@ -1131,7 +1131,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             instType = Utils.getBaseType(instType);
             if (!instType.getKind().isPrimitive()) {
                 ScopeInfo argScope = ctx.getClassScope(instType.toString());
-
                 if (!(argScope.isCaller() || argScope.equals(target)))
                     fail(ERR_BAD_NEW_ARRAY, node, argScope, target);
             }
@@ -1142,7 +1141,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private boolean isValidNewArrayType(TypeMirror m) {
         TypeKind k = m.getKind();
-        pln("\n type: " + k);
         return !(k == TypeKind.VOID || k == TypeKind.WILDCARD || k == TypeKind.TYPEVAR);
     }
 
