@@ -24,42 +24,17 @@ import javax.safetycritical.annotate.Scope;
  * SCJ application.
  */
 @SCJAllowed(members = true)
-@Scope("A")
-public class TestOuterClassThis  {
+class TestOuterClassThis2 {
 
-    Y y;
-
-    @SCJAllowed(members = true)
-    @Scope("A")
-    public class X {
-
-        @RunsIn("A")
-        void method () {
-            Y y = TestOuterClassThis.this.y;
-        }
-
-    }
+    FF f;
 
     @SCJAllowed(members = true)
-    public static class Y {
-    }
-
-
-    @Scope(IMMORTAL)
-    @DefineScope(name = "A", parent = IMMORTAL)
-    @SCJAllowed(members = true)
-    static class MS extends MissionSequencer {
-
-        @SCJRestricted(INITIALIZATION)
-        public MS(PriorityParameters priority, StorageParameters storage) {
-            super(priority, storage);
-        }
-
-        @Override
-        @SCJAllowed(SUPPORT)
-        @RunsIn("A")
-        protected Mission getNextMission() {
-            return null;
+    public class ZZZ {
+        void method(){
+            TestOuterClassThis2.this.f = new FF();
         }
     }
 }
+
+@SCJAllowed(members = true)
+class FF {}
