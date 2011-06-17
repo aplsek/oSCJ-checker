@@ -124,5 +124,4 @@ public class Level1Hello implements Safelet {
             return null;
         }
     }
-
 }
