@@ -15,8 +15,6 @@ public class EscapeMap {
     private static final Map<String, Level> escape = new HashMap<String, Level>();
 
     static {
-        escape.put("javax.realtime.ThrowBoundaryError", Level.LEVEL_0);
-        escape.put("byte", Level.LEVEL_0);
         escape.put("Array", Level.LEVEL_0);
     }
 
