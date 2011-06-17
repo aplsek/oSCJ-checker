@@ -32,6 +32,8 @@ public class ScopeInfo {
      * This field is used to indicate that this ScopeInfo object is utilized by
      * an object that represents a named scope. For all other objects, this is a
      * null value.
+     *
+     * - for ManagedMemory objects, represents the @DefinScope annotation
      */
     private final ScopeInfo represented;
 

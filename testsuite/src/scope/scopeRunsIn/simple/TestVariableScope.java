@@ -1,4 +1,4 @@
-package all.sanity;
+package scope.scopeRunsIn.simple;
 
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
@@ -26,9 +26,9 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.RunsIn;
 
-@SCJAllowed(members = true)
+@SCJAllowed(members=true)
 @Scope(IMMORTAL)
-public class IllegalStateEx implements Safelet {
+public class TestVariableScope implements Safelet {
 
     @Override
     @SCJAllowed(SUPPORT)
@@ -69,19 +69,10 @@ public class IllegalStateEx implements Safelet {
     @SCJAllowed(members=true)
     public static class MyMission extends Mission {
 
-        @Scope("MyApp")
-        @DefineScope(name="MyPEH1", parent="MyApp")
-        public ManagedMemory pri;
-
-        @Scope("MyApp")
-        @DefineScope(name="MyPEH2", parent="MyApp")
-        public ManagedMemory pri2;
-
         @Override
         @SCJRestricted(INITIALIZATION)
         @SCJAllowed(SUPPORT)
         public void initialize() {
-            new MyPEH1().register();
             new MyPEH2().register();
         }
 
@@ -109,8 +100,6 @@ public class IllegalStateEx implements Safelet {
         @SCJAllowed(SUPPORT)
         @RunsIn("MyPEH1")
         public void handleAsyncEvent() {
-            MyMission m1 = (MyMission) Mission.getCurrentMission();
-            m1.pri = (ManagedMemory) MemoryArea.getMemoryArea(new int[0]);
         }
 
         @Override
@@ -123,7 +112,6 @@ public class IllegalStateEx implements Safelet {
             return null;
         }
     }
-
 
     @SCJAllowed(members = true)
     @Scope("MyApp")
@@ -146,31 +134,12 @@ public class IllegalStateEx implements Safelet {
         @RunsIn("MyPEH2")
         @SCJAllowed(SUPPORT)
         public void handleAsyncEvent() {
-            try {
-                MyRunnable run = new MyRunnable();
 
-                MyMission m1 = (MyMission) Mission.getCurrentMission();
+            // TODO: error?
+            @Scope("MyPEH1") Object obj;
 
-                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
-                m1.pri.newInstance(List.class);     // ERR
-
-                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_REPRESENTED_SCOPE
-                @Scope("MyPEH1") Object obj = m1.pri.newInstance(Object.class);     // ERR
-
-                m1.pri2.newInstance(Object.class);    // OK
-
-                //## checkers.scope.ScopeChecker.ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET
-                m1.pri.enterPrivateMemory(500, run);        // ERR
-
-                m1.pri2.enterPrivateMemory(500, run);       // OK
-
-                pri2.enterPrivateMemory(500, run);      // OK
-
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            //## ERROR: TODO
+            @Scope("new-scope") Object obj2;
         }
 
         @Override
@@ -192,5 +161,4 @@ public class IllegalStateEx implements Safelet {
         public void run() {
         }
     }
-
 }

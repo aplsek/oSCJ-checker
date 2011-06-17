@@ -30,6 +30,8 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_NEW_ARRAY_TYPE = "bad.new.array.type";
     public static final String ERR_BAD_NEW_INSTANCE = "bad.new.instance";
     public static final String ERR_BAD_NEW_INSTANCE_TYPE = "bad.new.instance.type";
+    public static final String ERR_BAD_NEW_INSTANCE_REPRESENTED_SCOPE = "bad.new.instance.represented.scope";
+
     public static final String ERR_BAD_RETURN_SCOPE = "bad.return.scope";
     public static final String ERR_BAD_RUNS_IN_METHOD = "bad.runs.in.method";
     public static final String ERR_BAD_VARIABLE_SCOPE = "bad.variable.scope";
@@ -97,6 +99,10 @@ public class ScopeChecker extends SinglePassChecker {
                 "Cannot allocate objects of type %s inside scope %s.");
         p.put(ERR_BAD_NEW_INSTANCE_TYPE,
                 "Type %s is a bad argument to newInstance.");
+        p.put(ERR_BAD_NEW_INSTANCE_REPRESENTED_SCOPE,
+            "Bad newInstance(): Cannot invoke newInstance() call on MemoryArea object that does not represent an ancestor of the current scope.");
+
+
         p.put(ERR_BAD_RETURN_SCOPE,
                 "Cannot return expression in scope %s in a method that has @Scope annotation: %s.");
         p.put(ERR_BAD_RUNS_IN_METHOD,

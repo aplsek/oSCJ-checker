@@ -93,8 +93,14 @@ public class ErrorApp extends CyclicExecutive {
         @RunsIn("PEH")
         public void handleAsyncEvent() {
             List b = new List();
+
+            //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
             setTail(b, a);
+
+            //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
             setTail(a, b);
+
+            //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
             this.a = b;
 
             Mission.getCurrentMission().requestSequenceTermination();
@@ -121,6 +127,4 @@ public class ErrorApp extends CyclicExecutive {
     public static class List {
         List tail;
     }
-
-
 }

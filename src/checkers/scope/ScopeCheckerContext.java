@@ -434,9 +434,10 @@ public class ScopeCheckerContext {
             }
 
             System.out.println(" fieldScopes : " + fieldScopes.size());
-            for (String key : fieldScopes.keySet())
-                System.out.println("\t key:" + key + "  - "
-                        + fieldScopes.get(key));
+            for (String key : fieldScopes.keySet()) {
+                System.out.println("\t key:" + key + "  - @Scope("
+                        + fieldScopes.get(key) + "), @DS(name=" +  fieldScopes.get(key).getRepresentedScope() + ",...)" );
+            }
         }
     }
 

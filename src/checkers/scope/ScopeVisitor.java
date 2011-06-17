@@ -196,7 +196,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         castType = Utils.getBaseType(castType);
         exprType = Utils.getBaseType(exprType);
 
-        if (castType.getKind().isPrimitive())
+        if (castType.getKind().isPrimitive() || exprType.getKind().isPrimitive())
             return;
 
         if (exprType.toString().equals("<nulltype>"))
@@ -426,6 +426,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             throw new RuntimeException("Unexpected assignment AST node: "
                     + elem.getKind());
         }
+
         debugIndentDecrement();
         return ret;
     }
@@ -827,8 +828,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         ScopeInfo rhsDsi = rhs.getRepresentedScope();
-        if (rhsDsi != null && !rhsDsi.equals(lhs.getRepresentedScope()))
+        if (rhsDsi != null && !rhsDsi.equals(lhs.getRepresentedScope())) {
             fail(ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT, node);
+        }
         debugIndentDecrement();
     }
 
@@ -907,12 +909,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ExpressionTree arg = node.getArguments().get(1);
         ScopeInfo argRunsIn = getRunsInFromRunnable(arg);
 
-        if (!scopeTree.isParentOf(argRunsIn, currentScope()))
+        if (!scopeTree.isParentOf(argRunsIn, currentScope())) {
             fail(ERR_BAD_ENTER_PRIVATE_MEMORY_RUNS_IN_NO_MATCH, node,
                     argRunsIn, currentScope());
+            return;
+        }
 
-        if (!scopeTree.isParentOf(argRunsIn, target))
+        if (!scopeTree.isParentOf(argRunsIn, target)) {
+            // TODO: target may be null??
             fail(ERR_BAD_ENTER_PRIVATE_MEMORY_TARGET, node, argRunsIn, target);
+        }
     }
 
     private void checkExecuteInArea(ScopeInfo recvScope,
@@ -1072,6 +1078,8 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ScopeInfo argScope = ctx.getClassScope(instType.toString());
             if (!(argScope.isCaller() || argScope.equals(target)))
                 fail(ERR_BAD_NEW_INSTANCE, node, argScope, target);
+            if (!scopeTree.isAncestorOf(currentScope(), target))
+                fail(ERR_BAD_NEW_INSTANCE_REPRESENTED_SCOPE, node, currentScope(), target);
         } else
             fail(ERR_BAD_NEW_INSTANCE_TYPE, node, instType);
         return target;
@@ -1132,6 +1140,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private boolean isValidNewArrayType(TypeMirror m) {
         TypeKind k = m.getKind();
+        pln("\n type: " + k);
         return !(k == TypeKind.VOID || k == TypeKind.WILDCARD || k == TypeKind.TYPEVAR);
     }
 
@@ -1182,8 +1191,14 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         TypeMirror mv = v.asType();
         TypeMirror bmv = Utils.getBaseType(mv);
         ScopeInfo ret;
+
         ScopeInfo defaultScope = concretize(Utils.getDefaultVariableScope(v,
                 ctx));
+        if (!scopeTree.isAncestorOf(currentScope(), defaultScope)) {
+            // local variables can reference only the currentScope() or an ancestor scope:
+            fail(ERR_BAD_VARIABLE_SCOPE, node, defaultScope, currentScope());
+        }
+
         if (v.getKind() == ElementKind.FIELD) {
             ScopeInfo f = ctx.getFieldScope(v);
             return new FieldScopeInfo(currentScope(), f).representing(f
