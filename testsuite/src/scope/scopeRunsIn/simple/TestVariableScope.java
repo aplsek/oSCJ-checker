@@ -135,10 +135,10 @@ public class TestVariableScope implements Safelet {
         @SCJAllowed(SUPPORT)
         public void handleAsyncEvent() {
 
-            // TODO: error?
+            //## checkers.scope.ScopeRunsInChecker.ERR_BAD_VARIABLE_SCOPE
             @Scope("MyPEH1") Object obj;
 
-            //## ERROR: TODO
+            //## checkers.scope.ScopeRunsInChecker.ERR_BAD_VARIABLE_SCOPE
             @Scope("new-scope") Object obj2;
         }
 
