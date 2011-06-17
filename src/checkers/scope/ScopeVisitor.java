@@ -1078,8 +1078,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ScopeInfo argScope = ctx.getClassScope(instType.toString());
             if (!(argScope.isCaller() || argScope.equals(target)))
                 fail(ERR_BAD_NEW_INSTANCE, node, argScope, target);
-            if (!scopeTree.isAncestorOf(currentScope(), target))
+            if (!scopeTree.isAncestorOf(currentScope(), target)) {
                 fail(ERR_BAD_NEW_INSTANCE_REPRESENTED_SCOPE, node, currentScope(), target);
+            }
         } else
             fail(ERR_BAD_NEW_INSTANCE_TYPE, node, instType);
         return target;
@@ -1087,6 +1088,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private boolean isValidNewInstanceType(TypeMirror m) {
         TypeKind k = m.getKind();
+
         if (k == TypeKind.ARRAY || k == TypeKind.WILDCARD
                 || k == TypeKind.TYPEVAR || k.isPrimitive())
             return false;
@@ -1194,7 +1196,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         ScopeInfo defaultScope = concretize(Utils.getDefaultVariableScope(v,
                 ctx));
-        if (!defaultScope.isCaller() && !scopeTree.isAncestorOf(currentScope(), defaultScope)) {
+        if (!defaultScope.isReservedScope() && !scopeTree.isAncestorOf(currentScope(), defaultScope)) {
             // local variables can reference only the currentScope() or an ancestor scope:
             fail(ERR_BAD_VARIABLE_SCOPE, node, defaultScope, currentScope());
         }

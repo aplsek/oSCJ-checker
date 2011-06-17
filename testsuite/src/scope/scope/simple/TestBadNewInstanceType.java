@@ -1,5 +1,6 @@
 package scope.scope.simple;
 
+import static checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_REPRESENTED_SCOPE;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -10,6 +11,7 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
+import javax.safetycritical.annotate.RunsIn;
 
 @SCJAllowed(members = true)
 @DefineScope(name="a", parent=IMMORTAL)
@@ -32,6 +34,7 @@ public abstract class TestBadNewInstanceType extends MissionSequencer {
         @Scope("a")
         ManagedMemory mem;
 
+        @RunsIn("b")
         public void foo() {
             try {
                 //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
@@ -41,9 +44,19 @@ public abstract class TestBadNewInstanceType extends MissionSequencer {
                 Class<?> c = null;
                 //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
                 mem.newInstance(c);
-                // TODO: Fix ## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
+
+                mem.newInstance(void.class);  // OK
+
+                mem.newInstance(int.class);    // OK
+            } catch (Exception e) { }
+        }
+
+        public void foo2() {
+            try {
+
+                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_REPRESENTED_SCOPE
                 mem.newInstance(void.class);
-                // TODO: Fix ## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
+                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_REPRESENTED_SCOPE
                 mem.newInstance(int.class);
             } catch (Exception e) { }
         }

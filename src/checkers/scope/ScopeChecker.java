@@ -100,8 +100,7 @@ public class ScopeChecker extends SinglePassChecker {
         p.put(ERR_BAD_NEW_INSTANCE_TYPE,
                 "Type %s is a bad argument to newInstance.");
         p.put(ERR_BAD_NEW_INSTANCE_REPRESENTED_SCOPE,
-            "Bad newInstance(): Cannot invoke newInstance() call on MemoryArea object that does not represent an ancestor of the current scope.");
-
+            "Bad MemoryArea instance: Cannot invoke newInstance() call on a MemoryArea object that does not represent an ancestor of the current scope.");
 
         p.put(ERR_BAD_RETURN_SCOPE,
                 "Cannot return expression in scope %s in a method that has @Scope annotation: %s.");
