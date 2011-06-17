@@ -57,20 +57,20 @@ public class TestInnerClass2  {
             return null;
         }
     }
-}
 
-@SCJAllowed(members = true)
-class Bar {
+    @SCJAllowed(members = true)
+    static class Bar {
 
-    @RunsIn("A")
-    void foo() {
+        @RunsIn("A")
+        void foo() {
 
-        TestInnerClass2 i = new TestInnerClass2();
+            TestInnerClass2 i = new TestInnerClass2();
 
-        X x = i.new X();  // OK
+            X x = i.new X();  // OK
 
-        new TestInnerClass2.Y();  // OK
+            new TestInnerClass2.Y();  // OK
 
-        Z z = i.new Z();  // OK
+            Z z = i.new Z();  // OK
+        }
     }
 }
