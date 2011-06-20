@@ -3,6 +3,7 @@ package scope.defineScope.simple;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.annotate.SCJAllowed;
 
+
 @SCJAllowed(members=true)
 public class TestEnterPrivateMemoryNoDefineScope {
     static class X {
