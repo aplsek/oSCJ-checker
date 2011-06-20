@@ -29,7 +29,7 @@ public class BenchConf {
     }
 
     public static void dump() {
-        
+        /*
         String space = " ";
 
         System.out.println("=====DETECTOR-STATS-START-BELOW====");
@@ -42,7 +42,10 @@ public class BenchConf {
         }
 
         System.out.println("=====DETECTOR-STATS-END-ABOVE====");
+
+        */
     }
+
 
 
 

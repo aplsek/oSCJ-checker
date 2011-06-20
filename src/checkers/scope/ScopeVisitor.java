@@ -1194,10 +1194,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         ScopeInfo defaultScope = concretize(Utils.getDefaultVariableScope(v,
                 ctx));
-        if (!defaultScope.isReservedScope() && !scopeTree.isAncestorOf(currentScope(), defaultScope)) {
-            // local variables can reference only the currentScope() or an ancestor scope:
-            fail(ERR_BAD_VARIABLE_SCOPE, node, defaultScope, currentScope());
-        }
+        if (!currentScope().isCaller())
+            if (!defaultScope.isReservedScope() && !scopeTree.isAncestorOf(currentScope(), defaultScope)) {
+                // local variables can reference only the currentScope() or an ancestor scope:
+                fail(ERR_BAD_VARIABLE_SCOPE, node, defaultScope, currentScope());
+            }
 
         if (v.getKind() == ElementKind.FIELD) {
             ScopeInfo f = ctx.getFieldScope(v);

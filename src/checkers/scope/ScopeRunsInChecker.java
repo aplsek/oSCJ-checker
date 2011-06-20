@@ -62,7 +62,7 @@ public class ScopeRunsInChecker extends SinglePassChecker {
         p.put(ERR_RUNS_IN_ON_CLASS, "RunsIn annotations are ignored on classes.");
         p.put(ERR_RUNS_IN_ON_CONSTRUCTOR, "RunsIn annotations are not allowed on constructors. %s");
         p.put(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, "@Scope annotation ignored on methods that return void or primitives.");
-        p.put(ERR_BAD_INNER_SCOPE_NAME, "Scope %s of the inner class must be the same of a child scope of the enclosing class' scope %s.");
+        p.put(ERR_BAD_INNER_SCOPE_NAME, "@Scope(%s) of the inner class must be the same or a child scope of the enclosing class' @Scope(%s).");
         return p;
     }
 }

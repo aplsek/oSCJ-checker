@@ -22,6 +22,7 @@ package md5scj;
  */
 
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.safetycritical.CyclicExecutive;
@@ -79,6 +80,7 @@ public class MD5SCJ extends PeriodicEventHandler {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @SCJRestricted(CLEANUP)
     public void cleanUp() {
     }
 }

@@ -128,7 +128,7 @@ public class MyMission extends Mission {
 
     @SCJAllowed(value = LEVEL_1, members=true)
     @DefineScope(name = "MyMission-child", parent = "ThrusterControl")
-    class MyRunnable implements Runnable {
+    static class MyRunnable implements Runnable {
         @RunsIn("MyMission-child")
         public void run() {
             //System.out

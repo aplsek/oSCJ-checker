@@ -16,11 +16,11 @@ import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
-
+import javax.safetycritical.annotate.RunsIn;
 import sorter.bench.BenchConf;
 
 @SCJAllowed(members=true)
-@Scope("Level0App")
+@Scope(IMMORTAL)
 @DefineScope(name="Level0App", parent=IMMORTAL)
 public class SorterApp extends CyclicExecutive {
 
@@ -31,6 +31,7 @@ public class SorterApp extends CyclicExecutive {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @RunsIn("Level0App")
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         CyclicSchedule.Frame[] frames = new CyclicSchedule.Frame[1];
         frames[0] = new CyclicSchedule.Frame(new RelativeTime(BenchConf.PERIOD, 0), handlers);
@@ -41,6 +42,7 @@ public class SorterApp extends CyclicExecutive {
     @Override
     @SCJRestricted(INITIALIZATION)
     @SCJAllowed(SUPPORT)
+    @RunsIn("Level0App")
     public void initialize() {
         new SorterHandler(BenchConf.HANDLER_SCOPE_SIZE);
     }

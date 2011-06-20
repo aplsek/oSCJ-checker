@@ -90,7 +90,7 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 
     @SCJAllowed(value = LEVEL_1, members=true)
     @DefineScope(name = "child-scope11", parent = "MyPeriodicEventHandler")
-    class Runnable11 implements Runnable {
+    static class Runnable11 implements Runnable {
 
         @RunsIn("child-scope11")
         public void run() {
@@ -109,7 +109,7 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 
     @SCJAllowed(value = LEVEL_1, members=true)
     @DefineScope(name = "child-scope12", parent = "MyPeriodicEventHandler")
-    class Runnable12 implements Runnable {
+    static class Runnable12 implements Runnable {
 
         @RunsIn("child-scope12")
         public void run() {
