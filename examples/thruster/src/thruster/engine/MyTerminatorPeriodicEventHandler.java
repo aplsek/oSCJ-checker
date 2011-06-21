@@ -2,6 +2,7 @@ package thruster.engine;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.PeriodicParameters;
@@ -43,6 +44,7 @@ public class MyTerminatorPeriodicEventHandler extends PeriodicEventHandler {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @SCJRestricted(CLEANUP)
     public void cleanUp() {
     }
 

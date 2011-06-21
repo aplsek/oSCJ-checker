@@ -35,6 +35,11 @@ public class TestMissionInit extends Mission {
         //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_MULTI_INIT
         new PEH(null,null,null);
 
+        for (int i = 0; i < 5 ; i++) {
+            //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_MULTI_INIT
+            new PEH2();
+        }
+
         method();
     }
 
@@ -47,7 +52,7 @@ public class TestMissionInit extends Mission {
     @Scope("a")
     @SCJAllowed(members=true)
     @DefineScope(name = "b", parent = "a")
-    public class PEH extends PeriodicEventHandler {
+    public static class PEH extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)
         public PEH(PriorityParameters priority,
@@ -62,6 +67,23 @@ public class TestMissionInit extends Mission {
         }
     }
 
+    @Scope("a")
+    @SCJAllowed(members=true)
+    @DefineScope(name = "c", parent = "a")
+    public static class PEH2 extends PeriodicEventHandler {
+
+        @SCJRestricted(INITIALIZATION)
+        public PEH2() {
+            super(null, null, null);
+        }
+
+        @Override
+        @RunsIn("c")
+        @SCJAllowed(SUPPORT)
+        public void handleAsyncEvent() {
+        }
+    }
+
 
     @Override
     public long missionMemorySize() {
@@ -71,7 +93,7 @@ public class TestMissionInit extends Mission {
     @Scope(IMMORTAL)
     @DefineScope(name = "a", parent = IMMORTAL)
     @SCJAllowed(members = true)
-    public class X extends MissionSequencer {
+    public static class X extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)
         public X(PriorityParameters priority, StorageParameters storage) {
@@ -88,7 +110,7 @@ public class TestMissionInit extends Mission {
 
     @SCJAllowed(members=true)
     @Scope("a")
-    class TestMissionErr extends Mission {
+    static class TestMissionErr extends Mission {
 
         @Override
         public long missionMemorySize() {
@@ -101,7 +123,5 @@ public class TestMissionInit extends Mission {
         //## checkers.scope.SchedulableChecker.ERR_MISSION_INIT_RUNS_IN_MISMATCH
         protected void initialize() {
         }
-
     }
-
 }

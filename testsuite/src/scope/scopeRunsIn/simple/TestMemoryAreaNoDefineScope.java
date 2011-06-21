@@ -13,6 +13,8 @@ import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members = true)
 public class TestMemoryAreaNoDefineScope {
+
+    @Scope(IMMORTAL)
     @DefineScope(name="a", parent=IMMORTAL)
     static abstract class X extends MissionSequencer {
 

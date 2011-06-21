@@ -4,6 +4,9 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
+/**
+ * DEFINES schedulables and their corresponding entry-methods.
+ */
 public enum SCJSchedulable {
     PEH("javax.safetycritical.PeriodicEventHandler", "handleAsyncEvent"),
     APEH("javax.safetycritical.AperiodicEventHandler", "handleAsyncEvent"),

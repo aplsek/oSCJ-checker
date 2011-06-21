@@ -11,7 +11,7 @@ import com.sun.source.tree.CompilationUnitTree;
 
 /**
  * ScopeTreeChecker added - this checker reports error detected when validating the ScopeTree.
- *   This checker must run directly ater the DefineScopeChecker.
+ *   This checker must run directly after the DefineScopeChecker.
  *
  */
 public class ScopeTreeChecker extends SinglePassChecker {

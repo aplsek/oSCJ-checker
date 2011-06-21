@@ -30,7 +30,7 @@ public abstract class TestUpcast3 extends MissionSequencer {
 
     @SCJAllowed(members = true)
     @Scope("D")
-    class MyMission extends Mission {
+    static class MyMission extends Mission {
 
         @Override
         public long missionMemorySize() {
@@ -43,10 +43,10 @@ public abstract class TestUpcast3 extends MissionSequencer {
         protected void initialize() {
             MyHandlerRun r = new MyHandlerRun();
 
-            //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+            //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
             new RealPEH(r);
 
-            //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+            //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
             new RealPEH2(new MyHandlerRun());
         }
 
@@ -56,14 +56,14 @@ public abstract class TestUpcast3 extends MissionSequencer {
     public Runnable method() {
         MyHandlerRun r = new MyHandlerRun();
 
-        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+        //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
         return r;
     }
 
     @SCJAllowed(members=true)
     @Scope("D")
     @DefineScope(name="PEH", parent="D")
-    class RealPEH extends PeriodicEventHandler {
+    static class RealPEH extends PeriodicEventHandler {
 
         Runnable run;
 
@@ -84,7 +84,7 @@ public abstract class TestUpcast3 extends MissionSequencer {
     @SCJAllowed(members=true)
     @Scope("D")
     @DefineScope(name="PEH2", parent="D")
-    class RealPEH2 extends PeriodicEventHandler {
+    static class RealPEH2 extends PeriodicEventHandler {
 
         Runnable run;
 
@@ -103,7 +103,7 @@ public abstract class TestUpcast3 extends MissionSequencer {
     }
 
     @Scope("D")
-    class MyHandlerRun implements Runnable {
+    static class MyHandlerRun implements Runnable {
 
         @RunsIn("PEH")
         public void run() { }

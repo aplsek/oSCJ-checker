@@ -39,14 +39,15 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         DefineScope ds = t.getAnnotation(DefineScope.class);
 
-        // TODO:
         if (implicitlyDefinesScope(t) && ds == null)
             fail(ERR_SCHEDULABLE_NO_DEFINE_SCOPE, node);
 
         if (ds != null) {
-            // check for @DefineScope on the methods that must have a @DS and the we look at all the classes implementing Runnable interface
+            // check for @DefineScope on the methods that must have a @DS
+            // and then we look at all the classes implementing Runnable
+            // interface
             if (implicitlyDefinesScope(t) || isSafelet(t))
-                checkNewScope(ds.name(), ds.parent(), node,false);
+                checkNewScope(ds.name(), ds.parent(), node, false);
             else if (isSubtypeOfRunnable(t))
                 checkNewScope(ds.name(), ds.parent(), node, true);
             else
@@ -61,7 +62,6 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
         ExecutableElement m = TreeUtils.elementFromUse(node);
         TypeElement t = Utils.getMethodClass(m);
 
-
         if (isManagedMemoryType(t)
                 && SCJMethod.fromMethod(m, elements, types) == SCJMethod.ENTER_PRIVATE_MEMORY) {
             ExpressionTree runnable = node.getArguments().get(1);
@@ -75,13 +75,12 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
             // checkNewScope() are much less confusing on classes.
             if (errNode == null)
                 errNode = node;
-           if (ds == null)
+            if (ds == null)
                 fail(ERR_ENTER_PRIVATE_MEMORY_NO_DEFINE_SCOPE, errNode);
 
             // NOTE: the scope was already added in the visitClass.
-            //checkNewScope(ds.name(), ds.parent(), errNode,true);
+            // checkNewScope(ds.name(), ds.parent(), errNode,true);
         }
-
 
         return super.visitMethodInvocation(node, p);
     }
@@ -89,7 +88,8 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
     /**
      * Ensure that a DefineScope annotation is valid.
      */
-    void checkNewScope(String child, String parent, Tree node, boolean isRunnable) {
+    void checkNewScope(String child, String parent, Tree node,
+            boolean isRunnable) {
         // Null scope checks aren't necessary since Java apparently doesn't
         // consider "null" to be a constant expression.
         ScopeInfo childScope = new ScopeInfo(child);

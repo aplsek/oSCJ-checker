@@ -6,7 +6,7 @@ public class FieldScopeInfo extends ScopeInfo {
 
     public FieldScopeInfo(ScopeInfo receiverScope, ScopeInfo fieldScope) {
         this(calculateScope(receiverScope, fieldScope), receiverScope,
-                fieldScope, null);
+                fieldScope, fieldScope.getRepresentedScope());
     }
 
     public FieldScopeInfo(ScopeInfo receiverScope, ScopeInfo fieldScope,
@@ -16,8 +16,8 @@ public class FieldScopeInfo extends ScopeInfo {
     }
 
     private FieldScopeInfo(ScopeInfo scope, ScopeInfo receiverScope,
-            ScopeInfo fieldScope, ScopeInfo representative) {
-        super(scope.getScope(), representative);
+            ScopeInfo fieldScope, ScopeInfo represented) {
+        super(scope.getScope(), represented);
         this.receiverScope = receiverScope;
         this.fieldScope = fieldScope;
     }

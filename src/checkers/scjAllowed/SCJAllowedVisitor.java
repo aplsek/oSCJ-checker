@@ -90,7 +90,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         if (!isSCJAllowed(t) && level.isHIDDEN()) {
             if (superLevel != HIDDEN
                     && !isEnclosingSCJAllowed(t.getEnclosingElement())) {
-                fail(ERR_BAD_SUBCLASS, node);
                 debugIndentDecrement();
                 return null;
             } else if (!isEnclosingSCJAllowed(t.getEnclosingElement())) {
@@ -148,8 +147,9 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
 
         if (f.getKind() == ElementKind.FIELD
                 && scjAllowedLevel(f).compareTo(topLevel()) > 0) {
-            if (!f.toString().equals("class"))
+            if (!f.toString().equals("class"))  {
                 fail(ERR_BAD_FIELD_ACCESS, node, topLevel());
+            }
         }
 
         return super.visitMemberSelect(node, p);
@@ -187,10 +187,6 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             fail(ERR_BAD_USER_LEVEL, node);
             return null;
         }
-
-        //pln("\n METHOD:" + m );
-        //pln("   level: " + level);
-
 
         Level enclosingLevel = getEnclosingLevel(m);
 

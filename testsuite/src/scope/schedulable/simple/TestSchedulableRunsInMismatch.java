@@ -31,7 +31,7 @@ public abstract class TestSchedulableRunsInMismatch extends MissionSequencer {
     @Scope("a")
     @DefineScope(name = "b", parent = "a")
     //## checkers.scope.SchedulableChecker.ERR_SCHEDULABLE_RUNS_IN_MISMATCH
-    public abstract class PEH extends PeriodicEventHandler {
+    public static abstract class PEH extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)
         public PEH(PriorityParameters priority,
@@ -49,7 +49,7 @@ public abstract class TestSchedulableRunsInMismatch extends MissionSequencer {
     @SCJAllowed(members=true)
     @Scope(IMMORTAL)
     @DefineScope(name = "c", parent = IMMORTAL)
-    abstract class X extends MissionSequencer {
+    abstract static class X extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)
         public X(PriorityParameters priority, StorageParameters storage) {

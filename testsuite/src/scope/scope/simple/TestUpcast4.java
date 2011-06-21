@@ -41,18 +41,16 @@ public class TestUpcast4 {
 
     public void method() {
 
-        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+        //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
         Runnable[] runnables = new MyRun[5];
 
-
-
         Runnable[] runnables2 = new Runnable[1];
-        //## checkers.scope.ScopeChecker.ERR_BAD_RUNNABLE_UPCAST
+        //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
         runnables2[0] = new MyRun();
     }
 
     @SCJAllowed(value = LEVEL_2, members = true)
-    class MyRun implements Runnable {
+    static class MyRun implements Runnable {
 
         @Override
         @RunsIn("C")

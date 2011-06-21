@@ -14,7 +14,7 @@ import javax.safetycritical.annotate.Scope;
 public class TestBadVariableScope {
 
     @Scope(IMMORTAL)
-    class Foo {
+    static class Foo {
         public void foo2() {
             //## checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE
             @Scope(IMMORTAL) X x;

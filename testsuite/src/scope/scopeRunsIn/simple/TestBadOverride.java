@@ -19,7 +19,7 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 @SCJAllowed(members=true)
 public class TestBadOverride {
 
-    @Scope("a")
+    @Scope(IMMORTAL)
     @DefineScope(name="a", parent=IMMORTAL)
     static abstract class X extends MissionSequencer {
         @SCJRestricted(INITIALIZATION)
@@ -43,21 +43,19 @@ public class TestBadOverride {
         @SCJAllowed(SUPPORT)
         @RunsIn("PEH")
         public void handleAsyncEvent () {
-            //peh.run();
         }
 
     }
 
     @SCJAllowed(members=true)
-    public class PEHImplementation implements MyRunnable {
-        //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE
+    static public class PEHImplementation implements MyRunnable {
         public void run() {
         }
     }
 
 
     @SCJAllowed(members=true)
-    interface MyRunnable extends Runnable {
+    static interface MyRunnable extends Runnable {
 
         @RunsIn("PEH")
         public void run();

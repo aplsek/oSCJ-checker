@@ -1,2 +1,0 @@
-
-See the issues list at : http://code.google.com/p/scj-jsr302/issues/list

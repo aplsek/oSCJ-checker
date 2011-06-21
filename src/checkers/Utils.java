@@ -18,6 +18,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
+import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.Level;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
@@ -37,7 +38,7 @@ import checkers.util.TypesUtils;
 public final class Utils {
     private static Level defaultLevel = HIDDEN;
     public static boolean DEBUG = false;
-    public static boolean SCOPE_CHECKS = true;
+    public static boolean NO_SCOPE_CHECKS = false;
     private static String indent = "";
 
     public static void setDefaultLevel(Level l) {
@@ -257,8 +258,19 @@ public final class Utils {
                 .startsWith(JAVAX_SAFETYCRITICAL));
     }
 
+    public static boolean isUserLevel(String name) {
+        if (name == null)
+            return true;
+        return !(name.startsWith(JAVAX_REALTIME) || name
+                .startsWith(JAVAX_SAFETYCRITICAL));
+    }
+
     public static boolean isUserLevel(Level l) {
         return !(l == Level.INFRASTRUCTURE || l == Level.SUPPORT);
+    }
+
+    public static boolean isSUPPORTLevel(Level l) {
+        return l == Level.SUPPORT;
     }
 
     public static ScopeInfo getDefaultMethodRunsIn(ExecutableElement m) {
@@ -308,6 +320,13 @@ public final class Utils {
             return a.value();
     }
 
+    public static boolean hasSUPPORT(Element m) {
+        Level l = getSCJAllowedLevel(m);
+        if (isSUPPORTLevel(l))
+            return true;
+        return false;
+    }
+
     public static boolean isSCJSupport(ExecutableElement m, AnnotatedTypes ats) {
        // If we're in the user level with an SUPPORT annotation, we have
        // to see if the method overrides a @SCJAllowed(SUPPORT) method
@@ -324,5 +343,15 @@ public final class Utils {
         if (t1.equals(t2))
             return true;
         return false;
+    }
+
+    /**
+     * Returns true if element is annotated by SCJAllowed
+     */
+    public static DefineScope getDefineScope(Element e) {
+        DefineScope ds = e.getAnnotation(DefineScope.class);
+        if (ds!= null)
+            return ds;
+        return null;
     }
 }

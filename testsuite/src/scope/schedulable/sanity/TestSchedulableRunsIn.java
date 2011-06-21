@@ -30,7 +30,7 @@ public abstract class TestSchedulableRunsIn extends MissionSequencer {
     @Scope("a")
     @DefineScope(name = "b", parent = "a")
     @SCJAllowed(members=true)
-    public abstract class PEH extends PeriodicEventHandler {
+    public static  abstract class PEH extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)
         public PEH(PriorityParameters priority,

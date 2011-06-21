@@ -30,13 +30,13 @@ public abstract class TestRunnable2 extends MissionSequencer {
     }
 
     @SCJAllowed(members=true)
-    class MyRunnable implements Runnable {
+    static class MyRunnable implements Runnable {
         @RunsIn("D")
         public void run() {}
     }
 
     @SCJAllowed(members=true)
-    class MyExtendedRunnable extends MyRunnable {
+    static class MyExtendedRunnable extends MyRunnable {
         @Override
         @RunsIn("D")
         public void run() {}

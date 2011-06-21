@@ -3,7 +3,9 @@ package checkers.scope;
 import static checkers.scope.SchedulableChecker.*;
 
 import java.util.HashSet;
+import java.util.Hashtable;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -18,28 +20,29 @@ import checkers.util.TreeUtils;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.EnhancedForLoopTree;
+import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.NewClassTree;
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.WhileLoopTree;
 
 /**
  * This visitor is checking that SChedulables are instantiated in Mission.init
  * methods and in these methods only.
  *
- * TODO: each schedulable can be instantiated only once! Need to chatch the
- * instantiations in loops.!
  */
 public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     private ScopeCheckerContext ctx;
 
-    HashSet<TypeMirror> schedulables;
+    Hashtable<TypeMirror, HashSet> schedulables;
 
     public SchedulableVisitor(SourceChecker checker, CompilationUnitTree root,
             ScopeCheckerContext ctx) {
         super(checker, root);
         this.ctx = ctx;
-        schedulables = new HashSet();
+        schedulables = new Hashtable();
     }
 
     @Override
@@ -47,7 +50,6 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
 
         if (!(isSchedulable(t) || isMissionSequencer(t) || isCyclicExecutive(t))) {
-            // pln("\n SKIP"+ t);
             return super.visitClass(node, p);
         }
 
@@ -112,31 +114,155 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     }
 
     private boolean isInitialization = false;
+    TypeMirror currentMission = null;
 
     @Override
     public Void visitMethod(MethodTree node, Void p) {
         ExecutableElement m = TreeUtils.elementFromDeclaration(node);
 
         switch (SCJMission.fromMethod(m, elements, types)) {
-        case CYCLIC_EXECUTIVE:
+        case CYCLIC_EXECUTIVE_INIT:
             isInitialization = true;
+            currentMission = Utils.getMethodClass(
+                    TreeUtils.elementFromDeclaration(node)).asType();
+            checkCyclicExecutiveInit(node);
             break;
-        case MISSION:
+        case CYCLIC_EXECUTIVE_GET_SCHEDULE:
+            checkGetSchedule(node);
+            break;
+        case MISSION_INIT:
             isInitialization = true;
+            currentMission = Utils.getMethodClass(
+                    TreeUtils.elementFromDeclaration(node)).asType();
             checkMissionInit(node);
             break;
         case MS_NEXT_MISSION:
             checkMSnextMission(node);
             break;
+        case SAFELET_GET_SEQUENCER:
+        case SAFELET_SET_UP:
+        case SAFELET_TEAR_DOWN:
+            checkSafeletMethod(node);
         default:
             break;
         }
 
         Void res = super.visitMethod(node, p);
-        if (isInitialization)
+        if (isInitialization) {
             isInitialization = false;
+            currentMission = null;
+        }
 
         return res;
+    }
+
+    boolean isInLoop = false;
+
+    @Override
+    public Void visitForLoop(ForLoopTree node, Void p) {
+        boolean oldLoop = isInLoop;
+        isInLoop = true;
+        Void res = super.visitForLoop(node, p);
+        isInLoop = oldLoop;
+        return res;
+    }
+
+    @Override
+    public Void visitWhileLoop(WhileLoopTree node, Void p) {
+        boolean oldLoop = isInLoop;
+        isInLoop = true;
+        Void res = super.visitWhileLoop(node, p);
+        isInLoop = oldLoop;
+        return res;
+    }
+
+    @Override
+    public Void visitEnhancedForLoop(EnhancedForLoopTree node, Void p) {
+        // This implicitly does .iterator() and .next() calls.
+        boolean oldLoop = isInLoop;
+        isInLoop = true;
+        Void res = super.visitEnhancedForLoop(node, p);
+        isInLoop = oldLoop;
+        return res;
+    }
+
+    @Override
+    public Void visitNewClass(NewClassTree node, Void p) {
+        ExecutableElement ctorElement = TreeUtils.elementFromUse(node);
+        TypeMirror tt = Utils.getMethodClass(ctorElement).asType();
+        switch (SCJSchedulable.fromMethod(tt, elements, types)) {
+        case PEH:
+        case APEH:
+        case MANAGED_THREAD:
+            if (!isInitialization)
+                fail(ERR_SCHED_INIT_OUT_OF_INIT_METH, node);
+            else {
+                if (isInLoop)
+                    fail(ERR_SCHEDULABLE_MULTI_INIT, node);
+
+                HashSet<TypeMirror> ss = schedulables.get(currentMission);
+                if (ss != null) {
+                    if (ss.contains(tt))
+                        fail(ERR_SCHEDULABLE_MULTI_INIT, node);
+                    else
+                        ss.add(tt);
+                } else {
+                    ss = new HashSet<TypeMirror>();
+                    ss.add(tt);
+                    schedulables.put(currentMission, ss);
+                }
+            }
+        default:
+        }
+
+        return super.visitNewClass(node, p);
+    }
+
+    private void checkGetSchedule(MethodTree node) {
+        ExecutableElement m = TreeUtils.elementFromDeclaration(node);
+
+        ScopeInfo runsIn = ctx.getMethodRunsIn(m.getEnclosingElement()
+                .toString(),
+                SCJMission.CYCLIC_EXECUTIVE_GET_SCHEDULE.signature,
+                SCJMission.CYCLIC_EXECUTIVE_GET_SCHEDULE.params);
+        DefineScope ds = getDefineScope(m);
+        if (ds == null)
+            throw new RuntimeException(
+                    "ERROR: @DefineScope expected on CyclicExecutive.");
+        if (!runsIn.toString().equals(ds.name()))
+            fail(ERR_CYCLIC_EXEC_GET_SCHEDULE_RUNS_IN_MISMATCH, node, ds.name());
+
+    }
+
+    private void checkSafeletMethod(MethodTree node) {
+        ExecutableElement m = TreeUtils.elementFromDeclaration(node);
+
+        ScopeInfo runsIn = ctx.getMethodRunsIn(m.getEnclosingElement()
+                .toString(),
+                m.toString().substring(0, m.toString().length() - 2));
+        if (!runsIn.isThis() && !runsIn.isImmortal())
+            fail(ERR_SAFELET_RUNSIN, node, runsIn);
+    }
+
+    private void checkCyclicExecutiveInit(MethodTree node) {
+        ExecutableElement m = TreeUtils.elementFromDeclaration(node);
+        ScopeInfo runsIn = ctx.getMethodRunsIn(m.getEnclosingElement()
+                .toString(), SCJMission.CYCLIC_EXECUTIVE_INIT.signature);
+        DefineScope ds = getDefineScope(m);
+        if (ds == null)
+            throw new RuntimeException(
+                    "ERROR: @DefineScope expected on CyclicExecutive.");
+        if (!runsIn.toString().equals(ds.name()))
+            fail(ERR_CYCLIC_EXEC_INIT_RUNS_IN_MISMATCH, node, ds.name());
+    }
+
+    private DefineScope getDefineScope(ExecutableElement m) {
+        Element clazz = m.getEnclosingElement();
+        DefineScope ds = Utils.getDefineScope(clazz);
+        if (ds == null)
+            throw new RuntimeException(
+                    "ERROR: @DefineScope expected on CyclicExecutive.");
+        return ds;
     }
 
     /**
@@ -145,12 +271,26 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     private void checkMissionInit(MethodTree node) {
         ExecutableElement m = TreeUtils.elementFromDeclaration(node);
         ScopeInfo runsIn = ctx.getMethodRunsIn(m.getEnclosingElement()
-                .toString(), SCJMission.MISSION.signature);
+                .toString(), SCJMission.MISSION_INIT.signature);
         if (runsIn == null)
             throw new RuntimeException(
                     "ERR: Every method must have @RunsIn value. Bug.");
-        if (!runsIn.isThis())
-            fail(ERR_MISSION_INIT_RUNS_IN_MISMATCH, node, runsIn);
+
+        // handling the case when the class "extends Mission implements Safelet"
+        if (isMissionAndSafelet(m)) {
+            DefineScope ds = getDefineScope(m);
+            if (!runsIn.toString().equals(ds.name()))
+                fail(ERR_MISSION_INIT_RUNS_IN_MISMATCH, node, ds.name(), runsIn);
+        } else if (!runsIn.isThis())
+            fail(ERR_MISSION_INIT_RUNS_IN_MISMATCH, node, ScopeInfo.THIS,
+                    runsIn);
+    }
+
+    private boolean isMissionAndSafelet(ExecutableElement m) {
+        TypeMirror t = Utils.getMethodClass(m).asType();
+        if (types.isSubtype(t, safelet))
+            return true;
+        return false;
     }
 
     private void checkMSnextMission(MethodTree node) {
@@ -168,27 +308,5 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         if (!df.name().equals(runsIn.toString())) {
             fail(ERR_MISSION_SEQUENCER_RUNS_IN, node, runsIn, df.name());
         }
-    }
-
-    @Override
-    public Void visitNewClass(NewClassTree node, Void p) {
-
-        ExecutableElement ctorElement = TreeUtils.elementFromUse(node);
-        TypeMirror tt = Utils.getMethodClass(ctorElement).asType();
-        switch (SCJSchedulable.fromMethod(Utils.getMethodClass(ctorElement)
-                .asType(), elements, types)) {
-        case PEH:
-        case APEH:
-        case MANAGED_THREAD:
-            if (!isInitialization)
-                fail(ERR_SCHED_INIT_OUT_OF_INIT_METH, node);
-            else if (schedulables.contains(tt))
-                fail(ERR_SCHEDULABLE_MULTI_INIT, node);
-            else
-                schedulables.add(tt);
-        default:
-        }
-
-        return super.visitNewClass(node, p);
     }
 }

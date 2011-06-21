@@ -23,6 +23,10 @@ public class MultiPassChecker extends SourceChecker {
         checkers.add(checker);
     }
 
+    protected void removePass(SinglePassChecker checker) {
+        checkers.remove(checker);
+    }
+
     @Override
     public void typeProcess(TypeElement element, TreePath tree) {
         if (checkers.size() > 0) {

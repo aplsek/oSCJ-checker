@@ -25,7 +25,7 @@ public abstract class TestRunnable extends MissionSequencer {
     }
 
     @SCJAllowed(members=true)
-    class MyRunnable implements Runnable {
+    static class MyRunnable implements Runnable {
 
         @RunsIn("D")
         public void run() {}
@@ -34,7 +34,7 @@ public abstract class TestRunnable extends MissionSequencer {
 
     @SCJAllowed(members=true)
     @DefineScope(name="E", parent="D")
-    class MyRunnable2 implements Runnable {
+    static class MyRunnable2 implements Runnable {
 
         @RunsIn("E")
         public void run() {}

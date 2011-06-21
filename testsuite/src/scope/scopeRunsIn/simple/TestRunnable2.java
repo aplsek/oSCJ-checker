@@ -19,7 +19,7 @@ import static javax.safetycritical.annotate.Level.SUPPORT;
 
 
 @SCJAllowed(members=true)
-@Scope("D")
+@Scope(IMMORTAL)
 @DefineScope(name="D", parent=IMMORTAL)
 public abstract class TestRunnable2 extends MissionSequencer {
 
@@ -29,29 +29,21 @@ public abstract class TestRunnable2 extends MissionSequencer {
     }
 
     @SCJAllowed(members=true)
-    class MyRun implements Runnable {
+    static class MyRun implements Runnable {
         @RunsIn("D")
         public void run() {}
     }
 
     @SCJAllowed(members=true)
-    class MyRunnable implements Runnable {
+    static class MyRunnable implements Runnable {
         public void run() {}
     }
 
     @SCJAllowed(members=true)
-    class MyExtendedRunnable extends MyRunnable {
+    static class MyExtendedRunnable extends MyRunnable {
         @Override
         @RunsIn("D")
-        //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE
         public void run() {}
     }
 
-/*
-    @SCJAllowed(members=true)
-    class MyRunnable2 implements Runnable {
-        @RunsIn(CALLER)
-        public void run() {}
-    }
-    /*/
 }

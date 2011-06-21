@@ -2,6 +2,7 @@ package thruster.myMission;
 
 import static javax.safetycritical.annotate.Level.LEVEL_1;
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 
 import javax.realtime.PeriodicParameters;
@@ -89,7 +90,7 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 
     @SCJAllowed(value = LEVEL_1, members=true)
     @DefineScope(name = "child-scope11", parent = "MyPeriodicEventHandler")
-    class Runnable11 implements Runnable {
+    static class Runnable11 implements Runnable {
 
         @RunsIn("child-scope11")
         public void run() {
@@ -108,7 +109,7 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 
     @SCJAllowed(value = LEVEL_1, members=true)
     @DefineScope(name = "child-scope12", parent = "MyPeriodicEventHandler")
-    class Runnable12 implements Runnable {
+    static class Runnable12 implements Runnable {
 
         @RunsIn("child-scope12")
         public void run() {
@@ -126,6 +127,7 @@ public class MyPeriodicEventHandler extends PeriodicEventHandler {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @SCJRestricted(CLEANUP)
     public void cleanUp() {
         // System.out.println("TestCase 19: PASS. PEH.cleanup() is executed.");
     }

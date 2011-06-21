@@ -30,6 +30,7 @@ public class TestMissionInit2 extends CyclicExecutive {
 
     @Override
     @SCJAllowed(SUPPORT)
+    @RunsIn("a")
     public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
         return null;
     }
@@ -37,6 +38,7 @@ public class TestMissionInit2 extends CyclicExecutive {
     @Override
     @SCJRestricted(INITIALIZATION)
     @SCJAllowed(SUPPORT)
+    @RunsIn("a")
     public void initialize() {
         new PEH(null,null,null);
 
@@ -68,7 +70,7 @@ public class TestMissionInit2 extends CyclicExecutive {
     @Scope("a")
     @SCJAllowed(members=true)
     @DefineScope(name = "b", parent = "a")
-    public class PEH extends PeriodicEventHandler {
+    public static class PEH extends PeriodicEventHandler {
 
         @SCJRestricted(INITIALIZATION)
         public PEH(PriorityParameters priority,

@@ -44,7 +44,6 @@ public enum SCJMethod {
     /* ImmortalMemory */
     IMMORTAL_MEMORY_INSTANCE("javax.realtime.ImmortalMemory", "instance()");
 
-
     private final String clazz;
     private final String signature;
 

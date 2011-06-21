@@ -28,10 +28,10 @@ public class TestCast {
     void foo(Object obj) {
     }
 
-    class Foo {}
+    static class Foo {}
 
     @Scope(IMMORTAL)
-    class Bar extends Foo{}
+    static class Bar extends Foo{}
 
     @Scope(IMMORTAL)
     @DefineScope(name="a", parent=IMMORTAL)
