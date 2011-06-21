@@ -38,6 +38,13 @@ import javax.safetycritical.annotate.Scope;
 import railsegment.clock.SynchronizedTime;
 import railsegment.clock.TrainClock;
 
+// this is present only to support experimentation with scope code.
+import java.math.BigInteger;
+import java.util.Random;
+import javax.realtime.SizeEstimator;
+import javax.safetycritical.ManagedMemory;
+import javax.realtime.MemoryArea;
+import javax.realtime.AbsoluteTime;
 
 @Scope("TM")
 @SCJAllowed(value=LEVEL_2, members=true)
@@ -86,7 +93,7 @@ public class TrainMission extends Mission
   //   with central dispatch and possibly with other trains.
   //     Assume that the underlying communication hardware requires
   //       interrupt-driven device drivers with 50 microsecond response time
-  //       requirements, running at interrupt level priority 28
+  //       requirements, running at interrupt level priority 32
   //     A server thread provides responses to the TrainControl
   //       mission, running at inherited priority 8
   //     A second server thread provides responses to the TimeService
@@ -106,7 +113,7 @@ public class TrainMission extends Mission
   // The maximum of NAVS_GPS_PRIORITY and NAVS_SERVER_PRIORITY
   public final int NAVS_CEILING = NAVS_SERVER_PRIORITY;
 
-  public final int COMMS_DRIVER_PRIORITY = 28;
+  public final int COMMS_DRIVER_PRIORITY = 32;
   public final int COMMS_CONTROL_SERVER_PRIORITY = CONTROL_PRIORITY;
   public final int COMMS_TIMES_SERVER_PRIORITY = TIMES_COORDINATION_PRIORITY;
 
@@ -144,10 +151,86 @@ public class TrainMission extends Mission
   private NavigationServiceSequencer navsq;
   private TrainControlSequencer controlsq;
 
+  private BigInteger crypto_key;
+
+  
+  @SCJAllowed(members=true)
+  @Scope("TM")
+  static class CalculateCryptoKey implements Runnable {
+
+    @SCJAllowed(members=true)
+    @DefineScope(name="TM.0", parent="TM")
+    @Scope("TM.0")
+    static class AssignCryptoKey implements Runnable {
+
+      // assumes scope("TM")
+      TrainMission tm;
+
+      // assumes scope(THIS)
+      BigInteger bi;
+
+      AssignCryptoKey(TrainMission tm, BigInteger bi) {
+        this.tm = tm;
+        this.bi = bi;
+      }
+
+      @RunsIn("TM")
+      public void run() {
+        // copy bi into the "TM" scope (from the "TM.0" scope)
+        tm.crypto_key = bi.multiply(BigInteger.ONE);
+      }
+    }
+
+    TrainMission tm;
+
+    public CalculateCryptoKey(TrainMission the_mission) {
+      tm = the_mission;
+    }
+
+    @RunsIn("TM.0")
+    public void run() {
+      AbsoluteTime now = javax.realtime.Clock.getRealtimeClock().getTime();
+      Random r = new Random(now.getMilliseconds());
+      BigInteger t1, t2, t3;
+
+      t1 = new BigInteger(128, 24, r);
+      t2 = new BigInteger(128, 24, r);
+      t3 = t1.multiply(t2);
+
+      AssignCryptoKey assigner = new AssignCryptoKey(tm, t3);
+      MemoryArea.getMemoryArea(tm).executeInArea(assigner);
+    }
+  }
+
+
+
   @SCJRestricted(INITIALIZATION)
   public TrainMission() {
     // nothing much happens here
+
+    // the following code is for the purpose of checking sample code
+    // for inclusion in an ERTS and JTRES paper.
+    // note that this code @RunsIn(THIS), which is the same as @RunsIn("TM")
+
+    // note: this Runnable and SizeEstimator are instantiated in
+    // memory "TM", though I 
+    // would have preferred it to reside in a reclaimable temporary scope.
+
+    CalculateCryptoKey calculator = new CalculateCryptoKey(this);
+    SizeEstimator z = new SizeEstimator();
+
+    z.reserve(Random.class, 1);
+    z.reserve(BigInteger.class, 3);
+    // needs to understand the internal representation of BigInteger
+    z.reserveArray(9, byte.class);
+    z.reserveArray(9, byte.class);
+    z.reserveArray(18, byte.class);
+    z.reserve(CalculateCryptoKey.AssignCryptoKey.class, 1);
+
+    ((ManagedMemory) MemoryArea.getMemoryArea(this)).
+    enterPrivateMemory(z.getEstimate(), calculator);
   }
+
 
   @Override
   @SCJAllowed
@@ -190,7 +273,16 @@ public class TrainMission extends Mission
     // be allocated in their respective Mission memories, allowing them to
     // keep references to their inner entities.
 
-    // note that I need two comms_data servers...
+    controlsq = new TrainControlSequencer(comms_control_data,
+                                          navs_data,
+                                          train_clock,
+                                          CONTROL_PRIORITY);
+
+    timesq = new TimeServiceSequencer(comms_times_data,
+                                      times_data,
+                                      train_clock,
+                                      TIMES_TICK_PRIORITY,
+                                      TIMES_COORDINATION_PRIORITY);
 
     commsq = new CommunicationServiceSequencer(comms_control_data,
                                                comms_times_data,
@@ -201,17 +293,6 @@ public class TrainMission extends Mission
     navsq = new NavigationServiceSequencer(train_clock, navs_data,
                                            NAVS_GPS_PRIORITY,
                                            NAVS_SERVER_PRIORITY);
-
-    timesq = new TimeServiceSequencer(comms_times_data,
-                                      times_data,
-                                      train_clock,
-                                      TIMES_TICK_PRIORITY,
-                                      TIMES_COORDINATION_PRIORITY);
-
-    controlsq = new TrainControlSequencer(comms_control_data,
-                                          navs_data,
-                                          train_clock,
-                                          CONTROL_PRIORITY);
 
     commsq.register();
     timesq.register();
