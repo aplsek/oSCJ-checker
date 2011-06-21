@@ -154,12 +154,12 @@ public class TrainMission extends Mission
   private BigInteger crypto_key;
 
   
-  @SCJAllowed(members=true)
+  @DefineScope(name="TM.0", parent="TM")
+  @SCJAllowed(value=LEVEL_2, members=true)
   @Scope("TM")
   static class CalculateCryptoKey implements Runnable {
 
-    @SCJAllowed(members=true)
-    @DefineScope(name="TM.0", parent="TM")
+    @SCJAllowed(value=LEVEL_2, members=true)
     @Scope("TM.0")
     static class AssignCryptoKey implements Runnable {
 
@@ -198,7 +198,7 @@ public class TrainMission extends Mission
       t3 = t1.multiply(t2);
 
       AssignCryptoKey assigner = new AssignCryptoKey(tm, t3);
-      MemoryArea.getMemoryArea(tm).executeInArea(assigner);
+      ((ManagedMemory) (MemoryArea.getMemoryArea(tm))).executeInArea(assigner);
     }
   }
 
@@ -221,10 +221,10 @@ public class TrainMission extends Mission
 
     z.reserve(Random.class, 1);
     z.reserve(BigInteger.class, 3);
-    // needs to understand the internal representation of BigInteger
-    z.reserveArray(9, byte.class);
-    z.reserveArray(9, byte.class);
-    z.reserveArray(18, byte.class);
+    // assumes understanding of BigInteger internals
+    z.reserveArray(20, byte.class);
+    z.reserveArray(20, byte.class);
+    z.reserveArray(40, byte.class);
     z.reserve(CalculateCryptoKey.AssignCryptoKey.class, 1);
 
     ((ManagedMemory) MemoryArea.getMemoryArea(this)).
