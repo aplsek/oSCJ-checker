@@ -470,7 +470,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         debugIndentIncrement("visitMemberSelect: " + node.toString());
 
         Element elem = TreeUtils.elementFromUse(node);
-        ScopeInfo receiver = node.getExpression().accept(this, p);
         ScopeInfo ret;
 
         if (elem.getKind() == ElementKind.METHOD) {
@@ -492,6 +491,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 ret = varScopes.getVariableScope("this");
             } else {
                 ScopeInfo fScope = ctx.getFieldScope(f);
+                ScopeInfo receiver = node.getExpression().accept(this, p);
                 ret = new FieldScopeInfo(receiver, fScope);
             }
         }
