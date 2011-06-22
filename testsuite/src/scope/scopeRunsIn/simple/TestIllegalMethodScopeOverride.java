@@ -25,7 +25,6 @@ public class TestIllegalMethodScopeOverride {
         Object foo(Y y) { return null; }
         @Override
         @Scope(CALLER)
-        //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE
         Object bar() { return null; }
         @Override
         @Scope(IMMORTAL)

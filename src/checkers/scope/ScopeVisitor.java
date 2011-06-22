@@ -423,6 +423,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // NOTE: java.lang.Enum has @Scope(IMMORTAL)
             ret = ScopeInfo.IMMORTAL;
         } else {
+            System.err.println("\n ERROR: node: " + node);
             throw new RuntimeException("Unexpected assignment AST node: "
                     + elem.getKind());
         }
