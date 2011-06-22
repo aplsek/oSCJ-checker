@@ -484,39 +484,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
                 break;
             }
 
-            /*
-             * THIS is for SUPPORT and @RunsIn overriding - now disabled. // if
-             * the "e" has @RunsIn annotation, then the m must explicitly //
-             * restate the @RunsIn if (ann == null &&
-             * e.getAnnotation(RunsIn.class) != null) {
-             * fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE, node, errNode);
-             * }
-             *
-             * if (!Utils.isSCJSupport(m, ats)) { if (!eRunsIn.equals(runsIn)) {
-             *
-             * if (isRunnable(Utils.getMethodClass(e)) ||
-             * isManagedThread(Utils.getMethodClass(m))) {
-             *
-             * if (runsIn.isReservedScope()) {
-             * fail(ERR_ILLEGAL_METHOD_RESERVED_RUNS_IN_OVERRIDE, node,
-             * errNode); } else if (!eRunsIn.isReservedScope()) {
-             * fail(ERR_ILLEGAL_METHOD_NAMED_RUNS_IN_OVERRIDE, node, errNode); }
-             * else { continue; } } else if
-             * (isRunnableSubtype(Utils.getMethodClass(e))) {
-             * fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE, node, errNode); } else
-             * { if (!runsIn.isCaller()) { //TODO: is it allowed to override the
-             * default with CALLER? fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE,
-             * node, errNode); } } } } else { // If the eLevel is SUPPORT, then
-             * the mLevel must be also SUPPORT // and: // if the "e" has @RunsIn
-             * annotation, then the m must explicitly // restate the @RunsIn, if
-             * e does not have the annotation, then we can override if
-             * (eRunsIn.equals(runsIn) || (!eRunsIn.equals(runsIn) &&
-             * e.getAnnotation(RunsIn.class) == null)) continue; else { // when
-             * overriding, we must explicitly restate if
-             * (!eRunsIn.equals(runsIn) && m.getAnnotation(RunsIn.class) ==
-             * null) { fail(ERR_ILLEGAL_METHOD_RUNS_IN_OVERRIDE_RESTATE, node,
-             * errNode); } } }
-             */
         }
 
         ctx.setMethodRunsIn(runsIn, m);
@@ -561,9 +528,9 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             ScopeInfo eScope = getOverrideScopeAndVisit(e, errNode);
             SCJAllowed eLevelAnn = e.getAnnotation(SCJAllowed.class);
             Level eLevel = eLevelAnn != null ? eLevelAnn.value() : null;
-            if (!eScope.equals(scope) && eLevel != SUPPORT) {
-                fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
-            }
+            //if (!eScope.equals(scope) && eLevel != SUPPORT) {
+            //    fail(ERR_ILLEGAL_METHOD_SCOPE_OVERRIDE, node, errNode);
+           // }
         }
         ctx.setMethodScope(scope, m);
     }
