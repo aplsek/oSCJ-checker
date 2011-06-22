@@ -57,6 +57,7 @@ public class Object {
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
+  @RunsIn(CALLER)
   public boolean equals(Object obj) {
     return false; // skeleton
   }
