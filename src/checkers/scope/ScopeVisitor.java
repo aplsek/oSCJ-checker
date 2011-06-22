@@ -54,6 +54,7 @@ import com.sun.source.tree.ParenthesizedTree;
 import com.sun.source.tree.ReturnTree;
 import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.WildcardTree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.TryTree;
 import com.sun.source.tree.TypeCastTree;
@@ -261,12 +262,20 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     @Override
     public ScopeInfo visitBinary(BinaryTree node, P p) {
+        debugIndentIncrement("visitBinary");
         super.visitBinary(node, p);
+        ScopeInfo scope = null;
+
         if (TreeUtils.isCompileTimeString(node))
-            return ScopeInfo.IMMORTAL;
-        else if (TreeUtils.isStringConcatenation(node))
-            return ScopeInfo.CALLER;
-        return ScopeInfo.PRIMITIVE; // Primitive expressions have no scope
+            scope =  ScopeInfo.IMMORTAL;
+        else if (TreeUtils.isStringConcatenation(node)) {
+            scope =  ScopeInfo.CALLER;
+            //scope = ScopeInfo.THIS;
+        } else
+            scope = ScopeInfo.PRIMITIVE; // Primitive expressions have no scope
+
+        debugIndentDecrement();
+        return scope;
     }
 
     @Override
@@ -551,9 +560,15 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             argScopes.add(arg.accept(this, p));
 
         ScopeInfo recvScope = node.getMethodSelect().accept(this, p);
-        debugIndentDecrement();
-        return checkMethodInvocation(TreeUtils.elementFromUse(node), recvScope,
+
+        ScopeInfo res  = checkMethodInvocation(TreeUtils.elementFromUse(node), recvScope,
                 argScopes, node);
+        debugIndent("res: "+ res);
+        debugIndentDecrement();
+
+        return res;
+        //return checkMethodInvocation(TreeUtils.elementFromUse(node), recvScope,
+        //        argScopes, node);
     }
 
     @Override
@@ -709,6 +724,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         currentRunsIn = oldRunsIn;
         debugIndentDecrement();
         return null;
+    }
+
+    @Override
+    public ScopeInfo visitWildcard(WildcardTree node, P p) {
+        debugIndentIncrement("visitWildcard : " + node.toString());
+        debugIndentDecrement();
+        return super.visitWildcard(node, p);
     }
 
     private boolean isArrayAssignment(Tree node) {
@@ -1077,9 +1099,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         if (isValidNewInstanceType(instType)) {
             ScopeInfo argScope = ctx.getClassScope(instType.toString());
-            if (!(argScope.isCaller() || argScope.equals(target)))
+            if (!(argScope.isCaller() || argScope.equals(target))) {
                 fail(ERR_BAD_NEW_INSTANCE, node, argScope, target);
-            if (!scopeTree.isAncestorOf(currentScope(), target)) {
+                return target;
+            }
+            if (target == null || !scopeTree.isAncestorOf(currentScope(), target)) {
+                // set the return scope to something
+                target = recvScope;
                 fail(ERR_BAD_NEW_INSTANCE_REPRESENTED_SCOPE, node, currentScope(), target);
             }
         } else
@@ -1165,7 +1191,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             // CALLER is also illegal if it can't be made into a concrete
             // scope name.
             fail(ERR_BAD_GET_MEMORY_AREA, node);
-            return ScopeInfo.UNKNOWN;
+            return scope;
         }
         if (scope.isImmortal())
             return new ScopeInfo(ScopeInfo.IMMORTAL.toString(),
@@ -1179,6 +1205,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private void checkReturnScope(ScopeInfo exprScope, ScopeInfo expectedScope,
             ReturnTree node) {
         debugIndent("checkReturnScope");
+        exprScope = concretize(exprScope);
         expectedScope = concretize(expectedScope);
         if (expectedScope.isUnknown() || expectedScope.equals(exprScope)
                 || exprScope == null || exprScope.isNull())

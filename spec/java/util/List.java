@@ -1,13 +1,15 @@
 package java.util;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+
 import java.util.Iterator;
 
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 
 @SCJAllowed
 public interface List {
 
-    
     @SCJAllowed
     public Iterator iterator();
     
@@ -25,5 +27,8 @@ public interface List {
 
     @SCJAllowed
     public Object[] toArray(Object[] a);
-
+    
+    @SCJAllowed
+    @RunsIn(CALLER)
+    public boolean equals(Object o);
 }

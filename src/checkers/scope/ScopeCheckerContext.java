@@ -399,11 +399,13 @@ public class ScopeCheckerContext {
                 MethodScopeInfo eM = expr.methodScopes.get(e.getKey());
                 if (!e.getValue().runsIn.equals(eM.runsIn) ) {
                     if (!isSupport(castType,e.getKey())) {
-                        //System.out.println("\n\n\n\n Illegal Upcast for :" + e.getKey());
-                        //System.out.println("class:" + exprType);
+                        //System.out.println("\nIllegal Upcast for :" + e.getKey());
+                        //System.out.println("\t expr class:" + exprType);
+                        //System.out.println("\t e @RI:" + e.getValue().runsIn);
+                        //System.out.println("\t eM @RI:" + eM.runsIn);
                         //expr.dumpCSI();
-                        //System.out.println("\n\n\n\n ------------------>>>>>>>>>> \n\n\n\n\n\n");
-                        //System.out.println("class:" + castType);
+                        //System.out.println(" ------------------>>>>>>>>>> \n\n\n\n\n\n");
+                        //System.out.println("\t cast class:" + castType);
                         //cast.dumpCSI();
                         return false;
                     }
