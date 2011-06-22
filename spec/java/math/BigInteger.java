@@ -13,6 +13,8 @@ package java.math;
 import static javax.safetycritical.annotate.Allocate.Area.CURRENT;
 import static javax.safetycritical.annotate.Allocate.Area.THIS;
 
+import static javax.safetycritical.annotate.Scope.CALLER;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Allocate;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
@@ -319,6 +321,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
+  @RunsIn(CALLER)
   public BigInteger multiply(BigInteger val) {
     return null; // skeleton
   }
@@ -329,6 +332,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
   @Allocate({CURRENT})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
+  @RunsIn(CALLER)
   public BigInteger negate() {
     return null; // skeleton
   }
