@@ -158,7 +158,7 @@ public class IllegalStateEx implements Safelet {
                 @Scope("MyPEH1") Object obj;        // ERR
 
                 //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_REPRESENTED_SCOPE
-                obj = m1.pri.newInstance(Object.class);     // ERR
+                m1.pri.newInstance(Object.class);     // ERR
 
                 m1.pri2.newInstance(Object.class);    // OK
 

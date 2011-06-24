@@ -48,15 +48,18 @@ public final class String
   public String(byte[] b) { // skeleton
   }
   
+  
   /**
    * Does not allow "this" or "s" argument to escape local variables.
    * Allocates internal structure to hold the contents of s within the
    * same scope as "this".
+   * 
+   * NOTE: @Scope(UNKNOWN) s means that we need to deep copy the string!
    */
   @Allocate({THIS})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public String(String s) { // skeleton
+  public String(@Scope(UNKNOWN)String s) { // skeleton
   }
   
   /**
@@ -67,7 +70,7 @@ public final class String
   @Allocate({THIS})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public String(byte[] b, int offset, int length) { // skeleton
+  public String(@Scope(UNKNOWN) byte[] b, int offset, int length) { // skeleton
   }
   
   /**
