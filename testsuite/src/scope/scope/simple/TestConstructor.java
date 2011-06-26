@@ -6,7 +6,10 @@ import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.*;
 
+import java.awt.List;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 import javax.realtime.Clock;
 import javax.realtime.PeriodicParameters;
@@ -44,6 +47,16 @@ public abstract class TestConstructor {
         return new One();  // OK
     }
 
+    @RunsIn(CALLER)
+    public void method () {
+        String prefix = "S-FRAME " + "" + " ";
+    }
+
+    public void m () {
+        String prefix = "S-FRAME " + "" + " ";
+    }
+
+
     @Scope(IMMORTAL)
     @SCJAllowed(members = true)
     static public class One  {
@@ -66,7 +79,6 @@ public abstract class TestConstructor {
 
         @RunsIn(CALLER)
         public void method2 (A a) {
-            //this.m(a);
         }
 
         public void m (A a) {
@@ -77,25 +89,64 @@ public abstract class TestConstructor {
         }
 
 
-        @RunsIn("X")
         public void meth() {
-            //new One(new A());
+            new One(new A());
 
-            //A a = new A();
-            //new One(a);
+            A a = new A();
+            new One(a);
         }
 
         @RunsIn("X")
         public void meth(A a) {
-            //new One(a);
+            new A();
 
-            One o = new One();
+            new A(a);
+
+            new A(new A());
         }
     }
 
     @SCJAllowed(members = true)
-    static class A {}
+    static class A {
+        public A() {
+        }
 
+        public A(A a) {
+        }
+
+        @RunsIn(CALLER)
+        public void method () {
+            String prefix = "S-FRAME " + "" + " ";
+        }
+
+        public void m () {
+            String prefix = "S-FRAME " + "" + " ";
+        }
+
+
+        @RunsIn("X")
+        public void meth() {
+            final LinkedList ret = new LinkedList();
+
+            final LinkedList list = new LinkedList();
+            Object o = new Object();
+            list.add(o);
+        }
+
+    }
+
+    @Scope("X")
+    @SCJAllowed(members = true)
+    static class ST {
+
+        final private HashMap    map = new HashMap();
+
+        Object o = new Object();
+        @RunsIn("X")
+        void method () {
+            map.put(o, new Object());
+    }
+    }
 
     @SCJAllowed(members=true)
     @Scope(IMMORTAL)
@@ -104,6 +155,17 @@ public abstract class TestConstructor {
         @SCJRestricted(INITIALIZATION)
         public MSafelet() {
             super(null);
+        }
+
+
+        @Override
+        @SCJAllowed(SUPPORT)
+        @RunsIn("X")
+        public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
+
+            return new CyclicSchedule(
+                              new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(new RelativeTime(200, 0),
+                                      handlers) });
         }
     }
 }

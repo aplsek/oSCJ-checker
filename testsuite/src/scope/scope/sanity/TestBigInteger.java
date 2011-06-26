@@ -114,7 +114,7 @@ public class TestBigInteger {
       @RunsIn("TM")
       public void run() {
         // copy bi into the "TM" scope (from the "TM.0" scope)
-        tm.crypto_key2 = new MBInt(bi);
+        //tm.crypto_key2 = new MBInt(bi);
 
         // or
         tm.crypto_key2 = bi.multiplyB(new MBInt(1));

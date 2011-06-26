@@ -35,14 +35,11 @@ public class MiniCDx {
     @DefineScope(name="CDMission", parent=IMMORTAL)
     static public class CDMission extends CyclicExecutive {
 
-        //static PriorityParameters p = new PriorityParameters(18);
-        // static StorageParameters s = new StorageParameters(1000L, 1000L, 1000L);
-
         static int priorityParameter = 18;
         static long totalBackingStore = 1000L;
         static long nativeStackSize = 1000L;
         static long javaStackSize = 1000L;
-        static RelativeTime t = new RelativeTime(5, 0);
+        static long time = 5;
 
         public CDMission() {
             super(new PriorityParameters(priorityParameter),
@@ -54,7 +51,7 @@ public class MiniCDx {
         @RunsIn("CDMission")
         public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
               return new CyclicSchedule(
-                      new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(t,
+                      new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(new RelativeTime(time, 0),
                               handlers) });
         }
 
