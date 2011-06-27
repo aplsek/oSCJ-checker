@@ -563,6 +563,7 @@
 
 
   <target name="tests" depends="jar,compile-tests,
+    				clean-reports,
    				    scjallowed-test,
  					scjallowed-noLevel,
       				scjrestricted-test,
@@ -576,7 +577,15 @@
     		    description="Run tests for all checkers">
   </target>
 
-
+  <target name="clean-reports" depends="jar,compile-tests"
+   		    description="Delete the reports/ dir.">
+    <delete includeemptydirs="true">
+        <fileset dir="${build.reports}" defaultexcludes="false">
+        </fileset>
+    </delete>
+    <mkdir dir="${build.reports}"/>
+    </target>
+  
   <target name="all-tests" depends="jar,compile-tests"
   		    description="Run tests for all checkers">
     <!-- Copied from -run-tests target -->
