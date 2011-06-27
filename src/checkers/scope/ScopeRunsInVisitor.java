@@ -571,7 +571,6 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             // something from the parent class or interface is broken. If the
             // result is a warning, we ignore it, since they are purely
             // informational.
-
             fail(ERR_BAD_LIBRARY_ANNOTATION, errNode);
         }
     }
