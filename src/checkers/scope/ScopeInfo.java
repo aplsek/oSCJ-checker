@@ -167,4 +167,10 @@ public class ScopeInfo {
     public ScopeInfo representing(ScopeInfo represented) {
         return new ScopeInfo(scope, represented);
     }
+
+    public void dump() {
+        System.out.println("\t\t scope:" + scope);
+        System.out.println("\t\t represented:" + represented);
+
+    }
 }
