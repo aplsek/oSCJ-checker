@@ -168,6 +168,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
     void checkClassScope(TypeElement t, ClassTree node, Tree errNode,
             boolean forceVisit) {
         debugIndentIncrement("checkClassScope: " + t);
+
         if (!(ctx.getClassScope(t) == null || forceVisit)) {
             // Already visited or is in the process of being visited
             debugIndentDecrement();
@@ -332,6 +333,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             VariableElement p = params.get(i);
             VariableTree pTree = paramTrees != null ? paramTrees.get(i) : null;
             ScopeInfo scope = checkMethodParameter(p, pTree, i, m, errNode);
+
             ctx.setParameterScope(scope, i, m);
         }
     }
@@ -344,6 +346,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
             effectiveScope = ctx.getEffectiveMethodRunsIn(m,
                     getEnclosingClassScope(m), ScopeInfo.CALLER);
         scope = checkMemoryAreaVariable(p, effectiveScope, tree, errNode);
+
         return scope;
     }
 
@@ -352,13 +355,19 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         ScopeInfo classScope = getEnclosingClassScope(f);
 
         if (Utils.isStatic(f)) {
-            if (!scope.isValidStaticScope())
+            if (!scope.isValidStaticScope()) {
                 fail(ERR_ILLEGAL_STATIC_FIELD_SCOPE, node, errNode, scope);
+                // set the scope to something before the checker reports the error.
+                scope = ScopeInfo.THIS;
+            }
 
             if (scope.isCaller())
                 scope = ScopeInfo.IMMORTAL;
-        } else if (!scope.isValidInstanceFieldScope(classScope, scopeTree))
+        } else if (!scope.isValidInstanceFieldScope(classScope, scopeTree)) {
             fail(ERR_ILLEGAL_FIELD_SCOPE, node, errNode, scope, classScope);
+            // set the scope to something before the checker reports the error.
+            scope = ScopeInfo.THIS;
+        }
 
         scope = checkMemoryAreaVariable(f, scope, node, errNode);
         return scope;
