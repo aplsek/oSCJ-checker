@@ -4,7 +4,7 @@
 	<classpathentry kind="src" path="examples/thruster/src"/>
 	<classpathentry kind="src" path="examples/fast-md5/src"/>
 	<classpathentry excluding="copyInOut/LinkedList.java" kind="src" path="testsuite/src"/>
-	<classpathentry excluding="src/|fast-md5/src/|jpapabench/jpapabench/jpapabench-scj/src/|jpapabench/jpapabench/jpapabench-core/src/|jpapabench/jpapabench/jpapabench-core-flightplans/src/|build/|jpapabench/|thruster/src/|miniCDx/src/|sorterBench/src/|level0-app/src/|level0-app/src/|level1-app/src/|level1-app/src/|staticAlloc-app/src/|staticAlloc-app/src/|perReleaseAlloc-app/src/|perReleaseAlloc-app/src/|level2-app/src/|level2-app/src/|error-app/src/|error-app/src/|advancedMM-app/src/|advancedMM-app/src/|illegalStateEx-app/src/|illegalStateEx-app/src/|level1-app-noSCJAllowed/src/|level1-app-noSCJAllowed/src/" kind="src" path="examples"/>
+	<classpathentry excluding="build/|fast-md5/src/|jpapabench/|jpapabench/jpapabench/jpapabench-core-flightplans/src/|jpapabench/jpapabench/jpapabench-core/src/|jpapabench/jpapabench/jpapabench-scj/src/|miniCDx/src/|sorterBench/src/|src/|thruster/src/" kind="src" path="examples"/>
 	<classpathentry kind="src" path="examples/sorterBench/src"/>
 	<classpathentry kind="lib" path="localbin/jsr308-all.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.7.jar"/>
