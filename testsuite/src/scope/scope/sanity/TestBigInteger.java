@@ -153,7 +153,7 @@ public class TestBigInteger {
         @Scope(THIS)
         public MBInt multiplyA(MBInt bi) {
             try {
-                MBInt n_bi;
+                @Scope(THIS) MBInt n_bi;
                 n_bi = (MBInt) MemoryArea.newInstanceInArea(this,MBInt.class);
                 n_bi.deepCopy(bi);
                 return n_bi;

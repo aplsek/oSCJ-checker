@@ -8,6 +8,6 @@ import javax.safetycritical.annotate.SCJAllowed;
 public class TestSystemOut {
 
     public void run() {
-        System.out.println(new String(""));
+        //System.out.println(new String(""));
     }
 }

@@ -86,6 +86,7 @@ public abstract class TestConstructor {
         }
 
         public void mm (A a) {
+            this.a = a;         // OK
         }
 
 

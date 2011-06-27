@@ -60,7 +60,7 @@ public class TestCaller {
         @RunsIn(CALLER)
         public void handleRequest() {
             //## checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE
-            String uri = decodePercent("token");
+            decodePercent("token");
         }
 
         @RunsIn(THIS)

@@ -1,4 +1,3 @@
-package scope.scope.sanity;
 /**
  *  This file is part of miniCDx benchmark of oSCJ.
  *
@@ -21,64 +20,74 @@ package scope.scope.sanity;
  *
  *   See: http://sss.cs.purdue.edu/projects/oscj/
  */
-import static javax.safetycritical.annotate.Level.SUPPORT;
-import static javax.safetycritical.annotate.Phase.CLEANUP;
-import static javax.safetycritical.annotate.Phase.INITIALIZATION;
+package scope.scope.sanity;
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.*;
+import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import javax.realtime.AbsoluteTime;
 import javax.realtime.Clock;
-import javax.realtime.PriorityParameters;
 import javax.realtime.RelativeTime;
 import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
-import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.PeriodicEventHandler;
-import javax.safetycritical.Safelet;
-import javax.safetycritical.StorageParameters;
 import javax.safetycritical.annotate.DefineScope;
+import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
-import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.Scope;
-import static javax.safetycritical.annotate.Scope.*;
+
 
 @SCJAllowed(members=true)
-public class TestLauncher {
+@Scope(IMMORTAL)
+@DefineScope(name="cdx.Level0Safelet",parent=IMMORTAL)
+public class TestNewInstanceInvocation extends CyclicExecutive {
 
+    public TestNewInstanceInvocation() {
+        super(null);
+    }
+
+    @SCJAllowed(SUPPORT)
     @SCJRestricted(INITIALIZATION)
-    @RunsIn(IMMORTAL)
-    public static void main(final String[] args) {
+    public void setUp() {
 
-        MyClass launch = new Launcher();
-        launch.setUp();
-
-        MyInterface launch2 = new Launcher();
-        launch2.method();
+        new ImmortalEntry().run();
     }
 
-    public static interface MyInterface {
-        public void method();
+    @SCJAllowed(SUPPORT)
+    @SCJRestricted(CLEANUP)
+    public void tearDown() {
     }
 
-    @SCJAllowed(members=true)
-    public static class MyClass {
+    @Override
+    @SCJAllowed(SUPPORT)
+    @RunsIn("cdx.Level0Safelet")
+    public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
+        CyclicSchedule.Frame[] frames = new CyclicSchedule.Frame[1];
+        frames[0] = new CyclicSchedule.Frame(new RelativeTime(100, 0), handlers);
+        CyclicSchedule schedule = new CyclicSchedule(frames);
+        return schedule;
+    }
 
-        public void setUp() {
-        }
+    @Override
+    @RunsIn("cdx.Level0Safelet")
+    @SCJAllowed(SUPPORT)
+    protected void initialize() {
+    }
+
+
+    @Override
+    public long missionMemorySize() {
+        return 0;
     }
 
     @SCJAllowed(members=true)
     @Scope(IMMORTAL)
-    public static class Launcher extends MyClass implements MyInterface {
+    public static class ImmortalEntry implements Runnable {
+        /** Called only once during initialization. Runs in immortal memory */
+        public void run() {
 
-        @Override
-        public void setUp() {
-        }
-
-        @Override
-        public void method() {
         }
     }
-
 
 }

@@ -1,7 +1,7 @@
 package scope.scopeRunsIn.simple;
 
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
-import static javax.safetycritical.annotate.Scope.IMMORTAL;
+import static javax.safetycritical.annotate.Scope.*;
 
 import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
@@ -22,4 +22,9 @@ public abstract class TestIllegalFieldScope extends MissionSequencer {
     //## checkers.scope.ScopeRunsInChecker.ERR_ILLEGAL_FIELD_SCOPE
     @Scope("a") Object o;
     int[] o2;
+
+    //## checkers.scope.ScopeRunsInChecker.ERR_BAD_SCOPE_NAME
+    @Scope(CALLER) Object oo;
+
+    @Scope(THIS) Object ooo;
 }

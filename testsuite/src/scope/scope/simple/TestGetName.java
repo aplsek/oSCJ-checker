@@ -49,7 +49,6 @@ public class TestGetName {
             //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
             String str = getName();
 
-            //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
             new String(getName());
         }
 
