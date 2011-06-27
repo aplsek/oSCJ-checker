@@ -44,9 +44,10 @@ public class FieldScopeInfo extends ScopeInfo {
             if (receiverScope == null) {        // this branch is added to avoid failing on ScopeInfo.IMMORTAL
                 if (o.receiverScope == null)
                     return super.equals(obj) && fieldScope.equals(o.receiverScope);
-            } else
+            } else {
                 return super.equals(obj) && receiverScope.equals(o.receiverScope)
-                        && fieldScope.equals(o.receiverScope);
+                        && fieldScope.equals(o.fieldScope);
+            }
         } else if (obj instanceof ScopeInfo)
             return super.equals(obj);
         return false;
@@ -63,5 +64,12 @@ public class FieldScopeInfo extends ScopeInfo {
     @Override
     public FieldScopeInfo representing(ScopeInfo represented) {
         return new FieldScopeInfo(receiverScope, fieldScope, represented);
+    }
+
+    @Override
+    public void dump() {
+        super.dump();
+        System.out.println("\t\t receiverScope:" + receiverScope);
+        System.out.println("\t\t fieldScope:" + fieldScope);
     }
 }
