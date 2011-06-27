@@ -54,10 +54,10 @@ public class TestCaller2 {
         @RunsIn(CALLER)
         public void method (B b) {
             //## checkers.scope.ScopeChecker.ERR_BAD_METHOD_INVOKE
-            f.m();  // ERR
+            f.m();          // 1/3 ERR
 
             //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-            this.f = new F();   // ERR
+            this.f = new F();   // 2/3 ERR
 
             b.m();  // OK
 
@@ -81,15 +81,17 @@ public class TestCaller2 {
             l.mm(cc);                       // OK
 
             //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE
-            l.mm(this.c);                   // ERR
+            l.mm(this.c);                   // 3/3 ERR
 
             Object o = b.mmm();             // OK
 
             B.method();                     //OK
         }
 
-        public void method2 (B b) {
+        public void method2 (B b, @Scope(CALLER) C c) {
             b.method();                      // OK
+
+            c.m();                           // OK
 
             B.method();                     //OK
         }
@@ -128,6 +130,7 @@ public class TestCaller2 {
 
     @SCJAllowed(members=true)
     static public class C{
+        public void m() {}
     }
 
 
