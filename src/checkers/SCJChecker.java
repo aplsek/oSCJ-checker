@@ -56,7 +56,8 @@ public class SCJChecker extends MultiPassChecker {
             Utils.setDefaultLevel(Level.getLevel(level));
 
         if (Utils.NO_SCOPE_CHECKS) {
-            System.out.println("WARNING: Scope-Checks DISABLED. : " + Utils.NO_SCOPE_CHECKS);
+            System.out.println("WARNING: Scope-Checks DISABLED. : "
+                    + Utils.NO_SCOPE_CHECKS);
             removePass(defineScopeChecker);
             removePass(scopeTreeChecker);
             removePass(scopeRunsInChecker);
