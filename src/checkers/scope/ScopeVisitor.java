@@ -744,6 +744,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     @Override
     public ScopeInfo visitWildcard(WildcardTree node, P p) {
         debugIndentIncrement("visitWildcard : " + node.toString());
+
+        pln("visitWildcard : " + node);
+
         debugIndentDecrement();
         return super.visitWildcard(node, p);
     }
@@ -927,14 +930,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return;
 
         if (!concretize(lhs).equals(concretize(rhs))) {
-            // pln("lhs:" + lhs);
-            // pln("lhs:" + concretize(lhs));
-            // pln("rhs:" + rhs);
-
-            // pln("rhs:" + concretize(rhs));
-            // pln("curr: " + currentScope());
-            // pln("curr: " + concretize(currentScope()));
-
             /*
             pln("ERR:");
             pln("\t lhs:" + lhs);
@@ -951,15 +946,14 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT, node);
     }
 
-    /*
-     * private ScopeInfo concretize(ScopeInfo scope) {
-     *      if (scope.isCaller())
-     *          return currentScope();
-     *      if (scope.isThis()) return
-     *              varScopes.getVariableScope("this");
-     *      return scope; }
-     */
+      private ScopeInfo concretize(ScopeInfo scope) {
+           if (scope.isCaller())
+               return currentScope();
+           if (scope.isThis()) return
+                   varScopes.getVariableScope("this");
+           return scope; }
 
+/*
     private ScopeInfo concretize(ScopeInfo scope) {
         ScopeInfo conc = null;
         if (!scope.isCaller() && !scope.isThis()) {
@@ -983,7 +977,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         return scope;
-    }
+    }*/
 
     private void checkEnterPrivateMemory(ScopeInfo recvScope,
             MethodInvocationTree node) {
@@ -1177,7 +1171,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             effectiveRunsIn = recvScope;
         }
 
-
         ScopeInfo current = concretize(currentScope());
 
         /*
@@ -1195,25 +1188,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         if (current.isCaller()) {
             if (!recvScope.isCaller()) {
-                pln("\n ERR - CALLER : " + node);
-                pln("effectiveRunsIn : " + effectiveRunsIn);
-                pln("currentScope : " + currentScope());
-                pln("currentScope : " + concretize(currentScope()));
-                pln("recvScope : " + recvScope);
-                pln("this scope:  : " +    varScopes.getVariableScope("this"));
-
-                fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, CALLER);
+               //("\n ERR - CALLER : " + node);
+               // pln("effectiveRunsIn : " + effectiveRunsIn);
+               // pln("currentScope : " + currentScope());
+               // pln("currentScope : " + concretize(currentScope()));
+               // pln("recvScope : " + recvScope);
+               // pln("this scope:  : " +    varScopes.getVariableScope("this"));
+               fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, CALLER);
             }
         }
         else if (!effectiveRunsIn.equals(current)) {
-
-            pln("ERR");
-            pln("effectiveRunsIn : " + effectiveRunsIn);
-            pln("currentScope : " + currentScope());
-            pln("currentScope : " + concretize(currentScope()));
-
-            pln("recvScope : " + recvScope);
-
             fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, currentScope());
         }
     }
