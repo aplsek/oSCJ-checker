@@ -16,5 +16,9 @@ public interface Set {
     
     @SCJAllowed
     public Object next(int i);
+    
+    @SCJAllowed
+    public boolean add(Object e) ;
+    
 
 }

@@ -15,11 +15,13 @@ public class Vector {
     }
     
     @SCJAllowed
+    @RunsIn(CALLER)
     public int size() {
         return 0;
     }
 
     @SCJAllowed
+    @RunsIn(CALLER) @Scope(THIS)
     public Object elementAt(int index) {
         return null;
     }
@@ -27,9 +29,4 @@ public class Vector {
     @SCJAllowed
     public void addElement(Object obj) {
     }
-    
-    @SCJAllowed
-    public void addElement22(Object obj) {
-    }
-    
 }

@@ -59,7 +59,7 @@ public final class String
   @Allocate({THIS})
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
-  public String(@Scope(UNKNOWN)String s) { // skeleton
+  public String(@Scope(UNKNOWN) String s) { // skeleton
   }
   
   /**
@@ -387,6 +387,7 @@ public final class String
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
+  @RunsIn(CALLER)
   final public boolean startsWith(String prefix) {
     return false; // skeleton
   }
@@ -397,6 +398,7 @@ public final class String
    */
   @SCJAllowed
   @SCJRestricted(maySelfSuspend = false)
+  @RunsIn(CALLER)
   final public boolean startsWith(String prefix, int toffset) {
     return false; // skeleton
   }
