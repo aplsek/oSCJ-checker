@@ -85,6 +85,15 @@ public class TestFieldAccess {
             ss.s.m();               // 3/3 ERR
 
             ss.s.mmm();             // OK
+
+            ss.s.f.b.c.mmm();       // OK
+
+            ss.f.b.c.mmm();         // OK
+        }
+
+        @RunsIn("Y")
+        public void m( SS ss) {
+            ss.f.m();               // OK
         }
 
     }
@@ -151,6 +160,8 @@ public class TestFieldAccess {
     @SCJAllowed(members=true)
     static public class SS {
         S s;
+
+        F f = new F();
 
         @RunsIn(CALLER)
         public void mmm() {
