@@ -512,6 +512,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 ret = new FieldScopeInfo(receiver, fScope);
             }
         }
+        debugIndent("ret: "+ ret);
         debugIndentDecrement();
         return ret;
     }
@@ -1160,12 +1161,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private void checkMethodRunsIn(ExecutableElement m, ScopeInfo recvScope,
             ScopeInfo effectiveRunsIn, MethodInvocationTree node) {
 
-        effectiveRunsIn = concretize(effectiveRunsIn);
 
         if (effectiveRunsIn.isCaller() || Utils.isStatic(m) ) {
             // a CALLER and static methods can be invoked from anywhere
             return;
         }
+
+        effectiveRunsIn = concretize(effectiveRunsIn);
 
         if (effectiveRunsIn.isThis() && !recvScope.isCaller()) {
             effectiveRunsIn = recvScope;
@@ -1188,12 +1190,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
         if (current.isCaller()) {
             if (!recvScope.isCaller()) {
-               //("\n ERR - CALLER : " + node);
-               // pln("effectiveRunsIn : " + effectiveRunsIn);
-               // pln("currentScope : " + currentScope());
-               // pln("currentScope : " + concretize(currentScope()));
-               // pln("recvScope : " + recvScope);
-               // pln("this scope:  : " +    varScopes.getVariableScope("this"));
+                //pln("\n ERR - CALLER : " + node);
+                //pln("effectiveRunsIn : " + effectiveRunsIn);
+                //pln("currentScope : " + currentScope());
+                //pln("currentScope : " + concretize(currentScope()));
+                //pln("recvScope : " + recvScope);
+                //pln("this scope:  : " +    varScopes.getVariableScope("this"));
+
                fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, CALLER);
             }
         }

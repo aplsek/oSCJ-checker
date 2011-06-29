@@ -522,7 +522,7 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
 
         if ((k.isPrimitive() || k == TypeKind.VOID)) {
             if (ann != null)
-                warn(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, node, errNode);
+                fail(ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN, node, errNode);
             scope = ScopeInfo.PRIMITIVE;
         } else if (r.getKind() == TypeKind.DECLARED) {
             TypeElement t = Utils.getTypeElement(r);

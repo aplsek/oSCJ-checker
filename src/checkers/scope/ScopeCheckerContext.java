@@ -173,8 +173,11 @@ public class ScopeCheckerContext {
     public ScopeInfo getEffectiveMethodRunsIn(ExecutableElement m,
             ScopeInfo recvScope, ScopeInfo currentScope) {
         ScopeInfo methodRunsIn = getMethodRunsIn(m);
-        if (methodRunsIn.isCaller())
-            return currentScope;
+        if (methodRunsIn.isCaller()) {
+            //TODO: check this:
+            //return currentScope;
+            return methodRunsIn;
+        }
         if (methodRunsIn.isThis()) {
             if (!recvScope.isReservedScope())
                 return recvScope;
