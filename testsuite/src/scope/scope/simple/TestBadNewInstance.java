@@ -49,6 +49,9 @@ public abstract class TestBadNewInstance extends MissionSequencer {
 
             //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
             ImmortalMemory.instance().newInstance(Y.class);
+
+            //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
+            ImmortalMemory.instance().newInstance(void.class);
         }
 
         @RunsIn("b")

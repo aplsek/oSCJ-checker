@@ -16,7 +16,7 @@ import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members = true)
 @Scope("A")
-public class TestGenerics {
+public class TestGenerics3 {
 
     @Scope(IMMORTAL)
     @DefineScope(name = "A", parent = IMMORTAL)
@@ -38,46 +38,60 @@ public class TestGenerics {
         }
     }
 
+    @SCJAllowed(members = true)
+    public static class B <T> {
+
+        public T m(T t) {
+            return t;
+        }
+
+        public @Scope("A") T mA(@Scope("A") T t) {
+            @Scope("A") T tt = t;
+            return t;
+        }
+
+        @RunsIn(CALLER) @Scope("A")
+        public T mAAA(@Scope("A") T t) {
+            //@Scope("A") T tt = t;
+            return t;
+        }
+    }
+
+    @SCJAllowed(members = true)
+    @Scope("A")
+    public static class C <T> {
+        public T m(T t) {
+            return t;
+        }
+
+        public @Scope("A") T mA(@Scope("A") T t) {
+            //@Scope("A") T tt = t;
+
+            return t;
+        }
+    }
+
     @Scope("A")
     @SCJAllowed(members = true)
     public static class V {}
+
+    @Scope("B")
+    @SCJAllowed(members = true)
+    public static class W <T> {
+        @Scope("A") T ft;
+    }
 
     /**
      * bounded generic type:
      */
     @Scope("B")
     @SCJAllowed(members = true)
-    public static class W <T extends V> {
+    public static class WW <T extends V> {
         @Scope("A") T t;
-        T ft;
 
         public T mA(T t) {
-            T tt = t;
             this.t = t;
-            this.ft = t;
             return t;
-        }
-
-        public void assignT(@Scope("A") T t) {
-            this.t = t;
-        }
-
-        @RunsIn(CALLER)
-        public T m(T t) {
-            this.ft = t;
-
-            return t;
-        }
-
-        public T mm(T t) {
-           V v = t;
-           T tt = (T) v;
-           return (T) v;
         }
     }
-
-    //@Scope("B")
-    //@SCJAllowed(members = true)
-    //public static class WW <@Scope("A") T> {
-    //}
 }

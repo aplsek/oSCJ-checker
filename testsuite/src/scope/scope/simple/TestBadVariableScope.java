@@ -16,7 +16,7 @@ public class TestBadVariableScope {
     @Scope(IMMORTAL)
     static class Foo {
         public void foo2() {
-            //## checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE
+            //## checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE_OVER
             @Scope(IMMORTAL) X x;
         }
     }
