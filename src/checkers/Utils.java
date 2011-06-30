@@ -284,9 +284,12 @@ public final class Utils {
         TypeKind k = v.asType().getKind();
         if (k.isPrimitive())
             return ScopeInfo.PRIMITIVE;
+
+        // TODO: getting the explicit scope should be moved somewhere else,
+        //       here we should be getting just the default scope from the Type
         Scope s = v.getAnnotation(Scope.class);
-        if (s != null)
-            return new ScopeInfo(s.value());
+         if (s != null)
+             return new ScopeInfo(s.value());
         if (k == TypeKind.DECLARED) {
             TypeElement t = Utils.getTypeElement(v.asType());
             ScopeInfo si = ctx.getClassScope(t);

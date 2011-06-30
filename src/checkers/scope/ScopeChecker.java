@@ -35,6 +35,7 @@ public class ScopeChecker extends SinglePassChecker {
     public static final String ERR_BAD_RETURN_SCOPE = "bad.return.scope";
     public static final String ERR_BAD_RUNS_IN_METHOD = "bad.runs.in.method";
     public static final String ERR_BAD_VARIABLE_SCOPE = "bad.variable.scope";
+    public static final String ERR_BAD_VARIABLE_SCOPE_OVER = "bad.variable.scope.over";
     public static final String ERR_BAD_CONTEXT_CHANGE_CALLER = "bad.context.change.in.caller";
     public static final String ERR_ESCAPING_NONANNOTATED_FIELD = "escaping.nonannotated.field";
     public static final String ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR = "err.mem.area.no.def.scope.on.var";
@@ -106,8 +107,10 @@ public class ScopeChecker extends SinglePassChecker {
                 "Cannot return expression in scope %s in a method that has @Scope annotation: %s.");
         p.put(ERR_BAD_RUNS_IN_METHOD,
                 "Methods must run in the same scope or a child scope of their owning type.");
+        p.put(ERR_BAD_VARIABLE_SCOPE_OVER,
+                "Types's  @Scope(%s) cannot be overriden by an explicit @Scope(%s).");
         p.put(ERR_BAD_VARIABLE_SCOPE,
-                "Variables of type %s are not allowed in this allocation context (%s).");
+        "Variables of type %s are not allowed in this allocation context (%s).");
         p.put(ERR_ESCAPING_NONANNOTATED_FIELD, ERR_ESCAPING_NONANNOTATED_FIELD);
         p.put(ERR_MEMORY_AREA_NO_DEFINE_SCOPE_ON_VAR,
                 "Local Variable of a type that implements AllocationContext interface must have a @DefineScope annotation.");

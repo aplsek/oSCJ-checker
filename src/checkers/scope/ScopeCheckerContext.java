@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -163,8 +164,8 @@ public class ScopeCheckerContext {
      * available.
      *
      * <ul>
-     * <li>If the method annotation is RunsIn(CALLER), the effective RunsIn is
-     * the current scope.
+     * <li>If the method annotation is RunsIn(CALLER), the effective RunsIn stays
+     * CALLER, can be later on concretized when comparing the RunsIn with the current scope.
      * <li>If the method annotation is RunsIn(THIS), the effective RunsIn is the
      * receiver object.
      * <li>Otherwise, the effective RunsIn is the annotation that was calculated
@@ -174,8 +175,7 @@ public class ScopeCheckerContext {
             ScopeInfo recvScope, ScopeInfo currentScope) {
         ScopeInfo methodRunsIn = getMethodRunsIn(m);
         if (methodRunsIn.isCaller()) {
-            //TODO: check this:
-            //return currentScope;
+            // CALLER stays CALLER, we will concretize is later in the checkMethodRunsIn()
             return methodRunsIn;
         }
         if (methodRunsIn.isThis()) {
@@ -362,7 +362,7 @@ public class ScopeCheckerContext {
         return expr;
     }
 
-    public ClassInfo getClassInfo(String clazz) {
+    private ClassInfo getClassInfo(String clazz) {
         ClassInfo ci = classScopes.get(clazz);
         if (ci == null) {
             if (clazz.indexOf("<") > 0) {
@@ -374,25 +374,33 @@ public class ScopeCheckerContext {
         return ci;
     }
 
+    private ClassInfo getCS(TypeMirror type){
+        ClassInfo res = null;
+        if (type.getKind() == TypeKind.DECLARED) {
+           res = getClassInfo(type.toString());
+        } else if (type.getKind() == TypeKind.TYPEVAR) {
+            // TODO:
+            res = null;
+        } else {
+            throw new RuntimeException("Upcast Check: Failed to resolve Type of the casted variable.");
+        }
+
+        return null;
+    }
+
     /**
      * Determines if a given subtype can be upcasted to a given supertype.
      * @return true if upcast is safe.
      */
     public boolean isSafeUpcast(TypeMirror exprType, TypeMirror castType) {
 
-        ClassInfo expr = getClassInfo(exprType.toString());
-        ClassInfo cast = getClassInfo(castType.toString());
-
-        if (expr == null ) {
-            // TODO: this e.g. happens for generics!!!
-            throw new RuntimeException("ClassScopes: given class is not in the map of the classscopes: " + exprType.toString());
-        }
+        ClassInfo expr = getCS(exprType);
+        ClassInfo cast = getCS(castType);
 
         if (expr == null || cast == null) {
             return true;
-            // TODO: this e.g. happens for generics!!!
-            //throw new RuntimeException("ClassScopes: given class is not in the map of the classscopes: " + castType.toString());
-
+            // GENERICS: this happens for e.g. generics
+            // throw new RuntimeException("ClassScopes: given class is not in the map of the classscopes: " + castType.toString());
         }
 
         if (!Utils.isUserLevel(exprType.toString()) && !Utils.isUserLevel(castType.toString())) {
@@ -402,7 +410,7 @@ public class ScopeCheckerContext {
         }
 
         for (Entry<String, MethodScopeInfo> e : cast.methodScopes.entrySet()) {
-            if (expr.methodScopes.containsKey(e.getKey())) {            // TODO: check that its a signature
+            if (expr.methodScopes.containsKey(e.getKey())) {
                 MethodScopeInfo eM = expr.methodScopes.get(e.getKey());
                 if (!e.getValue().runsIn.equals(eM.runsIn) ) {
                     if (!isSupport(castType,e.getKey())) {
