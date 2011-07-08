@@ -24,6 +24,8 @@ public class ScopeRunsInChecker extends SinglePassChecker {
     public static final String ERR_SCOPE_ON_VOID_OR_PRIMITIVE_RETURN = "scope.on.void.or.primitive.return";
     public static final String ERR_BAD_INNER_SCOPE_NAME = "bad.inner.scope.name";
 
+    public static final String ERR_BAD_ANNOTATE = "err.bad.annotate";
+
     private ScopeCheckerContext ctx;
 
     public ScopeRunsInChecker(ScopeCheckerContext ctx) {
@@ -42,7 +44,7 @@ public class ScopeRunsInChecker extends SinglePassChecker {
         p.put(ERR_BAD_SCOPE_NAME, "Scope %s does not exist.");
         p.put(ERR_ILLEGAL_CLASS_SCOPE_OVERRIDE, "Class %s illegal overrides Scope annotation on superclass or interface %s.");
         p.put(ERR_ILLEGAL_FIELD_SCOPE, "Field scope %s must be the same or an ancestor to class's scope %s.");
-
+        p.put(ERR_BAD_ANNOTATE, "Illegal annotation on the element: %s");
         p.put(ERR_ILLEGAL_STATIC_FIELD_SCOPE, "Static fields must be in the immortal scope, not %s.");
         p.put(ERR_ILLEGAL_VARIABLE_SCOPE_OVERRIDE, "Variable scope %s may not override its type's scope %s.");
         p.put(ERR_MEMORY_AREA_NO_DEFINE_SCOPE, "MemoryArea type does not have a @DefineScope annotation.");

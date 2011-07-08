@@ -215,8 +215,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         if (castType.toString().equals(exprType.toString()))
             return;
 
-        if (!ctx.isSafeUpcast(exprType, castType))
+        if (!ctx.isSafeUpcast(exprType, castType)) {
             fail(ERR_BAD_UPCAST, node, exprType.toString(), castType.toString());
+        }
     }
 
     /**
@@ -407,9 +408,10 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             ScopeInfo defineScope = null;
             ScopeInfo receiver;
 
-            if (!type.getKind().isPrimitive() && type.getKind() == TypeKind.DECLARED)
-                   if (needsDefineScope(Utils.getTypeElement(type)))
-                       defineScope = ctx.getFieldScope(v).getRepresentedScope();
+            if (!type.getKind().isPrimitive()
+                    && type.getKind() == TypeKind.DECLARED)
+                if (needsDefineScope(Utils.getTypeElement(type)))
+                    defineScope = ctx.getFieldScope(v).getRepresentedScope();
 
             // Since the receiver is implicit, we need to figure out whether
             // or not the field is static or not and set the scope accordingly.
@@ -521,7 +523,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
                 ret = new FieldScopeInfo(receiver, fScope);
             }
         }
-        debugIndent("ret: "+ ret);
+        debugIndent("ret: " + ret);
         debugIndentDecrement();
         return ret;
     }
@@ -644,67 +646,24 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         return node.getExpression().accept(this, p);
     }
 
-
     @Override
     public ScopeInfo visitParameterizedType(ParameterizedTypeTree node, P p) {
         debugIndentIncrement("visitParameterizedType:" + node.toString());
         debugIndentDecrement();
-        return super.visitParameterizedType(node,p);
+        return super.visitParameterizedType(node, p);
     }
 
     /**
-     * from type declaration "class W <T extends V>", this method visits the <T extends V> part.
+     * from type declaration "class W <T extends V>", this method visits the <T
+     * extends V> part.
      */
     @Override
     public ScopeInfo visitTypeParameter(TypeParameterTree node, P p) {
         debugIndentIncrement("visitTypeParameter:" + node.toString());
-        debugIndent("kind: " +  node.getKind());
-        debugIndent("bounds: " +  node.getBounds());
-        debugIndent("annotations: " +  node.getAnnotations());
-        debugIndent("name: " +  node.getName());
+
         debugIndentDecrement();
-        return super.visitTypeParameter(node,p);
+        return super.visitTypeParameter(node, p);
     }
-
-    /*
-    public AnnotatedTypeMirror visitTypeParameter(TypeParameterTree node,
-            AnnotatedTypeFactory f) {
-
-        List<AnnotatedTypeMirror> bounds = new LinkedList<AnnotatedTypeMirror>();
-        for (Tree t : node.getBounds()) {
-            AnnotatedTypeMirror bound;
-            if (visitedBounds.containsKey(t) && f == visitedBounds.get(t).typeFactory)
-                bound = visitedBounds.get(t);
-            else {
-                visitedBounds.put(t, f.type(t));
-                bound = visit(t, f);
-                visitedBounds.put(t, bound);
-            }
-            bounds.add(bound);
-        }
-
-        AnnotatedTypeVariable result = (AnnotatedTypeVariable)f.type(node);
-        List<? extends AnnotationMirror> annotations = InternalUtils.annotationsFromTree(node);
-        if (f.canHaveAnnotatedTypeParameters())
-            result.addAnnotations(annotations);
-        result.getUpperBound().addAnnotations(annotations);
-        assert result instanceof AnnotatedTypeVariable;
-        switch (bounds.size()) {
-        case 0: break;
-        case 1:
-            result.setUpperBound(bounds.get(0));
-            break;
-        default:
-            AnnotatedDeclaredType upperBound = (AnnotatedDeclaredType)result.getUpperBound();
-            assert TypesUtils.isAnonymousType(upperBound.getUnderlyingType());
-            @SuppressWarnings({"unchecked", "rawtypes"})
-            List<AnnotatedDeclaredType> superBounds = (List)bounds;
-            upperBound.setDirectSuperTypes(superBounds);
-        }
-
-        return result;
-    }
-*/
 
     @Override
     public ScopeInfo visitReturn(ReturnTree node, P p) {
@@ -766,11 +725,12 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             if (m.getKind() == TypeKind.DECLARED) {
                 cast = ctx.getClassScope(Utils.getTypeElement(m));
                 checkUpcast(node);
-             } else if (m.getKind() == TypeKind.TYPEVAR) {
-                 cast = scope;
-             } else {
-                 throw new RuntimeException("Type Cast Check: Failed to resolve Type of the casted variable.");
-             }
+            } else if (m.getKind() == TypeKind.TYPEVAR) {
+                cast = scope;
+            } else {
+                throw new RuntimeException(
+                        "Type Cast Check: Failed to resolve Type of the casted variable.");
+            }
         }
 
         debugIndentDecrement();
@@ -1008,15 +968,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             return;
 
         if (!concretize(lhs).equals(concretize(rhs))) {
-            /*
-            pln("ERR:");
-            pln("\t lhs:" + lhs);
-            pln("\t lhs-conc:" + concretize(lhs));
-            pln("\t rhs:" + rhs);
-            pln("\t rhs-conc:" + concretize(rhs));
-            pln("\t curr: " + currentScope());
-            pln("\t curr-conc: " + concretize(currentScope()));
-            */
             fail(ERR_BAD_ASSIGNMENT_SCOPE, node, rhs, lhs);
         }
         ScopeInfo rhsDsi = rhs.getRepresentedScope();
@@ -1024,38 +975,13 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             fail(ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT, node);
     }
 
-      private ScopeInfo concretize(ScopeInfo scope) {
-           if (scope.isCaller())
-               return currentScope();
-           if (scope.isThis()) return
-                   varScopes.getVariableScope("this");
-           return scope; }
-
-/*
     private ScopeInfo concretize(ScopeInfo scope) {
-        ScopeInfo conc = null;
-        if (!scope.isCaller() && !scope.isThis()) {
-            // we know how to concretize THIS and CALLER only
-            return scope;
-        }
-
-        if (scope.isCaller()) {
-            conc = currentScope();
-        }
-        if (scope.isThis()) {
-            conc = varScopes.getVariableScope("this");
-        }
-
-        if (conc.equals(scope))
-            return conc;
-        else {
-            if (conc.isCaller())
-                return conc;
-            scope = concretize(conc);
-        }
-
+        if (scope.isCaller())
+            return currentScope();
+        if (scope.isThis())
+            return varScopes.getVariableScope("this");
         return scope;
-    }*/
+    }
 
     private void checkEnterPrivateMemory(ScopeInfo recvScope,
             MethodInvocationTree node) {
@@ -1238,7 +1164,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private void checkMethodRunsIn(ExecutableElement m, ScopeInfo recvScope,
             ScopeInfo effectiveRunsIn, MethodInvocationTree node) {
 
-        if (effectiveRunsIn.isCaller() || Utils.isStatic(m) ) {
+        if (effectiveRunsIn.isCaller() || Utils.isStatic(m)) {
             // a CALLER and static methods can be invoked from anywhere
             return;
         }
@@ -1251,10 +1177,9 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         ScopeInfo current = concretize(currentScope());
         if (current.isCaller()) {
             if (!recvScope.isCaller()) {
-               fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, CALLER);
+                fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, CALLER);
             }
-        }
-        else if (!effectiveRunsIn.equals(current)) {
+        } else if (!effectiveRunsIn.equals(current)) {
             fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, currentScope());
         }
     }
@@ -1345,36 +1270,39 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
      */
     private ScopeInfo checkNewInstanceInArea(ScopeInfo scope,
             MethodInvocationTree node) {
-        //ScopeInfo target = checkGetMemoryArea(scope, node);
-        //return checkNewInstance(target, node.getArguments().get(1), node);
+        // ScopeInfo target = checkGetMemoryArea(scope, node);
+        // return checkNewInstance(target, node.getArguments().get(1), node);
 
         scope = concretize(scope);
         ScopeInfo res = null;
         if (!scope.isReservedScope() || scope.isImmortal()) {
-             ScopeInfo target = checkGetMemoryArea(scope, node);
-             res = checkNewInstance(target, node.getArguments().get(1), node);
+            ScopeInfo target = checkGetMemoryArea(scope, node);
+            res = checkNewInstance(target, node.getArguments().get(1), node);
         } else {
             if (scope.isUnknown()) {
                 fail(ERR_BAD_GET_MEMORY_AREA, node);
                 return scope;
             }
             // the scope is either THIS or CALLER
-            res = checkNewInstanceInAreaScope(scope, node.getArguments().get(1), node);
+            res = checkNewInstanceInAreaScope(scope,
+                    node.getArguments().get(1), node);
         }
         return res;
     }
 
     /**
-     * Verifies the MemoryArea.checkNewInstanceInArea(target,clazz) method call when target == THIS/CALLER.
+     * Verifies the MemoryArea.checkNewInstanceInArea(target,clazz) method call
+     * when target == THIS/CALLER.
      */
-    private ScopeInfo checkNewInstanceInAreaScope(ScopeInfo recvScope, ExpressionTree arg,
-            MethodInvocationTree node) {
+    private ScopeInfo checkNewInstanceInAreaScope(ScopeInfo recvScope,
+            ExpressionTree arg, MethodInvocationTree node) {
         TypeMirror instType = getNewInstanceType(arg);
 
         if (isValidNewInstanceType(instType)) {
             ScopeInfo argScope = ctx.getClassScope(instType.toString());
             if (!argScope.isCaller()) {
-                // if the type has a @Scope(<naned-scope>), then we cannot create it in THIS/CALLER
+                // if the type has a @Scope(<naned-scope>), then we cannot
+                // create it in THIS/CALLER
                 fail(ERR_BAD_NEW_INSTANCE, node, argScope, recvScope);
                 return recvScope;
             }

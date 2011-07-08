@@ -31,6 +31,7 @@ import checkers.util.InternalUtils;
 import checkers.util.TreeUtils;
 import checkers.util.TypesUtils;
 
+import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.IdentifierTree;
@@ -39,6 +40,7 @@ import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.PrimitiveTypeTree;
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.TypeParameterTree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.VariableTree;
 
@@ -68,6 +70,43 @@ public class ScopeRunsInVisitor extends SCJVisitor<Void, Void> {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
         checkClassScope(t, node, node, true);
         return super.visitClass(node, p);
+    }
+
+    /**
+     * from type declaration "class W <T extends V>", this method visits the <T extends V> part.
+     */
+    @Override
+    public Void visitTypeParameter(TypeParameterTree node, Void p) {
+        debugIndentIncrement("visitTypeParameter:" + node.toString());
+
+        //ClassTree cll = TreeUtils.enclosingClass(getCurrentPath());
+        //String encClass = TreeUtils.elementFromDeclaration(cll).getQualifiedName().toString();
+        //ScopeInfo enc = ctx.getClassScope(encClass);
+        //ScopeInfo scope = getScope(node.getAnnotations(), node);
+        //ctx.setClassScope(scope, encClass+"."+node.getName());
+        //
+        // for (Tree t : node.getBounds()) {
+        //     // TODO: check the bounds.
+        // }
+
+        debugIndentDecrement();
+        return super.visitTypeParameter(node, p);
+    }
+
+    /**
+     * To determine Scope information from parameteric types. Not finished yet.
+     */
+    public ScopeInfo getScope(List<? extends AnnotationTree> annotations, Tree node) {
+        for (AnnotationTree at : annotations) {
+            // TODO: improve this:
+            if (at.toString().startsWith("@Scope")) {
+                String name = at.getArguments().get(0).toString();
+                return new ScopeInfo(name.replace("\"", ""));
+            } else {
+                fail(ERR_BAD_ANNOTATE,node, node,at.toString());
+            }
+        }
+        return null;
     }
 
     @Override
