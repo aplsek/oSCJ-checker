@@ -384,8 +384,7 @@ public class ScopeCheckerContext {
         } else {
             throw new RuntimeException("Upcast Check: Failed to resolve Type of the casted variable.");
         }
-
-        return null;
+        return res;
     }
 
     /**
@@ -404,6 +403,7 @@ public class ScopeCheckerContext {
         }
 
         if (!Utils.isUserLevel(exprType.toString()) && !Utils.isUserLevel(castType.toString())) {
+            // TODO : is this needed?
             // ignore upcasting between SCJ classes (classes from javax.safetycritical and javax.realtime)
             // Note: This is for example for the executeInArea() method that has different @RunsIn but we need to upcast here.
             return true;
