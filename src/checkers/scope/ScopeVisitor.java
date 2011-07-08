@@ -1175,6 +1175,14 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         }
 
         ScopeInfo current = concretize(currentScope());
+
+
+        if (Utils.isAllocFree(m) && scopeTree.isParentOf(current, effectiveRunsIn)) {
+            // if the method's allocation context is parent and the method is allocation free, it is legal to invoke it.
+            return;
+        }
+
+
         if (current.isCaller()) {
             if (!recvScope.isCaller()) {
                 fail(ERR_BAD_METHOD_INVOKE, node, effectiveRunsIn, CALLER);

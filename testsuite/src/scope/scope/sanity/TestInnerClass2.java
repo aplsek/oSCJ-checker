@@ -19,9 +19,28 @@ import javax.safetycritical.annotate.Scope;
  * This class is the Safelet for unit test. This unit test program is also an example level one
  * SCJ application.
  */
+
+@Scope(IMMORTAL)
+@DefineScope(name = "A", parent = IMMORTAL)
+@SCJAllowed(members = true)
+public class TestInnerClass2 extends MissionSequencer {
+
+    @SCJRestricted(INITIALIZATION)
+    public TestInnerClass2(PriorityParameters priority, StorageParameters storage) {
+        super(priority, storage);
+    }
+
+    @Override
+    @SCJAllowed(SUPPORT)
+    @RunsIn("A")
+    protected Mission getNextMission() {
+        return null;
+    }
+}
+
 @SCJAllowed(members = true)
 @Scope("A")
-public class TestInnerClass2  {
+class AA {
 
     @SCJAllowed(members = true)
     @Scope("A")
@@ -57,11 +76,11 @@ public class TestInnerClass2  {
         @RunsIn("A")
         void foo() {
 
-            TestInnerClass2 i = new TestInnerClass2();
+            AA i = new AA();
 
             X x = i.new X();  // OK
 
-            new TestInnerClass2.Y();  // OK
+            new AA.Y();  // OK
 
             Z z = i.new Z();  // OK
         }
