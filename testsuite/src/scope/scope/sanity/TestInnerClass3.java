@@ -21,7 +21,7 @@ import javax.safetycritical.annotate.Scope;
  */
 @SCJAllowed(members = true)
 @Scope("A")
-public class TestInnerClass2  {
+public class TestInnerClass3  {
 
     @SCJAllowed(members = true)
     @Scope("A")
@@ -57,44 +57,13 @@ public class TestInnerClass2  {
         @RunsIn("A")
         void foo() {
 
-            TestInnerClass2 i = new TestInnerClass2();
+            TestInnerClass3 i = new TestInnerClass3();
 
             X x = i.new X();  // OK
 
-            new TestInnerClass2.Y();  // OK
+            new TestInnerClass3.Y();  // OK
 
             Z z = i.new Z();  // OK
         }
     }
 }
-
-
-@SCJAllowed(members = true)
-class O {
-
-    F f;
-
-    @SCJAllowed(members = true)
-    class I {
-
-        F fff;
-
-        void mm() {
-            F ff  = f;
-            m();
-        }
-    }
-
-    void m () {
-        O o = new O();
-        O.I i = o.new I();
-    }
-
-    void m2 () {
-        I i = this.new I();
-        F myF = i.fff;
-    }
-}
-
-@SCJAllowed(members = true)
-class F {}

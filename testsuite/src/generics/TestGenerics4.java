@@ -16,7 +16,7 @@ import javax.safetycritical.annotate.Scope;
 
 @SCJAllowed(members = true)
 @Scope("A")
-public class TestGenerics {
+public class TestGenerics4 {
 
     @Scope(IMMORTAL)
     @DefineScope(name = "A", parent = IMMORTAL)
@@ -42,17 +42,42 @@ public class TestGenerics {
     @SCJAllowed(members = true)
     public static class V {}
 
-
-
+    /**
+     * bounded generic type:
+     */
     @Scope("B")
     @SCJAllowed(members = true)
-    public static class WW <@Scope("A") T,@Scope("B") K extends V> {
+    public static class W <T extends V> {
+        @Scope("A") T t;
+        T ft;
 
-        T t;
+        public T mA(T t) {
+            T tt = t;
+            this.t = t;
+            this.ft = t;
+            return t;
+        }
+
+        public void assignT(@Scope("A") T t) {
+            this.t = t;
+        }
 
         @RunsIn(CALLER)
-        public void mA(T t) {
-           this.t = t;
+        public T m(T t) {
+            this.ft = t;
+
+            return t;
+        }
+
+        public T mm(T t) {
+           V v = t;
+           T tt = (T) v;
+           return (T) v;
         }
     }
+
+    //@Scope("B")
+    //@SCJAllowed(members = true)
+    //public static class WW <@Scope("A") T> {
+    //}
 }
