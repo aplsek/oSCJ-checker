@@ -1,0 +1,16 @@
+
+JPapabench Example, Checker project
+- the JPapabench repository is at  https://jpaparazzi.jpapabench.googlecode.com/hg/ jpapabench-jpaparazzi
+
+Execute install.sh to pull the repository to your checker/examples dir/.
+
+1. INSTALL:
+
+$ cd jpapabench
+$ ./install.sh
+
+
+2. Verity JPAPABENCH with the Checker:
+
+$ cd checker/examples
+$ ./jpapabench.sh
