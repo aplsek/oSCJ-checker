@@ -75,6 +75,7 @@ public class MiniCDx {
          * @return the amount of memory needed
          */
         @Override
+        @SCJAllowed(SUPPORT)
         public long missionMemorySize() {
             return 5420;
         }

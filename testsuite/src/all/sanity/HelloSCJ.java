@@ -51,6 +51,7 @@ public class HelloSCJ extends Mission implements Safelet {
 
     // @Override
     @Override
+    @SCJAllowed(SUPPORT)
     public long missionMemorySize() {
         return 100000;
     }

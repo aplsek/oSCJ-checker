@@ -56,6 +56,7 @@ public class PerReleaseExample extends CyclicExecutive {
      * @return the amount of memory needed
      */
     @Override
+    @SCJAllowed(SUPPORT)
     public long missionMemorySize() {
         return 1420; // MIN without printing is 430 bytes.
     }

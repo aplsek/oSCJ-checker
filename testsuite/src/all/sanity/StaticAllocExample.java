@@ -54,6 +54,7 @@ public class StaticAllocExample extends CyclicExecutive {
      * @return the amount of memory needed
      */
     @Override
+    @SCJAllowed(SUPPORT)
     public long missionMemorySize() {
         return 500; // MIN without printing is 500 bytes.
     }

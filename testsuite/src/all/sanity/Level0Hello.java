@@ -43,6 +43,7 @@ public class Level0Hello extends CyclicExecutive {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public long missionMemorySize() {
         return 5000000;
     }
