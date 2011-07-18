@@ -5,6 +5,7 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
+import javax.realtime.MemoryParameters;
 import javax.realtime.RelativeTime;
 import javax.safetycritical.CyclicExecutive;
 import javax.safetycritical.CyclicSchedule;
@@ -44,20 +45,9 @@ public class Level0Hello extends CyclicExecutive {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public long missionMemorySize() {
         return 5000000;
-    }
-
-    @Override
-    @SCJAllowed(SUPPORT)
-    @SCJRestricted(INITIALIZATION)
-    public void setUp() {
-    }
-
-    @Override
-    @SCJAllowed(SUPPORT)
-    @SCJRestricted(CLEANUP)
-    public void tearDown() {
     }
 
     @SCJAllowed(members=true)

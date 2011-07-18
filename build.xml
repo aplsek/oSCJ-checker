@@ -613,8 +613,7 @@
     				schedulable-test,
     				scope-test,
                     all-sanity-test,
-    				noScopeCheckerTest,
-    				generics-test"
+    				noScopeCheckerTest"		
     		    description="Run tests for all checkers">
   </target>
 

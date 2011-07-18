@@ -49,7 +49,7 @@ public class ThrusterControlSequencer extends MissionSequencer {
         if (thrusterControlSequencer == null) {
             PriorityParameters myPriorityPar = new PriorityParameters(
                     NORM_PRIORITY);
-            StorageParameters myStoragePar = new StorageParameters(100000L,
+            StorageParameters myStoragePar = new StorageParameters(100000L, null,
                     1000, 1000);
 
             thrusterControlSequencer = new ThrusterControlSequencer(

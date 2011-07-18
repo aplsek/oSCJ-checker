@@ -46,7 +46,7 @@ public class MD5SCJ extends PeriodicEventHandler {
 
     @SCJRestricted(INITIALIZATION)
     public MD5SCJ(long psize, int count) {
-        super(null, null, new StorageParameters(psize,0,0));
+        super(null, null, new StorageParameters(psize,null, 0,0));
         count_ = count;
     }
 

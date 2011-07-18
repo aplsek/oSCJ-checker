@@ -33,7 +33,7 @@ public class MyTerminatorMission extends Mission {
         myPEH = new MyTerminatorPeriodicEventHandler(new PriorityParameters(
                 PriorityScheduler.instance().getNormPriority()),
                 new PeriodicParameters(new RelativeTime(), new RelativeTime(
-                        500, 0)), new StorageParameters(100, 100, 100), 10000,
+                        500, 0)), new StorageParameters(100, null, 100, 100), 10000,
                 "MyPEH");
 
         myPEH.register();

@@ -43,7 +43,7 @@ public class TestMissionOverride extends Mission
   }
 
   @Override
-  @SCJAllowed
+  @SCJAllowed(SUPPORT)
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables

@@ -37,8 +37,7 @@ public class AdvancedMM extends CyclicExecutive {
 
     @SCJRestricted(INITIALIZATION)
     public AdvancedMM() {
-        super(new PriorityParameters(18),
-                new StorageParameters(1000L, 1000L, 1000L));
+        super(null);
     }
 
     @Override
@@ -88,7 +87,7 @@ public class AdvancedMM extends CyclicExecutive {
             super(new PriorityParameters(13),
                     new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
                     500, 0)),
-                    new StorageParameters(1000L, 1000L, 1000L));
+                    new StorageParameters(1000L, null, 1000, 1000));
         }
 
         Tick tock;
@@ -107,8 +106,6 @@ public class AdvancedMM extends CyclicExecutive {
                 m.executeInArea(r);
 
             } catch (InstantiationException e) {
-                //e.printStackTrace();
-            } catch (IllegalAccessException e) {
                 //e.printStackTrace();
             }
         }

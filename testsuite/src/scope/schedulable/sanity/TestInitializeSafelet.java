@@ -27,13 +27,12 @@ public class TestInitializeSafelet extends CyclicExecutive {
 
     static int priorityParameter = 18;
     static long totalBackingStore = 1000L;
-    static long nativeStackSize = 1000L;
-    static long javaStackSize = 1000L;
+    static int nativeStackSize = 1000;
+    static int javaStackSize = 1000;
     static RelativeTime t = new RelativeTime(5, 0);
 
     public TestInitializeSafelet() {
-        super(new PriorityParameters(priorityParameter),
-              new StorageParameters(totalBackingStore, nativeStackSize, javaStackSize));
+        super(null);
     }
 
     @Override

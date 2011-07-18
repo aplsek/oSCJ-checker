@@ -152,17 +152,17 @@ public class TestBigInteger {
         @RunsIn(CALLER)
         @Scope(THIS)
         public MBInt multiplyA(MBInt bi) {
-            try {
-                @Scope(THIS) MBInt n_bi;
-                n_bi = (MBInt) MemoryArea.newInstanceInArea(this,MBInt.class);
+           // try {
+                @Scope(THIS) MBInt n_bi = null;
+                //n_bi = (MBInt) MemoryArea.newInstanceInArea(this,MBInt.class);
                 n_bi.deepCopy(bi);
                 return n_bi;
 
-            } catch (InstantiationException e) {
-            } catch (IllegalAccessException e) {
-            }
+            //} catch (InstantiationException e) {
+           // } catch (IllegalAccessException e) {
+            //}
 
-            return null;
+           // return null;
 
         }
 

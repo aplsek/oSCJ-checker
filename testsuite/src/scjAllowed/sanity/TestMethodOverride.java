@@ -12,7 +12,7 @@ import javax.safetycritical.annotate.SCJRestricted;
 public class TestMethodOverride extends Mission {
 
     @Override
-    @SCJAllowed
+    @SCJAllowed(SUPPORT)
     public long missionMemorySize() {
         return 0;
     }

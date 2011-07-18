@@ -37,7 +37,7 @@ public class ErrorApp extends CyclicExecutive {
 
     @SCJRestricted(INITIALIZATION)
     public ErrorApp() {
-        super(null, null);
+        super(null);
     }
 
     @Override

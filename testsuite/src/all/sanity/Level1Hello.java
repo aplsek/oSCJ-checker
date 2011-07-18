@@ -32,7 +32,7 @@ public class Level1Hello implements Safelet {
     @SCJAllowed(SUPPORT)
     public MissionSequencer getSequencer() {
         return new OneSequencer(new PriorityParameters(PriorityScheduler
-                .instance().getNormPriority()), new StorageParameters(100000L,
+                .instance().getNormPriority()), new StorageParameters(100000L,null,
                 1000, 1000));
     }
 
@@ -75,12 +75,12 @@ public class Level1Hello implements Safelet {
             PEH peh = new PEH(new PriorityParameters(PriorityScheduler.instance()
                     .getNormPriority()), new PeriodicParameters(
                     new RelativeTime(0, 0), new RelativeTime(500, 0)),
-                    new StorageParameters(50000L, 1000L, 1000L));
+                    new StorageParameters(50000L,null, 1000, 1000));
             peh.register();
         }
 
         @Override
-        @SCJAllowed
+        @SCJAllowed(SUPPORT)
         public long missionMemorySize() {
             return 1000L;
         }
@@ -95,7 +95,7 @@ public class Level1Hello implements Safelet {
         PEH(PriorityParameters p, PeriodicParameters r, StorageParameters s) {
             super(new PriorityParameters(13), new PeriodicParameters(
                     new RelativeTime(0, 0), new RelativeTime(500, 0)),
-                    new StorageParameters(1000L, 1000L, 1000L));
+                    new StorageParameters(1000L, null, 1000, 1000));
         }
 
         int pos = 0;
@@ -123,5 +123,12 @@ public class Level1Hello implements Safelet {
         public StorageParameters getThreadConfigurationParameters() {
             return null;
         }
+    }
+
+    @Override
+    @SCJAllowed(SUPPORT)
+    public long immortalMemorySize() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 }

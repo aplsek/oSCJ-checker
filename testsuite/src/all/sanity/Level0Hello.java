@@ -48,17 +48,6 @@ public class Level0Hello extends CyclicExecutive {
         return 5000000;
     }
 
-    @Override
-    @SCJAllowed(SUPPORT)
-    @SCJRestricted(INITIALIZATION)
-    public void setUp() {
-    }
-
-    @Override
-    @SCJAllowed(SUPPORT)
-    @SCJRestricted(CLEANUP)
-    public void tearDown() {
-    }
 
     @SCJAllowed(members=true)
     @Scope("Level0App")

@@ -70,7 +70,7 @@ public class Level2Hello {
         public void initialize() {
             ManagedMemory.getCurrentManagedMemory().resize(MISSION_MEMORY_SIZE);
             PriorityParameters pp = new PriorityParameters(PRIORITY);
-            StorageParameters sp = new StorageParameters(100000L, 1000, 1000);
+            StorageParameters sp = new StorageParameters(100000L, null, 1000, 1000);
             SubMissionSequencer sms = new SubMissionSequencer(pp, sp);
             // sms.register();
             (new PrimaryPeriodicEventHandler("AEH A", new RelativeTime(0, 0),
@@ -85,7 +85,7 @@ public class Level2Hello {
         }
 
         @Override
-        @SCJAllowed
+        @SCJAllowed(SUPPORT)
         public long missionMemorySize() {
             return MISSION_MEMORY_SIZE;
         }
@@ -107,7 +107,7 @@ public class Level2Hello {
         }
 
         @Override
-        @SCJAllowed
+        @SCJAllowed(SUPPORT)
         public long missionMemorySize() {
             return MISSION_MEMORY_SIZE;
         }
@@ -128,7 +128,7 @@ public class Level2Hello {
         }
 
         @Override
-        @SCJAllowed
+        @SCJAllowed(SUPPORT)
         public long missionMemorySize() {
             return MISSION_MEMORY_SIZE;
         }
@@ -176,7 +176,7 @@ public class Level2Hello {
         public PrimaryPeriodicEventHandler(String aehName,
                 RelativeTime startTime, RelativeTime period) {
             super(new PriorityParameters(_priority), new PeriodicParameters(
-                    startTime, period), new StorageParameters(10000, 10000,
+                    startTime, period), new StorageParameters(10000, null, 10000,
                     10000));
         }
 
@@ -206,7 +206,7 @@ public class Level2Hello {
         public SecondaryPeriodicEventHandler(String aehName,
                 RelativeTime startTime, RelativeTime period) {
             super(new PriorityParameters(_priority), new PeriodicParameters(
-                    startTime, period), new StorageParameters(10000, 10000,
+                    startTime, period), new StorageParameters(10000, null, 10000,
                     10000));
         }
 
@@ -235,12 +235,12 @@ public class Level2Hello {
         public void initialize() {
             ManagedMemory.getCurrentManagedMemory().resize(MISSION_MEMORY_SIZE);
             PriorityParameters pp = new PriorityParameters(PRIORITY);
-            StorageParameters sp = new StorageParameters(100000L, 1000, 1000);
+            StorageParameters sp = new StorageParameters(100000L, null, 1000, 1000);
             MyCleanupThread t = new MyCleanupThread(pp, sp);
         }
 
         @Override
-        @SCJAllowed
+        @SCJAllowed(SUPPORT)
         public long missionMemorySize() {
             return MISSION_MEMORY_SIZE;
         }

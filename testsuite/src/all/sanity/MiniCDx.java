@@ -26,33 +26,31 @@ import javax.safetycritical.annotate.SCJAllowed;
 import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
-@SCJAllowed(members=true)
+@SCJAllowed(members = true)
 public class MiniCDx {
 
-
     @Scope(IMMORTAL)
-    @SCJAllowed(members=true)
-    @DefineScope(name="CDMission", parent=IMMORTAL)
+    @SCJAllowed(members = true)
+    @DefineScope(name = "CDMission", parent = IMMORTAL)
     static public class CDMission extends CyclicExecutive {
 
         static int priorityParameter = 18;
         static long totalBackingStore = 1000L;
-        static long nativeStackSize = 1000L;
-        static long javaStackSize = 1000L;
+        static int nativeStackSize = 1000;
+        static int javaStackSize = 1000;
         static long time = 5;
 
         public CDMission() {
-            super(new PriorityParameters(priorityParameter),
-                  new StorageParameters(totalBackingStore, nativeStackSize, javaStackSize));
+            super(null);
         }
 
         @Override
         @SCJAllowed(SUPPORT)
         @RunsIn("CDMission")
         public CyclicSchedule getSchedule(PeriodicEventHandler[] handlers) {
-              return new CyclicSchedule(
-                      new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(new RelativeTime(time, 0),
-                              handlers) });
+            return new CyclicSchedule(
+                    new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(
+                            new RelativeTime(time, 0), handlers) });
         }
 
         @Override
@@ -64,13 +62,14 @@ public class MiniCDx {
             MIRun miRun = new MIRun();
 
             @Scope(IMMORTAL)
-            @DefineScope(name="CDMission", parent=IMMORTAL)
+            @DefineScope(name = "CDMission", parent = IMMORTAL)
             ManagedMemory m = ManagedMemory.getCurrentManagedMemory();
             m.enterPrivateMemory(2000, miRun);
         }
 
         /**
-         * A method to query the maximum amount of memory needed by this mission.
+         * A method to query the maximum amount of memory needed by this
+         * mission.
          *
          * @return the amount of memory needed
          */
@@ -97,9 +96,9 @@ public class MiniCDx {
         }
     }
 
-    @SCJAllowed(members=true)
+    @SCJAllowed(members = true)
     @Scope("CDMission")
-    @DefineScope(name="CDMissionInit", parent="CDMission")
+    @DefineScope(name = "CDMissionInit", parent = "CDMission")
     static class MIRun implements Runnable {
         @RunsIn("CDMissionInit")
         public void run() {
@@ -107,39 +106,35 @@ public class MiniCDx {
         }
     }
 
-
-    @SCJAllowed(members=true)
+    @SCJAllowed(members = true)
     @Scope("CDMission")
-    @DefineScope(name="CDHandler", parent="CDMission")
+    @DefineScope(name = "CDHandler", parent = "CDMission")
     static public class CDHandler extends PeriodicEventHandler {
         StateTable st;
         boolean stop = false;
 
         static int priorityParameter = 13;
         static long totalBackingStore = 1000L;
-        static long nativeStackSize = 1000L;
-        static long javaStackSize = 1000L;
+        static int nativeStackSize = 1000;
+        static int javaStackSize = 1000;
         static long periodicParameter = 500;
 
         /*
-        static PriorityParameters pri;
-        static PeriodicParameters per;
-        static StorageParameters stor;
-
-        static {
-            pri = new PriorityParameters(13);
-            per = new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
-                    500, 0));
-            stor = new StorageParameters(1000L, 1000L, 1000L);
-        }
-        */
+         * static PriorityParameters pri; static PeriodicParameters per; static
+         * StorageParameters stor;
+         *
+         * static { pri = new PriorityParameters(13); per = new
+         * PeriodicParameters(new RelativeTime(0, 0), new RelativeTime( 500,
+         * 0)); stor = new StorageParameters(1000L, 1000L, 1000L); }
+         */
 
         @SCJRestricted(INITIALIZATION)
         public CDHandler() {
             super(new PriorityParameters(priorityParameter),
-                    new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
-                            periodicParameter, 0)),
-                    new StorageParameters(totalBackingStore, nativeStackSize, javaStackSize));
+                    new PeriodicParameters(new RelativeTime(0, 0),
+                            new RelativeTime(periodicParameter, 0)),
+                    new StorageParameters(totalBackingStore, null,
+                            nativeStackSize, javaStackSize));
             st = new StateTable();
         }
 
@@ -157,9 +152,11 @@ public class MiniCDx {
         public List createMotions(Frame fr) {
             // for (Callsign cs : fr.getCallsigns()) {
             Callsign cs = null;
-            @Scope("UNKNOWN") Vector3d old_pos = st.get(cs);
+            @Scope("UNKNOWN")
+            Vector3d old_pos = st.get(cs);
             if (old_pos == null) { // add new aircraft
-                @Scope("CDMission") Callsign callsign = makeCallsign(cs);
+                @Scope("CDMission")
+                Callsign callsign = makeCallsign(cs);
                 putCallSign(callsign);
             } else
                 old_pos.update(); // update aircraft
@@ -175,26 +172,22 @@ public class MiniCDx {
             putRun.callsign = callsign;
 
             // ERROR: no @DefineScope!!
-            ((ManagedMemory) ManagedMemory.getMemoryArea(st)).executeInArea(putRun);
+            ((ManagedMemory) ManagedMemory.getMemoryArea(st))
+                    .executeInArea(putRun);
         }
 
-        @RunsIn("CDHandler") @Scope("CDMission")
+        @RunsIn("CDHandler")
+        @Scope("CDMission")
         public Callsign makeCallsign(Callsign callsign) {
-            try {
-                @Scope(IMMORTAL)
-                @DefineScope(name="CDMission", parent=IMMORTAL)
-                ManagedMemory mem = (ManagedMemory) MemoryArea.getMemoryArea(r);
-                r.cs = (byte[]) mem.newArrayInArea(r, byte.class,
-                        callsign.cs.length);
-                for (int i = 0; i < callsign.length; i++)
-                    r.cs[i] = callsign.cs[i];
-                ((ManagedMemory) ManagedMemory.getMemoryArea(st)).executeInArea(r);
-                return r.result;
-            } catch (IllegalAccessException e) {
-                //TODO:
-                // e.printStackTrace();  //ERROR : is not allowed by SCJ
-            }
-            return null;
+            @Scope(IMMORTAL)
+            @DefineScope(name = "CDMission", parent = IMMORTAL)
+            ManagedMemory mem = (ManagedMemory) MemoryArea.getMemoryArea(r);
+            r.cs = (byte[]) mem.newArrayInArea(r, byte.class,
+                    callsign.cs.length);
+            for (int i = 0; i < callsign.length; i++)
+                r.cs[i] = callsign.cs[i];
+            ((ManagedMemory) ManagedMemory.getMemoryArea(st)).executeInArea(r);
+            return r.result;
         }
 
         @Override
@@ -208,7 +201,7 @@ public class MiniCDx {
         }
 
         @Scope("CDMission")
-        @SCJAllowed(members=true)
+        @SCJAllowed(members = true)
         class CallsignRunnable implements Runnable {
             byte[] cs;
             Callsign result;
@@ -220,7 +213,7 @@ public class MiniCDx {
         }
 
         @Scope("CDMission")
-        @SCJAllowed(members=true)
+        @SCJAllowed(members = true)
         class PutCallsignRunnable implements Runnable {
             Callsign callsign;
 
@@ -231,8 +224,7 @@ public class MiniCDx {
         }
     }
 
-
-    @SCJAllowed(members=true)
+    @SCJAllowed(members = true)
     @Scope("CDMission")
     static public class StateTable {
         Vector3d[] allocatedVectors = new Vector3d[1000];
@@ -240,8 +232,10 @@ public class MiniCDx {
 
         final MyHashMap motionVectors = new MyHashMap();
 
-        @RunsIn(CALLER) @Scope("CDMission")
-        public Vector3d get(@Scope(UNKNOWN) Callsign cs) {   // TODO: should this be UNKNOWN??
+        @RunsIn(CALLER)
+        @Scope("CDMission")
+        public Vector3d get(@Scope(UNKNOWN) Callsign cs) { // TODO: should this
+                                                           // be UNKNOWN??
             return (Vector3d) motionVectors.get(cs);
         }
 
@@ -258,11 +252,11 @@ public class MiniCDx {
         }
     }
 
-
-    @SCJAllowed(members=true)
+    @SCJAllowed(members = true)
     static public class MyHashMap {
 
-        @RunsIn(CALLER) @Scope(THIS)
+        @RunsIn(CALLER)
+        @Scope(THIS)
         public Object get(@Scope(UNKNOWN) Object key) {
             return null;
         }
@@ -271,23 +265,21 @@ public class MiniCDx {
         }
     }
 
-
-    @SCJAllowed(members=true)
+    @SCJAllowed(members = true)
     static public class Frame {
         public Object getCallsigns() {
             return null;
         }
     }
 
-
-    @SCJAllowed(members=true)
+    @SCJAllowed(members = true)
     static public class Vector3d {
         @RunsIn(CALLER)
         public void update() {
         }
     }
 
-    @SCJAllowed(members=true)
+    @SCJAllowed(members = true)
     static public class Callsign {
         public Callsign(byte[] cs2) {
         }

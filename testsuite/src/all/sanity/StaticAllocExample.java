@@ -36,8 +36,7 @@ public class StaticAllocExample extends CyclicExecutive {
 
     @SCJRestricted(INITIALIZATION)
     public StaticAllocExample() {
-        super(new PriorityParameters(18),
-                new StorageParameters(1000, 1000, 1000));
+        super(null);
     }
 
     @Override
@@ -85,7 +84,7 @@ public class StaticAllocExample extends CyclicExecutive {
             super(new PriorityParameters(13),
                     new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
                     500, 0)),
-                    new StorageParameters(50L, 1000L, 1000L));
+                    new StorageParameters(50L, null, 1000, 1000));
         }
 
         static int pos;

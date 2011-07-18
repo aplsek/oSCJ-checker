@@ -34,7 +34,7 @@ public abstract class TestBadOverride2 extends CyclicExecutive {
 
     public TestBadOverride2(PriorityParameters priority,
             StorageParameters storage) {
-        super(priority, storage);
+        super(null);
     }
 
     @Override

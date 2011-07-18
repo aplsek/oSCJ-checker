@@ -108,7 +108,7 @@ public class MyMission extends Mission {
          * new StorageParameters(100, 100, 100), 10000, "MyAPEH");
          */
 
-        AperiodicEvent myAPE = new AperiodicEvent(myAPEH);
+        AperiodicEvent myAPE = new AperiodicEvent();
 
         myPEH.myAPE = myAPE;
 

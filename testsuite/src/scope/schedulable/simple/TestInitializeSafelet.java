@@ -50,6 +50,13 @@ public class TestInitializeSafelet implements Safelet {
         return null;
     }
 
+    @Override
+    @SCJAllowed(SUPPORT)
+    public long immortalMemorySize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
 }
 
 

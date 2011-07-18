@@ -86,6 +86,7 @@ public class TestMissionInit extends Mission {
 
 
     @Override
+    @SCJAllowed(SUPPORT)
     public long missionMemorySize() {
         return 0;
     }
@@ -113,6 +114,7 @@ public class TestMissionInit extends Mission {
     static class TestMissionErr extends Mission {
 
         @Override
+        @SCJAllowed(SUPPORT)
         public long missionMemorySize() {
             return 0;
         }

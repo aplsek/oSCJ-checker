@@ -75,4 +75,11 @@ public class MySafelet implements Safelet {
 		//System.out.println("TestCase 24: PASS. MissionSequencer.tearDown() is executed.");
 	}
 
+    @Override
+    @SCJAllowed(SUPPORT)
+    public long immortalMemorySize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
 }

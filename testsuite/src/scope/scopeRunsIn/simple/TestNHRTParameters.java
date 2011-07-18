@@ -21,13 +21,13 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 public class TestNHRTParameters extends ManagedThread
 {
     private static final long BackingStoreRequirements = 500;
-    private static final long NativeStackRequirements = 2000;
-    private static final long JavaStackRequirements = 300;
+    private static final int NativeStackRequirements = 2000;
+    private static final int JavaStackRequirements = 300;
 
     @SCJRestricted(INITIALIZATION)
     public TestNHRTParameters(int priority) {
         super(new PriorityParameters(priority), new StorageParameters(
-                BackingStoreRequirements, NativeStackRequirements,
+                BackingStoreRequirements, null, NativeStackRequirements,
                 JavaStackRequirements));
     }
 

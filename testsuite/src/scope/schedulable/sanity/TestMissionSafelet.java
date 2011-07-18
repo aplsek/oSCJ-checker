@@ -28,18 +28,7 @@ public class TestMissionSafelet extends Mission implements Safelet {
     }
 
     @Override
-    @SCJRestricted(INITIALIZATION)
     @SCJAllowed(SUPPORT)
-    public void setUp() {
-    }
-
-    @SCJRestricted(CLEANUP)
-    @SCJAllowed(SUPPORT)
-    @Override
-    public void tearDown() {
-    }
-
-    @Override
     public long missionMemorySize() {
         return 0;
     }
@@ -49,6 +38,13 @@ public class TestMissionSafelet extends Mission implements Safelet {
     @SCJAllowed(SUPPORT)
     @RunsIn("A")
     protected void initialize() {
+    }
+
+    @Override
+    @SCJAllowed(SUPPORT)
+    public long immortalMemorySize() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
 }

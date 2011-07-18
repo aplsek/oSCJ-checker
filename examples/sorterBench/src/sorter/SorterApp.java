@@ -51,18 +51,4 @@ public class SorterApp extends CyclicExecutive {
     public long missionMemorySize() {
         return BenchConf.MISSION_SCOPE_SIZE;
     }
-
-    @Override
-    @SCJAllowed(SUPPORT)
-    @SCJRestricted(INITIALIZATION)
-    public void setUp() {
-    }
-
-    @Override
-    @SCJAllowed(SUPPORT)
-    @SCJRestricted(CLEANUP)
-    public void tearDown() {
-        BenchConf.dump();
-    }
-
 }

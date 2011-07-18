@@ -23,7 +23,7 @@ public abstract class TestRunOverride2 extends MissionSequencer {
 
     @SCJRestricted(INITIALIZATION)
     public TestRunOverride2(int priority) {
-        super(new PriorityParameters(priority), new StorageParameters(0, 0, 0));
+        super(new PriorityParameters(priority), new StorageParameters(0, null, 0, 0));
     }
 
     @Scope("D")
@@ -33,7 +33,7 @@ public abstract class TestRunOverride2 extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)
         public MyThread(int priority) {
-            super(new PriorityParameters(priority), new StorageParameters(0, 0,
+            super(new PriorityParameters(priority), new StorageParameters(0, null, 0,
                     0));
         }
 
@@ -66,7 +66,7 @@ public abstract class TestRunOverride2 extends MissionSequencer {
 
         @SCJRestricted(INITIALIZATION)
         public MyThread3(int priority) {
-            super(new PriorityParameters(priority), new StorageParameters(0, 0,
+            super(new PriorityParameters(priority), new StorageParameters(0,null, 0,
                     0));
         }
 

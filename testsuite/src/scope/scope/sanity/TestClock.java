@@ -66,11 +66,10 @@ public class TestClock {
         Clock clock = Clock.getRealtimeClock();
         clock.getTime();
 
-        //AbsoluteTime t2 = Clock.getRealtimeClock().getTime();
+        AbsoluteTime t2 = Clock.getRealtimeClock().getTime();
 
-        AbsoluteTime t = Clock.getRealtimeClock().getTimePrecise();
 
-        return convert(t);
+        return convert(t2);
     }
 
     public static long convert(AbsoluteTime t) {

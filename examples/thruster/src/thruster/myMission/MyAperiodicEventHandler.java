@@ -8,6 +8,7 @@ import static javax.safetycritical.annotate.Phase.CLEANUP;
 
 
 import javax.realtime.PriorityParameters;
+import javax.safetycritical.AperiodicEvent;
 import javax.safetycritical.AperiodicEventHandler;
 import javax.safetycritical.ManagedMemory;
 import javax.safetycritical.PrivateMemory;
@@ -32,7 +33,7 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
     @SCJRestricted(INITIALIZATION)
     public MyAperiodicEventHandler(PriorityParameters priority,
             StorageParameters storage, long memSize, String name) {
-        super(priority, null, storage, name);   // TODO: what is the release??
+        super(priority, storage, new AperiodicEvent(), name);
     }
 
     @Override

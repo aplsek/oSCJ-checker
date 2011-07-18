@@ -29,7 +29,7 @@ public class SorterHandler extends PeriodicEventHandler {
     @SCJAllowed()
     @SCJRestricted(INITIALIZATION)
     public SorterHandler(long psize) {
-        super(null, null, new StorageParameters(psize, 0, 0), new String("SorterHandler"));
+        super(null, null, new StorageParameters(psize, null, 0, 0), new String("SorterHandler"));
 
         array = new Data[BenchConf.SIZE];
         for (int i = 0; i < BenchConf.FRAMES; i++) {

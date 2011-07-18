@@ -29,15 +29,16 @@ public class TestSupport implements Safelet {
 
     }
 
-    @Override
-    @SCJAllowed(SUPPORT)
-    @SCJRestricted(INITIALIZATION)
-    public void setUp() {
-    }
-
     @SCJRestricted(CLEANUP)
     @SCJAllowed(SUPPORT)
     public void tearDown() {
+    }
+
+    @Override
+    @SCJAllowed(SUPPORT)
+    public long immortalMemorySize() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
 }

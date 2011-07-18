@@ -77,6 +77,7 @@ public class TestNewInstanceInvocation extends CyclicExecutive {
 
 
     @Override
+    @SCJAllowed(SUPPORT)
     public long missionMemorySize() {
         return 0;
     }

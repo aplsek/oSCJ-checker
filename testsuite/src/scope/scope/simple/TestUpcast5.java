@@ -46,13 +46,13 @@ public abstract class TestUpcast5 extends MissionSequencer {
         Bar b  = new Bar();
         Foo f ;
 
-        try {
-            //## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
-            MemoryArea.newInstanceInArea(f=b, Object.class);
-
-        } catch (InstantiationException e) {
-        } catch (IllegalAccessException e) {
-        }
+        //try {
+            ////## checkers.scope.ScopeChecker.ERR_BAD_UPCAST
+            //MemoryArea.newInstanceInArea(f=b, Object.class);
+        //
+        //} catch (InstantiationException e) {
+        //} catch (IllegalAccessException e) {
+        //}
     }
 
 

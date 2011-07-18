@@ -46,19 +46,9 @@ public class TestMemberSelectClass extends CyclicExecutive {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public long missionMemorySize() {
         return 5000000;
     }
 
-    @Override
-    @SCJAllowed(SUPPORT)
-    @SCJRestricted(INITIALIZATION)
-    public void setUp() {
-    }
-
-    @Override
-    @SCJAllowed(SUPPORT)
-    @SCJRestricted(CLEANUP)
-    public void tearDown() {
-    }
 }

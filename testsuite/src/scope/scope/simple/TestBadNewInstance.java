@@ -47,7 +47,7 @@ public abstract class TestBadNewInstance extends MissionSequencer {
             Object o = new Object();
             MemoryArea.getMemoryArea(o).newInstance(Y.class);
 
-            //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
+            // creating a Void type, correct
             ImmortalMemory.instance().newInstance(Y.class);
 
             //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE

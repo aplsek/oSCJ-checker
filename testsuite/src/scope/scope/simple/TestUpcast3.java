@@ -33,6 +33,7 @@ public abstract class TestUpcast3 extends MissionSequencer {
     static class MyMission extends Mission {
 
         @Override
+        @SCJAllowed(SUPPORT)
         public long missionMemorySize() {
             return 0;
         }

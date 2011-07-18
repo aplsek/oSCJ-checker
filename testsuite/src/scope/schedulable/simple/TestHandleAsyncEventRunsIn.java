@@ -41,20 +41,9 @@ public class TestHandleAsyncEventRunsIn extends CyclicExecutive {
     }
 
     @Override
+    @SCJAllowed(SUPPORT)
     public long missionMemorySize() {
         return 5000000;
-    }
-
-    @Override
-    @SCJRestricted(INITIALIZATION)
-    @SCJAllowed(SUPPORT)
-    public void setUp() {
-    }
-
-    @Override
-    @SCJRestricted(CLEANUP)
-    @SCJAllowed(SUPPORT)
-    public void tearDown() {
     }
 
     @SCJAllowed(members=true)

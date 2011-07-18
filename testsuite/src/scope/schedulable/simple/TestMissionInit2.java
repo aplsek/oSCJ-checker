@@ -54,19 +54,6 @@ public class TestMissionInit2 extends CyclicExecutive {
         new PEH(null,null,null);
     }
 
-    @Override
-    @SCJAllowed(SUPPORT)
-    @SCJRestricted(INITIALIZATION)
-    public void setUp() {
-    }
-
-    @Override
-    @SCJAllowed(SUPPORT)
-    @SCJRestricted(CLEANUP)
-    public void tearDown() {
-    }
-
-
     @Scope("a")
     @SCJAllowed(members=true)
     @DefineScope(name = "b", parent = "a")
@@ -87,6 +74,7 @@ public class TestMissionInit2 extends CyclicExecutive {
 
 
     @Override
+    @SCJAllowed(SUPPORT)
     public long missionMemorySize() {
         return 0;
     }

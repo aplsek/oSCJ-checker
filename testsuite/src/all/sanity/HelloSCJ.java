@@ -24,7 +24,7 @@ import javax.safetycritical.annotate.Scope;
 @Scope(IMMORTAL)
 @SCJAllowed(value = LEVEL_1, members = true)
 @DefineScope(name = "MISSION", parent = IMMORTAL)
-public class HelloSCJ extends Mission implements Safelet {
+public class HelloSCJ extends Mission implements Safelet<HelloSCJ> {
 
     // From Mission
     @SCJRestricted(INITIALIZATION)
@@ -36,7 +36,7 @@ public class HelloSCJ extends Mission implements Safelet {
         PeriodicEventHandler peh = new MyHandler(new PriorityParameters(11),
                 new PeriodicParameters(new RelativeTime(0, 0),
                         new RelativeTime(1000, 0)), new StorageParameters(
-                        10000, 1000, 1000));
+                        10000, null, 1000, 1000));
         peh.register();
     }
 
@@ -45,7 +45,7 @@ public class HelloSCJ extends Mission implements Safelet {
     @SCJAllowed(SUPPORT)
     public MissionSequencer getSequencer() {
         // we assume this method is invoked only once
-        StorageParameters sp = new StorageParameters(1000000, 0, 0);
+        StorageParameters sp = new StorageParameters(1000000, null, 0, 0);
         return new LinearMissionSequencer(new PriorityParameters(13), sp, this);
     }
 
@@ -85,5 +85,12 @@ public class HelloSCJ extends Mission implements Safelet {
         public void handleAsyncEvent() {
             ++cnt;
         }
+    }
+
+    @Override
+    @SCJAllowed(SUPPORT)
+    public long immortalMemorySize() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 }

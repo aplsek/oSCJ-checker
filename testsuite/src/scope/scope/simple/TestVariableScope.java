@@ -77,6 +77,7 @@ public class TestVariableScope implements Safelet {
         }
 
         @Override
+        @SCJAllowed(SUPPORT)
         public long missionMemorySize() {
             return 0;
         }
@@ -93,7 +94,7 @@ public class TestVariableScope implements Safelet {
             super(new PriorityParameters(13),
                     new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
                             500, 0)),
-                            new StorageParameters(1000L, 1000L, 1000L));
+                            new StorageParameters(1000L, null, 100, 1000));
         }
 
         @Override
@@ -123,7 +124,7 @@ public class TestVariableScope implements Safelet {
             super(new PriorityParameters(13),
                   new PeriodicParameters(new RelativeTime(0, 0), new RelativeTime(
                             500, 0)),
-                  new StorageParameters(1000L, 1000L, 1000L));
+                  new StorageParameters(1000L, null, 1000, 1000));
         }
 
         @Scope("MyApp")
@@ -160,5 +161,12 @@ public class TestVariableScope implements Safelet {
         @RunsIn("new-scope")
         public void run() {
         }
+    }
+
+    @Override
+    @SCJAllowed(SUPPORT)
+    public long immortalMemorySize() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 }

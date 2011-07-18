@@ -21,17 +21,11 @@ public class TestOverride implements Safelet  {
       return null;
     }
 
+    @Override
     @SCJAllowed(SUPPORT)
-    @SCJRestricted(INITIALIZATION)
-    public void setUp() {
-      // do nothing
+    public long immortalMemorySize() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
-    @SCJAllowed(SUPPORT)
-    @SCJRestricted(CLEANUP)
-    public void tearDown() {
-      // do nothing
-    }
-
-   // @SCJRestricted(INITIALIZATION)
 }
