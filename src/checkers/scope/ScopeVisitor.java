@@ -1218,6 +1218,11 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private boolean isValidNewInstanceType(TypeMirror m) {
         TypeKind k = m.getKind();
 
+        pln("\n enw ins:" + m);
+        pln("enw ins:" + k);
+
+
+
         if (k == TypeKind.ARRAY || k == TypeKind.WILDCARD
                 || k == TypeKind.TYPEVAR || k.isPrimitive())
             return false;

@@ -2,6 +2,7 @@ package checkers;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.Scope;
 
 import checkers.scope.ScopeInfo;
@@ -54,8 +55,12 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
             "javax.safetycritical.MissionSequencer");
     protected final TypeMirror cyclicExecutive = Utils.getTypeMirror(elements,
             "javax.safetycritical.CyclicExecutive");
-    protected final TypeMirror schedulable = Utils.getTypeMirror(elements,
-            "javax.safetycritical.Schedulable");
+
+    protected final TypeMirror safetycriticalSchedulable = Utils.getTypeMirror(
+            elements, "javax.safetycritical.Schedulable");
+
+    protected final TypeMirror realtimeSchedulable = Utils.getTypeMirror(
+            elements, "javax.realtime.Schedulable");
 
     protected final TypeMirror safelet = Utils.getTypeMirror(elements,
             "javax.safetycritical.Safelet");
@@ -67,12 +72,12 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
 
     protected boolean alwaysImplicitlyDefinesScope(TypeElement t) {
         TypeMirror m = t.asType();
-        return types.isSubtype(m, noHeapRealtimeThread)
-                || types.isSubtype(m, managedEventHandler)
-                || types.isSubtype(m, missionSequencer)
-                || types.isSubtype(m, cyclicExecutive)
-                || types.isSubtype(m, interruptServiceRoutine)
-                || types.isSubtype(m, schedulable);
+        return isSubtype(m, noHeapRealtimeThread)
+                || isSubtype(m, managedEventHandler)
+                || isSubtype(m, missionSequencer)
+                || isSubtype(m, cyclicExecutive)
+                || isSubtype(m, interruptServiceRoutine)
+                || isSubtype(m, realtimeSchedulable);
     }
 
     protected boolean implicitlyDefinesScope(TypeElement t) {
@@ -82,27 +87,34 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
 
     protected boolean isSafelet(TypeElement t) {
         TypeMirror m = t.asType();
-        return types.isSubtype(m, safelet);
+
+        return isSubtype(m, safelet);
     }
 
     protected boolean isSubtypeOfRunnable(TypeElement t) {
         TypeMirror m = t.asType();
-        return types.isSubtype(m, runnable);
+        return isSubtype(m, runnable);
     }
 
     protected boolean isSchedulable(TypeElement t) {
         TypeMirror m = t.asType();
-        return types.isSubtype(m, schedulable);
+
+        //pln("\t t:" + m);
+        //pln("\t t:" + t.getInterfaces());
+        //pln("\t sch:" + realtimeSchedulable);
+
+        return isSubtype(m, realtimeSchedulable);
     }
 
     protected boolean isMissionSequencer(TypeElement t) {
         TypeMirror m = t.asType();
-        return types.isSubtype(m, missionSequencer);
+
+        return isSubtype(m, missionSequencer);
     }
 
     protected boolean isCyclicExecutive(TypeElement t) {
         TypeMirror m = t.asType();
-        return types.isSubtype(m, cyclicExecutive);
+        return isSubtype(m, cyclicExecutive);
     }
 
     protected boolean needsDefineScope(TypeElement t) {
@@ -110,33 +122,45 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     }
 
     protected boolean needsDefineScope(TypeMirror t) {
-        return types.isSubtype(t, allocationContext);
+        return isSubtype(t, allocationContext);
     }
 
     protected boolean isManagedMemoryType(TypeElement t) {
-        return types.isSubtype(t.asType(), managedMemory);
+        return isSubtype(t.asType(), managedMemory);
     }
 
     protected boolean implementsAllocationContext(TypeElement t) {
-        return types.isSubtype(t.asType(), allocationContext);
+        return isSubtype(t.asType(), allocationContext);
     }
 
     protected boolean isRunnable(TypeElement t) {
-        return types.isSameType(t.asType(), runnable);
+        TypeMirror m = t.asType();
+        return isSameType(m, runnable);
     }
 
     protected boolean isRunnableSubtype(TypeElement t) {
-        return types.isSubtype(t.asType(), runnable);
+        TypeMirror m = t.asType();
+        return isSubtype(m, runnable);
     }
 
     protected boolean isManagedThread(TypeElement t) {
-        return types.isSubtype(t.asType(), managedThread);
+        TypeMirror m = t.asType();
+        return isSubtype(m, managedThread);
     }
 
     protected static ScopeInfo scopeOfClassDefinition(TypeElement t) {
         Scope scopeAnn = t.getAnnotation(Scope.class);
         return scopeAnn != null ? new ScopeInfo(scopeAnn.value())
                 : ScopeInfo.CALLER;
+    }
+
+    public boolean isSubtype(TypeMirror t, TypeMirror sup) {
+        return types.isSubtype(types.erasure(t), types.erasure(sup));
+    }
+
+    public boolean isSameType(TypeMirror t, TypeMirror sup) {
+        return types.isSameType(types.erasure(t), types.erasure(runnable));
+
     }
 
     // DEBUG:

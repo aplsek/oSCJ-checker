@@ -49,7 +49,11 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
     public Void visitClass(ClassTree node, Void p) {
         TypeElement t = TreeUtils.elementFromDeclaration(node);
 
+        //pln("\n class:" + t);
+       //("  is cyclic:" + isCyclicExecutive(t));
+
         if (!(isSchedulable(t) || isMissionSequencer(t) || isCyclicExecutive(t))) {
+            // because there are different rules depending on what is implemented/extended by the class
             return super.visitClass(node, p);
         }
 
@@ -88,6 +92,9 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
             ClassTree node) {
         ScopeInfo runsIn = getSchedulableRunsIn(t);
 
+        if (!needsRunsIn(t))
+            return;
+
         if (runsIn == null || runsIn.isReservedScope()) {
             fail(ERR_SCHEDULABLE_NO_RUNS_IN, node);
             return;
@@ -96,6 +103,17 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
         ScopeInfo child = new ScopeInfo(df.name());
         if (!runsIn.equals(child)) {
             fail(ERR_SCHEDULABLE_RUNS_IN_MISMATCH, node, child, runsIn);
+        }
+    }
+
+    private boolean needsRunsIn(TypeElement t) {
+        switch (SCJSchedulable.fromMethod(t.asType(), elements, types)) {
+        case PEH:
+        case APEH:
+        case MANAGED_THREAD:
+            return true;
+        default:
+            return false;
         }
     }
 
@@ -288,7 +306,7 @@ public class SchedulableVisitor extends SCJVisitor<Void, Void> {
 
     private boolean isMissionAndSafelet(ExecutableElement m) {
         TypeMirror t = Utils.getMethodClass(m).asType();
-        if (types.isSubtype(t, safelet))
+        if (isSubtype(t, safelet))
             return true;
         return false;
     }

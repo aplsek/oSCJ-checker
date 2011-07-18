@@ -46,7 +46,7 @@ public enum SCJMission {
                 continue;
             TypeMirror superType = Utils.getTypeMirror(
                     elements, sm.clazz);
-            if (types.isSubtype(t,superType) ) {
+            if (types.isSubtype(types.erasure(t),types.erasure(superType)) ) {
                 if (m.toString().equals(Utils.buildSignatureString(sm.signature, sm.params))) {
                     return sm;
                 }

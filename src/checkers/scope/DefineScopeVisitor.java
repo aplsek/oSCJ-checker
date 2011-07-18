@@ -50,8 +50,9 @@ public class DefineScopeVisitor<R, P> extends SCJVisitor<R, P> {
                 checkNewScope(ds.name(), ds.parent(), node, false);
             else if (isSubtypeOfRunnable(t))
                 checkNewScope(ds.name(), ds.parent(), node, true);
-            else
-                fail(ERR_UNUSED_DEFINE_SCOPE, node);
+            else {
+                fail(ERR_UNUSED_DEFINE_SCOPE, node, ds.toString());
+            }
         }
 
         return super.visitClass(node, p);

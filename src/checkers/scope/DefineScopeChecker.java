@@ -36,7 +36,7 @@ public class DefineScopeChecker extends SinglePassChecker {
         p.put(ERR_PRIVATE_MEM_NO_DEFINE_SCOPE, "PrivateMemory variable must have a @DefineScope annotation.");
         p.put(ERR_RESERVED_SCOPE_NAME, "Invalid use of reserved scope name %s used in @DefineScope.");
         p.put(ERR_SCOPE_HAS_NO_PARENT, "Scope %s has a non-existent parent %s.");
-        p.put(ERR_UNUSED_DEFINE_SCOPE, "Unused DefineScope annotation.");
+        p.put(ERR_UNUSED_DEFINE_SCOPE, "Unused DefineScope annotation: %s.");
         p.put(ERR_SCHEDULABLE_NO_DEFINE_SCOPE, "Classes implementing javax.realtime.Schedulable must have a @DefineScope annotation.");
         return p;
     }
