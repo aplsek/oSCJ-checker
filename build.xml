@@ -10,12 +10,12 @@
   <property name="annotations.classpath" value="localbin/annotation-file-utilities.jar"/>
   <pathconvert property="checker.bootclasspath">
     <path location="${checker.classpath}"/>
-    <path location="${annotated.jdk.classpath}"/>
+    <!-- <path location="${annotated.jdk.classpath}"/> -->
     <!-- Not usually necessary, but too lazy to create another path -->
     <path location="${annotations.classpath}"/>
   </pathconvert>
   <property name="junit.classpath" value="lib/junit-4.7.jar"/>
-  <property name="scj.classpath" value="lib/scj.jar"/>
+  <property name="scj.classpath" value="lib/spec/scj.jar"/>
   <property name="scj.checker.classpath" value="lib/scj-checker.jar"/>
 
   <property name="build.reports" value="reports"/>
@@ -159,9 +159,9 @@
     		       dir="${basedir}"
     		       printsummary="true"
     		       haltonfailure="${halt.on.test.failure}">
-      <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
+      <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}:"/>
       <jvmarg line="-ea"/>
-
+     
       <classpath>
         <pathelement path="${scj.classpath}"/>
         <pathelement path="${scj.checker.classpath}"/>
@@ -616,6 +616,24 @@
     				noScopeCheckerTest"		
     		    description="Run tests for all checkers">
   </target>
+  
+  <target name="spec" depends="jar,compile-tests,
+     				clean-reports,
+    				    scjallowed-test,
+  					scjallowed-noLevel,
+       				scjrestricted-test,
+    					sanity-test,
+     				defineScope-test,
+     				scopeRunsIn-test,
+     				schedulable-test,
+     				scope-test,
+                     all-sanity-test,
+     				noScopeCheckerTest"		
+     		    description="Run tests for all checkers">
+    <property name="scj.classpath" value="lib/spec/scj.jar"/>
+   </target>
+  
+  
 
   <target name="clean-reports" depends="jar,compile-tests"
    		    description="Delete the reports/ dir.">
