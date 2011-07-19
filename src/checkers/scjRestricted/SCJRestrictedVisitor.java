@@ -404,9 +404,14 @@ public class SCJRestrictedVisitor<R, P> extends SCJVisitor<R, P> {
         List<? extends VariableElement> parameters = methodElement
                 .getParameters();
         List<? extends ExpressionTree> arguments = node.getArguments();
-        for (int i = 0; i < parameters.size(); i++)
-            if (!isAllocFree(parameters.get(i), arguments.get(i)))
-                fail(ERR_ILLEGAL_ALLOCATION, arguments.get(i));
+
+        for (int i = 0; i < parameters.size(); i++) {
+            if (i < arguments.size()) {
+                // if the parameters are "..." then the number of args may be different.
+                if (!isAllocFree(parameters.get(i), arguments.get(i)))
+                    fail(ERR_ILLEGAL_ALLOCATION, arguments.get(i));
+            }
+        }
 
         debugIndentDecrement();
         return super.visitMethodInvocation(node, p);

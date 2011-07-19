@@ -191,8 +191,14 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     private void checkMethodArgsForUpcast(
             List<? extends VariableElement> params,
             List<? extends ExpressionTree> args, Tree node) {
+
+        int j = 0;
         for (int i = 0; i < args.size(); i++) {
-            TypeMirror cT = params.get(i).asType();
+            if (i <  params.size()) {
+                // for the case when the param is defined as "..."
+                j = i;
+            }
+            TypeMirror cT = params.get(j).asType();
             TypeMirror eT = InternalUtils.typeOf(args.get(i));
 
             checkUpcastTypes(cT, eT, node);
@@ -783,8 +789,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
     public ScopeInfo visitWildcard(WildcardTree node, P p) {
         debugIndentIncrement("visitWildcard : " + node.toString());
 
-        pln("visitWildcard : " + node);
-
         debugIndentDecrement();
         return super.visitWildcard(node, p);
     }
@@ -1120,13 +1124,16 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
             MethodInvocationTree node) {
 
         List<ScopeInfo> paramScopes = ctx.getParameterScopes(m);
-        for (int i = 0; i < paramScopes.size(); i++) {
-            ScopeInfo lhs = paramScopes.get(i);
-            ScopeInfo rhs = argScopes.get(i);
-            if (lhs.isThis()) {
-                lhs = recvScope;
+        for (int i = 0; i < paramScopes.size(); i++)  {
+            if (i < argScopes.size()) {
+                // because the number of arguments can be smaller in case the parameter is "..."
+                ScopeInfo lhs = paramScopes.get(i);
+                ScopeInfo rhs = argScopes.get(i);
+                if (lhs.isThis()) {
+                    lhs = recvScope;
+                }
+                checkLocalAssignment(lhs, rhs, node);
             }
-            checkLocalAssignment(lhs, rhs, node);
         }
 
         checkUpcast(node);
@@ -1217,11 +1224,6 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
 
     private boolean isValidNewInstanceType(TypeMirror m) {
         TypeKind k = m.getKind();
-
-        pln("\n enw ins:" + m);
-        pln("enw ins:" + k);
-
-
 
         if (k == TypeKind.ARRAY || k == TypeKind.WILDCARD
                 || k == TypeKind.TYPEVAR || k.isPrimitive())

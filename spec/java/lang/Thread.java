@@ -192,7 +192,7 @@ public class Thread implements Runnable {
   /**
    * @memory Does not allow "this" to escape local variables.
    */
-  @SCJAllowed(INFRASTRUCTURE)
+  @SCJAllowed(SUPPORT)
   public void run() {
   }
 
@@ -221,14 +221,14 @@ public class Thread implements Runnable {
   /**
    * @memory Allocates no memory.
    */
-  @SCJAllowed(LEVEL_1)
+  /*@SCJAllowed(LEVEL_1)*/
   public static void sleep(long millis) throws InterruptedException {
   }
 
   /**
    * @memory Allocates no memory.
    */
-  @SCJAllowed(LEVEL_1)
+  /*@SCJAllowed(LEVEL_1)*/
   public static void sleep(long millis, int nanos)
     throws InterruptedException {
   }
