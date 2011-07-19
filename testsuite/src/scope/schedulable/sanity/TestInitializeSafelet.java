@@ -1,7 +1,6 @@
 package scope.schedulable.sanity;
 
 
-import static checkers.scope.SchedulableChecker.ERR_CYCLIC_EXEC_INIT_RUNS_IN_MISMATCH;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;

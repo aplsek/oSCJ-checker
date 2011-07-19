@@ -978,8 +978,9 @@ class RawFrame {
     }
 }
 
-@SCJAllowed(members = true)
 /* @Scope("cdx.CollisionDetectorHandler") */
+@SCJAllowed(members = true)
+@Scope("cdx.CollisionDetectorHandler")
 class Reducer {
 
     /** Creates a Vector2d that represents a voxel. */

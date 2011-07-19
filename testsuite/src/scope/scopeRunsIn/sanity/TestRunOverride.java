@@ -39,6 +39,7 @@ public abstract class TestRunOverride extends MissionSequencer {
 
         @Override
         @RunsIn("C")
+        @SCJAllowed(SUPPORT)
         public void run() { }
     }
 

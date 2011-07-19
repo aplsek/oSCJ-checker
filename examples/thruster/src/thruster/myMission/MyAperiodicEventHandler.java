@@ -33,7 +33,7 @@ public class MyAperiodicEventHandler extends AperiodicEventHandler {
     @SCJRestricted(INITIALIZATION)
     public MyAperiodicEventHandler(PriorityParameters priority,
             StorageParameters storage, long memSize, String name) {
-        super(priority, storage, new AperiodicEvent(), name);
+        super(priority, null, storage, name);
     }
 
     @Override

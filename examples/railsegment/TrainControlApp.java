@@ -37,34 +37,41 @@ import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @Scope(IMMORTAL)
-@SCJAllowed(value=LEVEL_2, members=true)
+@SCJAllowed(value = LEVEL_2, members = true)
 public class TrainControlApp implements Safelet {
 
-  @SCJAllowed(SUPPORT)
-  public TrainControlApp() {
-      init();
-  }
+    @SCJAllowed(SUPPORT)
+    public TrainControlApp() {
+        init();
+    }
 
-  private void init() {
+    private void init() {
 
-  }
+    }
 
-  // The following three methods implement the Safelet interface
-  @SCJAllowed(SUPPORT)
-  @SCJRestricted(INITIALIZATION)
-  public MissionSequencer getSequencer() {
-    return new TrainMissionSequencer();
-  }
+    // The following three methods implement the Safelet interface
+    @SCJAllowed(SUPPORT)
+    @SCJRestricted(INITIALIZATION)
+    public MissionSequencer getSequencer() {
+        return new TrainMissionSequencer();
+    }
 
-  @SCJAllowed(SUPPORT)
-  @SCJRestricted(INITIALIZATION)
-  public void setUp() {
-    // do nothing
-  }
+    @SCJAllowed(SUPPORT)
+    @SCJRestricted(INITIALIZATION)
+    public void setUp() {
+        // do nothing
+    }
 
-  @SCJAllowed(SUPPORT)
-  @SCJRestricted(CLEANUP)
-  public void tearDown() {
-    // do nothing
-  }
+    @SCJAllowed(SUPPORT)
+    @SCJRestricted(CLEANUP)
+    public void tearDown() {
+        // do nothing
+    }
+
+    @Override
+    @SCJAllowed(SUPPORT)
+    public long immortalMemorySize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }

@@ -63,7 +63,6 @@ public abstract class TestBadGetMemoryArea3 extends MissionSequencer {
 
             @DefineScope(name="a",parent=IMMORTAL)
             @Scope(IMMORTAL)
-            //## checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT
             ImmortalMemory imm = (ImmortalMemory) m;
         }
     }

@@ -1,5 +1,6 @@
 package scope.scope.sanity;
 
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
@@ -36,6 +37,7 @@ public abstract class TestEnumAssignment extends ManagedThread {
 
     @Override
     @RunsIn("D")
+    @SCJAllowed(SUPPORT)
     public void run() {
         MyEnum m = getEnum();
     }
