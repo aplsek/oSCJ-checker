@@ -30,7 +30,7 @@ public abstract class TestBadNewInstanceInArea extends MissionSequencer {
 
         Y y;
 
-        public void foo() throws InstantiationException, IllegalAccessException {
+        public void foo() /* throws InstantiationException, IllegalAccessException */ {
                 //MemoryArea.newInstanceInArea(y, Y.class);
                 ////  ## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
                 //MemoryArea.newInstanceInArea(y, Z.class);
@@ -38,10 +38,10 @@ public abstract class TestBadNewInstanceInArea extends MissionSequencer {
 
 
         @RunsIn("b")
-        public void bar() throws InstantiationException, IllegalAccessException {
+        public void bar() /*throws InstantiationException, IllegalAccessException */ {
             Z z = new Z();
             ////## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE
-            ////MemoryArea.newInstanceInArea(z, Y.class);
+            ///MemoryArea.newInstanceInArea(z, Y.class);
         }
     }
 

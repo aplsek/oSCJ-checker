@@ -4,7 +4,6 @@ import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.ManagedMemory;
-import javax.safetycritical.Mission;
 import javax.safetycritical.MissionSequencer;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
@@ -28,14 +27,14 @@ public abstract class TestMemoryAreaDefineScopeNotConsistentWithScopeGetCurrentM
         @SCJRestricted(INITIALIZATION)
         public X() {super(null, null);}
 
-        public void foo() throws InstantiationException, IllegalAccessException {
+        public void foo() throws InstantiationException {
             @Scope(IMMORTAL)
             @DefineScope(name="a", parent=IMMORTAL)
             ManagedMemory mem = ManagedMemory.getCurrentManagedMemory();
         }
 
         @RunsIn("b")
-        public void bar() throws InstantiationException, IllegalAccessException {
+        public void bar() throws InstantiationException {
             @Scope("a")
             @DefineScope(name="b", parent="a")
             ManagedMemory mem2 = ManagedMemory.getCurrentManagedMemory();

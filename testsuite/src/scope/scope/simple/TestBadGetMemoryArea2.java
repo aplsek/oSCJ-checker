@@ -31,7 +31,7 @@ public abstract class TestBadGetMemoryArea2 extends MissionSequencer {
         Y y = new Y();
 
         @RunsIn("b")
-        public void m2() throws InstantiationException, IllegalAccessException {
+        public void m2() {
             @Scope("a")
             @DefineScope(name="b", parent="a")
             //## checkers.scope.ScopeChecker.ERR_BAD_ASSIGNMENT_SCOPE

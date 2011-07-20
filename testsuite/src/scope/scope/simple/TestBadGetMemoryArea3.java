@@ -1,6 +1,5 @@
 package scope.scope.simple;
 
-import static checkers.scope.ScopeChecker.ERR_BAD_ALLOCATION_CONTEXT_ASSIGNMENT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -41,7 +40,7 @@ public abstract class TestBadGetMemoryArea3 extends MissionSequencer {
         Foo foo;
 
         @RunsIn("b")
-        public void m2() throws InstantiationException, IllegalAccessException {
+        public void m2() throws InstantiationException {
             @Scope(IMMORTAL)
             @DefineScope(name="a", parent=IMMORTAL)
             MemoryArea mem3 = MemoryArea.getMemoryArea(y);

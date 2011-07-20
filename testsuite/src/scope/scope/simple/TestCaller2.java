@@ -7,7 +7,6 @@ import static javax.safetycritical.annotate.Scope.*;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import java.util.Arrays;
-import java.util.List;
 
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;

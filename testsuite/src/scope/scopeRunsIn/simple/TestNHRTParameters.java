@@ -33,6 +33,7 @@ public class TestNHRTParameters extends ManagedThread
 
     @Override
     @RunsIn("D")
+    @SCJAllowed(SUPPORT)
     public void run() { }
 }
 

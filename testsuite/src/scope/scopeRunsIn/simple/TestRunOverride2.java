@@ -13,6 +13,7 @@ import javax.safetycritical.annotate.Scope;
 import javax.safetycritical.annotate.SCJAllowed;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
@@ -39,6 +40,7 @@ public abstract class TestRunOverride2 extends MissionSequencer {
 
         @Override
         @RunsIn("C")
+        @SCJAllowed(SUPPORT)
         public void run() {
         }
     }
@@ -55,6 +57,7 @@ public abstract class TestRunOverride2 extends MissionSequencer {
 
         @Override
         @RunsIn("E")
+        @SCJAllowed(SUPPORT)
         public void run() {
         }
     }
@@ -72,6 +75,7 @@ public abstract class TestRunOverride2 extends MissionSequencer {
 
         @Override
         @RunsIn("F")
+        @SCJAllowed(SUPPORT)
         public void run() {
         }
     }
