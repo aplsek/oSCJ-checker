@@ -151,7 +151,7 @@ public class IllegalStateEx implements Safelet {
 
                 MyMission m1 = (MyMission) Mission.getCurrentMission();
 
-                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_TYPE
+                //## checkers.scope.ScopeChecker.ERR_BAD_NEW_INSTANCE_REPRESENTED_SCOPE
                 m1.pri.newInstance(Object.class);     // ERR
 
                 //## checkers.scope.ScopeChecker.ERR_BAD_VARIABLE_SCOPE
