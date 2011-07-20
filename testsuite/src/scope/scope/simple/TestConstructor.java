@@ -6,7 +6,6 @@ import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.*;
 
-import java.awt.List;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;

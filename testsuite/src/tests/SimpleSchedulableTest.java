@@ -8,7 +8,7 @@ import org.junit.runners.Parameterized.Parameters;
 public class SimpleSchedulableTest extends ParameterizedCheckerTest {
 
     public SimpleSchedulableTest(File testFile) {
-        super(testFile, "checkers.SCJChecker", "framework", "-Anomsgtext");
+        super(testFile, "checkers.SCJChecker", "framework",BOOTCLASSPATH, "-Anomsgtext");
     }
 
     @Parameters

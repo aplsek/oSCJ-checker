@@ -371,7 +371,7 @@ class CollisionDetectorHandler extends PeriodicEventHandler {
         final RawFrame f = ImmortalEntry.frameBuffer.getFrame();
         if (f == null) {
             ImmortalEntry.frameNotReadyCount++;
-            System.out.println("Frame not ready");
+            //System.out.println("Frame not ready");
             return;
         }
 
@@ -423,8 +423,8 @@ class CollisionDetectorHandler extends PeriodicEventHandler {
                 Mission.getCurrentMission().requestSequenceTermination();
             }
         } catch (Throwable e) {
-            System.out.println("Exception thrown by runDetectorInScope: "
-                    + e.getMessage());
+            //System.out.println("Exception thrown by runDetectorInScope: "
+            //        + e.getMessage());
             // e.printStackTrace();
         }
 
@@ -572,11 +572,11 @@ class ImmortalEntry implements Runnable {
     /** Called only once during initialization. Runs in immortal memory */
     public void run() {
 
-        System.out.println("immortal entry....?.");
-        System.out.println("Detector: detector priority is "
-                + Constants.DETECTOR_PRIORITY);
-        System.out.println("Detector: detector period is "
-                + Constants.DETECTOR_PERIOD);
+        //System.out.println("immortal entry....?.");
+        //System.out.println("Detector: detector priority is "
+        //        + Constants.DETECTOR_PRIORITY);
+        //System.out.println("Detector: detector period is "
+        //        + Constants.DETECTOR_PERIOD);
 
         frameBuffer = new FrameBufferPLDI();
 
@@ -657,7 +657,7 @@ class Level0Safelet extends CyclicExecutive {
             }
 
         } catch (Throwable e) {
-            System.out.println("e: " + e.getMessage());
+            //System.out.println("e: " + e.getMessage());
             // e.printStackTrace();
         }
     }
@@ -1274,10 +1274,10 @@ class TransientDetectorScopeEntry /* implements SCJRunnable */{
         }
 
         if (Constants.SYNCHRONOUS_DETECTOR || Constants.DEBUG_DETECTOR) {
-            System.out.println("CD detected  " + numberOfCollisions
-                    + " collisions.");
+            //System.out.println("CD detected  " + numberOfCollisions
+            //        + " collisions.");
             int colIndex = 0;
-            System.out.println("");
+            //System.out.println("");
         }
 
         // BenchMem.setMemUsage(RealtimeThread.getCurrentMemoryArea().memoryConsumed());
@@ -1292,15 +1292,15 @@ class TransientDetectorScopeEntry /* implements SCJRunnable */{
         }
         if ((Constants.SYNCHRONOUS_DETECTOR || Constants.DEBUG_DETECTOR)
                 && !check.isEmpty()) {
-            System.out.println("CD found " + suspectedSize
-                    + " potential collisions");
+            //System.out.println("CD found " + suspectedSize
+            //        + " potential collisions");
             int i = 0;
             for (final Iterator iter = check.iterator(); iter.hasNext();) {
                 final List col = (List) iter.next();
                 for (final Iterator aiter = col.iterator(); aiter.hasNext();) {
                     final Motion m = (Motion) aiter.next();
-                    System.out.println("CD: potential collision " + i + " (of "
-                            + col.size() + " aircraft) includes motion " + m);
+                    //System.out.println("CD: potential collision " + i + " (of "
+                    //        + col.size() + " aircraft) includes motion " + m);
                 }
                 i++;
             }
@@ -1389,11 +1389,11 @@ class TransientDetectorScopeEntry /* implements SCJRunnable */{
         for (int i = 0; i < currentFrame.planeCnt; i++) {
 
             int cslen = currentFrame.lengths[i];
-            System.out.println(prefix
-                    + new String(currentFrame.callsigns, offset, cslen) + " "
-                    + currentFrame.positions[3 * i] + " "
-                    + currentFrame.positions[3 * i + 1] + " "
-                    + currentFrame.positions[3 * i + 2] + " ");
+            //System.out.println(prefix
+            //        + new String(currentFrame.callsigns, offset, cslen) + " "
+            //        + currentFrame.positions[3 * i] + " "
+            //        + currentFrame.positions[3 * i + 1] + " "
+            //        + currentFrame.positions[3 * i + 2] + " ");
             offset += cslen;
         }
     }
@@ -1449,9 +1449,9 @@ class TransientDetectorScopeEntry /* implements SCJRunnable */{
 
                 final Motion m = new Motion(craft, new_pos);
                 if (Constants.DEBUG_DETECTOR || Constants.SYNCHRONOUS_DETECTOR) {
-                    System.out
-                            .println("createMotions: old position is null, adding motion: "
-                                    + m);
+                    //System.out
+                    //        .println("createMotions: old position is null, adding motion: "
+                    //                + m);
                 }
                 ret.add(m);
             } else {
@@ -1461,7 +1461,7 @@ class TransientDetectorScopeEntry /* implements SCJRunnable */{
 
                 final Motion m = new Motion(craft, save_old_position, new_pos);
                 if (Constants.DEBUG_DETECTOR || Constants.SYNCHRONOUS_DETECTOR) {
-                    System.out.println("createMotions: adding motion: " + m);
+                    //System.out.println("createMotions: adding motion: " + m);
                 }
                 ret.add(m);
             }
@@ -2620,10 +2620,10 @@ class FrameBufferPLDI extends FrameBuffer {
             for (int i = 0; i < lengths_.length; i++) {
 
                 int cslen = lengths_[i];
-                System.out.println(prefix
-                        + new String(callsigns_, offset, cslen) + " "
-                        + positions_[3 * i] + " " + positions_[3 * i + 1] + " "
-                        + positions_[3 * i + 2] + " ");
+                //System.out.println(prefix
+                //        + new String(callsigns_, offset, cslen) + " "
+                //        + positions_[3 * i] + " " + positions_[3 * i + 1] + " "
+                //        + positions_[3 * i + 2] + " ");
                 offset += cslen;
             }
             frameno++;

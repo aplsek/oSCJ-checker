@@ -8,7 +8,7 @@ import org.junit.runners.Parameterized.Parameters;
 public class SimpleScopeTest extends ParameterizedCheckerTest {
 
     public SimpleScopeTest(File testFile) {
-        super(testFile, "checkers.SCJChecker", "framework", "-Anomsgtext");
+        super(testFile, "checkers.SCJChecker", "framework", BOOTCLASSPATH, "-Anomsgtext");
     }
 
     @Parameters

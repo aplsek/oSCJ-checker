@@ -8,7 +8,7 @@ import org.junit.runners.Parameterized.Parameters;
 public class NoScopeCheckerTest extends ParameterizedCheckerTest {
 
     public NoScopeCheckerTest(File testFile) {
-        super(testFile, "checkers.SCJChecker", "framework", "-Anomsgtext","-AnoScopeChecks");
+        super(testFile, "checkers.SCJChecker", "framework", BOOTCLASSPATH, "-Anomsgtext","-AnoScopeChecks");
     }
 
     @Parameters

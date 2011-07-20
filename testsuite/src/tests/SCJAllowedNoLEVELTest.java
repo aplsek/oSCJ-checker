@@ -8,7 +8,7 @@ import org.junit.runners.Parameterized.Parameters;
 public class SCJAllowedNoLEVELTest extends ParameterizedCheckerTest {
 
     public SCJAllowedNoLEVELTest(File testFile) {
-        super(testFile, "checkers.SCJChecker", "framework", "-Anomsgtext","-Alevel=1");
+        super(testFile, "checkers.SCJChecker", "framework", BOOTCLASSPATH, "-Anomsgtext","-Alevel=1");
     }
 
     @Parameters

@@ -12,6 +12,8 @@ import org.junit.runner.RunWith;
 public abstract class ParameterizedCheckerTest extends CheckerTest {
     private final File testFile;
 
+    protected final static String BOOTCLASSPATH = "-Xbootclasspath:/p:lib/scj.jar";
+
     public ParameterizedCheckerTest(File testFile,
             String checkerName, String checkerDir, String... checkerOptions) {
         super(checkerName, checkerDir, checkerOptions);

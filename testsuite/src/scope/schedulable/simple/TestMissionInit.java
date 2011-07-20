@@ -1,6 +1,5 @@
 package scope.schedulable.simple;
 
-import static checkers.scope.SchedulableChecker.ERR_SCHED_INIT_OUT_OF_INIT_METH;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 

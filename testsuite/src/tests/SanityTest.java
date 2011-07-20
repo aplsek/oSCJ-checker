@@ -8,7 +8,7 @@ import org.junit.runners.Parameterized.Parameters;
 public class SanityTest extends ParameterizedCheckerTest {
 
     public SanityTest(File testFile) {
-        super(testFile, "checkers.SCJChecker", "framework", "-Xbootclasspath:/p:lib/spec/scj.jar", "-Anomsgtext");
+        super(testFile, "checkers.SCJChecker", "framework", BOOTCLASSPATH, "-Anomsgtext");
     }
 
     @Parameters

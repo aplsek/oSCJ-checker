@@ -1,6 +1,5 @@
 package scope.schedulable.simple;
 
-import static checkers.scope.SchedulableChecker.ERR_CYCLIC_EXEC_GET_SCHEDULE_RUNS_IN_MISMATCH;
 import static javax.safetycritical.annotate.Level.SUPPORT;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Phase.CLEANUP;
