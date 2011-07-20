@@ -22,7 +22,7 @@
   <property name="run.tests.should.fork" value="true"/>
   <property name="halt.on.test.failure" value="false"/>
 
-  <target name="all" depends="jar, jdk-jar"/>
+  <target name="all" depends="jar"/>
 
   <target name="clean">
     <delete dir="build"/>
