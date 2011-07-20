@@ -25,25 +25,7 @@ you probably need Cygwin to compile on Windows.
      $ cd <installation-dir>/scj/oSCJ/tools/checker
      (all the paths in the remaining steps are relative to this directory)
 
-  1. SETTING PROPERTIES
-      Create a file named "build.properties" in the current directory. Inside this
-     file, add a single line in the format "jdk.input.jar=<jdk jar>". The JDK
-     JAR is the path to either rt.jar on Windows/Linux or classes.jar on OS X.
-
-     On OS X, this *might* look like:
-
-     jdk.input.jar=/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/classes.jar
-
-     On Windows, it *might* look like:
-
-     jdk.input.jar=C:\Program Files (x86)\Java\jdk1.6.0_23\jre\lib\rt.jar
-
-     You may need to use the Cygwin path format on Windows. This would look
-     something like:
-
-     jdk.input.jar=/cygdrive/c/Program\ Files\ \(x86\)/Java/jdk1.6.0_23/jre/lib/rt.jar
-
-  2. COMPILE:
+  1. COMPILE:
      Compile simply by running:
      
      $ ant
@@ -76,11 +58,11 @@ or do one of the following:
 
   1. On UNIX:
 
-    $ localbin/javac -proc:only -cp lib/scj.jar:lib/scj-checker.jar \
+    $ localbin/javac -proc:only -cp lib/scj.jar:lib/scj-checker.jar -bootclasspath lib/scj.jar \
          -processor checkers.SCJChecker <program files to check...>
 
   2. On Windows:
-    $ localbin\javac.bat -proc:only -cp lib\scj.jar;lib\scj-checker.jar
+    $ localbin\javac.bat -proc:only -cp lib\scj.jar;lib\scj-checker.jar -bootclasspath lib\scj.jar
          -processor <program files to check...>
 
 
