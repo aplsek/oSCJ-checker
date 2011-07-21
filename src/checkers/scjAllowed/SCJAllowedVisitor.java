@@ -202,23 +202,26 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
                 fail(ERR_BAD_INFRASTRUCTURE_OVERRIDE, node);
 
             if (scjAllowedLevel(override, node) == SUPPORT) {
-                if (level != INFRASTRUCTURE) {
+                if (level == INFRASTRUCTURE) {
+                    // a SUPPORT method may be overriden to INFRASTRUCTURE
+                    continue;
+                } else {
                     if (level != SUPPORT || !isSCJAllowed(m)) {
                         // SUPPORT needs to be restated
                         fail(ERR_BAD_OVERRIDE_SUPPORT, node);
                     }
                 }
-            }
-
-            if (!isEscaped(override.getEnclosingElement().toString())
+            } else if (!isEscaped(override.getEnclosingElement().toString())
                     && level.compareTo(scjAllowedLevel(override, node)) > 0
                     && !level.equals(enclosingLevel)) {
-                if (level == INFRASTRUCTURE && scjAllowedLevel(override, node) == SUPPORT) {
-                    // a SUPPORT method may be overriden to INFRASTRUCTURE
+                if ( level == SUPPORT && !Utils.isUserLevel(m)) {
                     continue;
-                } else if (!(isManagedThread(Utils.getMethodClass(m)) && level
+                }
+
+                if (!(isManagedThread(Utils.getMethodClass(m)) && level
                         .equals(SUPPORT)))
                     fail(ERR_BAD_OVERRIDE, node);
+
             }
         }
 
