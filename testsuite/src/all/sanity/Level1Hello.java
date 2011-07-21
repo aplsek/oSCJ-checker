@@ -131,7 +131,7 @@ public class Level1Hello implements Safelet {
     }
     
 
-    @SCJAllowed(members=true)
+    @SCJAllowed(value = LEVEL_1, members = true)
     public static class Arrays {
         public static void sort(Object o) {}
     }
