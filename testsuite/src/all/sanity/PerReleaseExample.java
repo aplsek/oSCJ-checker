@@ -5,7 +5,6 @@ import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-import java.util.Arrays;
 
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
@@ -140,5 +139,9 @@ public class PerReleaseExample extends CyclicExecutive {
 
     }
 
-
+    @SCJAllowed(members=true)
+    public static class Arrays {
+        public static void sort(Object o) {}
+    }
+    
 }

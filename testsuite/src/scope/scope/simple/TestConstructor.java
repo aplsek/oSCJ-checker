@@ -6,10 +6,6 @@ import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-
 import javax.realtime.Clock;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
@@ -167,5 +163,15 @@ public abstract class TestConstructor {
                               new CyclicSchedule.Frame[] { new CyclicSchedule.Frame(new RelativeTime(200, 0),
                                       handlers) });
         }
+    }
+    
+    @SCJAllowed(members=true)
+    public static class LinkedList {
+        public void add(Object o) {}
+    }
+    
+    @SCJAllowed(members=true)
+    public static class HashMap {
+        public void put(Object o, Object oo) {}
     }
 }

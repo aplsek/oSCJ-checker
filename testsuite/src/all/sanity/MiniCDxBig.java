@@ -10,12 +10,7 @@ import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.realtime.AbsoluteTime;
 import javax.realtime.Clock;
@@ -2884,5 +2879,115 @@ abstract class PrecompiledSimulator {
 @SCJAllowed(members = true)
 class Simulator extends PrecompiledSimulator {
     public Simulator() {
+    }
+}
+
+@SCJAllowed(members=true)
+class List {
+
+    public Object[] toArray(Object[] motions) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    public boolean isEmpty() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+
+    public Iterator iterator() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public int size() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public void add(Object collision) {
+        // TODO Auto-generated method stub
+        
+    }
+}
+
+
+@SCJAllowed(members=true)
+class LinkedList extends List {
+
+    public List values() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+}
+
+
+@SCJAllowed(members=true)
+class ArrayList extends List {
+
+    public ArrayList(HashSet collisions) {
+        // TODO Auto-generated constructor stub
+    }
+
+    public ArrayList() {
+        // TODO Auto-generated constructor stub
+    }
+
+    public List values() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+}
+
+
+@SCJAllowed(members=true)
+class HashMap {
+
+    public List values() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void clear() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void put(Object vector2d, Object arrayList) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public boolean containsKey(Object voxel) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public Object get(Object voxel) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+}
+
+
+
+@SCJAllowed(members=true)
+class HashSet {
+
+    public List values() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void add(Object craft) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public Object get(Object voxel) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

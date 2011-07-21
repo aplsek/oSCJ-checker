@@ -8,7 +8,6 @@ import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.THIS;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
 
-import java.util.List;
 
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
@@ -288,4 +287,9 @@ public class MiniCDx {
         public int length;
     }
 
+
+    @SCJAllowed(members=true)
+    public static class List {
+    }
+    
 }
