@@ -37,6 +37,7 @@ import checkers.SCJVisitor;
 import checkers.Utils;
 import checkers.source.SourceChecker;
 import checkers.types.AnnotatedTypeFactory;
+import checkers.types.AnnotatedTypeMirror;
 import checkers.types.AnnotatedTypeMirror.AnnotatedDeclaredType;
 import checkers.types.AnnotatedTypes;
 import checkers.util.TreeUtils;
@@ -282,15 +283,16 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
             return super.visitMethodInvocation(node, p);
         }
 
-        checkSCJInternalCall(m, node);
 
-        if (!isSCJInternal(m, node)) {
+        if (isSCJInfrastructure(m)) {
+            checkSCJInfrastructureCall(m, node);
+        } else {
             if (topLevel().equals(SUPPORT)) {
                 if (scjAllowedLevel(m, node).equals(SUPPORT)) {
                     fail(ERR_BAD_SUPPORT_METHOD_CALL, node, topLevel());
                 } else if (!topLevel().equals(scjAllowedLevel(m, node))) {
                     if (Utils.isUserLevel(m)) {
-                        // TODO:
+                        // TODO: ??
                         // fail(ERR_BAD_METHOD_CALL, node, topLevel());
                     }
                 }
@@ -307,11 +309,24 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     public R visitNewClass(NewClassTree node, P p) {
 
         ExecutableElement ctor = TreeUtils.elementFromUse(node);
+        TypeElement t = Utils.getMethodClass(ctor);
 
         if (isEscaped(ctor.getEnclosingElement().toString()))
             return super.visitNewClass(node, p);
 
-        if (scjAllowedLevel(ctor, node).compareTo(topLevel()) > 0) {
+        Level level = null;
+
+        AnnotatedTypeMirror ctorType = atf.getAnnotatedType(node);
+        if (isAnonymousType(ctorType)) {
+            AnnotatedDeclaredType adt = (AnnotatedDeclaredType) ctorType;
+            for (AnnotatedDeclaredType adts : adt.directSuperTypes()) {
+                level = Utils.getSCJAllowedLevel(adts.getUnderlyingType().asElement());
+            }
+        } else
+            level = scjAllowedLevel(ctor, node);
+
+
+        if (level.compareTo(topLevel()) > 0) {
             fail(ERR_BAD_NEW_CALL, node, topLevel());
         }
 
@@ -505,7 +520,7 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
     /**
      * @return - true if element is INFRASTRUCTURE
      */
-    private boolean isSCJInternal(Element e, Tree node) {
+    private boolean isSCJInfrastructure(Element e) {
         return Utils.getSCJAllowedLevel(e) == INFRASTRUCTURE;
     }
 
@@ -513,12 +528,13 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
         return Utils.getSCJAllowedLevel(e) == SUPPORT;
     }
 
-    private boolean checkSCJInternalCall(ExecutableElement m, Tree node) {
-        boolean isValid = !(isSCJInternal(m, node) && !Utils.isUserLevel(m));
-
-        if (!isValid)
-            fail(ERR_BAD_INFRASTRUCTURE_CALL, node);
-        return isValid;
+    private void checkSCJInfrastructureCall(ExecutableElement m, Tree node) {
+        MethodTree enclosingMethod = TreeUtils.enclosingMethod(getCurrentPath());
+        ExecutableElement encM = TreeUtils.elementFromDeclaration(enclosingMethod);
+        if (isSCJInfrastructure(m))
+            if (Utils.isUserLevel(encM)) {
+                fail(ERR_BAD_INFRASTRUCTURE_CALL, node);
+            }
     }
 
     /**

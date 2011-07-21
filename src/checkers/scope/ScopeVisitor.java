@@ -633,7 +633,7 @@ public class ScopeVisitor<P> extends SCJVisitor<ScopeInfo, P> {
         for (ExpressionTree arg : node.getArguments())
             argScopes.add(arg.accept(this, p));
 
-        checkNewClass(TreeUtils.elementFromUse(node), argScopes, node);
+        checkNewClass(ctorElement, argScopes, node);
 
         checkUpcast(node);
 

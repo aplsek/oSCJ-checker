@@ -9,6 +9,8 @@ import checkers.scope.ScopeInfo;
 import checkers.source.Result;
 import checkers.source.SourceChecker;
 import checkers.source.SourceVisitor;
+import checkers.types.AnnotatedTypeMirror;
+import checkers.util.TypesUtils;
 
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
@@ -161,6 +163,17 @@ public class SCJVisitor<R, P> extends SourceVisitor<R, P> {
     public boolean isSameType(TypeMirror t, TypeMirror sup) {
         return types.isSameType(types.erasure(t), types.erasure(runnable));
 
+    }
+
+
+    /**
+     * Determines if the type is for an anonymous type or not
+     *
+     * @param type  type to be checked
+     * @return  true iff type is an anonymous type
+     */
+    public boolean isAnonymousType(AnnotatedTypeMirror type) {
+        return TypesUtils.isAnonymousType(type.getUnderlyingType());
     }
 
     // DEBUG:

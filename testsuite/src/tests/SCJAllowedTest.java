@@ -14,6 +14,7 @@ public class SCJAllowedTest extends ParameterizedCheckerTest {
     @Parameters
     public static Collection<Object[]> data() {
         Collection<Object[]> tests = testFiles("scjAllowed/simple");
+        tests.addAll(testFiles("javax/safetycritical"));
         return tests;
     }
 }
