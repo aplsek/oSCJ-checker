@@ -58,9 +58,11 @@
     </javac>
   </target>
 
+  <!--
   <uptodate property="spec.uptodate" targetfile="localbin/jdk.jar">
     <srcfiles dir="spec" includes="**/*.java"/>
   </uptodate>
+  -->
 
   <target name="jdk-jar" depends="compile-jdk-spec" unless="spec.uptodate">
     <mkdir dir="build/jdk"/>
@@ -75,11 +77,13 @@
     <jar destfile="localbin/jdk.jar" basedir="build/jdk_out"/>
   </target>
 
+  
   <property name="abs.file" value=""/>
   <uptodate property="abs.file.uptodate" srcfile="${abs.file}">
     <globmapper from="${basedir}/build/spec/*" to="${basedir}/build/jdk_out/*" />
   </uptodate>
-
+  
+  
   <target name="annotate-jdk-class">
     <!-- Path in the jar file -->
     <pathconvert property="rel.file">
@@ -602,6 +606,8 @@
   </target>
 
 
+  
+  
   <target name="tests" depends="jar,compile-tests,
     				clean-reports,
    				    scjallowed-test,
@@ -616,26 +622,8 @@
     				noScopeCheckerTest"		
     		    description="Run tests for all checkers">
   </target>
-  
-  <target name="spec" depends="jar,compile-tests,
-     				clean-reports,
-    				    scjallowed-test,
-  					scjallowed-noLevel,
-       				scjrestricted-test,
-    					sanity-test,
-     				defineScope-test,
-     				scopeRunsIn-test,
-     				schedulable-test,
-     				scope-test,
-                     all-sanity-test,
-     				noScopeCheckerTest"		
-     		    description="Run tests for all checkers">
-    <property name="scj.classpath" value="lib/spec/scj.jar"/>
-   </target>
-  
-  
 
-  <target name="clean-reports" depends="jar,compile-tests"
+  <target name="clean-reports"
    		    description="Delete the reports/ dir.">
     <delete includeemptydirs="true">
         <fileset dir="${build.reports}" defaultexcludes="false">
