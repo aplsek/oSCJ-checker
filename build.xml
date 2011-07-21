@@ -21,7 +21,8 @@
   <property name="build.reports" value="reports"/>
   <property name="run.tests.should.fork" value="true"/>
   <property name="halt.on.test.failure" value="false"/>
-
+  <property name="halt.on.test.error" value="false"/>
+  
   <target name="all" depends="jar"/>
 
   <target name="clean">
@@ -161,8 +162,9 @@
 
     <junit fork="${run.tests.should.fork}"
     		       dir="${basedir}"
-    		       printsummary="true"
-    		       haltonfailure="${halt.on.test.failure}">
+    		       printsummary="false"
+    		       haltonfailure="${halt.on.test.failure}"
+      			haltonerror = "${halt.on.test.error}">
       <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}:"/>
       <jvmarg line="-ea"/>
      
@@ -173,8 +175,8 @@
         <pathelement path="testsuite/build"/>
       </classpath>
 
-      <formatter type="xml"/>
-      <formatter type="brief" usefile="false"/>
+       <formatter type="xml"/>
+       <formatter type="brief" usefile="false"/> 
 
       <batchtest todir="${build.reports}">
         <fileset dir="testsuite/src/">
@@ -201,8 +203,10 @@
 
       <junit fork="${run.tests.should.fork}"
       		       dir="${basedir}"
-      		       printsummary="true"
-      		       haltonfailure="${halt.on.test.failure}">
+      		       printsummary="false"
+      		       haltonfailure="${halt.on.test.failure}"
+       			   haltonerror = "${halt.on.test.error}"
+        		>
         <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
         <jvmarg line="-ea"/>
 
@@ -232,6 +236,7 @@
         </fileset>
         <report todir="${build.reports}/html" />
       </junitreport>
+    	
     </target>
 
 
@@ -243,8 +248,10 @@
 
     <junit fork="${run.tests.should.fork}"
     		       dir="${basedir}"
-    		       printsummary="true"
-    		       haltonfailure="${halt.on.test.failure}">
+    		       printsummary="false"
+    		       haltonfailure="${halt.on.test.failure}"
+      haltonerror = "${halt.on.test.error}"
+      >
       <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
       <jvmarg line="-ea"/>
 
@@ -284,7 +291,8 @@
      <junit fork="${run.tests.should.fork}"
      		       dir="${basedir}"
      		       printsummary="true"
-     		       haltonfailure="${halt.on.test.failure}">
+     		       haltonfailure="${halt.on.test.failure}"
+       haltonerror = "${halt.on.test.error}">
        <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
        <jvmarg line="-ea"/>
 
@@ -324,8 +332,9 @@
 
       <junit fork="${run.tests.should.fork}"
       		       dir="${basedir}"
-      		       printsummary="true"
-      		       haltonfailure="${halt.on.test.failure}">
+      		       printsummary="false"
+      		       haltonfailure="${halt.on.test.failure}"
+        		haltonerror = "${halt.on.test.error}">
         <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
         <jvmarg line="-ea"/>
 
@@ -365,7 +374,8 @@
         <junit fork="${run.tests.should.fork}"
         		       dir="${basedir}"
         		       printsummary="true"
-        		       haltonfailure="${halt.on.test.failure}">
+        		       haltonfailure="${halt.on.test.failure}"
+          haltonerror = "${halt.on.test.error}">
           <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
           <jvmarg line="-ea"/>
 
@@ -405,7 +415,8 @@
     <junit fork="${run.tests.should.fork}"
   		       dir="${basedir}"
   		       printsummary="true"
-  		       haltonfailure="${halt.on.test.failure}">
+  		       haltonfailure="${halt.on.test.failure}"
+      haltonerror = "${halt.on.test.error}">
       <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
       <jvmarg line="-ea"/>
 
@@ -447,7 +458,8 @@
     <junit fork="${run.tests.should.fork}"
   		       dir="${basedir}"
   		       printsummary="true"
-  		       haltonfailure="${halt.on.test.failure}">
+  		       haltonfailure="${halt.on.test.failure}"
+      haltonerror = "${halt.on.test.error}">
       <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
       <jvmarg line="-ea"/>
 
@@ -489,7 +501,8 @@
     <junit fork="${run.tests.should.fork}"
   		       dir="${basedir}"
   		       printsummary="true"
-  		       haltonfailure="${halt.on.test.failure}">
+  		       haltonfailure="${halt.on.test.failure}"
+      haltonerror = "${halt.on.test.error}">
       <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
       <jvmarg line="-ea"/>
 
@@ -531,7 +544,8 @@
     <junit fork="${run.tests.should.fork}"
   		       dir="${basedir}"
   		       printsummary="true"
-  		       haltonfailure="${halt.on.test.failure}">
+  		       haltonfailure="${halt.on.test.failure}"
+      haltonerror = "${halt.on.test.error}">
       <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
       <jvmarg line="-ea"/>
 
@@ -573,7 +587,8 @@
     <junit fork="${run.tests.should.fork}"
   		       dir="${basedir}"
   		       printsummary="true"
-  		       haltonfailure="${halt.on.test.failure}">
+  		       haltonfailure="${halt.on.test.failure}"
+      haltonerror = "${halt.on.test.error}">
       <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
       <jvmarg line="-ea"/>
 
@@ -605,21 +620,23 @@
     </junitreport>
   </target>
 
-
+  <target name="start-tests" depends="jar,compile-tests"		
+      		    description="...">
+    </target>
   
   
-  <target name="tests" depends="jar,compile-tests,
+  <target name="tests" depends="jar,compile-tests,start-tests,
     				clean-reports,
-   				    scjallowed-test,
- 					scjallowed-noLevel,
-      				scjrestricted-test,
-   					sanity-test,
-    				defineScope-test,
-    				scopeRunsIn-test,
-    				schedulable-test,
-    				scope-test,
-                    all-sanity-test,
-    				noScopeCheckerTest"		
+   						scjallowed-test,
+     					scjallowed-noLevel,
+          				scjrestricted-test,
+       					sanity-test,
+        				defineScope-test,
+        				scopeRunsIn-test,
+        				schedulable-test,
+        				scope-test,
+                        all-sanity-test,
+        				noScopeCheckerTest"			
     		    description="Run tests for all checkers">
   </target>
 
@@ -640,7 +657,8 @@
     <junit fork="${run.tests.should.fork}"
   		       dir="${basedir}"
   		       printsummary="true"
-  		       haltonfailure="${halt.on.test.failure}">
+  		       haltonfailure="${halt.on.test.failure}"
+      	       haltonerror = "${halt.on.test.error}">
       <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
       <jvmarg line="-ea"/>
 
@@ -686,7 +704,8 @@
     <junit fork="${run.tests.should.fork}"
 		       dir="${basedir}"
 		       printsummary="true"
-		       haltonfailure="${halt.on.test.failure}">
+		       haltonfailure="${halt.on.test.failure}"
+      		haltonerror = "${halt.on.test.error}">
       <jvmarg line="-Xbootclasspath/p:${checker.bootclasspath}"/>
       <jvmarg line="-ea"/>
 
