@@ -2,7 +2,7 @@ package javax.safetycritical;
 
 import javax.safetycritical.annotate.SCJAllowed;
 import static javax.safetycritical.annotate.Level.INFRASTRUCTURE;
-
+import static javax.safetycritical.annotate.Level.SUPPORT;
 
 @SCJAllowed
 public class TestOverride {
@@ -10,25 +10,20 @@ public class TestOverride {
 
     @SCJAllowed
     public static class A extends B {
-        @SCJAllowed
-        public A(Foo f) {
-            //## checkers.scjAllowed.SCJAllowedChecker.ERR_BAD_METHOD_CALL
-            super(f);
-        }
 
-        @SCJAllowed
-        public A(Foo f, Foo ff) {
-            super(f,ff);
+        @SCJAllowed(INFRASTRUCTURE)
+        private void method() {
+
         }
     }
 
     @SCJAllowed
     public static abstract class B {
 
-        protected B(Foo f) {}
+        @SCJAllowed(SUPPORT)
+        private void method() {
 
-        @SCJAllowed(INFRASTRUCTURE)
-        protected B(Foo f, Foo ff) {}
+        }
     }
 
     class Foo {}

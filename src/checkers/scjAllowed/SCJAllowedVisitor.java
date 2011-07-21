@@ -201,30 +201,25 @@ public class SCJAllowedVisitor<R, P> extends SCJVisitor<R, P> {
                             .compareTo(INFRASTRUCTURE) >= 0)
                 fail(ERR_BAD_INFRASTRUCTURE_OVERRIDE, node);
 
-            // SUPPORT needs to be restated
             if (scjAllowedLevel(override, node) == SUPPORT) {
-                if (level != SUPPORT || !isSCJAllowed(m)) {
-                    fail(ERR_BAD_OVERRIDE_SUPPORT, node);
+                if (level != INFRASTRUCTURE) {
+                    if (level != SUPPORT || !isSCJAllowed(m)) {
+                        // SUPPORT needs to be restated
+                        fail(ERR_BAD_OVERRIDE_SUPPORT, node);
+                    }
                 }
             }
 
             if (!isEscaped(override.getEnclosingElement().toString())
                     && level.compareTo(scjAllowedLevel(override, node)) > 0
                     && !level.equals(enclosingLevel)) {
-                if (!(isManagedThread(Utils.getMethodClass(m)) && level
+                if (level == INFRASTRUCTURE && scjAllowedLevel(override, node) == SUPPORT) {
+                    // a SUPPORT method may be overriden to INFRASTRUCTURE
+                    continue;
+                } else if (!(isManagedThread(Utils.getMethodClass(m)) && level
                         .equals(SUPPORT)))
                     fail(ERR_BAD_OVERRIDE, node);
             }
-
-            // pln("\n method:" + m);
-            // pln("Override:" + override.getEnclosingElement() + "." +
-            // override);
-            // pln("level: " + level);
-            // pln("level.compareTo(scjAllowedLevel(override, node)) :" +
-            // level.compareTo(scjAllowedLevel(override, node)));
-            // pln("enclosing level : " + enclosingLevel );
-            // pln("over-level: " + scjAllowedLevel(override, node));
-
         }
 
         scjAllowedStack.push(level);

@@ -237,6 +237,8 @@ public final class Utils {
 
     public static final String JAVAX_REALTIME = "javax.realtime";
     public static final String JAVAX_SAFETYCRITICAL = "javax.safetycritical";
+    public static final String JAVA_LANG = "java.lang";
+    public static final String JAVA_UTIL = "java.util";
 
     /**
      * Given a declaration, see if it's user level code.
@@ -255,15 +257,21 @@ public final class Utils {
         }
         TypeElement t = (TypeElement) e;
         String name = t.getQualifiedName().toString();
-        return !(name.startsWith(JAVAX_REALTIME) || name
-                .startsWith(JAVAX_SAFETYCRITICAL));
+        return !(name.startsWith(JAVAX_REALTIME)
+                || name.startsWith(JAVAX_SAFETYCRITICAL)
+                || name.startsWith(JAVA_LANG)
+                || name.startsWith(JAVA_UTIL)
+                );
     }
 
     public static boolean isUserLevel(String name) {
         if (name == null)
             return true;
         return !(name.startsWith(JAVAX_REALTIME) || name
-                .startsWith(JAVAX_SAFETYCRITICAL));
+                .startsWith(JAVAX_SAFETYCRITICAL)
+                 || name.startsWith(JAVA_LANG)
+                 || name.startsWith(JAVA_UTIL)
+                );
     }
 
     public static boolean isUserLevel(Level l) {

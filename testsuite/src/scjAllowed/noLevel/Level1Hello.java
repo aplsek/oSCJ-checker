@@ -5,7 +5,6 @@ import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-import java.util.Arrays;
 
 import javax.realtime.Clock;
 import javax.realtime.PeriodicParameters;
@@ -93,20 +92,10 @@ public class Level1Hello implements Safelet {
                     new StorageParameters(1000L, null, 1000, 1000));
         }
 
-        int pos = 0;
-        long[] times = new long[1000];
-        long median;
-
         @Override
         @RunsIn("PEH")
         @SCJAllowed(SUPPORT)
         public void handleAsyncEvent() {
-            times[pos++] = Clock.getRealtimeClock().getTime().getMilliseconds();
-            long[] mytimes = new long[1000];
-            for (int i = 0; i < 1000; i++)
-                mytimes[i] = times[i];
-            Arrays.sort(mytimes);
-            median = mytimes[500];
         }
 
         @Override
@@ -123,7 +112,6 @@ public class Level1Hello implements Safelet {
     @Override
     @SCJAllowed(SUPPORT)
     public long immortalMemorySize() {
-        // TODO Auto-generated method stub
         return 0;
     }
 }

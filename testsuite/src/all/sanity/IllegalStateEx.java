@@ -5,8 +5,6 @@ import static javax.safetycritical.annotate.Phase.CLEANUP;
 import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
-import java.util.Arrays;
-
 import javax.realtime.MemoryArea;
 import javax.realtime.PeriodicParameters;
 import javax.realtime.PriorityParameters;
