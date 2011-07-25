@@ -53,7 +53,7 @@ class MobileInterruptHandler extends InterruptServiceRoutine {
 
   @Override
   @RunsIn("TM.A.H.0")
-  @SCJAllowed(SUPPORT)
+  //@SCJAllowed(SUPPORT)
   public final void handle() {
     // this interrupt means the previously issued security operation
     // has completed its execution.

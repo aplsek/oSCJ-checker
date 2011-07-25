@@ -22,6 +22,7 @@
 package railsegment;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.THIS;
@@ -29,6 +30,7 @@ import static javax.safetycritical.annotate.Scope.THIS;
 import javax.safetycritical.Services;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 
@@ -70,6 +72,7 @@ public class CypherQueue {
     }
 
     @RunsIn(THIS)
+    @SCJRestricted(INITIALIZATION)
     synchronized void initialize() {
       Services.setCeiling(this, INTERRUPT_PRIORITY);
     }
@@ -293,6 +296,7 @@ public class CypherQueue {
   private final int CEILING_PRIORITY;
   private final HardwareCoordination hardware;
 
+  @SCJRestricted(INITIALIZATION)
   CypherQueue(int ceiling) {
     CEILING_PRIORITY = ceiling;
 
@@ -301,6 +305,7 @@ public class CypherQueue {
   }
 
   @RunsIn(CALLER)
+  @SCJRestricted(INITIALIZATION)
   final void initialize() {
     // Note: the annotation checker does not like the following line
     // because the setCeiling() method has the implicit @RunsIn(THIS)

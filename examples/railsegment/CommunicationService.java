@@ -24,12 +24,14 @@ package railsegment;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.safetycritical.Mission;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 /**
@@ -84,7 +86,7 @@ public class CommunicationService extends Mission
   }
 
   @Override
-  @SCJAllowed
+  @SCJAllowed(SUPPORT)
   public final long missionMemorySize()
   {
     // This must be large enough to hold each of the four submissions,
@@ -95,6 +97,7 @@ public class CommunicationService extends Mission
 
   @Override
   @SCJAllowed(SUPPORT)
+  @SCJRestricted(INITIALIZATION)
   public void initialize()
   {
     cypherq = new CypherQueue(COMMS_DRIVER_PRIORITY);

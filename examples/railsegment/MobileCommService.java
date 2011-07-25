@@ -23,6 +23,7 @@ package railsegment;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 
 import javax.safetycritical.Mission;
@@ -30,6 +31,7 @@ import javax.safetycritical.Services;
 import javax.safetycritical.annotate.DefineScope;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 @Scope("TM.A.H")
@@ -59,7 +61,7 @@ public class MobileCommService extends Mission
   }
 
   @Override
-  @SCJAllowed
+  @SCJAllowed(SUPPORT)
   public final long missionMemorySize()
   {
     // must be large enough to represent the three Schedulables
@@ -69,6 +71,7 @@ public class MobileCommService extends Mission
 
   @Override
   @SCJAllowed(SUPPORT)
+  @SCJRestricted(INITIALIZATION)
   public void initialize()
   {
     // assume I'll provide shared variables for coordination between

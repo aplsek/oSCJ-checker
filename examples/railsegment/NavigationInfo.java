@@ -22,6 +22,7 @@
 package railsegment;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 import static javax.safetycritical.annotate.Scope.UNKNOWN;
@@ -30,6 +31,7 @@ import javax.realtime.AbsoluteTime;
 import javax.safetycritical.Services;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 import railsegment.clock.TrainClock;
@@ -76,6 +78,7 @@ public class NavigationInfo {
     time2_argument = new AbsoluteTime(0L, 0, train_clock);
   }
 
+  @SCJRestricted(INITIALIZATION)
   void initialize() {
     Services.setCeiling(this, CEILING_PRIORITY);
   }

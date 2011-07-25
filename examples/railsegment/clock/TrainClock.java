@@ -63,7 +63,7 @@ public class TrainClock extends Clock {
   @RunsIn(THIS)
   // Not allowed to override
   @SCJAllowed
-  @SCJRestricted(maySelfSuspend=false)
+  @SCJRestricted(maySelfSuspend = false, mayAllocate = false)
   public AbsoluteTime getTime() {
     return null;
   }
@@ -151,12 +151,15 @@ public class TrainClock extends Clock {
     }
   }
   
-  @Override
-  @RunsIn(THIS)
-  final protected void setResolution(javax.realtime.RelativeTime resolution) {
-    // todo: preallocate exception, maybe change which exception is thrown.
-    throw new IllegalStateException();
-  }
+  //  TODO: this method is not supported by SCJ: Commented out by Martin Schoeberl
+  //
+  //
+  //@Override
+  //@RunsIn(THIS)
+  //final protected void setResolution(javax.realtime.RelativeTime resolution) {
+  //  // todo: preallocate exception, maybe change which exception is thrown.
+  //  throw new IllegalStateException();
+  //}
   
   @Override
   @RunsIn(THIS)

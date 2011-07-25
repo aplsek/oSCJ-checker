@@ -23,12 +23,14 @@ package railsegment;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
 import static javax.safetycritical.annotate.Level.SUPPORT;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.Services;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 // Each CommunicationsQueue instantiation is serviced by either a
@@ -243,7 +245,7 @@ public class CommunicationsQueue
   // TODO: review code.  make sure that the synchronized methods are
   // only invoked by the control thread and the communications control
   // server thread or communications timer thread.  Is it ok to allow both?
-
+  @SCJRestricted(INITIALIZATION)
   CommunicationsQueue(int num_buffers, int buffer_length, int ceiling_priority)
   {
     smc = new SubmissionCoordination();
@@ -283,6 +285,7 @@ public class CommunicationsQueue
   }
 
   @RunsIn(CALLER)
+  @SCJRestricted(INITIALIZATION)
   void initialize() {
     // Note: the annotation checker does not like the following line
     // because the setCeiling() method has the implicit @RunsIn(THIS)

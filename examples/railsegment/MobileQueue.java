@@ -22,12 +22,14 @@
 package railsegment;
 
 import static javax.safetycritical.annotate.Level.LEVEL_2;
+import static javax.safetycritical.annotate.Phase.INITIALIZATION;
 import static javax.safetycritical.annotate.Scope.CALLER;
 import static javax.safetycritical.annotate.Scope.IMMORTAL;
 
 import javax.safetycritical.Services;
 import javax.safetycritical.annotate.RunsIn;
 import javax.safetycritical.annotate.SCJAllowed;
+import javax.safetycritical.annotate.SCJRestricted;
 import javax.safetycritical.annotate.Scope;
 
 // This assumes there is at most one client for NavigationInfo, and
@@ -64,6 +66,7 @@ public class MobileQueue {
     pending_request = RequestEncoding.NoRequest;
   }
 
+  @SCJRestricted(INITIALIZATION)
   void initialize() {
     Services.setCeiling(this, CEILING_PRIORITY);
   }
