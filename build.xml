@@ -4,7 +4,6 @@
       <pathelement location="lib/ant-contrib-1.0b3.jar"/>
     </classpath>
   </taskdef>
-  <property file="build.properties"/>
   <property name="checker.classpath" value="localbin/jsr308-all.jar"/>
   <property name="annotated.jdk.classpath" value="localbin/jdk.jar"/>
   <property name="annotations.classpath" value="localbin/annotation-file-utilities.jar"/>
@@ -20,8 +19,8 @@
 
   <property name="build.reports" value="reports"/>
   <property name="run.tests.should.fork" value="true"/>
-  <property name="halt.on.test.failure" value="false"/>
-  <property name="halt.on.test.error" value="false"/>
+  <property name="halt.on.test.failure" value="true"/>
+  <property name="halt.on.test.error" value="true"/>
   
   <target name="all" depends="jar"/>
 
@@ -65,7 +64,7 @@
   </uptodate>
   -->
 
-  <target name="jdk-jar" depends="compile-jdk-spec" unless="spec.uptodate">
+  <target name="jdk-jar" depends="compile-jdk-spec">
     <mkdir dir="build/jdk"/>
     <mkdir dir="build/jdk_out"/>
     <foreach target="annotate-jdk-class" param="abs.file">
@@ -80,6 +79,7 @@
 
   
   <property name="abs.file" value=""/>
+  
   <uptodate property="abs.file.uptodate" srcfile="${abs.file}">
     <globmapper from="${basedir}/build/spec/*" to="${basedir}/build/jdk_out/*" />
   </uptodate>
@@ -147,10 +147,10 @@
 	           includeAntRuntime="yes" debuglevel="lines,vars,source">
       <classpath>
         <pathelement path="${junit.classpath}"/>
-        <pathelement path="${scj.classpath}"/>
+       <!--  <pathelement path="${scj.classpath}"/>-->
         <pathelement path="${scj.checker.classpath}"/>
       </classpath>
-      <compilerarg value="-Xbootclasspath/p:${checker.bootclasspath}"/>
+     <!--  <compilerarg value="-Xbootclasspath/p:${checker.bootclasspath}"/>-->
       <include name="tests/*.java"/>
     </javac>
   </target>
